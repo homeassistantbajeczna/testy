@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Obligacji Skarbowych</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        .form-section, .result-section {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result-section {
+            display: none;
+        }
+        .charts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .chart-container {
+            flex: 1 1 300px;
+            max-width: 400px;
+            text-align: center;
+        }
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        @media (max-width: 600px) {
+            .charts {
+                flex-direction: column;
+                align-items: center;
+            }
+            table {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kalkulator Obligacji Skarbowych</h1>
+        
+        <div class="form-section" id="formSection">
+            <div class="form-group">
+                <label for="kwota">Kwota inwestycji (PLN):</label>
+                <input type="number" id="kwota" min="100" step="100" value="1000">
+            </div>
+            <div class="form-group">
+                <label for="typObligacji">Typ obligacji:</label>
+                <select id="typObligacji">
+                    <option value="OTS">3-miesięczne (OTS)</option>
+                    <option value="ROR">1-roczne (ROR)</option>
+                    <option value="TOS">3-letnie (TOS)</option>
+                </select>
+            </div>
+            <button id="obliczBtn">Oblicz</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <h2 id="resultHeader"></h2>
+            <div class="charts">
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Okres</th>
+                        <th>Wartość</th>
+                        <th>Odsetki</th>
+                        <th>Zysk netto</th>
+                    </tr>
+                </thead>
+                <tbody id="harmonogramTabela"></tbody>
+            </table>
+            <button id="powrotBtn">Powrót</button>
+        </div>
+    </div>
+
+    <script>
+        const elements = {
+            kwota: document.getElementById("kwota"),
+            typObligacji: document.getElementById("typObligacji"),
+            obliczBtn: document.getElementById("obliczBtn"),
+            formSection: document.getElementById("formSection"),
+            resultSection: document.getElementById("resultSection"),
+            resultHeader: document.getElementById("resultHeader"),
+            pieChart: document.getElementById("pieChart"),
+            lineChart: document.getElementById("lineChart"),
+            harmonogramTabela: document.getElementById("harmonogramTabela"),
+            powrotBtn: document.getElementById("powrotBtn")
+        };
+
+        const config = {
+            OTS: { okres: 3, oprocentowanie: 3.00, jednostka: "miesiąc" },
+            ROR: { okres: 12, oprocentowanie: 5.25, jednostka: "miesiąc" },
+            TOS: { okres: 36, oprocentowanie: 5.85, jednostka: "rok" }
+        };
+
+        let pieChartInstance = null;
+        let lineChartInstance = null;
+
+        elements.obliczBtn.addEventListener("click", oblicz);
+        elements.powrotBtn.addEventListener("click", () => {
+            elements.formSection.style.display = "block";
+            elements.resultSection.style.display = "none";
+            if (pieChartInstance) pieChartInstance.destroy();
+            if (lineChartInstance) lineChartInstance.destroy();
+        });
+
+        function oblicz() {
+            const kwota = parseFloat(elements.kwota.value) || 0;
+            const typ = elements.typObligacji.value;
+            const { okres, oprocentowanie, jednostka } = config[typ];
+
+            if (kwota < 100) {
+                alert("Kwota musi być co najmniej 100 zł.");
+                return;
+            }
+
+            elements.resultHeader.textContent = `Wynik dla ${typ} (${okres} ${jednostka}${okres > 1 ? "e" : ""})`;
+
+            const odsetki = kwota * (oprocentowanie / 100) * (jednostka === "rok" ? okres / 12 : okres / 12);
+            const zyskNetto = odsetki * (1 - 0.19); // 19% podatek Belki
+            const podatek = odsetki * 0.19;
+
+            // Wykres kołowy
+            if (pieChartInstance) pieChartInstance.destroy();
+            pieChartInstance = new Chart(elements.pieChart.getContext("2d"), {
+                type: "doughnut",
+                data: {
+                    labels: ["Kapitał", "Odsetki", "Podatek"],
+                    datasets: [{
+                        data: [kwota, odsetki, podatek],
+                        backgroundColor: ["#28a745", "#007bff", "#dc3545"]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Wykres liniowy
+            if (lineChartInstance) lineChartInstance.destroy();
+            const labels = jednostka === "miesiąc" ? 
+                Array.from({ length: okres }, (_, i) => `Miesiąc ${i + 1}`) : 
+                Array.from({ length: okres / 12 }, (_, i) => `Rok ${i + 1}`);
+            const data = labels.map((_, i) => kwota + (odsetki / labels.length) * (i + 1));
+            lineChartInstance = new Chart(elements.lineChart.getContext("2d"), {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Wartość",
+                        data: data,
+                        borderColor: "#007bff",
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+            // Tabela
+            elements.harmonogramTabela.innerHTML = "";
+            const krok = jednostka === "miesiąc" ? 1 : 12;
+            for (let i = 0; i < okres; i += krok) {
+                const wartosc = kwota + (odsetki / (okres / krok)) * ((i / krok) + 1);
+                const odsetkiKrok = odsetki / (okres / krok);
+                const zyskKrok = odsetkiKrok * (1 - 0.19);
+                elements.harmonogramTabela.innerHTML += `
+                    <tr>
+                        <td>${jednostka === "miesiąc" ? `Miesiąc ${i + 1}` : `Rok ${(i / 12) + 1}`}</td>
+                        <td>${wartosc.toFixed(2)} zł</td>
+                        <td>${odsetkiKrok.toFixed(2)} zł</td>
+                        <td>${zyskKrok.toFixed(2)} zł</td>
+                    </tr>
+                `;
+            }
+
+            elements.formSection.style.display = "none";
+            elements.resultSection.style.display = "block";
+        }
+    </script>
+</body>
+</html>
