@@ -1345,7 +1345,7 @@
         state.harmonogramData.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td${row.changeApplied ? ' style="color: #ff0000;"' : ''}>${row.okres}</td>
+                <td>${row.okres}${row.changeApplied ? '*' : ''}</td>
                 <td>${row.wartoscInwestycji.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
                 <td>${row.oprocentowanieNaCykl}</td>
                 <td>${row.odsetkiBrutto.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
@@ -1372,16 +1372,16 @@
                     {
                         label: 'Wartość inwestycji',
                         data: wartosciInwestycji,
-                        borderColor: '#007bff',
-                        backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                        borderColor: '#C2B280',
+                        backgroundColor: 'rgba(194, 178, 128, 0.2)',
                         fill: true,
                         tension: 0.1
                     },
                     {
                         label: state.isIkeIkzeMode ? 'Zysk' : 'Zysk netto',
                         data: zyskiNetto,
-                        borderColor: '#28a745',
-                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.2)',
                         fill: true,
                         tension: 0.1
                     }
@@ -1408,8 +1408,8 @@
         });
 
         const harmonogramOpisText = state.isIkeIkzeMode ?
-            "***Zwolnienie z podatku Belki w ramach IKE/IKZE zostanie zastosowane wyłącznie w przypadku dotrzymania warunków ustawowych, w szczególności nieprzekroczenia rocznych limitów wpłat oraz niepodejmowania wypłaty środków przed osiągnięciem wieku emerytalnego." :
-            "";
+            "*Zwolnienie z podatku belki w ramach IKE/IKZE zostanie zastosowane wyłącznie w przypadku dotrzymania warunków ustawowych, w szczególności nieprzekroczenia rocznych limitów wpłat oraz niepodejmowania wypłaty środków przed osiągnięciem wieku emerytalnego." :
+            "*Podane wartości mają charakter szacunkowy i mogą ulec zmianie w zależności od rzeczywistej stopy referencyjnej NBP lub inflacji w danym okresie.";
         document.getElementById("harmonogramOpis").textContent = harmonogramOpisText;
 
         elements.formSection.style.display = "none";
@@ -1441,7 +1441,7 @@
                 { text: 'Suma netto', style: 'tableHeader' }
             ],
             ...state.harmonogramData.map(row => [
-                row.okres,
+                `${row.okres}${row.changeApplied ? '*' : ''}`,
                 `${row.wartoscInwestycji.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
                 row.oprocentowanieNaCykl,
                 `${row.odsetkiBrutto.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
@@ -1546,7 +1546,6 @@
     function applyZoom() {
         container.style.transform = `scale(${scale})`;
         container.style.transformOrigin = 'top center'; // Skalowanie od góry środka
-        // Dostosowanie wysokości strony, aby uniknąć obcięcia zawartości
         container.style.marginBottom = `${(scale - 1) * container.offsetHeight}px`;
     }
 
