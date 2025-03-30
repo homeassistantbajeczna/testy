@@ -1131,7 +1131,6 @@
 
 
 
-
 <script>
     if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
         pdfMake.fonts = {
@@ -1528,6 +1527,12 @@
 
         // Generowanie PDF-a z logo
         getBase64ImageFromUrl('cropped-logo-FB-1.png').then(logoBase64 => {
+            const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
+            const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
+            const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
+            const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
+            const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
+
             const docDefinition = {
                 pageSize: 'A4',
                 pageMargins: [20, 60, 20, 20],
@@ -1569,12 +1574,8 @@
                         },
                         margin: [0, 10, 0, 10]
                     },
-                    state.isIkeIkzeMode ? { 
-                        text: "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE.", 
-                        style: 'footerNote', 
-                        margin: [0, 5, 0, 10] 
-                    } : { 
-                        text: "\n** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.", 
+                    { 
+                        text: footerNoteText, 
                         style: 'footerNote', 
                         margin: [0, 5, 0, 10] 
                     },
