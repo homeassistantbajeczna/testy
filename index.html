@@ -8,16 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
-    <script>
-        pdfMake.fonts = {
-            Roboto: {
-                normal: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
-                bold: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc4AMP6lQ.woff2',
-                italics: 'https://fonts.gstatic.com/s/roboto/v30/KFOkCnqEu92Fr1Mu51xIIzIXKMny.woff2',
-                bolditalics: 'https://fonts.gstatic.com/s/roboto/v30/KFOjCnqEu92Fr1MmWUlfBBc4AMP6lQ.woff2'
-            }
-        };
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -26,15 +16,15 @@
         background-color: #f5f6f5;
         font-family: 'Montserrat', sans-serif;
         padding: 10px;
+        transition: transform 0.2s ease;
+        transform-origin: top center;
     }
     .logo-container {
         background-color: #e9ecef;
         padding: 15px;
         text-align: center;
         margin-bottom: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        position: relative;
     }
     .logo {
         max-width: 200px;
@@ -42,26 +32,25 @@
         cursor: pointer;
     }
     .zoom-controls {
+        position: absolute;
+        right: 150px;
+        top: 50%;
+        transform: translateY(-50%);
         display: flex;
         gap: 10px;
     }
-    .zoom-controls button {
-        width: 30px;
-        height: 30px;
-        font-size: 18px;
-        line-height: 30px;
-        text-align: center;
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
+    .zoom-btn {
+        background: linear-gradient(135deg, #C2B280, #b0a070);
+        border: none;
+        color: #000;
+        padding: 6px 12px;
+        border-radius: 20px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
-    .zoom-controls button:hover {
-        background-color: #ddd;
-    }
-    .zoom-controls button:active {
-        background-color: #bbb;
+    .zoom-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     .container {
         max-width: 1200px;
@@ -71,6 +60,192 @@
         border-radius: 10px;
         box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
+    /* Reszta stylów zostanie podzielona na kolejne części */
+</style>
+<div class="logo-container">
+    <a href="https://finance-brothers.pl">
+        <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+    </a>
+    <div class="zoom-controls">
+        <button class="zoom-btn" id="zoomInBtn">+</button>
+        <button class="zoom-btn" id="zoomOutBtn">-</button>
+    </div>
+</div>
+<div class="container">
+    <!-- Reszta HTML w kolejnej części -->
+</div>
+<div class="container">
+    <div class="form-section" id="formSection">
+        <div class="header-row">
+            <h4>Kalkulator Obligacji Skarbu Państwa</h4>
+            <label class="checkbox-label header-checkbox" for="ikeIkzeBtn">
+                <input type="checkbox" id="ikeIkzeBtn">
+                <span class="checkbox-custom"></span>
+                <b>Inwestycje w IKE lub IKZE</b>
+            </label>
+        </div>
+        <div class="form-container">
+            <div class="form-wrapper">
+                <form id="obligacjeForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="kwota" class="form-label">Kwota inwestycji</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="kwota" min="100" max="5000000" step="100" value="10000">
+                                <span class="input-group-text">zł</span>
+                            </div>
+                            <input type="range" class="form-range" id="kwotaRange" min="100" max="5000000" step="100" value="10000">
+                            <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="typObligacji" class="form-label">Typ obligacji*</label>
+                            <select class="form-control" id="typObligacji">
+                                <option value="OTS" selected>3-miesięczne (OTS)</option>
+                                <option value="ROR">12-miesięczne (ROR)</option>
+                                <option value="DOR">24-miesięczne (DOR)</option>
+                                <option value="TOS">3-letnie (TOS)</option>
+                                <option value="COI">4-letnie (COI)</option>
+                                <option value="EDO">10-letnie (EDO)</option>
+                                <option value="ROS">6-letnie (ROS)</option>
+                                <option value="ROD">12-letnie (ROD)</option>
+                            </select>
+                            <div class="sub-info"></div>
+                        </div>
+                        <div class="form-group" id="dynamicRateGroup" style="display: none;">
+                            <label for="dynamicRate" class="form-label" id="dynamicRateLabel">Stopa Ref. NBP</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="dynamicRate" min="0" max="50" step="0.05" value="4.90">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <input type="range" class="form-range" id="dynamicRateRange" min="0" max="50" step="0.05" value="4.90">
+                            <div class="sub-info"></div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="okres" class="form-label">Okres inwestycji</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="okres" min="3" max="144" step="1" value="3" readonly>
+                                <span class="input-group-text">mc-y</span>
+                            </div>
+                            <div class="sub-info" id="lata"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="3" readonly>
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <div class="sub-info" id="oprocentowanieInfo"></div>
+                        </div>
+                    </div>
+                    <div class="variable-rate-container">
+                        <div class="checkbox-row" id="variableCheckboxRow">
+                            <label class="checkbox-label" id="inflacjaZmiennaLabel" for="inflacjaZmiennaBtn" style="display: none;">
+                                <input type="checkbox" id="inflacjaZmiennaBtn">
+                                <span class="checkbox-custom"></span>
+                                <b>Zmienna Inflacja</b>
+                            </label>
+                            <label class="checkbox-label" id="stopaZmiennaLabel" for="stopaZmiennaBtn" style="display: none;">
+                                <input type="checkbox" id="stopaZmiennaBtn">
+                                <span class="checkbox-custom"></span>
+                                <b>Zmienna Stopa Ref. NBP</b>
+                            </label>
+                        </div>
+                        <div class="variable-inputs" id="variableInputs" style="display: none;">
+                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejne</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="button" class="btn btn-primary" id="obliczBtn" style="margin: 25px auto 0;" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="opis-container">
+            <div class="obligacje-opis" id="obligacjeOpis"></div>
+        </div>
+        <div class="data-container">
+            <div class="data-info"><strong>Dane z dnia:</strong> <span class="data-date"><strong>01.03.2025r.</strong></span></div>
+        </div>
+    </div>
+    <div class="result-section" id="resultSection">
+        <div class="result-header">
+            <h4 id="resultHeader">Podsumowanie wyników</h4>
+            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
+        </div>
+        <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
+        <div class="result-container">
+            <div class="result-wrapper-chart">
+                <div class="chart-container">
+                    <div class="chart">
+                        <canvas id="obligacjeChart" aria-label="Wykres kołowy wyników inwestycji"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item" data-index="0">
+                            <div class="color-box" style="background-color: #28a745;" data-tooltip="">
+                                <span class="value" id="valueKapital">-</span>
+                            </div>
+                            <span class="legend-text" id="legendKapital">Kapitał</span>
+                        </div>
+                        <div class="legend-item" data-index="1">
+                            <div class="color-box" style="background-color: #007bff;" data-tooltip="">
+                                <span class="value" id="valueOdsetki">-</span>
+                            </div>
+                            <span class="legend-text" id="legendOdsetki">Odsetki</span>
+                        </div>
+                        <div class="legend-item" data-index="2">
+                            <div class="color-box" style="background-color: #dc3545;" data-tooltip="">
+                                <span class="value" id="valuePodatek">-</span>
+                            </div>
+                            <span class="legend-text" id="legendPodatek">Podatek</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="summary-footer">
+                    <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span> </span>
+                    <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span> </span>
+                </div>
+                <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
+            </div>
+        </div>
+        <div class="harmonogram-container">
+            <div class="result-wrapper-harmonogram">
+                <div class="harmonogram">
+                    <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
+                    <div id="harmonogramContent">
+                        <table class="table table-striped">
+                            <thead id="harmonogramNaglowek">
+                                <tr>
+                                    <th id="pierwszaKolumnaNaglowek">Rok</th>
+                                    <th>Wartość inwestycji</th>
+                                    <th>Oproc.</th>
+                                    <th>Odsetki</th>
+                                    <th>Suma odsetek</th>
+                                    <th>Podatek</th>
+                                    <th id="zyskKolumnaNaglowek">Zysk netto</th>
+                                    <th>Opłata za wykup</th>
+                                    <th id="kolumnaStopaInflacja">Inflacja</th>
+                                    <th>Suma netto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="harmonogramTabela"></tbody>
+                        </table>
+                        <div class="harmonogram-opis" id="harmonogramOpis"></div>
+                    </div>
+                </div>
+                <div class="chart-container-line">
+                    <div class="chart-line">
+                        <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<style>
     .header-row {
         display: flex;
         justify-content: center;
@@ -553,186 +728,6 @@
         background: linear-gradient(135deg, #b0a070, #C2B280);
     }
 </style>
-<div class="logo-container">
-    <a href="https://finance-brothers.pl">
-        <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block">
-    </a>
-    <div class="zoom-controls">
-        <button id="zoom-in">+</button>
-        <button id="zoom-out">-</button>
-    </div>
-</div>
-<div class="container">
-    <div class="form-section" id="formSection">
-        <div class="header-row">
-            <h4>Kalkulator Obligacji Skarbu Państwa</h4>
-            <label class="checkbox-label header-checkbox" for="ikeIkzeBtn">
-                <input type="checkbox" id="ikeIkzeBtn">
-                <span class="checkbox-custom"></span>
-                <b>Inwestycje w IKE lub IKZE</b>
-            </label>
-        </div>
-        <div class="form-container">
-            <div class="form-wrapper">
-                <form id="obligacjeForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="kwota" class="form-label">Kwota inwestycji</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="kwota" min="100" max="5000000" step="100" value="10000">
-                                <span class="input-group-text">zł</span>
-                            </div>
-                            <input type="range" class="form-range" id="kwotaRange" min="100" max="5000000" step="100" value="10000">
-                            <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="typObligacji" class="form-label">Typ obligacji*</label>
-                            <select class="form-control" id="typObligacji">
-                                <option value="OTS" selected>3-miesięczne (OTS)</option>
-                                <option value="ROR">12-miesięczne (ROR)</option>
-                                <option value="DOR">24-miesięczne (DOR)</option>
-                                <option value="TOS">3-letnie (TOS)</option>
-                                <option value="COI">4-letnie (COI)</option>
-                                <option value="EDO">10-letnie (EDO)</option>
-                                <option value="ROS">6-letnie (ROS)</option>
-                                <option value="ROD">12-letnie (ROD)</option>
-                            </select>
-                            <div class="sub-info"></div>
-                        </div>
-                        <div class="form-group" id="dynamicRateGroup" style="display: none;">
-                            <label for="dynamicRate" class="form-label" id="dynamicRateLabel">Stopa Ref. NBP</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="dynamicRate" min="0" max="50" step="0.05" value="4.90">
-                                <span class="input-group-text">%</span>
-                            </div>
-                            <input type="range" class="form-range" id="dynamicRateRange" min="0" max="50" step="0.05" value="4.90">
-                            <div class="sub-info"></div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="okres" class="form-label">Okres inwestycji</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="okres" min="3" max="144" step="1" value="3" readonly>
-                                <span class="input-group-text">mc-y</span>
-                            </div>
-                            <div class="sub-info" id="lata"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="3" readonly>
-                                <span class="input-group-text">%</span>
-                            </div>
-                            <div class="sub-info" id="oprocentowanieInfo"></div>
-                        </div>
-                    </div>
-                    <div class="variable-rate-container">
-                        <div class="checkbox-row" id="variableCheckboxRow">
-                            <label class="checkbox-label" id="inflacjaZmiennaLabel" for="inflacjaZmiennaBtn" style="display: none;">
-                                <input type="checkbox" id="inflacjaZmiennaBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Zmienna Inflacja</b>
-                            </label>
-                            <label class="checkbox-label" id="stopaZmiennaLabel" for="stopaZmiennaBtn" style="display: none;">
-                                <input type="checkbox" id="stopaZmiennaBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Zmienna Stopa Ref. NBP</b>
-                            </label>
-                        </div>
-                        <div class="variable-inputs" id="variableInputs" style="display: none;">
-                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejne</button>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <button type="button" class="btn btn-primary" id="obliczBtn" style="margin: 25px auto 0;" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="opis-container">
-            <div class="obligacje-opis" id="obligacjeOpis"></div>
-        </div>
-        <div class="data-container">
-            <div class="data-info"><strong>Dane z dnia:</strong> <span class="data-date"><strong>01.03.2025r.</strong></span></div>
-        </div>
-    </div>
-    <div class="result-section" id="resultSection">
-        <div class="result-header">
-            <h4 id="resultHeader">Podsumowanie wyników</h4>
-            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
-        </div>
-        <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
-        <div class="result-container">
-            <div class="result-wrapper-chart">
-                <div class="chart-container">
-                    <div class="chart">
-                        <canvas id="obligacjeChart" aria-label="Wykres kołowy wyników inwestycji"></canvas>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="legend-item" data-index="0">
-                            <div class="color-box" style="background-color: #28a745;" data-tooltip="">
-                                <span class="value" id="valueKapital">-</span>
-                            </div>
-                            <span class="legend-text" id="legendKapital">Kapitał</span>
-                        </div>
-                        <div class="legend-item" data-index="1">
-                            <div class="color-box" style="background-color: #007bff;" data-tooltip="">
-                                <span class="value" id="valueOdsetki">-</span>
-                            </div>
-                            <span class="legend-text" id="legendOdsetki">Odsetki</span>
-                        </div>
-                        <div class="legend-item" data-index="2">
-                            <div class="color-box" style="background-color: #dc3545;" data-tooltip="">
-                                <span class="value" id="valuePodatek">-</span>
-                            </div>
-                            <span class="legend-text" id="legendPodatek">Podatek</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="summary-footer">
-                    <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span> </span>
-                    <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span> </span>
-                </div>
-                <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
-            </div>
-        </div>
-        <div class="harmonogram-container">
-            <div class="result-wrapper-harmonogram">
-                <div class="harmonogram">
-                    <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
-                    <div id="harmonogramContent">
-                        <table class="table table-striped">
-                            <thead id="harmonogramNaglowek">
-                                <tr>
-                                    <th id="pierwszaKolumnaNaglowek">Rok</th>
-                                    <th>Wartość inwestycji</th>
-                                    <th>Oproc.</th>
-                                    <th>Odsetki</th>
-                                    <th>Suma odsetek</th>
-                                    <th>Podatek</th>
-                                    <th id="zyskKolumnaNaglowek">Zysk netto</th>
-                                    <th>Opłata za wykup</th>
-                                    <th id="kolumnaStopaInflacja">Inflacja</th>
-                                    <th>Suma netto</th>
-                                </tr>
-                            </thead>
-                            <tbody id="harmonogramTabela"></tbody>
-                        </table>
-                        <div class="harmonogram-opis" id="harmonogramOpis"></div>
-                    </div>
-                </div>
-                <div class="chart-container-line">
-                    <div class="chart-line">
-                        <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const elements = {
         formSection: document.getElementById("formSection"),
@@ -753,8 +748,8 @@
         obligacjeChart: document.getElementById("obligacjeChart"),
         obligacjeChartLine: document.getElementById("obligacjeChartLine"),
         generatePdfBtn: document.getElementById("generatePdfBtn"),
-        zoomInBtn: document.getElementById("zoom-in"),
-        zoomOutBtn: document.getElementById("zoom-out")
+        zoomInBtn: document.getElementById("zoomInBtn"),
+        zoomOutBtn: document.getElementById("zoomOutBtn")
     };
 
     const state = {
@@ -764,6 +759,7 @@
         isIkeIkzeMode: false,
         variableInflacjaChanges: [],
         variableStopaChanges: [],
+        zoomLevel: 1,
         lastFormData: {
             kwota: 10000,
             typObligacji: "OTS",
@@ -821,8 +817,7 @@
         "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
         "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
     };
-</script>
-<script>
+
     elements.dynamicRateRange.addEventListener("input", () => { 
         elements.dynamicRate.value = elements.dynamicRateRange.value; 
         const typ = elements.typObligacji.value;
@@ -842,6 +837,8 @@
     elements.obliczBtn.addEventListener("click", () => { console.log("Oblicz clicked"); obliczObligacje(); });
     elements.addVariableBtn.addEventListener("click", () => { console.log("AddVariable clicked"); addVariableChange(); });
     elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
+    elements.zoomInBtn.addEventListener("click", zoomIn);
+    elements.zoomOutBtn.addEventListener("click", zoomOut);
 
     function setDynamicRateField(label, value, step, max) {
         const dynamicRateLabel = document.getElementById("dynamicRateLabel");
@@ -1111,39 +1108,17 @@
         }
     }
 
-    // Zoom functionality
-    let currentZoom = 100; // Domyślny rozmiar w procentach
-    if (elements.zoomInBtn && elements.zoomOutBtn) {
-        elements.zoomInBtn.addEventListener("click", () => {
-            if (currentZoom < 200) { // Maksymalne powiększenie 200%
-                currentZoom += 10;
-                document.body.style.fontSize = `${currentZoom}%`;
-            }
-        });
-
-        elements.zoomOutBtn.addEventListener("click", () => {
-            if (currentZoom > 50) { // Minimalne pomniejszenie 50%
-                currentZoom -= 10;
-                document.body.style.fontSize = `${currentZoom}%`;
-            }
-        });
+    function zoomIn() {
+        state.zoomLevel = Math.min(state.zoomLevel + 0.1, 2);
+        document.body.style.transform = `scale(${state.zoomLevel})`;
     }
 
-    updateDynamicRateField();
-    updateIloscObligacji();
+    function zoomOut() {
+        state.zoomLevel = Math.max(state.zoomLevel - 0.1, 0.5);
+        document.body.style.transform = `scale(${state.zoomLevel})`;
+    }
 </script>
 <script>
-    if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
-        pdfMake.fonts = {
-            Roboto: {
-                normal: 'Roboto-Regular.ttf',
-                bold: 'Roboto-Medium.ttf',
-                italics: 'Roboto-Italic.ttf',
-                bolditalics: 'Roboto-MediumItalic.ttf'
-            }
-        };
-    }
-
     function obliczObligacje() {
         console.log("Starting obliczObligacje");
         if (state.isCalculating) {
@@ -1311,65 +1286,81 @@
             data: {
                 labels: ['Kapitał', 'Odsetki', 'Podatek'],
                 datasets: [{
-                    data: [kwota, odsetkiCalkowite, state.isIkeIkzeMode ? 0 : podatekCalkowity],
+                    data: [kwota, odsetkiCalkowite, podatekCalkowity],
                     backgroundColor: ['#28a745', '#007bff', '#dc3545'],
-                    borderWidth: 0
+                    borderWidth: 1,
+                    hoverOffset: 8
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                const value = tooltipItem.raw.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                                return `${tooltipItem.label}: ${value} zł`;
-                            }
-                        }
-                    }
-                },
-                cutout: '50%'
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
             }
         });
 
-        const harmonogramTabela = document.getElementById("harmonogramTabela");
-        harmonogramTabela.innerHTML = "";
-        state.harmonogramData.forEach(row => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${row.okres}</td>
-                <td>${row.wartoscInwestycji} zł</td>
-                <td>${row.oprocentowanieNaCykl}</td>
-                <td>${row.odsetkiBrutto} zł</td>
-                <td>${row.skumulowaneOdsetki} zł</td>
-                <td>${row.podatek} zł</td>
-                <td>${row.zyskNetto} zł</td>
-                <td>${row.oplataZaWykup} zł</td>
-                <td style="display: ${["OTS", "TOS"].includes(typ) ? 'none' : 'table-cell'}">${row.stopaRefLubInflacja}</td>
-                <td>${row.kwotaPoZakonczeniuCyklu} zł</td>
-            `;
-            harmonogramTabela.appendChild(tr);
+        document.querySelectorAll('.result-wrapper-chart .legend-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                state.chart.setActiveElements([{ datasetIndex: 0, index: index }]);
+                state.chart.update();
+                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][index]}`);
+                if (currentLegend) currentLegend.style.opacity = 0;
+                const valueElements = document.querySelectorAll('#valueKapital, #valueOdsetki, #valuePodatek');
+                valueElements.forEach((value, idx) => {
+                    if (idx === index) {
+                        if (idx === 0) value.textContent = `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+                        if (idx === 1) value.textContent = `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+                        if (idx === 2) value.textContent = `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`;
+                    }
+                });
+            });
+
+            item.addEventListener('mouseleave', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                state.chart.setActiveElements([]);
+                state.chart.update();
+                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][index]}`);
+                if (currentLegend) currentLegend.style.opacity = 1;
+                if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+                if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+                if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+            });
         });
 
+        const harmonogramTabela = document.getElementById("harmonogramTabela");
+        harmonogramTabela.innerHTML = state.harmonogramData.map(row => `
+            <tr>
+                <td>${row.okres}</td>
+                <td>${parseFloat(row.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                <td>${row.oprocentowanieNaCykl}${row.changeApplied ? "*" : ""}</td>
+                <td>${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                <td style="display: ${["OTS", "TOS"].includes(typ) ? 'none' : 'table-cell'}">${row.stopaRefLubInflacja}${row.changeApplied ? "*" : ""}</td>
+                <td>${parseFloat(row.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+            </tr>
+        `).join("");
+
         const harmonogramOpis = document.getElementById("harmonogramOpis");
-        harmonogramOpis.innerHTML = state.isIkeIkzeMode ? 
-            "***Zwolnienie z podatku Belki w ramach IKE/IKZE pod warunkiem spełnienia wymogów ustawowych." : 
-            "*Podane wartości mogą się różnić w zależności od rzeczywistej stopy referencyjnej NBP lub inflacji.";
+        harmonogramOpis.innerHTML = `
+            <strong>Uwagi:</strong><br>
+            * - wartości mogą się różnić w zależności od rzeczywistych stóp referencyjnych NBP lub inflacji w danym okresie.<br>
+            ${state.isIkeIkzeMode ? "*** - brak podatku Belki w ramach IKE/IKZE (przy spełnieniu warunków rachunku)." : "** - podatek Belki wynosi 19% od wypracowanych odsetek."}
+        `;
 
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
-        const labelsLine = state.harmonogramData.map(row => row.okres);
-        const dataLine = state.harmonogramData.map(row => parseFloat(row.kwotaPoZakonczeniuCyklu));
         state.chartLine = new Chart(ctxLine, {
             type: 'line',
             data: {
-                labels: labelsLine,
+                labels: state.harmonogramData.map(row => row.okres),
                 datasets: [{
                     label: 'Wartość inwestycji',
-                    data: dataLine,
-                    borderColor: '#C2B280',
-                    backgroundColor: 'rgba(194, 178, 128, 0.2)',
+                    data: state.harmonogramData.map(row => parseFloat(row.kwotaPoZakonczeniuCyklu)),
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
                     fill: true,
                     tension: 0.1
                 }]
@@ -1378,29 +1369,11 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok"
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Wartość (zł)'
-                        },
-                        beginAtZero: false
-                    }
+                    x: { title: { display: true, text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok" } },
+                    y: { title: { display: true, text: 'Wartość (zł)' }, beginAtZero: false }
                 },
                 plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return `Wartość: ${tooltipItem.raw.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                            }
-                        }
-                    }
+                    legend: { display: true, position: 'top' }
                 }
             }
         });
@@ -1412,83 +1385,73 @@
     }
 
     function generatePdf() {
+        console.log("Starting generatePdf");
+        if (typeof pdfMake === "undefined") {
+            console.error("Biblioteka pdfMake nie została załadowana.");
+            alert("Błąd: Nie można wygenerować PDF. Spróbuj ponownie później.");
+            return;
+        }
+
         const typ = elements.typObligacji.value;
-        const config = obligacjeConfig[typ];
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
+        const tableBody = [
+            [
+                { text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok", bold: true },
+                { text: "Wartość inwestycji", bold: true },
+                { text: "Oproc.", bold: true },
+                { text: "Odsetki", bold: true },
+                { text: "Suma odsetek", bold: true },
+                { text: "Podatek", bold: true },
+                { text: state.isIkeIkzeMode ? "Zysk" : "Zysk netto", bold: true },
+                { text: "Opłata za wykup", bold: true },
+                { text: ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja", bold: true, style: { hidden: ["OTS", "TOS"].includes(typ) } },
+                { text: "Suma netto", bold: true }
+            ],
+            ...state.harmonogramData.map(row => [
+                row.okres,
+                `${parseFloat(row.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                row.oprocentowanieNaCykl + (row.changeApplied ? "*" : ""),
+                `${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(row.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(row.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                { text: row.stopaRefLubInflacja + (row.changeApplied ? "*" : ""), style: { hidden: ["OTS", "TOS"].includes(typ) } },
+                `${parseFloat(row.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
+            ])
+        ];
 
         const docDefinition = {
-            pageSize: 'A4',
-            pageMargins: [40, 60, 40, 60],
-            header: {
-                image: 'https://finance-brothers.pl/wp-content/uploads/2023/10/cropped-logo-FB-1.png',
-                width: 150,
-                alignment: 'center',
-                margin: [0, 20, 0, 0]
-            },
-            footer: function(currentPage, pageCount) {
-                return {
-                    text: `Strona ${currentPage} z ${pageCount}`,
-                    alignment: 'center',
-                    fontSize: 8,
-                    margin: [0, 30, 0, 0]
-                };
-            },
             content: [
-                { text: `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}`, style: 'header', margin: [0, 20, 0, 10] },
-                { text: `Kwota inwestycji: ${state.lastFormData.kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'subheader' },
-                { text: `Okres inwestycji: ${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'subheader' },
-                { text: `Zysk netto: ${parseFloat(document.getElementById("zyskNetto").textContent.replace(/\s/g, '').replace('zł', '').replace(',', '.')).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'subheader' },
-                { text: 'Harmonogram odsetek', style: 'subheader', margin: [0, 20, 0, 10] },
+                { text: `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}`, style: 'header' },
+                { text: `Kapitał: ${parseFloat(elements.kwota.value).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'subheader' },
+                { text: `Okres inwestycji: ${obligacjeConfig[typ].okres} ${jednostkaOkresu}`, style: 'subheader' },
+                { text: `Zysk netto: ${parseFloat(document.getElementById("zyskNetto").textContent.replace(/\s/g, "").replace("zł", "").replace(",", ".")).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'subheader' },
                 {
                     table: {
                         headerRows: 1,
-                        widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
-                        body: [
-                            [
-                                { text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok", style: 'tableHeader' },
-                                { text: 'Wartość inwestycji', style: 'tableHeader' },
-                                { text: 'Oproc.', style: 'tableHeader' },
-                                { text: 'Odsetki', style: 'tableHeader' },
-                                { text: 'Suma odsetek', style: 'tableHeader' },
-                                { text: 'Podatek', style: 'tableHeader' },
-                                { text: state.isIkeIkzeMode ? 'Zysk' : 'Zysk netto', style: 'tableHeader' },
-                                { text: 'Opłata za wykup', style: 'tableHeader' },
-                                { text: ["ROR", "DOR"].includes(typ) ? 'Stopa Ref. NBP' : 'Inflacja', style: 'tableHeader', noWrap: true, colSpan: ["OTS", "TOS"].includes(typ) ? 0 : 1 },
-                                { text: 'Suma netto', style: 'tableHeader' }
-                            ],
-                            ...state.harmonogramData.map(row => [
-                                row.okres,
-                                `${row.wartoscInwestycji} zł`,
-                                row.oprocentowanieNaCykl,
-                                `${row.odsetkiBrutto} zł`,
-                                `${row.skumulowaneOdsetki} zł`,
-                                `${row.podatek} zł`,
-                                `${row.zyskNetto} zł`,
-                                `${row.oplataZaWykup} zł`,
-                                ["OTS", "TOS"].includes(typ) ? '' : row.stopaRefLubInflacja,
-                                `${row.kwotaPoZakonczeniuCyklu} zł`
-                            ])
-                        ]
+                        widths: ["OTS", "TOS"].includes(typ) ? ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'] : ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                        body: tableBody.map(row => row.map(cell => typeof cell === 'object' && cell.style && cell.style.hidden ? "" : cell))
                     },
-                    layout: {
-                        fillColor: function (rowIndex) { return (rowIndex % 2 === 0) ? '#f9f9f9' : null; },
-                        hLineWidth: function () { return 0.5; },
-                        vLineWidth: function () { return 0.5; }
-                    }
+                    layout: 'lightHorizontalLines'
                 },
-                { text: state.isIkeIkzeMode ? '***Zwolnienie z podatku Belki w ramach IKE/IKZE pod warunkiem spełnienia wymogów ustawowych.' : '*Podane wartości mogą się różnić w zależności od rzeczywistej stopy referencyjnej NBP lub inflacji.', style: 'footerNote', margin: [0, 10, 0, 0] },
-                { text: 'Dane z dnia: 01.03.2025r.', style: 'footerNote', alignment: 'right' }
+                { text: '\nUwagi:', style: 'notesHeader' },
+                { text: '* - wartości mogą się różnić w zależności od rzeczywistych stóp referencyjnych NBP lub inflacji w danym okresie.', style: 'notes' },
+                { text: state.isIkeIkzeMode ? '*** - brak podatku Belki w ramach IKE/IKZE (przy spełnieniu warunków rachunku).' : '** - podatek Belki wynosi 19% od wypracowanych odsetek.', style: 'notes' },
+                { text: `\nDane z dnia: 01.03.2025r.`, style: 'footer' }
             ],
             styles: {
-                header: { fontSize: 18, bold: true, alignment: 'center' },
-                subheader: { fontSize: 12, bold: true, margin: [0, 5, 0, 0] },
-                tableHeader: { fontSize: 10, bold: true, fillColor: '#C2B280', color: '#000000', alignment: 'center' },
-                footerNote: { fontSize: 8, italics: true }
+                header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
+                subheader: { fontSize: 14, margin: [0, 5, 0, 5] },
+                notesHeader: { fontSize: 12, bold: true, margin: [0, 10, 0, 5] },
+                notes: { fontSize: 10, margin: [0, 0, 0, 5] },
+                footer: { fontSize: 10, alignment: 'right' }
             },
-            defaultStyle: { font: 'Roboto', fontSize: 10 }
+            defaultStyle: { font: 'Roboto' }
         };
 
-        pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${typ}_${new Date().toLocaleDateString('pl-PL')}.pdf`);
+        pdfMake.createPdf(docDefinition).download(`Wyniki_inwestycji_${typ}_${new Date().toISOString().split('T')[0]}.pdf`);
+        console.log("Finished generatePdf");
     }
 </script>
 </body>
