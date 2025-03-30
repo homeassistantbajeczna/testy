@@ -6,13 +6,9 @@
     <title>Kalkulator Obligacji Skarbu Państwa</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <!-- Zastępujemy jsPDF na PDFMake -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
-    <!-- Dodajemy Roboto dla polskich znaków -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
     <script>
-        // Dodajemy font Roboto z polskimi znakami
         pdfMake.fonts = {
             Roboto: {
                 normal: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
@@ -78,7 +74,6 @@
         box-shadow: 0 0 15px rgba(0,0,0,0.1);
         transition: transform 0.2s ease;
     }
-    /* Pozostała część CSS pozostaje bez zmian */
     .header-row {
         display: flex;
         justify-content: center;
@@ -364,7 +359,7 @@
         justify-content: center;
         align-items: center;
     }
-        .harmonogram {
+    .harmonogram {
         margin-top: 20px;
         font-size: 0.8em;
         background-color: #f9f9f9;
@@ -667,7 +662,7 @@
             <div class="data-info"><strong>Dane z dnia:</strong> <span class="data-date"><strong>01.03.2025r.</strong></span></div>
         </div>
     </div>
-    <div class="result-section" id="resultSection">
+        <div class="result-section" id="resultSection">
         <div class="result-header">
             <h4 id="resultHeader">Podsumowanie wyników</h4>
             <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
@@ -775,12 +770,12 @@
             kwota: 10000,
             typObligacji: "OTS",
             dynamicRates: {
-                "ROR": 5.75,  // Domyślna stopa referencyjna dla ROR
-                "DOR": 5.75,  // Domyślna stopa referencyjna dla DOR
-                "COI": 4.90,  // Domyślna inflacja dla COI
-                "EDO": 4.90,  // Domyślna inflacja dla EDO
-                "ROS": 4.90,  // Domyślna inflacja dla ROS
-                "ROD": 4.90   // Domyślna inflacja dla ROD
+                "ROR": 5.75,
+                "DOR": 5.75,
+                "COI": 4.90,
+                "EDO": 4.90,
+                "ROS": 4.90,
+                "ROD": 4.90
             },
             okres: 3,
             oprocentowanie: 3,
@@ -1318,25 +1313,10 @@
                 const index = parseInt(this.getAttribute('data-index'));
                 state.chart.setActiveElements([{ datasetIndex: 0, index: index }]);
                 state.chart.update();
-                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][index]}`);
-                if (currentLegend) currentLegend.style.opacity = 0;
-                const valueElements = document.querySelectorAll('#valueKapital, #valueOdsetki, #valuePodatek');
-                valueElements.forEach((value, idx) => {
-                    if (idx === index) {
-                        if (idx === 0) value.textContent = `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                        else if (idx === 1) value.textContent = `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-                        else value.textContent = state.isIkeIkzeMode ? "Podatek: 0,00 zł***" : `Podatek: ${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-                    }
-                });
             });
             item.addEventListener('mouseleave', function() {
                 state.chart.setActiveElements([]);
                 state.chart.update();
-                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][parseInt(this.getAttribute('data-index'))]}`);
-                if (currentLegend) currentLegend.style.opacity = 1;
-                document.getElementById("valueKapital").textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                document.getElementById("valueOdsetki").textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-                document.getElementById("valuePodatek").textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
             });
         });
 
@@ -1345,19 +1325,30 @@
         state.harmonogramData.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${row.okres}${row.changeApplied ? '*' : ''}</td>
+                <td>${row.okres}</td>
                 <td>${row.wartoscInwestycji.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
-                <td>${row.oprocentowanieNaCykl}</td>
+                <td>${row.changeApplied ? '★ ' : ''}${row.oprocentowanieNaCykl}</td>
                 <td>${row.odsetkiBrutto.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
                 <td>${row.skumulowaneOdsetki.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
-                <td>${row.podatek.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
+                <td>${state.isIkeIkzeMode ? `${row.podatek.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł***` : `${row.podatek.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`}</td>
                 <td>${row.zyskNetto.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
-                <td>${row.oplataZaWykup.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
+                <td>${row.oplataZaWykup.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł${row.oplataZaWykup !== "0.00" ? "**" : ""}</td>
                 <td style="display: ${["OTS", "TOS"].includes(typ) ? 'none' : 'table-cell'}">${row.stopaRefLubInflacja}</td>
                 <td>${row.kwotaPoZakonczeniuCyklu.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł</td>
             `;
             harmonogramTabela.appendChild(tr);
         });
+
+        const harmonogramOpis = document.getElementById("harmonogramOpis");
+        let opisText = "";
+        if (inflacjaZmienna || stopaZmienna) {
+            opisText += "★ - miejsce, w którym zmieniono oprocentowanie.\n";
+        }
+        opisText += "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
+        if (state.isIkeIkzeMode) {
+            opisText += "\n* Podatek wyniesie <b>0 zł</b> po osiągnięciu <b>wieku emerytalnego</b> i <b>55 roku życia</b> lub <b>60 roku życia</b> w przypadku <b>IKE</b> oraz <b>10 % zryczałtowanego podatku</b> po osiągnięciu <b>65 roku życia</b> w przypadku <b>IKZE</b>.";
+        }
+        harmonogramOpis.innerHTML = opisText.replace(/\n/g, "<br>");
 
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
         const labels = state.harmonogramData.map(row => row.okres);
@@ -1375,15 +1366,23 @@
                         borderColor: '#C2B280',
                         backgroundColor: 'rgba(194, 178, 128, 0.2)',
                         fill: true,
-                        tension: 0.1
+                        tension: 0.3,
+                        pointBackgroundColor: '#C2B280',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     },
                     {
                         label: state.isIkeIkzeMode ? 'Zysk' : 'Zysk netto',
                         data: zyskiNetto,
-                        borderColor: '#007bff',
-                        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.2)',
                         fill: true,
-                        tension: 0.1
+                        tension: 0.3,
+                        pointBackgroundColor: '#28a745',
+                        pointBorderColor: '#fff',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
                     }
                 ]
             },
@@ -1391,15 +1390,29 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { title: { display: true, text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok" } },
-                    y: { title: { display: true, text: 'Wartość (zł)' }, beginAtZero: false }
+                    x: { 
+                        title: { display: true, text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok", font: { family: 'Montserrat', size: 12 } },
+                        grid: { display: false }
+                    },
+                    y: { 
+                        title: { display: true, text: 'Wartość (zł)', font: { family: 'Montserrat', size: 12 } },
+                        beginAtZero: false,
+                        ticks: { callback: value => `${value.toLocaleString('pl-PL')} zł` }
+                    }
                 },
                 plugins: {
-                    legend: { display: true, position: 'top' },
+                    legend: { 
+                        display: true, 
+                        position: 'top',
+                        labels: { font: { family: 'Montserrat', size: 12 } }
+                    },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: { family: 'Montserrat' },
+                        bodyFont: { family: 'Montserrat' },
                         callbacks: {
                             label: function(context) {
-                                return `${context.dataset.label}: ${context.raw.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+                                return `${context.dataset.label}: ${context.raw.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
                             }
                         }
                     }
@@ -1407,19 +1420,20 @@
             }
         });
 
-        const harmonogramOpisText = state.isIkeIkzeMode ?
-            "*Zwolnienie z podatku belki w ramach IKE/IKZE zostanie zastosowane wyłącznie w przypadku dotrzymania warunków ustawowych, w szczególności nieprzekroczenia rocznych limitów wpłat oraz niepodejmowania wypłaty środków przed osiągnięciem wieku emerytalnego." :
-            "*Podane wartości mają charakter szacunkowy i mogą ulec zmianie w zależności od rzeczywistej stopy referencyjnej NBP lub inflacji w danym okresie.";
-        document.getElementById("harmonogramOpis").textContent = harmonogramOpisText;
-
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
         state.isCalculating = false;
-        console.log("Finished obliczObligacje");
+        console.log("obliczObligacje completed");
     }
 
     function generatePdf() {
         console.log("Starting generatePdf");
+        if (typeof pdfMake === "undefined") {
+            console.error("Biblioteka pdfMake nie jest załadowana.");
+            alert("Błąd: Nie można wygenerować PDF. Sprawdź, czy biblioteka pdfMake jest poprawnie załadowana.");
+            return;
+        }
+
         const typ = elements.typObligacji.value;
         const config = obligacjeConfig[typ];
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
@@ -1441,14 +1455,14 @@
                 { text: 'Suma netto', style: 'tableHeader' }
             ],
             ...state.harmonogramData.map(row => [
-                `${row.okres}${row.changeApplied ? '*' : ''}`,
+                `${row.okres}`,
                 `${row.wartoscInwestycji.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
-                row.oprocentowanieNaCykl,
+                `${row.changeApplied ? '★ ' : ''}${row.oprocentowanieNaCykl}`,
                 `${row.odsetkiBrutto.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
                 `${row.skumulowaneOdsetki.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
-                `${row.podatek.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
+                `${state.isIkeIkzeMode ? row.podatek.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " zł***" : row.podatek.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " zł"}`,
                 `${row.zyskNetto.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
-                `${row.oplataZaWykup.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`,
+                `${row.oplataZaWykup.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł${row.oplataZaWykup !== "0.00" ? "**" : ""}`,
                 ...(typ !== "OTS" && typ !== "TOS" ? [row.stopaRefLubInflacja] : []),
                 `${row.kwotaPoZakonczeniuCyklu.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} zł`
             ])
@@ -1471,7 +1485,7 @@
             },
             content: [
                 { text: `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}`, style: 'header' },
-                { text: document.getElementById("obligacjeOpisPodsumowanie").textContent.replace(/\*/g, ''), style: 'subheader' },
+                { text: document.getElementById("obligacjeOpisPodsumowanie").innerHTML.replace(/<[^>]+>/g, ''), style: 'subheader' },
                 {
                     columns: [
                         { image: chartImage, width: 150 },
@@ -1493,12 +1507,12 @@
                 {
                     table: {
                         headerRows: 1,
-                        widths: typ === "OTS" || typ === "TOS" ? ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'] : ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+                        widths: typ === "OTS" || typ === "TOS" ? Array(9).fill('auto') : Array(10).fill('auto'),
                         body: tableBody
                     }
                 },
                 { image: chartLineImage, width: 450, alignment: 'center', margin: [0, 20, 0, 20] },
-                { text: document.getElementById("harmonogramOpis").textContent, style: 'note', margin: [0, 10, 0, 0] },
+                { text: document.getElementById("harmonogramOpis").innerHTML.replace(/<br>/g, '\n').replace(/<[^>]+>/g, ''), style: 'note', margin: [0, 10, 0, 0] },
                 { text: 'Dane z dnia: 01.03.2025r.', style: 'footer', alignment: 'right', margin: [0, 20, 0, 0] }
             ],
             styles: {
@@ -1516,40 +1530,14 @@
             }
         };
 
-        pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${typ}_${new Date().toISOString().slice(0,10)}.pdf`);
-        console.log("PDF generated successfully");
-    }
-
-    // Zoom functionality
-    const zoomInBtn = document.getElementById('zoomInBtn');
-    const zoomOutBtn = document.getElementById('zoomOutBtn');
-    const container = document.querySelector('.container');
-    let scale = 1; // Początkowa skala
-    const minScale = 0.8; // Minimalna skala (80%)
-    const maxScale = 1.5; // Maksymalna skala (150%)
-    const scaleStep = 0.1; // Krok zmiany skali
-
-    zoomInBtn.addEventListener('click', () => {
-        if (scale < maxScale) {
-            scale += scaleStep;
-            applyZoom();
+        try {
+            pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${typ}_${new Date().toISOString().slice(0,10)}.pdf`);
+            console.log("PDF generated successfully");
+        } catch (error) {
+            console.error("Błąd podczas generowania PDF:", error);
+            alert("Wystąpił błąd podczas generowania PDF. Sprawdź konsolę przeglądarki.");
         }
-    });
-
-    zoomOutBtn.addEventListener('click', () => {
-        if (scale > minScale) {
-            scale -= scaleStep;
-            applyZoom();
-        }
-    });
-
-    function applyZoom() {
-        container.style.transform = `scale(${scale})`;
-        container.style.transformOrigin = 'top center'; // Skalowanie od góry środka
-        container.style.marginBottom = `${(scale - 1) * container.offsetHeight}px`;
     }
-
-    console.log("Script loaded successfully");
 </script>
 </body>
 </html>
