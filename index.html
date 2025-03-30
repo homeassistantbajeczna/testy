@@ -1491,7 +1491,7 @@
             const row = [
                 wiersz.okres.toString(),
                 `${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                wiersz.oprocentowanieNaCykl + (wiersz.changeApplied ? ' ★' : ''),
+                `${wiersz.oprocentowanieNaCykl}${wiersz.changeApplied ? ' ★' : ''}`, // Poprawka na "★" w tabeli
                 `${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 state.isIkeIkzeMode ? "0,00 zł***" : `${parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
@@ -1528,7 +1528,7 @@
         // Generowanie PDF-a z logo
         getBase64ImageFromUrl('cropped-logo-FB-1.png').then(logoBase64 => {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
+            const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : ""; // Poprawka na "★" w opisie
             const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
             const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
             const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
