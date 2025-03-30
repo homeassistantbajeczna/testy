@@ -1334,7 +1334,11 @@
                 if (currentLegend) currentLegend.style.opacity = 0;
                 const valueElements = document.querySelectorAll('#valueKapital, #valueOdsetki, #valuePodatek');
                 valueElements.forEach((value, idx) => {
-                    if (idx === index) value.textContent = `${['Kapitał', 'Odsetki', 'Podatek'][idx]}: ${value.textContent}`;
+                    if (idx === index) {
+                        if (idx === 0) value.textContent = `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+                        if (idx === 1) value.textContent = `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+                        if (idx === 2) value.textContent = `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`;
+                    }
                 });
             });
 
