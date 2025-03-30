@@ -27,14 +27,15 @@
         font-family: 'Montserrat', sans-serif;
         padding: 10px;
         transition: transform 0.2s ease; /* Płynna zmiana skali */
+        transform-origin: top center; /* Punkt odniesienia skali */
     }
     .logo-container {
         background-color: #e9ecef;
         padding: 15px;
-        text-align: center;
         margin-bottom: 20px;
+        position: relative; /* Umożliwia pozycjonowanie absolutne przycisków względem kontenera */
         display: flex;
-        justify-content: space-between;
+        justify-content: center; /* Logo na środku */
         align-items: center;
     }
     .logo {
@@ -43,9 +44,12 @@
         cursor: pointer;
     }
     .zoom-controls {
+        position: absolute; /* Przyciski pozycjonowane absolutnie */
+        right: 50px; /* Przesunięcie od prawej krawędzi - dostosowane, aby były bliżej środka */
+        top: 50%; /* Wyśrodkowanie pionowe */
+        transform: translateY(-50%); /* Precyzyjne wyśrodkowanie pionowe */
         display: flex;
         gap: 10px;
-        margin-right: 20px;
     }
     .zoom-btn {
         background: linear-gradient(135deg, #C2B280, #b0a070);
@@ -555,7 +559,7 @@
 </style>
 <div class="logo-container">
     <a href="https://finance-brothers.pl">
-        <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block">
     </a>
     <div class="zoom-controls">
         <button class="zoom-btn" id="zoomInBtn" aria-label="Powiększ stronę">+</button>
