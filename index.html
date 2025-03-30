@@ -19,6 +19,27 @@
         };
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const zoomInBtn = document.getElementById("zoomInBtn");
+            const zoomOutBtn = document.getElementById("zoomOutBtn");
+            let currentZoom = 1;
+
+            zoomInBtn.addEventListener("click", () => {
+                currentZoom += 0.1;
+                if (currentZoom > 2) currentZoom = 2;
+                document.body.style.transform = `scale(${currentZoom})`;
+                document.body.style.transformOrigin = "top left";
+            });
+
+            zoomOutBtn.addEventListener("click", () => {
+                currentZoom -= 0.1;
+                if (currentZoom < 0.5) currentZoom = 0.5;
+                document.body.style.transform = `scale(${currentZoom})`;
+                document.body.style.transformOrigin = "top left";
+            });
+        });
+    </script>
 </head>
 <body>
 <style>
@@ -1130,15 +1151,12 @@
 
     function obliczObligacje() {
         console.log("Starting obliczObligacje");
-        if (state.isCalculating) {
-            console.log("Calculation already in progress");
-            return;
-        }
+        if (state.isCalculating) return;
         state.isCalculating = true;
 
         if (typeof Chart === "undefined") {
-            console.error("Biblioteka Chart.js nie została załadowana.");
-            alert("Błąd: Nie można załadować wykresów. Spróbuj ponownie później.");
+            console.error("Chart.js nie załadowany.");
+            alert("Błąd: Wykresy nie działają.");
             state.isCalculating = false;
             return;
         }
@@ -1169,22 +1187,16 @@
         };
 
         if (kwota < 100 || miesiace <= 0) {
-            alert("Proszę wypełnić wszystkie wymagane pola poprawnymi wartościami.");
+            alert("Wypełnij poprawnie pola.");
             state.isCalculating = false;
             return;
         }
 
         elements.resultHeader.textContent = `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
-        const pierwszaKolumnaNaglowek = document.getElementById("pierwszaKolumnaNaglowek");
-        const kolumnaStopaInflacja = document.getElementById("kolumnaStopaInflacja");
-        const zyskKolumnaNaglowek = document.getElementById("zyskKolumnaNaglowek");
-
-        if (pierwszaKolumnaNaglowek) pierwszaKolumnaNaglowek.textContent = ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok";
-        if (kolumnaStopaInflacja) {
-            kolumnaStopaInflacja.textContent = ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja";
-            kolumnaStopaInflacja.style.display = ["OTS", "TOS"].includes(typ) ? "none" : "table-cell";
-        }
-        if (zyskKolumnaNaglowek) zyskKolumnaNaglowek.textContent = state.isIkeIkzeMode ? "Zysk" : "Zysk netto";
+        document.getElementById("pierwszaKolumnaNaglowek").textContent = ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok";
+        document.getElementById("kolumnaStopaInflacja").textContent = ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja";
+        document.getElementById("kolumnaStopaInflacja").style.display = ["OTS", "TOS"].includes(typ) ? "none" : "table-cell";
+        document.getElementById("zyskKolumnaNaglowek").textContent = state.isIkeIkzeMode ? "Zysk" : "Zysk netto";
 
         let kapital = kwota;
         let odsetkiCalkowite = 0;
@@ -1259,32 +1271,22 @@
             });
         }
 
-        const valueKapital = document.getElementById("valueKapital");
-        if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-        const legendKapital = document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box');
-        if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+        document.getElementById("valueKapital").textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box').setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
 
-        const valueOdsetki = document.getElementById("valueOdsetki");
-        if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const legendOdsetki = document.querySelector('.result-wrapper-chart .legend-item[data-index="1"] .color-box');
-        if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+        document.getElementById("valueOdsetki").textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        document.querySelector('.result-wrapper-chart .legend-item[data-index="1"] .color-box').setAttribute('data-tooltip', `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
 
         const podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
-        const valuePodatek = document.getElementById("valuePodatek");
-        if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
-        if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
+        document.getElementById("valuePodatek").textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box').setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
 
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-        const okresInwestycji = document.getElementById("okresInwestycji");
-        if (okresInwestycji) okresInwestycji.textContent = `${miesiace} ${jednostkaOkresu}`;
-        const highlightYellow = document.querySelector('.result-wrapper-chart .highlight.yellow');
-        if (highlightYellow) highlightYellow.setAttribute('data-hover', `${miesiace} ${jednostkaOkresu}`);
+        document.getElementById("okresInwestycji").textContent = `${miesiace} ${jednostkaOkresu}`;
+        document.querySelector('.result-wrapper-chart .highlight.yellow').setAttribute('data-hover', `${miesiace} ${jednostkaOkresu}`);
 
-        const zyskNetto = document.getElementById("zyskNetto");
-        if (zyskNetto) zyskNetto.textContent = `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const highlightGreen = document.querySelector('.result-wrapper-chart .highlight.green');
-        if (highlightGreen) highlightGreen.setAttribute('data-hover', `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+        document.getElementById("zyskNetto").textContent = `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        document.querySelector('.result-wrapper-chart .highlight.green').setAttribute('data-hover', `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
 
         if (state.chart) state.chart.destroy();
         if (state.chartLine) state.chartLine.destroy();
@@ -1304,10 +1306,17 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: false // Wyłączam domyślne tooltipy, bo używasz CSS
+                    }
+                },
+                hover: { mode: 'index' }
             }
         });
 
+        // Przywracam stare zachowanie hovera
         document.querySelectorAll('.result-wrapper-chart .legend-item').forEach(item => {
             item.addEventListener('mouseenter', function() {
                 const index = parseInt(this.getAttribute('data-index'));
@@ -1366,11 +1375,9 @@
                         borderColor: '#C2B280',
                         backgroundColor: 'rgba(194, 178, 128, 0.2)',
                         fill: true,
-                        tension: 0.3,
-                        pointBackgroundColor: '#C2B280',
-                        pointBorderColor: '#fff',
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        tension: 0.1,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#C2B280'
                     },
                     {
                         label: state.isIkeIkzeMode ? 'Zysk' : 'Zysk netto',
@@ -1378,11 +1385,9 @@
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.2)',
                         fill: true,
-                        tension: 0.3,
-                        pointBackgroundColor: '#28a745',
-                        pointBorderColor: '#fff',
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        tension: 0.1,
+                        pointRadius: 3,
+                        pointBackgroundColor: '#28a745'
                     }
                 ]
             },
@@ -1390,30 +1395,20 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { 
-                        title: { display: true, text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok", font: { family: 'Montserrat', size: 12 } },
+                    x: {
+                        title: { display: true, text: ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok" },
                         grid: { display: false }
                     },
-                    y: { 
-                        title: { display: true, text: 'Wartość (zł)', font: { family: 'Montserrat', size: 12 } },
-                        beginAtZero: false,
+                    y: {
+                        title: { display: true, text: 'Wartość (zł)' },
                         ticks: { callback: value => `${value.toLocaleString('pl-PL')} zł` }
                     }
                 },
                 plugins: {
-                    legend: { 
-                        display: true, 
-                        position: 'top',
-                        labels: { font: { family: 'Montserrat', size: 12 } }
-                    },
+                    legend: { position: 'top' },
                     tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: { family: 'Montserrat' },
-                        bodyFont: { family: 'Montserrat' },
                         callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                            }
+                            label: context => `${context.dataset.label}: ${context.raw.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
                         }
                     }
                 }
@@ -1423,14 +1418,13 @@
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
         state.isCalculating = false;
-        console.log("obliczObligacje completed");
     }
 
     function generatePdf() {
         console.log("Starting generatePdf");
-        if (typeof pdfMake === "undefined") {
-            console.error("Biblioteka pdfMake nie jest załadowana.");
-            alert("Błąd: Nie można wygenerować PDF. Sprawdź, czy biblioteka pdfMake jest poprawnie załadowana.");
+        if (typeof pdfMake === "undefined" || typeof pdfMake.vfs === "undefined") {
+            console.error("pdfMake nie załadowany.");
+            alert("Błąd: pdfMake nie działa. Sprawdź konsolę.");
             return;
         }
 
@@ -1443,16 +1437,16 @@
 
         const tableBody = [
             [
-                { text: periodLabel, style: 'tableHeader' },
-                { text: 'Wartość inwestycji', style: 'tableHeader' },
-                { text: 'Oproc.', style: 'tableHeader' },
-                { text: 'Odsetki', style: 'tableHeader' },
-                { text: 'Suma odsetek', style: 'tableHeader' },
-                { text: 'Podatek', style: 'tableHeader' },
-                { text: zyskLabel, style: 'tableHeader' },
-                { text: 'Opłata za wykup', style: 'tableHeader' },
-                ...(typ !== "OTS" && typ !== "TOS" ? [{ text: dynamicRateLabel, style: 'tableHeader' }] : []),
-                { text: 'Suma netto', style: 'tableHeader' }
+                periodLabel,
+                'Wartość inwestycji',
+                'Oproc.',
+                'Odsetki',
+                'Suma odsetek',
+                'Podatek',
+                zyskLabel,
+                'Opłata za wykup',
+                ...(typ !== "OTS" && typ !== "TOS" ? [dynamicRateLabel] : []),
+                'Suma netto'
             ],
             ...state.harmonogramData.map(row => [
                 `${row.okres}`,
@@ -1475,17 +1469,11 @@
 
         const docDefinition = {
             pageSize: 'A4',
-            pageOrientation: 'portrait',
             pageMargins: [40, 60, 40, 60],
-            header: {
-                image: 'logo',
-                width: 100,
-                alignment: 'center',
-                margin: [0, 20, 0, 0]
-            },
+            header: { image: 'logo', width: 100, alignment: 'center', margin: [0, 20] },
             content: [
                 { text: `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}`, style: 'header' },
-                { text: document.getElementById("obligacjeOpisPodsumowanie").innerHTML.replace(/<[^>]+>/g, ''), style: 'subheader' },
+                { text: document.getElementById("obligacjeOpisPodsumowanie").innerText, style: 'subheader' },
                 {
                     columns: [
                         { image: chartImage, width: 150 },
@@ -1501,19 +1489,19 @@
                         }
                     ],
                     columnGap: 10,
-                    margin: [0, 20, 0, 20]
+                    margin: [0, 20]
                 },
                 { text: 'Harmonogram odsetek', style: 'subheader', margin: [0, 20, 0, 10] },
                 {
                     table: {
                         headerRows: 1,
-                        widths: typ === "OTS" || typ === "TOS" ? Array(9).fill('auto') : Array(10).fill('auto'),
+                        widths: typ === "OTS" || typ === "TOS" ? Array(9).fill('*') : Array(10).fill('*'),
                         body: tableBody
                     }
                 },
-                { image: chartLineImage, width: 450, alignment: 'center', margin: [0, 20, 0, 20] },
-                { text: document.getElementById("harmonogramOpis").innerHTML.replace(/<br>/g, '\n').replace(/<[^>]+>/g, ''), style: 'note', margin: [0, 10, 0, 0] },
-                { text: 'Dane z dnia: 01.03.2025r.', style: 'footer', alignment: 'right', margin: [0, 20, 0, 0] }
+                { image: chartLineImage, width: 450, alignment: 'center', margin: [0, 20] },
+                { text: document.getElementById("harmonogramOpis").innerText, style: 'note', margin: [0, 10] },
+                { text: 'Dane z dnia: 01.03.2025r.', style: 'footer', alignment: 'right', margin: [0, 20] }
             ],
             styles: {
                 header: { fontSize: 18, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
@@ -1525,17 +1513,15 @@
                 footer: { fontSize: 8, color: '#C2B280' }
             },
             defaultStyle: { font: 'Roboto', fontSize: 10 },
-            images: {
-                logo: 'https://finance-brothers.pl/wp-content/uploads/2023/10/cropped-logo-FB-1.png'
-            }
+            images: { logo: 'https://finance-brothers.pl/wp-content/uploads/2023/10/cropped-logo-FB-1.png' }
         };
 
         try {
             pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${typ}_${new Date().toISOString().slice(0,10)}.pdf`);
-            console.log("PDF generated successfully");
+            console.log("PDF wygenerowany.");
         } catch (error) {
-            console.error("Błąd podczas generowania PDF:", error);
-            alert("Wystąpił błąd podczas generowania PDF. Sprawdź konsolę przeglądarki.");
+            console.error("Błąd PDF:", error);
+            alert("Błąd generowania PDF. Sprawdź konsolę.");
         }
     }
 </script>
