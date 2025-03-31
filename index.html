@@ -1627,18 +1627,52 @@
                         title: { 
                             display: true, 
                             text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
-                            font: { size: 14 } 
+                            font: { size: 14 },
+                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
                         }, 
-                        ticks: { font: { size: 12 } } 
+                        ticks: { 
+                            font: { size: 12 },
+                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                        } 
                     },
                     y: { 
-                        title: { display: true, text: 'Wartość (PLN)', font: { size: 14 } }, 
+                        title: { 
+                            display: true, 
+                            text: 'Wartość (PLN)', 
+                            font: { size: 14 },
+                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                        }, 
                         min: yMin, 
                         max: yMax, 
-                        ticks: { stepSize: stepSize, font: { size: 12 } } 
+                        ticks: { 
+                            stepSize: stepSize, 
+                            font: { size: 12 },
+                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                        } 
                     }
                 },
-                plugins: { legend: { labels: { font: { size: 12 } } } }
+                plugins: { 
+                    legend: { 
+                        labels: { 
+                            font: { size: 12 },
+                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                        } 
+                    } 
+                }
+            }
+        });
+        
+        // Aktualizacja kolorów przy zmianie trybu
+        document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
+            toggleDarkMode();
+            if (state.chartLine) {
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.update();
             }
         });
 
