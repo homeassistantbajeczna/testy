@@ -533,6 +533,11 @@
     <a href="https://finance-brothers.pl">
         <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     </a>
+    <!-- Dodajemy przyciski zoom po prawej stronie -->
+    <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
+        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
+        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
+    </div>
 </div>
 
 
@@ -547,11 +552,6 @@
     <div class="form-section" id="formSection">
         <div class="header-row">
             <h4>Kalkulator Obligacji Skarbu Państwa</h4>
-            <!-- Dodajemy przyciski zoom -->
-            <div class="zoom-controls" style="position: absolute; left: 10px; display: flex; gap: 5px;">
-                <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
-                <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
-            </div>
             <label class="checkbox-label header-checkbox" for="ikeIkzeBtn">
                 <input type="checkbox" id="ikeIkzeBtn">
                 <span class="checkbox-custom"></span>
