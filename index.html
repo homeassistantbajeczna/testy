@@ -241,12 +241,9 @@
     body.light-mode .result-section,
     body.dark-mode .result-container,
     body.light-mode .result-container {
-    overflow: visible;
-}
-
-    .result-wrapper-chart {
-        overflow: visible; /* Dodajemy dla nadrzędnego kontenera */
+        overflow: visible;
     }
+
     .chart-legend {
         flex: 0 0 auto;
         max-width: 200px;
@@ -359,13 +356,6 @@
         justify-content: center;
         align-items: center;
     }
-    .harmonogram {
-        margin-top: 20px;
-        font-size: 0.8em;
-        background-color: #f9f9f9;
-        border-radius: 10px;
-        padding: 20px;
-    }
     .harmonogram table {
         margin: 0 auto;
         width: auto;
@@ -376,8 +366,9 @@
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        background: #f9f9f9;
+        background: #f9f9f9; /* Tło tabeli w trybie jasnym */
     }
+    
     .harmonogram th {
         background: linear-gradient(90deg, #C2B280, #b0a070);
         color: #000000;
@@ -391,12 +382,13 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    
     .harmonogram td {
         padding: 10px;
         text-align: center;
         font-weight: 400;
         border-bottom: 1px solid #eee;
-        background-color: #f9f9f9;
+        background-color: #f9f9f9; /* Tło komórek w trybie jasnym */
         color: #000000;
         white-space: nowrap;
         overflow: hidden;
@@ -464,13 +456,24 @@
         flex-wrap: wrap;
         margin-top: 20px;
         position: relative;
-        background-color: #f9f9f9;
-        border-radius: 10px;
-        padding: 10px;
+        background-color: transparent !important; /* Reset tła */
+        padding: 20px;
     }
+    /* Nowy wrapper dla harmonogramu i wykresu */
+    .harmonogram-chart-wrapper {
+        background-color: #f9f9f9; /* Tło w trybie jasnym */
+        padding: 20px; /* Wewnętrzny odstęp */
+        border-radius: 10px;
+        max-width: 1040px; /* Maksymalna szerokość (1000px tabeli + trochę marginesu) */
+        width: calc(100% + 40px); /* Rozciągnięcie trochę w prawo i lewo */
+        margin: 0 auto; /* Wyśrodkowanie */
+    }
+    /* Reset tła dla podsumowania */
     .result-wrapper-chart {
-        flex: 1;
-        max-width: 1000px;
+        background-color: transparent !important;
+    }
+    body.dark-mode .result-wrapper-chart {
+        background-color: transparent !important;
     }
     .result-wrapper-harmonogram {
         flex: 1;
@@ -486,6 +489,7 @@
         margin-top: 20px;
         width: 100%;
         height: 400px;
+        background-color: transparent;
     }
     .chart-line {
         width: 100%;
@@ -642,9 +646,10 @@
     body.dark-mode .form-section,
     body.dark-mode .result-section,
     body.dark-mode .harmonogram-container {
-        background: #3a3a3a;
-        color: #e0e0e0;
-        padding: 20px;
+        background-color: transparent !important; /* Reset tła w trybie ciemnym */
+    }
+    body.dark-mode .harmonogram-chart-wrapper {
+        background-color: #404040; /* Tło w trybie ciemnym */
     }
     body.dark-mode .harmonogram {
         background-color: #404040; /* Nowe: Dopasowane tło */
@@ -662,17 +667,21 @@
     }
 
     body.dark-mode .harmonogram table {
-        background: #1f1f1f;
+        background: #404040;
     }
 
     body.dark-mode .harmonogram th {
-        background: linear-gradient(90deg, #8B7D47, #70673b);
+        ackground: linear-gradient(90deg, #8B7D47, #70673b);
         color: #e0e0e0;
-        border-bottom: 2px solid #404040;
+        border-bottom: 2px solid #555;
+    }
+
+    body.dark-mode .chart-container-line {
+        background-color: transparent; /* Reset tła w trybie ciemnym */
     }
 
     body.dark-mode .harmonogram td {
-        background: #1f1f1f;
+        background: #404040; /* Tło komórek w trybie ciemnym */
         color: #e0e0e0;
         border-bottom: 1px solid #555;
     }
@@ -858,32 +867,34 @@
         </div>
         <div class="harmonogram-container">
             <div class="result-wrapper-harmonogram">
-                <div class="harmonogram">
-                    <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
-                    <div id="harmonogramContent">
-                        <table class="table table-striped">
-                            <thead id="harmonogramNaglowek">
-                                <tr>
-                                    <th id="pierwszaKolumnaNaglowek">Rok</th>
-                                    <th>Wartość inwestycji</th>
-                                    <th>Oproc.</th>
-                                    <th>Odsetki</th>
-                                    <th>Suma odsetek</th>
-                                    <th>Podatek</th>
-                                    <th id="zyskKolumnaNaglowek">Zysk netto</th>
-                                    <th>Opłata za wykup</th>
-                                    <th id="kolumnaStopaInflacja">Inflacja</th>
-                                    <th>Suma netto</th>
-                                </tr>
-                            </thead>
-                            <tbody id="harmonogramTabela"></tbody>
-                        </table>
-                        <div class="harmonogram-opis" id="harmonogramOpis"></div>
+                <div class="harmonogram-chart-wrapper">
+                    <div class="harmonogram">
+                        <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
+                        <div id="harmonogramContent">
+                            <table class="table table-striped">
+                                <thead id="harmonogramNaglowek">
+                                    <tr>
+                                        <th id="pierwszaKolumnaNaglowek">Rok</th>
+                                        <th>Wartość inwestycji</th>
+                                        <th>Oproc.</th>
+                                        <th>Odsetki</th>
+                                        <th>Suma odsetek</th>
+                                        <th>Podatek</th>
+                                        <th id="zyskKolumnaNaglowek">Zysk netto</th>
+                                        <th>Opłata za wykup</th>
+                                        <th id="kolumnaStopaInflacja">Inflacja</th>
+                                        <th>Suma netto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="harmonogramTabela"></tbody>
+                            </table>
+                            <div class="harmonogram-opis" id="harmonogramOpis"></div>
+                        </div>
                     </div>
-                </div>
-                <div class="chart-container-line">
-                    <div class="chart-line">
-                        <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
+                    <div class="chart-container-line">
+                        <div class="chart-line">
+                            <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1464,7 +1475,7 @@
                 labels: ['Kapitał', 'Odsetki', 'Podatek'],
                 datasets: [{
                     data: [kwota, odsetkiCalkowite, podatekCalkowity],
-                    backgroundColor: ['#28a745', '#007bff', '#dc3545'],
+                    backgroundColor: ['#A8D5BA', '#A3BFFA', '#F5A9B8'],
                     borderWidth: 1,
                     hoverOffset: 20
                 }]
@@ -1683,7 +1694,7 @@
     // Funkcja generująca PDF
     const generateDoc = (logoBase64) => {
         const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-        const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
+        const starText = hasStar ? "★ Zmiana oprocentowania.\n" : "";
         const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
         const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
         const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
