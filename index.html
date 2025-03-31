@@ -194,6 +194,15 @@
         max-width: 1200px;
         margin: 0 auto;
         background: #FFFFFF;
+        overflow: visible;
+    }
+    .result-container {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        position: relative;
+        overflow: visible; /* Dodajemy */
     }
     .result-header {
         text-align: center;
@@ -217,8 +226,8 @@
     }
     .chart {
         flex: 0 0 auto;
-        width: 100px;
-        height: 100px;
+        width: 160px;
+        height: 160px;
         position: relative;
         z-index: 25; /* Już masz, ale upewniamy się */
         overflow: visible; /* Dodajemy, aby wycinki nie były przycinane */
@@ -228,11 +237,12 @@
         position: relative;
         z-index: 30; /* Wyższy z-index dla samego wykresu */
     }
-    /* Dodajemy, aby upewnić się, że nadrzędny kontener nie przycina */
-    body.dark-mode .chart-container,
-    body.light-mode .chart-container {
-        overflow: visible;
-    }
+    body.dark-mode .result-section,
+    body.light-mode .result-section,
+    body.dark-mode .result-container,
+    body.light-mode .result-container {
+    overflow: visible;
+}
 
     .result-wrapper-chart {
         overflow: visible; /* Dodajemy dla nadrzędnego kontenera */
@@ -354,7 +364,7 @@
         font-size: 0.8em;
         background-color: #f9f9f9;
         border-radius: 10px;
-        padding: 10px;
+        padding: 20px;
     }
     .harmonogram table {
         margin: 0 auto;
@@ -634,9 +644,11 @@
     body.dark-mode .harmonogram-container {
         background: #3a3a3a;
         color: #e0e0e0;
+        padding: 20px;
     }
     body.dark-mode .harmonogram {
         background-color: #404040; /* Nowe: Dopasowane tło */
+        padding: 20px;
     }
 
     body.dark-mode .form-label,
@@ -656,6 +668,7 @@
     body.dark-mode .harmonogram th {
         background: linear-gradient(90deg, #8B7D47, #70673b);
         color: #e0e0e0;
+        border-bottom: 2px solid #404040;
     }
 
     body.dark-mode .harmonogram td {
@@ -663,6 +676,7 @@
         color: #e0e0e0;
         border-bottom: 1px solid #555;
     }
+    
     body.dark-mode .btn-toggle {
         color: #e0e0e0;
     }
@@ -690,6 +704,9 @@
         }
         body:not(.light-mode) .container {
             background: #3a3a3a;
+        }
+        body:not(.light-mode) .logo-container {
+            background-color: #3a3a3a;
         }
     }
 </style>
@@ -1449,13 +1466,15 @@
                     data: [kwota, odsetkiCalkowite, podatekCalkowity],
                     backgroundColor: ['#28a745', '#007bff', '#dc3545'],
                     borderWidth: 1,
-                    hoverOffset: 8
+                    hoverOffset: 20
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
+                plugins: { legend: { display: false } }, // Poprawnie
+                cutout: '50%', // Poprawnie jako string
+                layout: { padding: 20 } // Poprawnie jako obiekt
             }
         });
 
