@@ -475,6 +475,8 @@
     
     /* Tło tylko dla harmonogramu w trybie ciemnym */
     body.dark-mode .harmonogram {
+        margin-top: 20px;
+        font-size: 0.8em;
         background-color: #404040;
         padding: 20px;
         border-radius: 10px;
@@ -670,11 +672,7 @@
         border-radius: 10px;
         padding: 20px; /* Zwiększamy padding, aby tło było większe i obejmowało wykres */
     }
-    body.dark-mode .harmonogram {
-        background-color: #404040; /* Nowe: Dopasowane tło */
-        padding: 20px;
-        border-radius: 10px;
-    }
+    
     body.dark-mode .chart-container-line {
         background-color: transparent; /* Zapewniamy, że wykres nie ma własnego tła */
     }
@@ -1718,7 +1716,7 @@
     // Funkcja generująca PDF
     const generateDoc = (logoBase64) => {
         const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-        const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
+        const starText = hasStar ? "★ Zmiana oprocentowania.\n" : "";
         const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
         const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
         const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
