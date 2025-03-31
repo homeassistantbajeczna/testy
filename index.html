@@ -228,6 +228,15 @@
         position: relative;
         z-index: 30; /* Wyższy z-index dla samego wykresu */
     }
+    /* Dodajemy, aby upewnić się, że nadrzędny kontener nie przycina */
+    body.dark-mode .chart-container,
+    body.light-mode .chart-container {
+        overflow: visible;
+    }
+
+    .result-wrapper-chart {
+        overflow: visible; /* Dodajemy dla nadrzędnego kontenera */
+    }
     .chart-legend {
         flex: 0 0 auto;
         max-width: 200px;
