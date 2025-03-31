@@ -178,11 +178,9 @@
         padding-left: 5em;
     }
     .data-container {
-        position: absolute;
-        top: -20px;
-        left: 10px;
-        text-align: left;
-    }
+        text-align: right;
+        margin-top: 5px;
+        
     .data-info {
         font-size: 0.8em;
         color: #C2B280;
@@ -553,15 +551,82 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         background: linear-gradient(135deg, #b0a070, #C2B280);
     }
+    body.dark-mode {
+        background-color: #2b2b2b;
+        color: #e0e0e0;
+    }
+
+    body.dark-mode .container {
+        background: #3a3a3a;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    }
+
+    body.dark-mode .form-section,
+    body.dark-mode .result-section,
+    body.dark-mode .harmonogram-container {
+        background: #3a3a3a;
+        color: #e0e0e0;
+    }
+
+    body.dark-mode .form-label,
+    body.dark-mode .sub-info,
+    body.dark-mode .obligacje-opis,
+    body.dark-mode .harmonogram-opis,
+    body.dark-mode .header-row h4,
+    body.dark-mode .result-header h4,
+    body.dark-mode .checkbox-label {
+        color: #e0e0e0;
+    }
+
+    body.dark-mode .harmonogram table {
+        background: #404040;
+    }
+
+    body.dark-mode .harmonogram th {
+        background: linear-gradient(90deg, #8B7D47, #70673b);
+        color: #e0e0e0;
+    }
+
+    body.dark-mode .harmonogram td {
+        background: #404040;
+        color: #e0e0e0;
+        border-bottom: 1px solid #555;
+    }
+
+    body.dark-mode .btn-primary,
+    body.dark-mode .btn-secondary,
+    body.dark-mode #addVariableBtn,
+    body.dark-mode .zoom-controls .btn {
+        background: linear-gradient(135deg, #8B7D47, #70673b);
+        color: #e0e0e0;
+    }
+
+    body.dark-mode .btn-primary:hover,
+    body.dark-mode .btn-secondary:hover,
+    body.dark-mode #addVariableBtn:hover,
+    body.dark-mode .zoom-controls .btn:hover {
+        background: linear-gradient(135deg, #70673b, #8B7D47);
+    }
+
+    /* Obsługa preferencji systemowych */
+    @media (prefers-color-scheme: dark) {
+        body:not(.light-mode) {
+            background-color: #2b2b2b;
+            color: #e0e0e0;
+        }
+        body:not(.light-mode) .container {
+            background: #3a3a3a;
+        }
+    }
 </style>
 <div class="logo-container">
     <a href="https://finance-brothers.pl">
         <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     </a>
-    <!-- Dodajemy przyciski zoom po prawej stronie -->
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
         <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
+        <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
     </div>
 </div>
 <div class="container">
@@ -1147,8 +1212,9 @@
         const maxKwota = 10000000; // Maksymalna wartość 10 000 000 zł
         if (kwota > maxKwota) {
             kwota = maxKwota;
-            elements.kwota.value = maxKwota; // Aktualizujemy pole w formularzu
-            elements.kwotaRange.value = maxKwota; // Aktualizujemy suwak
+            elements.kwota.value = maxKwota;
+            elements.kwotaRange.value = maxKwota;
+            alert("Maksymalna wartość to 10 000 000 zł. Wartość została dostosowana.");
         }
         const typ = elements.typObligacji.value;
         const config = obligacjeConfig[typ];
@@ -1613,6 +1679,42 @@
             updateZoom();
         }
     });
+    function toggleDarkMode() {
+        const body = document.body;
+        const isDarkMode = body.classList.contains('dark-mode');
+        
+        if (isDarkMode) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        }
+    }
+
+    // Inicjalizacja trybu na podstawie localStorage lub preferencji systemowych
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        } else {
+            document.body.classList.add('light-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        }
+    }
+
+    // Dodanie listenera do przycisku
+    document.getElementById('toggleDarkModeBtn').addEventListener('click', toggleDarkMode);
+
+    // Inicjalizacja przy załadowaniu strony
+    initializeTheme();
 
 </script>
 </body>
