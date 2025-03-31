@@ -466,7 +466,7 @@
         position: relative;
         background-color: #f9f9f9;
         border-radius: 10px;
-        padding: 10px;
+        padding: 20px;
     }
     .result-wrapper-chart {
         flex: 1;
@@ -642,13 +642,17 @@
     body.dark-mode .form-section,
     body.dark-mode .result-section,
     body.dark-mode .harmonogram-container {
-        background: #3a3a3a;
-        color: #e0e0e0;
-        padding: 20px;
+        background-color: #404040; /* Dopasowane do tła harmonogramu w trybie ciemnym */
+        border-radius: 10px;
+        padding: 20px; /* Zwiększamy padding, aby tło było większe i obejmowało wykres */
     }
     body.dark-mode .harmonogram {
         background-color: #404040; /* Nowe: Dopasowane tło */
         padding: 20px;
+        border-radius: 10px;
+    }
+    body.dark-mode .chart-container-line {
+        background-color: transparent; /* Zapewniamy, że wykres nie ma własnego tła */
     }
 
     body.dark-mode .form-label,
@@ -1341,7 +1345,7 @@
         const pierwszaKolumnaNaglowek = document.getElementById("pierwszaKolumnaNaglowek");
         const kolumnaStopaInflacja = document.getElementById("kolumnaStopaInflacja");
         const zyskKolumnaNaglowek = document.getElementById("zyskKolumnaNaglowek");
-
+    
         if (pierwszaKolumnaNaglowek) pierwszaKolumnaNaglowek.textContent = ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok";
         if (kolumnaStopaInflacja) {
             kolumnaStopaInflacja.textContent = ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja";
@@ -1354,27 +1358,33 @@
         let zyskNettoCalkowity = 0;
         state.harmonogramData = [];
         let skumulowaneOdsetki = 0;
-
+    
         let liczbaCykli = ["OTS", "ROR", "DOR"].includes(typ) ? miesiace : miesiace / 12;
         let changes = inflacjaZmienna ? state.variableInflacjaChanges : (stopaZmienna ? state.variableStopaChanges : []);
         changes.sort((a, b) => a.cykl - b.cykl);
-
+    
+        // TUTAJ WSTAWiamy TWÓJ NOWY FRAGMENT KODU
+        let poprzedniaStopaLubInflacja = null; // Śledzenie poprzedniej wartości stopy/inflacji
         for (let i = 1; i <= liczbaCykli; i++) {
             let okresWiersz = i;
-            let changeApplied = false;
+            let changeApplied = false; // Flaga zmiany oprocentowania
             let stopaRefLubInflacja = "-";
 
             let oprocentowanieRoczne;
             if (inflacjaZmienna || stopaZmienna) {
-                let dynamicValue = (inflacjaZmienna ? 4.90 : 5.75) / 100;
+                let dynamicValue = (inflacjaZmienna ? 4.90 : 5.75) / 100; // Domyślna wartość
                 for (const change of changes) {
                     if (i >= change.cykl) {
                         dynamicValue = change.wartosc / 100;
-                        if (i === change.cykl) changeApplied = true;
+                        // Sprawdzamy, czy wartość się zmieniła w stosunku do poprzedniej
+                        if (i === change.cykl && (poprzedniaStopaLubInflacja === null || dynamicValue !== poprzedniaStopaLubInflacja)) {
+                            changeApplied = true;
+                        }
                     }
                 }
                 oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (dynamicValue + config.marza / 100);
                 stopaRefLubInflacja = (dynamicValue * 100).toFixed(2) + "%";
+                poprzedniaStopaLubInflacja = dynamicValue; // Aktualizujemy poprzednią wartość
             } else if (isInflacja) {
                 oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (inflacja + config.marza / 100);
                 stopaRefLubInflacja = (inflacja * 100).toFixed(2) + "%";
@@ -1388,14 +1398,14 @@
             let oprocentowanieMiesieczne = oprocentowanieRoczne / 12;
             let miesiecyWCyklu = ["OTS", "ROR", "DOR"].includes(typ) ? 1 : 12;
             let odsetkiCykl = kapital * oprocentowanieMiesieczne * miesiecyWCyklu;
-
+    
             let podatekCykl = odsetkiCykl * podatekBelki;
             let odsetkiNettoCykl = state.isIkeIkzeMode ? odsetkiCykl : (odsetkiCykl - podatekCykl);
-
+    
             odsetkiCalkowite += odsetkiCykl;
             skumulowaneOdsetki += odsetkiCykl;
             zyskNettoCalkowity += odsetkiNettoCykl;
-
+    
             let wartoscInwestycji = kwota;
             if (config.kapitalizacja) {
                 kapital += odsetkiCykl;
@@ -1404,9 +1414,9 @@
 
             let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) : 
                 (config.kapitalizacja ? (wartoscInwestycji - skumulowaneOdsetki * 0.19) : kwota + zyskNettoCalkowity);
-
+    
             let oplataZaWykup = i < liczbaCykli ? kwota * config.oplataWykup : 0;
-
+    
             state.harmonogramData.push({
                 okres: okresWiersz,
                 wartoscInwestycji: wartoscInwestycji.toFixed(2),
@@ -1507,6 +1517,7 @@
             });
         });
 
+        // Generowanie tabeli harmonogramu z gwiazdką w dwóch kolumnach
         let tabela = document.getElementById("harmonogramTabela");
         if (tabela) {
             tabela.innerHTML = "";
@@ -1515,24 +1526,25 @@
                     <tr>
                         <td>${wiersz.okres}</td>
                         <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}</td>
+                        <td>${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}</td> <!-- Gwiazdka w Oproc. -->
                         <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
                         <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
                         <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}</td>
                         <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
                         <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**</td>
-                `;
+            `    ;
                 if (!["OTS", "TOS"].includes(typ)) {
-                    rowHTML += `<td>${wiersz.stopaRefLubInflacja}</td>`;
+                    rowHTML += `<td>${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}</td>`; // Gwiazdka w Inflacja/Stopa Ref. NBP
                 }
                 rowHTML += `
                         <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
                     </tr>
-                `;
+            `    ;
                 tabela.innerHTML += rowHTML;
             });
         }
 
+        // Aktualizacja opisu harmonogramu
         const harmonogramOpis = document.getElementById("harmonogramOpis");
         if (harmonogramOpis) {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
@@ -1542,7 +1554,6 @@
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
         }
-
         const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
         const minKwota = kwota;
         const range = maxKwotaPoCyklu - minKwota;
