@@ -528,36 +528,11 @@
     #addVariableBtn:hover {
         background: linear-gradient(135deg, #b0a070, #C2B280);
     }
-    .zoom-controls .btn {
-        background: linear-gradient(135deg, #C2B280, #b0a070);
-        border: none;
-        color: #000000;
-        font-size: 0.9em;
-        padding: 2px 8px;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-
-    .zoom-controls .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background: linear-gradient(135deg, #b0a070, #C2B280);
-    }
 </style>
 <div class="logo-container">
     <a href="https://finance-brothers.pl">
         <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     </a>
-    <!-- Dodajemy przyciski zoom po prawej stronie -->
-    <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
-        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
-        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
-    </div>
 </div>
 
 
@@ -1619,6 +1594,32 @@
             generateDoc(null);
         });
     }
+    // Zoomowanie
+    let currentZoom = 1; // Początkowa skala
+    const zoomStep = 0.1; // Krok zmiany skali
+    const minZoom = 0.5; // Minimalna skala
+    const maxZoom = 2; // Maksymalna skala
+
+    function updateZoom() {
+        const container = document.querySelector('.container');
+        container.style.transform = `scale(${currentZoom})`;
+        container.style.transformOrigin = 'top left'; // Punkt odniesienia w lewym górnym rogu
+        container.style.width = `${100 / currentZoom}%`; // Zachowanie szerokości strony
+    }
+
+    document.getElementById("zoomInBtn").addEventListener("click", () => {
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+            updateZoom();
+        }
+    });
+
+    document.getElementById("zoomOutBtn").addEventListener("click", () => {
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+            updateZoom();
+        }
+    });
 
 </script>
 </body>
