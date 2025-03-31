@@ -217,17 +217,25 @@
     }
     .chart {
         flex: 0 0 auto;
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
         position: relative;
         z-index: 25; /* Już masz, ale upewniamy się */
         overflow: visible; /* Dodajemy, aby wycinki nie były przycinane */
     }
-
     /* Dodajemy styl dla canvasu w wykresie */
     .chart canvas {
         position: relative;
         z-index: 30; /* Wyższy z-index dla samego wykresu */
+    }
+    /* Dodajemy, aby upewnić się, że nadrzędny kontener nie przycina */
+    body.dark-mode .chart-container,
+    body.light-mode .chart-container {
+        overflow: visible;
+    }
+
+    .result-wrapper-chart {
+        overflow: visible; /* Dodajemy dla nadrzędnego kontenera */
     }
     .chart-legend {
         flex: 0 0 auto;
