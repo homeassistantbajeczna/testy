@@ -668,6 +668,7 @@
     body.dark-mode .harmonogram th {
         background: linear-gradient(90deg, #8B7D47, #70673b);
         color: #e0e0e0;
+        border-bottom: 2px solid #404040;
     }
 
     body.dark-mode .harmonogram td {
@@ -675,11 +676,7 @@
         color: #e0e0e0;
         border-bottom: 1px solid #555;
     }
-    body.dark-mode .harmonogram th {
-        background: linear-gradient(90deg, #8B7D47, #70673b);
-        color: #e0e0e0;
-        border-bottom: 2px solid #404040; /* Dopasowanie do tła pod tabelką */
-    }
+    
     body.dark-mode .btn-toggle {
         color: #e0e0e0;
     }
@@ -707,6 +704,9 @@
         }
         body:not(.light-mode) .container {
             background: #3a3a3a;
+        }
+        body:not(.light-mode) .logo-container {
+            background-color: #3a3a3a;
         }
     }
 </style>
@@ -1472,11 +1472,9 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
-                cutout: '50%', // Opcjonalnie: mniejszy otwór w środku, aby wycinki były większe
-                layout: {
-                    padding: 20 // Dodajemy odstęp, aby wycinki miały więcej miejsca
-                }
+                plugins: { legend: { display: false } }, // Poprawnie
+                cutout: '50%', // Poprawnie jako string
+                layout: { padding: 20 } // Poprawnie jako obiekt
             }
         });
 
