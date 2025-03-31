@@ -1038,7 +1038,7 @@
                 const rateGroup = document.createElement("div");
                 rateGroup.className = "form-group";
                 rateGroup.innerHTML = `
-                    <label class="form-label">${isInflacjaZmienna ? "Inflacja" : "Stopa Ref. NBP"}</label>
+                    <label class="form-label">${isInflacjaZmienna ? "Inflacja" : "Stopa<br>Ref. NBP"}</label>
                     <div class="input-group">
                         <input type="number" class="form-control variable-rate" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.wartosc}">
                         <span class="input-group-text">%</span>
@@ -1204,7 +1204,7 @@
 
         if (pierwszaKolumnaNaglowek) pierwszaKolumnaNaglowek.textContent = ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok";
         if (kolumnaStopaInflacja) {
-            kolumnaStopaInflacja.textContent = ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja";
+            kolumnaStopaInflacja.textContent = ["ROR", "DOR"].includes(typ) ? "Stopa<br>Ref. NBP" : "Inflacja";
             kolumnaStopaInflacja.style.display = ["OTS", "TOS"].includes(typ) ? "none" : "table-cell";
         }
         if (zyskKolumnaNaglowek) zyskKolumnaNaglowek.textContent = state.isIkeIkzeMode ? "Zysk" : "Zysk netto";
@@ -1373,7 +1373,7 @@
                     <tr>
                         <td>${wiersz.okres}</td>
                         <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${wiersz.oprocentowanieNaCykl}${wiersz.changeApplied ? '★ ' : ''}</td>
+                        <td>${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}</td>
                         <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
                         <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
                         <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}</td>
