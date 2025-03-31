@@ -654,7 +654,7 @@
                         </div>
                         <div class="variable-inputs" id="variableInputs" style="display: none;">
                             <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                            <button gierka="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejne</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejne</button>
                         </div>
                     </div>
                     <div class="form-row">
@@ -930,7 +930,8 @@
         updateVariableInputs();
     }
 
-    elements.addVariableBtn.addEventListener("click", () => {
+    elements.addVariableBtn.addEventListener("click", (event) => {
+        event.preventDefault();
         const typ = elements.typObligacji.value;
         const changes = elements.inflacjaZmiennaBtn.checked && obligacjeConfig[typ].indeksowaneInflacja ? state.variableInflacjaChanges : state.variableStopaChanges;
         const defaultValue = obligacjeConfig[typ].indeksowaneInflacja ? 4.90 : 5.75;
@@ -960,8 +961,14 @@
     elements.ikeIkzeBtn.addEventListener("change", () => {
         state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
     });
-    elements.inflacjaZmiennaBtn.addEventListener("change", updateVariableInputsVisibility);
-    elements.stopaZmiennaBtn.addEventListener("change", updateVariableInputsVisibility);
+    elements.inflacjaZmiennaBtn.addEventListener("change", (event) => {
+    event.preventDefault();
+    updateVariableInputsVisibility();
+    });
+    elements.stopaZmiennaBtn.addEventListener("change", (event) => {
+    event.preventDefault();
+    updateVariableInputsVisibility();
+    });
     elements.obliczBtn.addEventListener("click", (event) => {
     event.preventDefault();
     obliczObligacje();
@@ -1308,7 +1315,6 @@
             return row;
         });
 
-        const chartImage = elements.obligacjeChart.toDataURL("image/png");
         const lineChartImage = elements.obligacjeChartLine.toDataURL("image/png");
 
         function getBase64ImageFromUrl(url) {
@@ -1341,14 +1347,14 @@
                 footer: { text: `Finance Brothers - ${today}`, alignment: 'center', fontSize: 8, margin: [0, 10] },
                 content: [
                     { text: headerText, style: 'header', alignment: 'center', margin: [0, 10] },
+                    { text: 'Podsumowanie', style: 'subheader', margin: [0, 10] },
                     { text: summary, style: 'summary', margin: [0, 10] },
-                    { image: chartImage, width: 200, alignment: 'center', margin: [0, 10] },
                     { text: opis, style: 'description', margin: [0, 10] },
                     { text: 'Harmonogram odsetek', style: 'subheader', margin: [0, 10] },
                     {
                         table: {
                             headerRows: 1,
-                            widths: headers.map(() => 'auto'),
+                            widths: ["OTS", "ROR", "DOR"].includes(typ) ? [25, 60, 35, 50, 60, 40, 50, 50, 35, 60] : [20, 60, 35, 50, 60, 40, 50, 50, 35, 60], // Dostosowane szerokości
                             body: [headers, ...tableData]
                         },
                         layout: {
@@ -1359,6 +1365,7 @@
                             vLineColor: () => '#aaa'
                         },
                         margin: [0, 10]
+                        fontSize: 8
                     },
                     { text: footerText, style: 'footerText', margin: [0, 10] },
                     { image: lineChartImage, width: 500, alignment: 'center', margin: [0, 10], pageBreak: 'before' }
@@ -1379,6 +1386,12 @@
             console.error("Błąd podczas ładowania logo:", error);
             alert("Nie udało się załadować logo do PDF.");
         });
+                header: {
+                    columns: [
+                        { image: logoBase64, width: 100, alignment: 'left', margin: [0, 10] },
+                        { text: today, alignment: 'right', fontSize: 10, margin: [0, 20, 40, 0] }
+                        ]
+                },
     }
 
     updateForm();
