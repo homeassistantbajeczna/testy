@@ -287,7 +287,7 @@
             elements.stopaZmiennaBtn.addEventListener("change", () => { state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; updateVariableInputs(); });
             elements.obliczBtn.addEventListener("click", () => { console.log("Oblicz clicked"); obliczObligacje(); });
             elements.addVariableBtn.addEventListener("click", () => { console.log("AddVariable clicked"); addVariableChange(); });
-            elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
+            if (elements.generatePdfBtn) elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
 
             function setDynamicRateField(label, value, step, max) {
                 const dynamicRateLabel = document.getElementById("dynamicRateLabel");
@@ -390,7 +390,9 @@
                 const typ = elements.typObligacji.value;
                 const opis = opisyObligacji[typ] || "";
                 document.getElementById("obligacjeOpis").innerHTML = opis;
-                document.getElementById("obligacjeOpisPodsumowanie").innerHTML = opis;
+                if (document.getElementById("obligacjeOpisPodsumowanie")) {
+                    document.getElementById("obligacjeOpisPodsumowanie").innerHTML = opis;
+                }
             }
 
             function toggleHarmonogram(sectionId) {
@@ -644,6 +646,61 @@
 
 <script>
     function obliczObligacje() {
+        const elements = {
+            formSection: document.getElementById("formSection"),
+            resultSection: document.getElementById("resultSection"),
+            kwota: document.getElementById("kwota"),
+            typObligacji: document.getElementById("typObligacji"),
+            dynamicRate: document.getElementById("dynamicRate"),
+            okres: document.getElementById("okres"),
+            oprocentowanie: document.getElementById("oprocentowanie"),
+            ikeIkzeBtn: document.getElementById("ikeIkzeBtn"),
+            inflacjaZmiennaBtn: document.getElementById("inflacjaZmiennaBtn"),
+            stopaZmiennaBtn: document.getElementById("stopaZmiennaBtn"),
+            resultHeader: document.getElementById("resultHeader"),
+            obligacjeChart: document.getElementById("obligacjeChart"),
+            obligacjeChartLine: document.getElementById("obligacjeChartLine")
+        };
+
+        const state = window.state || {
+            chart: null,
+            chartLine: null,
+            harmonogramData: [],
+            isIkeIkzeMode: false,
+            variableInflacjaChanges: [],
+            variableStopaChanges: [],
+            lastFormData: {
+                kwota: 10000,
+                typObligacji: "OTS",
+                dynamicRates: { "ROR": 5.75, "DOR": 5.75, "COI": 4.90, "EDO": 4.90, "ROS": 4.90, "ROD": 4.90 },
+                okres: 3,
+                oprocentowanie: 3,
+                ikeIkze: false,
+                inflacjaZmienna: false,
+                stopaZmienna: false,
+                variableInflacjaChanges: [],
+                variableStopaChanges: []
+            },
+            isCalculating: false
+        };
+        window.state = state;
+
+        const obligacjeConfig = {
+            "OTS": { okres: 3, oprocentowanie: 3.00, zmienne: false, kapitalizacja: false, oplataWykup: 0.00 },
+            "ROR": { okres: 12, oprocentowanie: 5.75, zmienne: true, marza: 0.00, kapitalizacja: false, oplataWykup: 0.005 },
+            "DOR": { okres: 24, oprocentowanie: 5.90, zmienne: true, marza: 0.15, kapitalizacja: false, oplataWykup: 0.007 },
+            "TOS": { okres: 36, oprocentowanie: 5.95, zmienne: false, kapitalizacja: true, oplataWykup: 0.01 },
+            "COI": { okres: 48, oprocentowanie: 6.30, zmienne: true, marza: 1.50, indeksowaneInflacja: true, kapitalizacja: false, oplataWykup: 0.02 },
+            "EDO": { okres: 120, oprocentowanie: 6.55, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 },
+            "ROS": { okres: 72, oprocentowanie: 6.50, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.02 },
+            "ROD": { okres: 144, oprocentowanie: 6.80, zmienne: true, marza: 2.50, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 }
+        };
+
+        const nazwyObligacji = {
+            "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
+            "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
+        };
+
         if (state.isCalculating) return;
         state.isCalculating = true;
 
@@ -918,22 +975,37 @@
 
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
-        elements.generatePdfBtn.disabled = false;
+        document.getElementById("generatePdfBtn").disabled = false;
         state.isCalculating = false;
     }
 
     function generatePdf() {
+        const state = window.state || {};
         if (typeof pdfMake === "undefined") {
             alert("Błąd: Biblioteka PDFMake nie jest załadowana.");
             return;
         }
 
-        if (!state.harmonogramData.length) {
+        if (!state.harmonogramData || !state.harmonogramData.length) {
             alert("Najpierw oblicz wyniki inwestycji, klikając 'Oblicz'.");
             return;
         }
 
         const typ = state.lastFormData.typObligacji;
+        const nazwyObligacji = {
+            "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
+            "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
+        };
+        const opisyObligacji = {
+            "OTS": "* OTS (3-miesięczne): stałe oprocentowanie 3,00% na okres 3-miesięcy, wypłata odsetek przy wykupie.",
+            "ROR": "* ROR (12-miesięczne): oprocentowanie zmienne, w pierwszym miesiącu 5,75%, w pozostałych 11 miesiącach stopa NBP + 0%.",
+            "DOR": "* DOR (24-miesięczne): oprocentowanie zmienne, 5,90% w pierwszym miesiącu, w pozostałych 23 miesiącach stopa NBP + 0,15%.",
+            "TOS": "* TOS (3-letnie): stałe oprocentowanie 5,95% na okres 3-lat, kapitalizacja roczna.",
+            "COI": "* COI (4-letnie): indeksowane inflacją, 6,30% w pierwszym roku, w kolejnych 3 latach inflacja + 1,50%.",
+            "EDO": "* EDO (10-letnie): indeksowane inflacją, 6,55% w pierwszym roku, w kolejnych 9 latach inflacja + 2,00%, kapitalizacja roczna.",
+            "ROS": "* ROS (6-letnie): indeksowane inflacją, 6,50% w pierwszym roku, w kolejnych 5 latach inflacja + 2,00%, kapitalizacja roczna.",
+            "ROD": "* ROD (12-letnie): indeksowane inflacją, 6,80% w pierwszym roku, w kolejnych 11 latach inflacja + 2,50%, kapitalizacja roczna."
+        };
         const nazwaObligacji = nazwyObligacji[typ];
         const headerText = `Wynik inwestycji dla obligacji ${nazwaObligacji}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
         const opis = opisyObligacji[typ] || "";
@@ -1084,4 +1156,6 @@
             updateZoom();
         }
     });
+
+    document.getElementById("generatePdfBtn").addEventListener("click", generatePdf);
 </script>
