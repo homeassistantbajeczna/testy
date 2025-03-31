@@ -658,7 +658,7 @@
                         </div>
                     </div>
                     <div class="form-row">
-                        <button gierka="button" class="btn btn-primary" id="obliczBtn" style="margin: 25px auto 0;" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
+                        <button type="button" class="btn btn-primary" id="obliczBtn" style="margin: 25px auto 0;" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
                     </div>
                 </form>
             </div>
@@ -962,7 +962,10 @@
     });
     elements.inflacjaZmiennaBtn.addEventListener("change", updateVariableInputsVisibility);
     elements.stopaZmiennaBtn.addEventListener("change", updateVariableInputsVisibility);
-    elements.obliczBtn.addEventListener("click", obliczObligacje);
+    elements.obliczBtn.addEventListener("click", (event) => {
+    event.preventDefault();
+    obliczObligacje();
+    });
     elements.generatePdfBtn.addEventListener("click", generatePdf);
 
     function showForm() {
