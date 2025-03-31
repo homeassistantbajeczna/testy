@@ -169,7 +169,7 @@
         line-height: 1.4;
     }
     .harmonogram-opis {
-        font-size: 0.6em; /* Oryginalny rozmiar – bez zmian */
+        font-size: 0.5em; /* Zmniejszony rozmiar */
         color: #333333;
         text-align: left;
         max-width: 1000px;
@@ -400,10 +400,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+    /* Kolor czcionki "Harmonogram odsetek" */
     .harmonogram .btn-toggle {
         cursor: pointer;
-        font-size: 0.8em; /* Oryginalny rozmiar – bez zmian */
-        color: #007bff; /* Zachowujemy kolor */
+        font-size: 0.8em;
+        color: #007bff; /* Tryb jasny */
         text-decoration: underline;
         margin-bottom: 10px;
     }
@@ -474,11 +475,11 @@
     }
     /* Nowy wrapper dla harmonogramu i wykresu */
     .harmonogram-chart-wrapper {
-        background-color: #f9f9f9;
+        background-color: #f9f9f9; /* Tło w trybie jasnym */
         padding: 20px;
         border-radius: 10px;
-        max-width: 1040px;
-        width: calc(100% + 40px);
+        max-width: 1100px; /* Zwiększona szerokość */
+        width: calc(100% + 60px); /* Szersze tło */
         margin: 0 auto;
     }
     /* Reset tła dla podsumowania */
@@ -490,7 +491,7 @@
     }
     /* Tryb ciemny */
     body.dark-mode .harmonogram .btn-toggle {
-        color: #e0e0e0; /* Dopasowanie do trybu ciemnego */
+        color: #4dabf7; /* Dopasowanie do trybu ciemnego */
     }
     
     body.dark-mode .harmonogram-opis {
@@ -1590,6 +1591,7 @@
         const stepSize = range * 0.2;
     
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
+        const isDarkMode = document.body.classList.contains('dark-mode');
         state.chartLine = new Chart(ctxLine, {
             type: 'line',
             data: {
@@ -1624,11 +1626,11 @@
                             display: true, 
                             text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
                             font: { size: 14 },
-                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
                         }, 
                         ticks: { 
                             font: { size: 12 },
-                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
                         } 
                     },
                     y: { 
@@ -1636,14 +1638,14 @@
                             display: true, 
                             text: 'Wartość (PLN)', 
                             font: { size: 14 },
-                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
                         }, 
                         min: yMin, 
                         max: yMax, 
                         ticks: { 
                             stepSize: stepSize, 
                             font: { size: 12 },
-                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
                         } 
                     }
                 },
@@ -1651,20 +1653,26 @@
                     legend: { 
                         labels: { 
                             font: { size: 12 },
-                            color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#e0e0e0' : '#333333'
                         } 
                     } 
                 }
             }
         });
-    
-        elements.formSection.style.display = "none";
-        elements.resultSection.style.display = "block";
-        elements.generatePdfBtn.disabled = false;
-        console.log("GeneratePdfBtn enabled:", !elements.generatePdfBtn.disabled);
-        state.isCalculating = false;
-        console.log("ObliczObligacje completed");
-    }
+        
+        // Aktualizacja kolorów przy zmianie trybu
+        document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
+            toggleDarkMode();
+            if (state.chartLine) {
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.update();
+            }
+        });
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
