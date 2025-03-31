@@ -217,10 +217,14 @@
     }
     .chart {
         flex: 0 0 auto;
-        width: 120px;
-        height: 120px;
+        width: 150px;
+        height: 150px;
         position: relative;
-        z-index: 25;
+        overflow: visible;
+    }
+    .chart canvas {
+        position: relative;
+        z-index: 30;
     }
     .chart-legend {
         flex: 0 0 auto;
@@ -1416,7 +1420,7 @@
                     data: [kwota, odsetkiCalkowite, podatekCalkowity],
                     backgroundColor: ['#28a745', '#007bff', '#dc3545'],
                     borderWidth: 1,
-                    hoverOffset: 8
+                    hoverOffset: 20
                 }]
             },
             options: {
@@ -1739,13 +1743,13 @@
 
     // Inicjalizacja trybu na podstawie localStorage lub preferencji systemowych
     function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         } else {
+            // Domyślnie jasny tryb, niezależnie od prefers-color-scheme
             document.body.classList.add('light-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '🌙';
         }
