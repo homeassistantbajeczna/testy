@@ -8,20 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <!-- Zastępujemy jsPDF na PDFMake -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
     <!-- Dodajemy Roboto dla polskich znaków -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
-    <script>
-        // Dodajemy font Roboto z polskimi znakami
-        pdfMake.fonts = {
-            Roboto: {
-                normal: 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
-                bold: 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmEU9fBBc4AMP6lQ.woff2',
-                italics: 'https://fonts.gstatic.com/s/roboto/v30/KFOkCnqEu92Fr1Mu51xIIzIXKMny.woff2',
-                bolditalics: 'https://fonts.gstatic.com/s/roboto/v30/KFOjCnqEu92Fr1MmWUlfBBc4AMP6lQ.woff2'
-            }
-        };
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -76,7 +64,8 @@
         transform-origin: top left;
         transition: transform 0.3s ease;
     }
-    <div class="logo-container">
+</style>
+<div class="logo-container">
     <a href="https://finance-brothers.pl">
         <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     </a>
