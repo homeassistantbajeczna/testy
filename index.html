@@ -55,9 +55,20 @@
                 contentContainer.style.transform = `scale(${currentZoom})`;
                 contentContainer.style.transformOrigin = "top center";
             });
+
+            updateForm(); // Inicjalizacja formularza przeniesiona tutaj
         });
     </script>
 </head>
+
+
+
+
+
+
+
+
+
 <body>
 <style>
     body {
@@ -568,6 +579,20 @@
         background: linear-gradient(135deg, #b0a070, #C2B280);
     }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <div class="logo-container">
     <a href="https://finance-brothers.pl">
         <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
@@ -744,6 +769,17 @@
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const elements = {
@@ -863,6 +899,7 @@
         const stopaZmienna = elements.stopaZmiennaBtn.checked && (typ === "ROR" || typ === "DOR");
         const variableInputs = document.getElementById("variableInputs");
         const addVariableBtn = elements.addVariableBtn;
+        console.log(`Visibility check - typ: ${typ}, inflacjaZmienna: ${inflacjaZmienna}, stopaZmienna: ${stopaZmienna}`);
         variableInputs.style.display = (inflacjaZmienna || stopaZmienna) ? "block" : "none";
         addVariableBtn.style.display = (inflacjaZmienna || stopaZmienna) ? "block" : "none";
         updateVariableInputs();
@@ -962,16 +999,24 @@
         state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
     });
     elements.inflacjaZmiennaBtn.addEventListener("change", (event) => {
-    event.preventDefault();
-    updateVariableInputsVisibility();
+        event.preventDefault();
+        if (elements.inflacjaZmiennaBtn.checked && state.variableInflacjaChanges.length === 0) {
+            const typ = elements.typObligacji.value;
+            state.variableInflacjaChanges.push({ cykl: 2, wartosc: 4.90 });
+        }
+        updateVariableInputsVisibility();
     });
     elements.stopaZmiennaBtn.addEventListener("change", (event) => {
-    event.preventDefault();
-    updateVariableInputsVisibility();
+        event.preventDefault();
+        if (elements.stopaZmiennaBtn.checked && state.variableStopaChanges.length === 0) {
+            const typ = elements.typObligacji.value;
+            state.variableStopaChanges.push({ cykl: 2, wartosc: 5.75 });
+        }
+        updateVariableInputsVisibility();
     });
     elements.obliczBtn.addEventListener("click", (event) => {
-    event.preventDefault();
-    obliczObligacje();
+        event.preventDefault();
+        obliczObligacje();
     });
     elements.generatePdfBtn.addEventListener("click", generatePdf);
 
@@ -993,13 +1038,22 @@
             toggleBtn.textContent = "Harmonogram odsetek ▲";
         }
     }
+
+
+
+
+
+
+
+
+
         function obliczObligacje() {
-            console.log("Starting obliczObligacje - button clicked");
-            if (state.isCalculating) {
-                console.log("Calculation already in progress");
-                return;
+        console.log("Starting obliczObligacje - button clicked");
+        if (state.isCalculating) {
+            console.log("Calculation already in progress");
+            return;
         }
-    state.isCalculating = true;
+        state.isCalculating = true;
 
         if (typeof Chart === "undefined") {
             console.error("Chart.js nie załadowany.");
@@ -1268,7 +1322,8 @@
         state.isCalculating = false;
         console.log("ObliczObligacje completed");
     }
-        function generatePdf() {
+
+    function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined" || typeof pdfMake.vfs === "undefined") {
             console.error("pdfMake nie załadowany.");
@@ -1336,67 +1391,77 @@
                 img.src = url;
             });
         }
-                    getBase64ImageFromUrl('cropped-logo-FB-1.png').then(logoBase64 => {
-            const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
-            const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
-            const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
-            const footerText = `${starText}${baseText}${ikeIkzeText}`;
 
+        getBase64ImageFromUrl("cropped-logo-FB-1.png").then(logoBase64 => {
             const docDefinition = {
                 pageSize: 'A4',
                 pageMargins: [40, 60, 40, 60],
                 header: {
-                    columns: [
-                        { image: logoBase64, width: 100, alignment: 'left', margin: [0, 10] },
-                        { text: today, alignment: 'right', fontSize: 10, margin: [0, 20, 40, 0] }
-                    ]
+                    image: logoBase64,
+                    width: 100,
+                    alignment: 'center',
+                    margin: [0, 20, 0, 0]
                 },
-                footer: { text: `Finance Brothers - ${today}`, alignment: 'center', fontSize: 8, margin: [0, 10] },
+                footer: function(currentPage, pageCount) {
+                    return {
+                        text: `Strona ${currentPage} z ${pageCount} | Dane z dnia: ${today}`,
+                        alignment: 'center',
+                        fontSize: 8,
+                        margin: [0, 30, 0, 0]
+                    };
+                },
                 content: [
-                    { text: headerText, style: 'header', alignment: 'center', margin: [0, 10] },
-                    { text: 'Podsumowanie', style: 'subheader', margin: [0, 10] },
-                    { text: summary, style: 'summary', margin: [0, 10] },
-                    { text: opis, style: 'description', margin: [0, 10] },
-                    { text: 'Harmonogram odsetek', style: 'subheader', margin: [0, 10] },
+                    { text: headerText, style: 'header', margin: [0, 10, 0, 10] },
+                    { text: opis, fontSize: 8, margin: [0, 0, 0, 10] },
+                    { text: 'Podsumowanie:', style: 'subheader', margin: [0, 10, 0, 5] },
+                    {
+                        ul: summary.map(item => ({ text: item, fontSize: 8 })),
+                        margin: [0, 0, 0, 10]
+                    },
+                    { text: 'Harmonogram odsetek:', style: 'subheader', margin: [0, 10, 0, 5] },
                     {
                         table: {
                             headerRows: 1,
-                            widths: ["OTS", "ROR", "DOR"].includes(typ) ? [25, 60, 35, 50, 60, 40, 50, 50, 35, 60] : [20, 60, 35, 50, 60, 40, 50, 50, 35, 60], // Dostosowane szerokości
+                            widths: ["OTS", "ROR", "DOR"].includes(typ) ? [25, 60, 35, 50, 60, 40, 50, 50, 35, 60] : [20, 60, 35, 50, 60, 40, 50, 50, 35, 60],
                             body: [headers, ...tableData]
                         },
                         layout: {
-                            fillColor: (rowIndex) => rowIndex === 0 ? '#C2B280' : (rowIndex % 2 === 0 ? '#f9f9f9' : null),
+                            fillColor: function(rowIndex) {
+                                return rowIndex === 0 ? '#C2B280' : (rowIndex % 2 === 0 ? '#f9f9f9' : null);
+                            },
                             hLineWidth: () => 0.5,
                             vLineWidth: () => 0.5,
                             hLineColor: () => '#aaa',
                             vLineColor: () => '#aaa'
                         },
-                        margin: [0, 10]
+                        margin: [0, 10],
                         fontSize: 8
                     },
-                    { text: footerText, style: 'footerText', margin: [0, 10] },
-                    { image: lineChartImage, width: 500, alignment: 'center', margin: [0, 10], pageBreak: 'before' }
+                    { image: lineChartImage, width: 500, alignment: 'center', margin: [0, 20, 0, 10] },
+                    {
+                        text: [
+                            state.lastFormData.inflacjaZmienna || state.lastFormData.stopaZmienna ? '★ - miejsce, w którym zmieniono oprocentowanie.\n' : '',
+                            '** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.',
+                            state.isIkeIkzeMode ? '\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE.' : ''
+                        ],
+                        fontSize: 6,
+                        margin: [0, 10, 0, 0]
+                    }
                 ],
                 styles: {
-                    header: { fontSize: 18, bold: true },
-                    subheader: { fontSize: 14, bold: true },
-                    summary: { fontSize: 10, margin: [0, 5] },
-                    description: { fontSize: 8, italics: true },
-                    footerText: { fontSize: 8 }
+                    header: { fontSize: 16, bold: true, alignment: 'center' },
+                    subheader: { fontSize: 12, bold: true }
                 },
                 defaultStyle: { font: 'Roboto' }
             };
 
-            pdfMake.createPdf(docDefinition).download(`Obligacje_${typ}_${today}.pdf`);
+            pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${nazwaObligacji.replace(/ /g, "_")}_${today}.pdf`);
             console.log("PDF generated successfully");
         }).catch(error => {
-            console.error("Błąd podczas ładowania logo:", error);
-            alert("Nie udało się załadować logo do PDF.");
+            console.error("Błąd ładowania logo:", error);
+            alert("Błąd podczas generowania PDF: Nie udało się załadować logo.");
         });
     }
-
-    updateForm();
 </script>
 </body>
 </html>
