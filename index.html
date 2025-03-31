@@ -468,6 +468,30 @@
         border-radius: 10px;
         padding: 20px;
     }
+    /* Tryb ciemny – resetujemy tło dla całego kontenera */
+    body.dark-mode .harmonogram-container {
+        background-color: transparent; /* Usuwamy tło z całego kontenera */
+    }
+    
+    /* Tło tylko dla harmonogramu w trybie ciemnym */
+    body.dark-mode .harmonogram {
+        background-color: #404040;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    /* Tło dla wykresu liniowego w trybie ciemnym */
+    body.dark-mode .chart-container-line {
+        background-color: #404040;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    /* Sekcja podsumowania pozostaje bez tła w trybie ciemnym */
+    body.dark-mode .result-wrapper-chart,
+    body.dark-mode .result-wrapper {
+        background-color: transparent; /* Zapewniamy, że podsumowanie nie ma tła */
+    }
     .result-wrapper-chart {
         flex: 1;
         max-width: 1000px;
