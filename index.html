@@ -890,19 +890,19 @@
             <div class="fields-wrapper">
                 <div class="form-group">
                     <div class="input-group">
-                        <input gierka="number" class="form-control cykl-input" min="2" max="${maxCykl}" step="1" value="${cykl}">
+                        <input type="number" class="form-control cykl-input" min="2" max="${maxCykl}" step="1" value="${cykl}">
                         <span class="input-group-text">${elements.typObligacji.value === "ROR" || elements.typObligacji.value === "DOR" ? "m-c" : "rok"}</span>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="input-group">
-                        <input gierka="number" class="form-control wartosc-input" min="0" max="50" step="0.05" value="${wartosc}">
+                        <input type="number" class="form-control wartosc-input" min="0" max="50" step="0.05" value="${wartosc}">
                         <span class="input-group-text">%</span>
                     </div>
                 </div>
             </div>
             <div class="remove-btn-wrapper">
-                <button gierka="button" class="btn btn-danger remove-variable-btn" data-index="${index}">Usuń</button>
+                <button type="button" class="btn btn-danger remove-variable-btn" data-index="${index}">Usuń</button>
             </div>
         `;
         wrapper.appendChild(div);
@@ -994,9 +994,12 @@
         }
     }
         function obliczObligacje() {
-        console.log("Starting obliczObligacje");
-        if (state.isCalculating) return;
-        state.isCalculating = true;
+            console.log("Starting obliczObligacje - button clicked");
+            if (state.isCalculating) {
+                console.log("Calculation already in progress");
+                return;
+        }
+    state.isCalculating = true;
 
         if (typeof Chart === "undefined") {
             console.error("Chart.js nie załadowany.");
@@ -1343,7 +1346,12 @@
             const docDefinition = {
                 pageSize: 'A4',
                 pageMargins: [40, 60, 40, 60],
-                header: { image: logoBase64, width: 100, alignment: 'center', margin: [0, 10] },
+                header: {
+                    columns: [
+                        { image: logoBase64, width: 100, alignment: 'left', margin: [0, 10] },
+                        { text: today, alignment: 'right', fontSize: 10, margin: [0, 20, 40, 0] }
+                    ]
+                },
                 footer: { text: `Finance Brothers - ${today}`, alignment: 'center', fontSize: 8, margin: [0, 10] },
                 content: [
                     { text: headerText, style: 'header', alignment: 'center', margin: [0, 10] },
@@ -1386,12 +1394,6 @@
             console.error("Błąd podczas ładowania logo:", error);
             alert("Nie udało się załadować logo do PDF.");
         });
-                header: {
-                    columns: [
-                        { image: logoBase64, width: 100, alignment: 'left', margin: [0, 10] },
-                        { text: today, alignment: 'right', fontSize: 10, margin: [0, 20, 40, 0] }
-                        ]
-                },
     }
 
     updateForm();
