@@ -217,14 +217,17 @@
     }
     .chart {
         flex: 0 0 auto;
-        width: 150px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
         position: relative;
-        overflow: visible;
+        z-index: 25; /* Już masz, ale upewniamy się */
+        overflow: visible; /* Dodajemy, aby wycinki nie były przycinane */
     }
+
+    /* Dodajemy styl dla canvasu w wykresie */
     .chart canvas {
         position: relative;
-        z-index: 30;
+        z-index: 30; /* Wyższy z-index dla samego wykresu */
     }
     .chart-legend {
         flex: 0 0 auto;
@@ -590,6 +593,18 @@
     body.dark-mode .summary-footer .highlight.green {
         background-color: #28a745;
         color: #e0e0e0;
+    }
+    body.dark-mode .summary-footer .highlight.yellow:hover {
+        color: transparent; /* Przywracamy efekt znikania */
+    }
+
+    body.dark-mode .summary-footer .highlight.green:hover {
+        color: transparent; /* Przywracamy efekt znikania */
+    }
+
+    body.dark-mode .summary-footer .highlight.yellow:hover::after,
+    body.dark-mode .summary-footer .highlight.green:hover::after {
+        color: #e0e0e0; /* Tekst po najechaniu w trybie ciemnym */
     }
     
     /* Obsługa preferencji systemowych */
