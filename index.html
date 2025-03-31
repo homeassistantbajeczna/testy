@@ -1324,14 +1324,14 @@
             return;
         }
         state.isCalculating = true;
-
+    
         if (typeof Chart === "undefined") {
             console.error("Biblioteka Chart.js nie została załadowana.");
             alert("Błąd: Nie można załadować wykresów. Spróbuj ponownie później.");
             state.isCalculating = false;
             return;
         }
-
+    
         let kwota = parseFloat(elements.kwota.value) || 0;
         const maxKwota = 10000000; // Maksymalna wartość 10 000 000 zł
         if (kwota > maxKwota) {
@@ -1350,7 +1350,7 @@
         const inflacjaZmienna = elements.inflacjaZmiennaBtn.checked && isInflacja;
         const stopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
         const podatekBelki = state.isIkeIkzeMode ? 0 : 0.19;
-
+    
         state.lastFormData = {
             kwota: kwota,
             typObligacji: typ,
@@ -1363,92 +1363,87 @@
             variableInflacjaChanges: [...state.variableInflacjaChanges],
             variableStopaChanges: [...state.variableStopaChanges]
         };
-
+    
         if (kwota < 100 || miesiace <= 0 || (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(typ) && (!dynamicRate || dynamicRate < 0))) {
             alert("Proszę wypełnić wszystkie wymagane pola poprawnymi wartościami.");
             state.isCalculating = false;
             return;
         }
-
+    
         elements.resultHeader.textContent = `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
         const pierwszaKolumnaNaglowek = document.getElementById("pierwszaKolumnaNaglowek");
         const kolumnaStopaInflacja = document.getElementById("kolumnaStopaInflacja");
         const zyskKolumnaNaglowek = document.getElementById("zyskKolumnaNaglowek");
-
+    
         if (pierwszaKolumnaNaglowek) pierwszaKolumnaNaglowek.textContent = ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok";
         if (kolumnaStopaInflacja) {
             kolumnaStopaInflacja.textContent = ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja";
             kolumnaStopaInflacja.style.display = ["OTS", "TOS"].includes(typ) ? "none" : "table-cell";
         }
         if (zyskKolumnaNaglowek) zyskKolumnaNaglowek.textContent = state.isIkeIkzeMode ? "Zysk" : "Zysk netto";
-
+    
         let kapital = kwota;
         let odsetkiCalkowite = 0;
         let zyskNettoCalkowity = 0;
         state.harmonogramData = [];
         let skumulowaneOdsetki = 0;
-
+    
         let liczbaCykli = ["OTS", "ROR", "DOR"].includes(typ) ? miesiace : miesiace / 12;
         let changes = inflacjaZmienna ? state.variableInflacjaChanges : (stopaZmienna ? state.variableStopaChanges : []);
         changes.sort((a, b) => a.cykl - b.cykl);
-
+    
+        let poprzedniaStopaLubInflacja = null;
         for (let i = 1; i <= liczbaCykli; i++) {
             let okresWiersz = i;
             let changeApplied = false;
             let stopaRefLubInflacja = "-";
-
-            let poprzedniaStopaLubInflacja = null;
-            for (let i = 1; i <= liczbaCykli; i++) {
-                let okresWiersz = i;
-                let changeApplied = false;
-                let stopaRefLubInflacja = "-";
-            
-                let oprocentowanieRoczne;
-                if (inflacjaZmienna || stopaZmienna) {
-                    let dynamicValue = (inflacjaZmienna ? 4.90 : 5.75) / 100;
-                    for (const change of changes) {
-                        if (i >= change.cykl) {
-                            dynamicValue = change.wartosc / 100;
-                            if (i === change.cykl && (poprzedniaStopaLubInflacja === null || dynamicValue !== poprzedniaStopaLubInflacja)) {
-                                changeApplied = true;
-                            }
+    
+            let oprocentowanieRoczne;
+            if (inflacjaZmienna || stopaZmienna) {
+                let dynamicValue = (inflacjaZmienna ? 4.90 : 5.75) / 100;
+                for (const change of changes) {
+                    if (i >= change.cykl) {
+                        dynamicValue = change.wartosc / 100;
+                        if (i === change.cykl && (poprzedniaStopaLubInflacja === null || dynamicValue !== poprzedniaStopaLubInflacja)) {
+                            changeApplied = true;
                         }
                     }
-                    oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (dynamicValue + config.marza / 100);
-                    stopaRefLubInflacja = (dynamicValue * 100).toFixed(2) + "%";
-                    poprzedniaStopaLubInflacja = dynamicValue;
-                } else if (isInflacja) {
-                    oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (inflacja + config.marza / 100);
-                    stopaRefLubInflacja = (inflacja * 100).toFixed(2) + "%";
-                } else if (["ROR", "DOR"].includes(typ)) {
-                    oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (stopaRefNBP + config.marza / 100);
-                    stopaRefLubInflacja = (stopaRefNBP * 100).toFixed(2) + "%";
-                } else {
-                    oprocentowanieRoczne = config.oprocentowanie / 100;
                 }
-
+                oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (dynamicValue + config.marza / 100);
+                stopaRefLubInflacja = (dynamicValue * 100).toFixed(2) + "%";
+                poprzedniaStopaLubInflacja = dynamicValue;
+            } else if (isInflacja) {
+                oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (inflacja + config.marza / 100);
+                stopaRefLubInflacja = (inflacja * 100).toFixed(2) + "%";
+            } else if (["ROR", "DOR"].includes(typ)) {
+                oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (stopaRefNBP + config.marza / 100);
+                stopaRefLubInflacja = (stopaRefNBP * 100).toFixed(2) + "%";
+            } else {
+                oprocentowanieRoczne = config.oprocentowanie / 100;
+            }
+    
             let oprocentowanieMiesieczne = oprocentowanieRoczne / 12;
             let miesiecyWCyklu = ["OTS", "ROR", "DOR"].includes(typ) ? 1 : 12;
             let odsetkiCykl = kapital * oprocentowanieMiesieczne * miesiecyWCyklu;
-
+    
             let podatekCykl = odsetkiCykl * podatekBelki;
             let odsetkiNettoCykl = state.isIkeIkzeMode ? odsetkiCykl : (odsetkiCykl - podatekCykl);
-
+    
             odsetkiCalkowite += odsetkiCykl;
             skumulowaneOdsetki += odsetkiCykl;
             zyskNettoCalkowity += odsetkiNettoCykl;
-
+    
             let wartoscInwestycji = kwota;
             if (config.kapitalizacja) {
                 kapital += odsetkiCykl;
                 wartoscInwestycji = kapital;
             }
-
+    
             let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) : 
                 (config.kapitalizacja ? (wartoscInwestycji - skumulowaneOdsetki * 0.19) : kwota + zyskNettoCalkowity);
-
+    
             let oplataZaWykup = i < liczbaCykli ? kwota * config.oplataWykup : 0;
-
+    
             state.harmonogramData.push({
                 okres: okresWiersz,
                 wartoscInwestycji: wartoscInwestycji.toFixed(2),
@@ -1463,37 +1458,38 @@
                 changeApplied: changeApplied
             });
         }
-
+    
+        // Reszta kodu pozostaje bez zmian (od aktualizacji wartości w HTML po generowanie wykresów)
         const valueKapital = document.getElementById("valueKapital");
         if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
         const legendKapital = document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box');
         if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-
+    
         const valueOdsetki = document.getElementById("valueOdsetki");
         if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         const legendOdsetki = document.querySelector('.result-wrapper-chart .legend-item[data-index="1"] .color-box');
         if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
-
+    
         const podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
         const valuePodatek = document.getElementById("valuePodatek");
         if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
         if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
-
+    
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
         const okresInwestycji = document.getElementById("okresInwestycji");
         if (okresInwestycji) okresInwestycji.textContent = `${miesiace} ${jednostkaOkresu}`;
         const highlightYellow = document.querySelector('.result-wrapper-chart .highlight.yellow');
         if (highlightYellow) highlightYellow.setAttribute('data-hover', `${miesiace} ${jednostkaOkresu}`);
-
+    
         const zyskNetto = document.getElementById("zyskNetto");
         if (zyskNetto) zyskNetto.textContent = `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         const highlightGreen = document.querySelector('.result-wrapper-chart .highlight.green');
         if (highlightGreen) highlightGreen.setAttribute('data-hover', `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
-
+    
         if (state.chart) state.chart.destroy();
         if (state.chartLine) state.chartLine.destroy();
-
+    
         const ctx = elements.obligacjeChart.getContext("2d");
         if (!ctx) {
             console.error("Nie można uzyskać kontekstu 2D dla wykresu kołowego.");
@@ -1514,12 +1510,12 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }, // Poprawnie
-                cutout: '50%', // Poprawnie jako string
-                layout: { padding: 20 } // Poprawnie jako obiekt
+                plugins: { legend: { display: false } },
+                cutout: '50%',
+                layout: { padding: 20 }
             }
         });
-
+    
         document.querySelectorAll('.result-wrapper-chart .legend-item').forEach(item => {
             item.addEventListener('mouseenter', function() {
                 const index = parseInt(this.getAttribute('data-index'));
@@ -1536,7 +1532,7 @@
                     }
                 });
             });
-
+    
             item.addEventListener('mouseleave', function() {
                 const index = parseInt(this.getAttribute('data-index'));
                 state.chart.setActiveElements([]);
@@ -1548,7 +1544,7 @@
                 if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
             });
         });
-
+    
         let tabela = document.getElementById("harmonogramTabela");
         if (tabela) {
             tabela.innerHTML = "";
@@ -1574,7 +1570,7 @@
                 tabela.innerHTML += rowHTML;
             });
         }
-
+    
         const harmonogramOpis = document.getElementById("harmonogramOpis");
         if (harmonogramOpis) {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
@@ -1584,7 +1580,7 @@
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
         }
-
+    
         const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
         const minKwota = kwota;
         const range = maxKwotaPoCyklu - minKwota;
@@ -1592,7 +1588,7 @@
         const yMin = minKwota - padding;
         const yMax = maxKwotaPoCyklu + padding;
         const stepSize = range * 0.2;
-
+    
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
         state.chartLine = new Chart(ctxLine, {
             type: 'line',
@@ -1661,21 +1657,7 @@
                 }
             }
         });
-        
-        // Aktualizacja kolorów przy zmianie trybu
-        document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
-            toggleDarkMode();
-            if (state.chartLine) {
-                const isDarkMode = document.body.classList.contains('dark-mode');
-                state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-                state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-                state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-                state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-                state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-                state.chartLine.update();
-            }
-        });
-
+    
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
         elements.generatePdfBtn.disabled = false;
@@ -1683,7 +1665,6 @@
         state.isCalculating = false;
         console.log("ObliczObligacje completed");
     }
-
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
@@ -1779,7 +1760,7 @@
                     {
                         table: {
                             headerRows: 1,
-                            widths: '*', // Zmiana na '*' dla równego rozkładu
+                            widths: headers.map(() => '*'), // Tablica z '*' dla każdej kolumny
                             body: [
                                 headers.map(h => ({ text: h, style: 'tableHeader' })),
                                 ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
@@ -1814,7 +1795,8 @@
         .then(logoBase64 => generateDoc(logoBase64))
         .catch(error => {
             console.error("Błąd ładowania logo:", error);
-            generateDoc(null); // Generuj bez logo w przypadku błędu
+            alert("Nie udało się załadować logo – PDF zostanie wygenerowany bez logo.");
+            generateDoc(null);
         });
     }
     // Zoomowanie
