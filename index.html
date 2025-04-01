@@ -1770,7 +1770,7 @@
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
-                            color: isDarkMode ? '#666666' : '#e0e0e0', // Ciemniejszy w ciemnym, jaśniejszy w jasnym
+                            color: isDarkMode ? '#e0e0e0' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
                             borderColor: isDarkMode ? '#e0e0e0' : '#333333'
                         }
                     },
@@ -1789,7 +1789,7 @@
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
-                            color: isDarkMode ? '#666666' : '#e0e0e0', // Ciemniejszy w ciemnym, jaśniejszy w jasnym
+                            color: isDarkMode ? '#e0e0e0' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
                             borderColor: isDarkMode ? '#e0e0e0' : '#333333'
                         }
                     }
@@ -1868,7 +1868,26 @@
         });
     
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        
+        // Zapamiętujemy oryginalne kolory siatki
+        const originalXGridColor = state.chartLine.options.scales.x.grid.color;
+        const originalYGridColor = state.chartLine.options.scales.y.grid.color;
+        
+        // Tymczasowo zmieniamy kolory siatki w trybie ciemnym na jaśniejsze
+        if (isDarkMode) {
+            state.chartLine.options.scales.x.grid.color = '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = '#e0e0e0';
+            state.chartLine.update(); // Aktualizujemy wykres, aby zastosować nowe kolory
+        }
+        
+        // Generujemy obraz wykresu
         const lineChartImage = lineChartCanvas.toDataURL("image/png");
+        
+        // Przywracamy oryginalne kolory siatki
+        state.chartLine.options.scales.x.grid.color = originalXGridColor;
+        state.chartLine.options.scales.y.grid.color = originalYGridColor;
+        state.chartLine.update(); // Aktualizujemy wykres, aby przywrócić oryginalne kolory
     
         function getBase64ImageFromUrl(url) {
             return new Promise((resolve, reject) => {
