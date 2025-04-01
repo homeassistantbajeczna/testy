@@ -403,10 +403,10 @@
     /* Kolor czcionki "Harmonogram odsetek" */
     .harmonogram .btn-toggle {
         cursor: pointer;
-        font-size: 0.8em;
-        color: #007bff; /* Tryb jasny */
+        font-size: 0.7em;
+        color: #000000; /* Tryb jasny */
         text-decoration: underline;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
     }
     .btn-toggle {
         cursor: pointer;
@@ -491,7 +491,7 @@
     }
     /* Tryb ciemny */
     body.dark-mode .harmonogram .btn-toggle {
-        color: #4dabf7; /* Dopasowanie do trybu ciemnego */
+        color: #e0e0e0; /* Dopasowanie do trybu ciemnego */
     }
     
     body.dark-mode .harmonogram-opis {
@@ -1561,7 +1561,7 @@
                         <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**</td>
                 `;
                 if (!["OTS", "TOS"].includes(typ)) {
-                    rowHTML += `<td>${wiersz.stopaRefLubInflacja}</td>`;
+                    rowHTML += `<td>${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}</td>`;
                 }
                 rowHTML += `
                         <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
