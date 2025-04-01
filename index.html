@@ -571,17 +571,17 @@
     }
     .variable-input-group {
         display: flex;
-        flex-direction: row; /* Poziomy układ dla całej grupy */
-        align-items: flex-start; /* Wyrównanie do góry */
+        flex-direction: column; /* Zmieniamy na column, aby przycisk "Usuń" był pod polami */
+        align-items: center; /* Wyśrodkowanie w pionie */
         margin-bottom: 10px;
-        gap: 10px; /* Odstęp między elementami */
-        justify-content: center; /* Wyśrodkowanie */
+        gap: 10px;
     }
     .fields-wrapper {
         display: flex;
         flex-direction: row; /* Pola "Od" i "Stopa Ref. NBP" obok siebie */
         gap: 10px; /* Odstęp między polami */
         align-items: flex-start;
+        justify-content: center;
     }
     .variable-input-group .form-group {
         display: flex;
