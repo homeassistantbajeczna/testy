@@ -563,23 +563,26 @@
         margin-top: 10px;
     }
     .variable-input-group {
-        flex-direction: row; /* Zmieniamy na row, aby etykiety były z lewej */
-        align-items: center; /* Wyrównanie w pionie */
-        gap: 10px; /* Odstęp między etykietą a polem */
+        display: flex;
+        flex-direction: row; /* Poziomy układ dla całej grupy */
+        align-items: center;
         margin-bottom: 10px;
+        gap: 15px; /* Odstęp między elementami */
+        justify-content: center; /* Wyśrodkowanie */
     }
     .fields-wrapper {
         display: flex;
-        flex-direction: row; /* Pola i jednostki w linii */
-        gap: 10px; /* Odstęp między polami "Od" i "Inflacja/Stopa" */
-        align-items: center; /* Wyrównanie w pionie */
+        flex-direction: row; /* Pola "Od" i "Stopa Ref. NBP" obok siebie */
+        gap: 20px; /* Odstęp między polami */
+        align-items: center;
     }
     .variable-input-group .form-group {
-        max-width: 150px;
-        min-width: 0;
-        width: 150px;
         display: flex;
-        flex-direction: column; /* Etykieta nad polem w ramach .form-group */
+        flex-direction: row;
+        align-items: center;
+        max-width: none;
+        width: auto;
+        gap: 5px;
     }
     .variable-input-group .form-control,
     .variable-input-group .form-range {
@@ -587,15 +590,16 @@
         font-size: 0.7em;
         padding: 2px;
         text-align: center;
-        width: 100%; /* Zastępujemy max-width, aby wypełniały .form-group */
-        box-sizing: border-box; /* Upewniamy się, że padding nie zmienia szerokości */
+        flex: 1;
+        min-width: 0;
+        box-sizing: border-box;
         background-color: #fff;
+        width: 100px; /* Stała szerokość pól */
     }
     .variable-input-group .input-group-text {
         font-size: 0.7em;
         padding: 2px 5px;
-        height: 22px; /* Dopasowanie wysokości do pola */
-        line-height: 18px; /* Wyrównanie tekstu w pionie */
+        flex-shrink: 0;
     }
 
     body.dark-mode .variable-input-group .form-control,
@@ -611,10 +615,9 @@
     .variable-input-group .form-label {
         font-size: 0.7em;
         text-transform: uppercase;
-        margin-bottom: 2px;
+        margin-bottom: 0;
         color: #333333;
-        text-align: left; /* Wyrównanie tekstu do lewej */
-        width: auto; /* Etykiety mają naturalną szerokość */
+        white-space: nowrap;
     }
     body.dark-mode .variable-input-group .form-label {
         color: #e0e0e0; /* Spójność z trybem ciemnym */
@@ -622,8 +625,10 @@
     
     .variable-input-group .input-group {
         display: flex;
-        flex-direction: row; /* Jednostki w linii z polem */
-        align-items: center; /* Wyrównanie w pionie */
+        flex-direction: row;
+        align-items: center;
+        width: auto; /* Dopasowanie do zawartości */
+        max-width: 150px; /* Maksymalna szerokość z jednostką */
     }
     .variable-input-group .btn-danger {
         font-size: 0.7em;
