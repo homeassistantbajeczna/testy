@@ -1114,8 +1114,23 @@
     elements.kwota.addEventListener("input", () => { elements.kwotaRange.value = elements.kwota.value; updateIloscObligacji(); });
     elements.typObligacji.addEventListener("change", updateDynamicRateField);
     elements.ikeIkzeBtn.addEventListener("change", updateDynamicRateField);
-    elements.inflacjaZmiennaBtn.addEventListener("change", () => { state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked; updateVariableInputs(); });
-    elements.stopaZmiennaBtn.addEventListener("change", () => { state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; updateVariableInputs(); });
+    elements.inflacjaZmiennaBtn.addEventListener("change", () => { 
+        state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked; 
+        if (!elements.inflacjaZmiennaBtn.checked) {
+            // Resetujemy tablicę zmiennych inflacji, gdy checkbox jest odznaczony
+            state.variableInflacjaChanges = [];
+        }
+        updateVariableInputs(); 
+    });
+    
+    elements.stopaZmiennaBtn.addEventListener("change", () => { 
+        state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; 
+        if (!elements.stopaZmiennaBtn.checked) {
+            // Resetujemy tablicę zmiennych stopy referencyjnej, gdy checkbox jest odznaczony
+            state.variableStopaChanges = [];
+        }
+        updateVariableInputs(); 
+    });
     elements.obliczBtn.addEventListener("click", () => { console.log("Oblicz clicked"); obliczObligacje(); });
     elements.addVariableBtn.addEventListener("click", () => { console.log("AddVariable clicked"); addVariableChange(); });
     elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
