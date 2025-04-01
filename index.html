@@ -565,7 +565,7 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 10px;
-        align-items: center; /* Centrujemy elementy */
+        align-items: flex-start;
     }
     .variable-input-group .fields-wrapper {
         display: flex;
@@ -580,9 +580,11 @@
         width: 100%;
     }
     .variable-input-group .form-group {
-        flex: 1;
+        max-width: 150px; /* Dopasowujemy szerokość do głównego formularza */
         min-width: 0;
-        max-width: 150px; /* Taka sama szerokość jak w sekcji "Kwota inwestycji" */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centrujemy pola wejściowe i suwaki w obrębie .form-group */
     }
     .variable-input-group .form-control,
     .variable-input-group .form-range {
