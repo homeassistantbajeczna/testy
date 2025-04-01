@@ -175,7 +175,7 @@
         max-width: 1000px;
         margin: 10px auto 0;
         line-height: 1.4;
-        padding-left: 0; /* Usuwamy padding-left */
+        padding-left: 20; /* Usuwamy padding-left */
     }
     .data-container {
         text-align: right;
@@ -419,8 +419,11 @@
         font-size: 0.65em;
         color: #000000;
         text-decoration: underline;
-        margin-bottom: 25px; /* Większy odstęp od tabelki (było 15px) */
+        margin-bottom: 25px;
         position: relative;
+        display: block; /* Dodajemy block */
+        text-align: center; /* Wyśrodkowanie tekstu */
+        width: 100%; /* Pełna szerokość dla wyrównania */
     }
     .btn-toggle {
         cursor: pointer;
@@ -538,6 +541,10 @@
     .variable-rate-container {
         margin-top: 15px;
         text-align: center;
+        display: flex; /* Dodajemy flex */
+        flex-direction: column; /* Ustawiamy kolumnę */
+        align-items: center; /* Wyśrodkowanie w poziomie */
+        width: 100%; /* Zapewniamy pełną szerokość */
     }
     .checkbox-row {
         display: flex;
@@ -547,21 +554,33 @@
     }
     .variable-inputs {
         margin-top: 10px;
+        width: 100%; /* Zapewniamy pełną szerokość */
+        display: flex; /* Dodajemy flex */
+        justify-content: center; /* Wyśrodkowanie w poziomie */
+    }
+    .variable-inputs-wrapper {
+        display: flex; /* Ustawiamy poziomy układ */
+        flex-wrap: wrap; /* Zawijanie, jeśli nie mieszczą się obok siebie */
+        gap: 20px; /* Odstęp między polami */
+        justify-content: center; /* Wyśrodkowanie pól */
+        max-width: 800px; /* Ograniczamy maksymalną szerokość */
     }
     .variable-input-group {
         display: flex;
-        flex-direction: column;
+        flex-direction: row; /* Zmieniamy na wiersz */
+        align-items: center; /* Wyrównanie w pionie */
+        gap: 10px; /* Odstęp między polami w grupie */
         margin-bottom: 10px;
-        align-items: center;
     }
     .fields-wrapper {
         display: flex;
-        justify-content: center;
-        gap: 10px;
+        flex-direction: row; /* Ustawiamy poziomo cykl i stopę */
+        gap: 10px; /* Odstęp między polami */
     }
     .variable-input-group .form-group {
-        max-width: 180px; /* Taki sam rozmiar jak w głównych polach */
+        max-width: 180px;
         min-width: 0;
+        flex: 1; /* Elastyczne dopasowanie szerokości */
     }
     .variable-input-group .form-control,
     .variable-input-group .form-range {
@@ -574,8 +593,8 @@
     }
     .remove-btn-wrapper {
         display: flex;
-        justify-content: center;
-        margin-top: 5px;
+        align-items: center; /* Wyrównanie przycisku "Usuń" w pionie */
+        margin-left: 10px; /* Odstęp od pól */
     }
     .variable-input-group .form-label {
         font-size: 0.7em; /* Zachowujemy spójność z innymi etykietami */
