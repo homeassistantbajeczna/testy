@@ -574,7 +574,7 @@
         flex-direction: column; /* Zmieniamy na column, aby przycisk "Usuń" był pod polami */
         align-items: center; /* Wyśrodkowanie w pionie */
         margin-bottom: 10px;
-        gap: 10px;
+        gap: 5px;
     }
     .fields-wrapper {
         display: flex;
@@ -592,15 +592,16 @@
     }
 
     .variable-input-group .form-control {
-        height: 22px;
+        height: 22px !important; /* Upewniamy się, że wysokość nie jest nadpisywana */
         font-size: 0.7em;
-        padding: 2px;
+        padding: 2px 5px; /* Dopasowanie paddingu do głównego formularza */
+        line-height: 18px; /* Dopasowanie wysokości linii */
         text-align: center;
         flex: 1;
         min-width: 0;
         box-sizing: border-box;
         background-color: #fff;
-        width: 100%; /* Wypełnia .input-group */
+        width: 100%;
     }
         
     .variable-input-group .form-control,
