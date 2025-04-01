@@ -563,20 +563,23 @@
         margin-top: 10px;
     }
     .variable-input-group {
-        display: flex;
-        flex-direction: column;
+        flex-direction: row; /* Zmieniamy na row, aby etykiety były z lewej */
+        align-items: center; /* Wyrównanie w pionie */
+        gap: 10px; /* Odstęp między etykietą a polem */
         margin-bottom: 10px;
-        align-items: center;
     }
     .fields-wrapper {
         display: flex;
-        justify-content: center;
-        gap: 10px;
+        flex-direction: row; /* Pola i jednostki w linii */
+        gap: 10px; /* Odstęp między polami "Od" i "Inflacja/Stopa" */
+        align-items: center; /* Wyrównanie w pionie */
     }
     .variable-input-group .form-group {
-        max-width: 150px; /* Spójne z głównym formularzem */
+        max-width: 150px;
         min-width: 0;
-        width: 150px; /* Dodajemy stałą szerokość dla pewności */
+        width: 150px;
+        display: flex;
+        flex-direction: column; /* Etykieta nad polem w ramach .form-group */
     }
     .variable-input-group .form-control,
     .variable-input-group .form-range {
@@ -588,6 +591,12 @@
         box-sizing: border-box; /* Upewniamy się, że padding nie zmienia szerokości */
         background-color: #fff;
     }
+    .variable-input-group .input-group-text {
+        font-size: 0.7em;
+        padding: 2px 5px;
+        height: 22px; /* Dopasowanie wysokości do pola */
+        line-height: 18px; /* Wyrównanie tekstu w pionie */
+    }
 
     body.dark-mode .variable-input-group .form-control,
     body.dark-mode .variable-input-group .form-range {
@@ -596,21 +605,25 @@
     }
     .remove-btn-wrapper {
         display: flex;
-        justify-content: center;
-        margin-top: 5px;
+        align-items: center; /* Przycisk "Usuń" w linii z polami */
+        margin-left: 10px; /* Odstęp od pól */
     }
     .variable-input-group .form-label {
-        font-size: 0.7em; /* Taki sam jak w głównych polach */
+        font-size: 0.7em;
         text-transform: uppercase;
         margin-bottom: 2px;
         color: #333333;
+        text-align: left; /* Wyrównanie tekstu do lewej */
+        width: auto; /* Etykiety mają naturalną szerokość */
     }
     body.dark-mode .variable-input-group .form-label {
         color: #e0e0e0; /* Spójność z trybem ciemnym */
     }
     
     .variable-input-group .input-group {
-        justify-content: center;
+        display: flex;
+        flex-direction: row; /* Jednostki w linii z polem */
+        align-items: center; /* Wyrównanie w pionie */
     }
     .variable-input-group .btn-danger {
         font-size: 0.7em;
