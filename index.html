@@ -274,43 +274,51 @@
     body.dark-mode .form-control {
         background: #3a3a3a; /* Ciemne tło w trybie ciemnym */
         color: #e0e0e0; /* Jasny tekst w trybie ciemnym */
-        border: 1px solid #444444;
+        border: 1px solid #555555;
     }
     
     body.dark-mode .input-group-text {
         background: #666666; /* Ciemniejszy szary w trybie ciemnym */
         color: #e0e0e0; /* Jasny tekst w trybie ciemnym */
-        border: 1px solid #444444;
+        border: 1px solid #555555;
     }
     /* Tryb ciemny */
     body.dark-mode .form-range,
     body.dark-mode .variable-range {
-        background: #555555; /* Tło takie samo jak .input-group-text w trybie ciemnym */
-        border: none; /* Usunięcie ramki */
+        background: #555555;
+        border: none !important; /* Usunięcie ramki z większą specyficznością */
+        box-shadow: none !important;
+        outline: none !important;
     }
     
     body.dark-mode .form-range::-webkit-slider-runnable-track,
     body.dark-mode .variable-range::-webkit-slider-runnable-track {
-        background: #555555; /* Tło paska w trybie ciemnym */
-        border: none; /* Usunięcie ramki */
+        background: #555555;
+        border: none !important;
         border-radius: 5px;
         height: 5px;
+        box-shadow: none !important;
+        outline: none !important;
     }
     
     body.dark-mode .form-range::-moz-range-track,
     body.dark-mode .variable-range::-moz-range-track {
-        background: #555555; /* Tło paska w trybie ciemnym */
-        border: none; /* Usunięcie ramki */
+        background: #555555;
+        border: none !important;
         border-radius: 5px;
         height: 5px;
+        box-shadow: none !important;
+        outline: none !important;
     }
     
     body.dark-mode .form-range::-ms-track,
     body.dark-mode .variable-range::-ms-track {
-        background: #555555; /* Tło paska w trybie ciemnym */
-        border: none; /* Usunięcie ramki */
+        background: #555555;
+        border: none !important;
         border-radius: 5px;
         height: 5px;
+        box-shadow: none !important;
+        outline: none !important;
     }
 
     .chart-legend {
@@ -2161,10 +2169,14 @@
             state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            /*state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
             state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
             state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';*/
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
+            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#333333' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#333333' : '#e0e0e0';
             state.chartLine.update();
         }
     });
