@@ -263,12 +263,12 @@
         padding-left: 8px;
     }
     .chart-legend .color-box {
-        width: 110px; /* Powiększona szerokość */
-        height: 22px; /* Powiększona wysokość */
+        width: 130px; /* Powiększona szerokość */
+        height: 26px; /* Powiększona wysokość */
         border-radius: 5px;
         text-align: center;
         font-weight: 500;
-        line-height: 22px; /* Dopasowanie do nowej wysokości */
+        line-height: 26px; /* Dopasowanie do nowej wysokości */
         font-size: 0.7em;
         white-space: nowrap;
         overflow: hidden;
@@ -758,7 +758,7 @@
 </style>
 <div class="logo-container">
     <a href="https://finance-brothers.pl">
-        <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers" class="logo d-block mx-auto">
     </a>
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
         <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
@@ -1646,7 +1646,7 @@
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
-                            color: '#808080', // Średni szary, subtelny w obu trybach
+                            color: isDarkMode ? '#666666' : '#e0e0e0', // Ciemniejszy w ciemnym, jaśniejszy w jasnym
                             borderColor: isDarkMode ? '#e0e0e0' : '#333333'
                         }
                     },
@@ -1665,7 +1665,7 @@
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
-                            color: '#808080', // Średni szary, subtelny w obu trybach
+                            color: isDarkMode ? '#666666' : '#e0e0e0', // Ciemniejszy w ciemnym, jaśniejszy w jasnym
                             borderColor: isDarkMode ? '#e0e0e0' : '#333333'
                         }
                     }
@@ -1893,6 +1893,8 @@
             state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
             state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.update();
