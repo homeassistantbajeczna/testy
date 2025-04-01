@@ -154,6 +154,14 @@
         height: 12px;
         cursor: pointer;
     }
+    .form-range::-ms-thumb {
+        width: 15px;
+        height: 15px;
+        background: #C2B280; /* Złoty w trybie jasnym - bez zmian */
+        border: 1px solid #C2B280;
+        border-radius: 50%;
+        cursor: pointer;
+    }
     .input-group-text {
         height: 22px; /* Jawnie ustawiona wysokość */
         font-size: 0.7em;
@@ -841,6 +849,27 @@
     /* Tryb ciemny */
     body.dark-mode .harmonogram table {
         background: #1f1f1f; /* Ciemniejsze tło tabeli w trybie ciemnym */
+    }
+
+    /* Tryb ciemny */
+    body.dark-mode .form-range {
+        background: #555555; /* Tło takie samo jak .input-group-text w trybie ciemnym */
+        border: 1px solid #000000; /* Czarna krawędź w trybie ciemnym */
+    }
+    
+    body.dark-mode .form-range::-webkit-slider-thumb {
+        background: #8B7A47; /* Ciemniejszy złoty w trybie ciemnym */
+        border: 1px solid #8B7A47;
+    }
+    
+    body.dark-mode .form-range::-moz-range-thumb {
+        background: #8B7A47; /* Ciemniejszy złoty w trybie ciemnym */
+        border: 1px solid #8B7A47;
+    }
+    
+    body.dark-mode .form-range::-ms-thumb {
+        background: #8B7A47; /* Ciemniejszy złoty w trybie ciemnym */
+        border: 1px solid #8B7A47;
     }
     
     body.dark-mode .harmonogram th {
