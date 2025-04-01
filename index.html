@@ -1296,6 +1296,12 @@
             wrapper.innerHTML = "";
             const changes = isInflacjaZmienna ? state.variableInflacjaChanges : state.variableStopaChanges;
     
+            // Sortujemy zmiany według cyklu
+            changes.sort((a, b) => a.cykl - b.cykl);
+    
+            // Tworzymy listę zajętych cykli
+            const zajeteCykle = changes.map(change => change.cykl);
+    
             changes.forEach((change, index) => {
                 const inputGroup = document.createElement("div");
                 inputGroup.className = "variable-input-group";
@@ -1303,15 +1309,25 @@
                 const fieldsWrapper = document.createElement("div");
                 fieldsWrapper.className = "fields-wrapper";
     
+                // Tworzymy listę dostępnych cykli (od 2 do maxCykl, pomijając zajęte cykle)
+                const dostepneCykle = [];
+                for (let i = 2; i <= maxCykl; i++) {
+                    if (!zajeteCykle.includes(i) || i === change.cykl) {
+                        dostepneCykle.push(i);
+                    }
+                }
+    
                 const cyklGroup = document.createElement("div");
                 cyklGroup.className = "form-group";
+                let cyklOptions = dostepneCykle.map(cykl => 
+                    `<option value="${cykl}" ${cykl === change.cykl ? "selected" : ""}>${cykl}</option>`
+                ).join("");
                 cyklGroup.innerHTML = `
                     <label class="form-label">Od</label>
                     <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
+                        <select class="form-control variable-cykl">${cyklOptions}</select>
                         <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
                 `;
     
                 const rateGroup = document.createElement("div");
@@ -1370,27 +1386,23 @@
     
                 wrapper.appendChild(inputGroup);
     
-                const cyklInput = inputGroup.querySelector(".variable-cykl");
-                const cyklRange = inputGroup.querySelector(".variable-cykl-range");
+                const cyklSelect = inputGroup.querySelector(".variable-cykl");
                 const rateInput = inputGroup.querySelector(".variable-rate");
                 const rateRange = inputGroup.querySelector(".variable-rate-range");
     
-                cyklInput.addEventListener("input", () => {
-                    let value = parseInt(cyklInput.value);
-                    if (value < 1 || value > maxCykl) cyklInput.value = Math.max(1, Math.min(maxCykl, value));
-                    cyklRange.value = cyklInput.value;
-                    changes[index].cykl = parseInt(cyklInput.value);
+                cyklSelect.addEventListener("change", () => {
+                    const newCykl = parseInt(cyklSelect.value);
+                    changes[index].cykl = newCykl;
+                    updateVariableInputs(); // Odświeżamy, aby zaktualizować dostępne cykle
                 });
-                cyklRange.addEventListener("input", () => {
-                    cyklInput.value = cyklRange.value;
-                    changes[index].cykl = parseInt(cyklRange.value);
-                });
+    
                 rateInput.addEventListener("input", () => {
                     let value = parseFloat(rateInput.value);
                     if (value < 0 || value > (isInflacjaZmienna ? 50 : 20)) rateInput.value = Math.max(0, Math.min(isInflacjaZmienna ? 50 : 20, value));
                     rateRange.value = rateInput.value;
                     changes[index].wartosc = parseFloat(rateInput.value);
                 });
+    
                 rateRange.addEventListener("input", () => {
                     rateInput.value = rateRange.value;
                     changes[index].wartosc = parseFloat(rateRange.value);
@@ -1417,16 +1429,27 @@
         if (!isInflacjaZmienna && !isStopaZmienna) return;
     
         if (changes.length >= maxChanges) {
-            alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
-            return;
-        }
-        if (changes.length >= maxChanges) {
             elements.addVariableBtn.style.display = "none"; // Ukryj przycisk
             return;
         }
     
-        const lastCykl = changes.length > 0 ? changes[changes.length - 1].cykl : 1;
-        const newCykl = Math.min(lastCykl + 1, maxCykl);
+        // Tworzymy listę zajętych cykli
+        const zajeteCykle = changes.map(change => change.cykl);
+    
+        // Znajdujemy pierwszy dostępny cykl, zaczynając od 2
+        let newCykl = 2;
+        for (let i = 2; i <= maxCykl; i++) {
+            if (!zajeteCykle.includes(i)) {
+                newCykl = i;
+                break;
+            }
+        }
+    
+        // Jeśli nie ma dostępnych cykli (co nie powinno się zdarzyć, bo sprawdzamy maxChanges), ustawiamy maxCykl
+        if (newCykl > maxCykl) {
+            newCykl = maxCykl;
+        }
+    
         changes.push({ cykl: newCykl, wartosc: isInflacjaZmienna ? 4.90 : 5.75 });
         updateVariableInputs();
     }
