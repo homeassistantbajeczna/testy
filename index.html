@@ -169,13 +169,13 @@
         line-height: 1.4;
     }
     .harmonogram-opis {
-        font-size: 0.5em; /* Zmniejszony rozmiar */
+        font-size: 0.5em;
         color: #333333;
         text-align: left;
         max-width: 1000px;
         margin: 10px auto 0;
         line-height: 1.4;
-        padding-left: 10em;
+        padding-left: 0; /* Usuwamy padding-left */
     }
     .data-container {
         text-align: right;
@@ -190,19 +190,18 @@
     }
     .result-section {
         display: none;
-        padding: 10px;
+        padding: 20px; /* Zwiększamy padding dla spójności */
         max-width: 1200px;
-        margin: 0 auto;
-        background: #FFFFFF;
+        margin: 20px auto; /* Dodajemy margines zewnętrzny */
+        background: transparent; /* Reset tła – tło będzie w wrapperach */
         overflow: visible;
     }
     .result-container {
         display: flex;
+        flex-direction: column; /* Zmieniamy na kolumnę dla lepszej kontroli */
+        align-items: center;
         gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
         position: relative;
-        overflow: visible; /* Dodajemy */
     }
     .result-header {
         text-align: center;
@@ -215,6 +214,9 @@
         font-weight: 700;
         display: inline-block;
     }
+    body.dark-mode .result-header h4 {
+        color: #e0e0e0;
+    }
     .chart-container {
         display: flex;
         justify-content: center;
@@ -223,14 +225,14 @@
         margin-bottom: 20px;
         position: relative;
         overflow: visible;
+        flex-wrap: wrap; /* Pozwalamy na zawijanie na małych ekranach */
     }
     .chart {
-        flex: 0 0 auto;
         width: 160px;
         height: 160px;
         position: relative;
-        z-index: 25; /* Już masz, ale upewniamy się */
-        overflow: visible; /* Dodajemy, aby wycinki nie były przycinane */
+        z-index: 25;
+        overflow: visible;
     }
     /* Dodajemy styl dla canvasu w wykresie */
     .chart canvas {
@@ -263,7 +265,6 @@
         padding-left: 8px;
     }
     .chart-legend .color-box {
-        .chart-legend .color-box {
         width: 130px !important; /* Zastępuje wszelkie nadpisy */
         min-width: 130px; /* Zapobiega zmniejszaniu */
         height: 26px;
@@ -288,7 +289,7 @@
         transform: translate(-50%, -50%);
         background-color: rgba(0, 0, 0, 0.8);
         color: #fff;
-        font-size: 0.7em; /* Poprzednia wielkość */
+        font-size: 0.7em;
         padding: 4px 8px;
         border-radius: 3px;
         z-index: 10;
@@ -324,7 +325,7 @@
         display: flex;
         justify-content: center;
         gap: 15px;
-        margin-top: 10px;
+        margin-top: 20px; /* Zwiększamy margines */
     }
     .summary-footer .highlight {
         font-size: 0.8em;
@@ -377,35 +378,30 @@
     }
     /* Harmonogram – bez własnego tła */
     .harmonogram {
-        padding: 0; /* Usuwamy padding, bo jest w wrapperze */
-        background-color: transparent; /* Reset tła */
+        padding: 0;
+        background-color: transparent;
     }
     .harmonogram table {
-        margin: 0 auto;
-        width: auto;
+        width: 100%; /* Zmieniamy na 100% zamiast auto */
         max-width: 1000px;
-        display: table;
+        margin: 0 auto;
         border-collapse: separate;
         border-spacing: 0;
         border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        background: #f9f9f9; /* Tło tabeli w trybie jasnym */
-        font-size: 0.8em; /* Przywrócenie oryginalnej wielkości czcionki */
+        box-shadow: none; /* Cień przenosimy do wrappera */
+        background: #f9f9f9;
+        font-size: 0.8em;
     }
     
     .harmonogram th {
-        background: linear-gradient(90deg, #C2B280, #b0a070); /* Oryginalny kolor nagłówka w trybie jasnym */
+        background: linear-gradient(90deg, #C2B280, #b0a070);
         color: #000000;
         padding: 12px;
         text-align: center;
-        vertical-align: middle;
         font-weight: 500;
         border-bottom: 2px solid #ddd;
-        white-space: normal;
-        line-height: 1.2;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: nowrap; /* Zmieniamy na nowrap dla nagłówków */
     }
     
     .harmonogram td {
@@ -413,11 +409,9 @@
         text-align: center;
         font-weight: 400;
         border-bottom: 1px solid #eee;
-        background-color: #f9f9f9; /* Tło komórek w trybie jasnym */
+        background-color: #f9f9f9;
         color: #000000;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
     /* Kolor czcionki "Harmonogram odsetek" */
     .harmonogram .btn-toggle {
@@ -485,22 +479,23 @@
     }
     .harmonogram-container {
         display: flex;
+        flex-direction: column;
+        align-items: center;
         gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
         margin-top: 20px;
-        position: relative;
-        background-color: transparent !important; /* Reset tła */
-        padding: 20px;
+        background: transparent !important;
+        padding: 0; /* Usuwamy padding – przenosimy do wrappera */
     }
     /* Nowy wrapper dla harmonogramu i wykresu */
     .harmonogram-chart-wrapper {
-        background-color: #f9f9f9; /* Tło w trybie jasnym */
+        .harmonogram-chart-wrapper {
+        background-color: #f9f9f9; /* Jasny tryb */
         padding: 20px;
         border-radius: 10px;
-        max-width: 1100px; /* Zwiększona szerokość */
-        width: calc(100% + 60px); /* Szersze tło */
+        width: 100%; /* Zmieniamy na 100% zamiast calc */
+        max-width: 1100px; /* Maksymalna szerokość */
         margin: 0 auto;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1); /* Dodajemy cień dla spójności */
     }
     /* Reset tła dla podsumowania */
     .result-wrapper-chart {
@@ -530,8 +525,11 @@
     .chart-container-line {
         margin-top: 20px;
         width: 100%;
-        height: 400px;
+        max-width: 1000px; /* Ograniczamy szerokość */
+        height: 400px; /* Zachowujemy wysokość, ale można dostosować */
         background-color: transparent;
+        margin-left: auto;
+        margin-right: auto;
     }
     .chart-line {
         width: 100%;
@@ -580,13 +578,15 @@
         margin-top: 5px;
     }
     .variable-input-group .form-label {
-        font-size: 0.7em; /* Taki sam jak w głównych polach */
+        font-size: 0.7em; /* Zachowujemy spójność z innymi etykietami */
         text-transform: uppercase;
         margin-bottom: 2px;
         color: #333333;
+        text-align: left; /* Wyrównanie do lewej */
     }
     body.dark-mode .variable-input-group .form-label {
         color: #e0e0e0; /* Spójność z trybem ciemnym */
+        text-align: left; /* Wyrównanie do lewej */
     }
     
     .variable-input-group .input-group {
@@ -706,8 +706,10 @@
         background-color: transparent !important; /* Reset tła w trybie ciemnym */
     }
     body.dark-mode .harmonogram-chart-wrapper {
-        background-color: #404040; /* Tło w trybie ciemnym */
+        background-color: #404040; /* Ciemny tryb */
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
     }
+        
     body.dark-mode .harmonogram {
         background-color: #404040; /* Nowe: Dopasowane tło */
         padding: 20px;
@@ -729,7 +731,7 @@
     }
     
     body.dark-mode .harmonogram th {
-        background: linear-gradient(90deg, #8B7D47, #70673b); /* Oryginalny kolor nagłówka w trybie ciemnym */
+        background: linear-gradient(90deg, #8B7D47, #70673b);
         color: #e0e0e0;
         border-bottom: 2px solid #555;
     }
@@ -739,7 +741,7 @@
     }
 
     body.dark-mode .harmonogram td {
-        background: #1f1f1f; /* Tło komórek w trybie ciemnym */
+        background: #1f1f1f;
         color: #e0e0e0;
         border-bottom: 1px solid #555;
     }
@@ -915,42 +917,40 @@
                     </div>
                 </div>
                 <div class="summary-footer">
-                    <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span> </span>
-                    <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span> </span>
+                    <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span></span>
+                    <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span></span>
                 </div>
                 <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
             </div>
         </div>
         <div class="harmonogram-container">
-            <div class="result-wrapper-harmonogram">
-                <div class="harmonogram-chart-wrapper">
-                    <div class="harmonogram">
-                        <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
-                        <div id="harmonogramContent">
-                            <table class="table table-striped">
-                                <thead id="harmonogramNaglowek">
-                                    <tr>
-                                        <th id="pierwszaKolumnaNaglowek">Rok</th>
-                                        <th>Wartość inwestycji</th>
-                                        <th>Oproc.</th>
-                                        <th>Odsetki</th>
-                                        <th>Suma odsetek</th>
-                                        <th>Podatek</th>
-                                        <th id="zyskKolumnaNaglowek">Zysk netto</th>
-                                        <th>Opłata za wykup</th>
-                                        <th id="kolumnaStopaInflacja">Inflacja</th>
-                                        <th>Suma netto</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="harmonogramTabela"></tbody>
-                            </table>
-                            <div class="harmonogram-opis" id="harmonogramOpis"></div>
-                        </div>
+            <div class="harmonogram-chart-wrapper">
+                <div class="harmonogram">
+                    <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
+                    <div id="harmonogramContent">
+                        <table class="table table-striped">
+                            <thead id="harmonogramNaglowek">
+                                <tr>
+                                    <th id="pierwszaKolumnaNaglowek">Rok</th>
+                                    <th>Wartość inwestycji</th>
+                                    <th>Oproc.</th>
+                                    <th>Odsetki</th>
+                                    <th>Suma odsetek</th>
+                                    <th>Podatek</th>
+                                    <th id="zyskKolumnaNaglowek">Zysk netto</th>
+                                    <th>Opłata za wykup</th>
+                                    <th id="kolumnaStopaInflacja">Inflacja</th>
+                                    <th>Suma netto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="harmonogramTabela"></tbody>
+                        </table>
+                        <div class="harmonogram-opis" id="harmonogramOpis"></div>
                     </div>
-                    <div class="chart-container-line">
-                        <div class="chart-line">
-                            <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
-                        </div>
+                </div>
+                <div class="chart-container-line">
+                    <div class="chart-line">
+                        <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
                     </div>
                 </div>
             </div>
