@@ -263,20 +263,34 @@
         padding-left: 8px;
     }
     .chart-legend .color-box {
-        width: 130px; /* Powiększona szerokość */
-        height: 26px; /* Powiększona wysokość */
+        width: 130px;
+        height: 26px;
         border-radius: 5px;
         text-align: center;
-        font-weight: 500;
-        line-height: 26px; /* Dopasowanie do nowej wysokości */
-        font-size: 0.7em;
+        font-weight: bold; /* Pogrubienie */
+        line-height: 26px;
+        font-size: 0.85em; /* Powiększenie */
         white-space: nowrap;
         overflow: hidden;
         position: relative;
         color: #fff;
         margin-right: 6px;
     }
-    
+
+    .chart-legend .color-box .value {
+        font-weight: bold;
+        font-size: 0.85em;
+    }
+
+    .chart-legend .legend-text {
+        font-weight: bold;
+        font-size: 0.85em;
+        color: #333333;
+    }
+
+    body.dark-mode .chart-legend .legend-text {
+        color: #e0e0e0;
+    }
     .chart-legend .color-box .value {
         display: block;
     }
@@ -296,6 +310,9 @@
     }
     .chart-legend .color-box:hover .value {
         display: none;
+    }
+    #siteLogo {
+        cursor: pointer;
     }
     .chart-legend .legend-text {
         opacity: 1;
@@ -757,9 +774,7 @@
     }
 </style>
 <div class="logo-container">
-    <a href="https://finance-brothers.pl">
-        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers" class="logo d-block mx-auto">
-    </a>
+    <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
         <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
@@ -1688,7 +1703,7 @@
         state.isCalculating = false;
         console.log("ObliczObligacje completed");
     }
-    
+
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
@@ -1828,7 +1843,10 @@
                 generateDoc(null);
             });
     }
-    
+
+    document.getElementById('siteLogo').addEventListener('click', () => {
+        window.open('https://finance-brothers.pl', '_blank');
+    });
     // Zoomowanie
     let currentZoom = 1;
     const zoomStep = 0.1;
