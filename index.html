@@ -169,13 +169,13 @@
         line-height: 1.4;
     }
     .harmonogram-opis {
-        font-size: 0.5em;
+        font-size: 0.5em; /* Zmniejszony rozmiar */
         color: #333333;
         text-align: left;
         max-width: 1000px;
         margin: 10px auto 0;
         line-height: 1.4;
-        padding-left: 20; /* Usuwamy padding-left */
+        padding-left: 10em;
     }
     .data-container {
         text-align: right;
@@ -190,18 +190,19 @@
     }
     .result-section {
         display: none;
-        padding: 20px; /* Zwiększamy padding dla spójności */
+        padding: 10px;
         max-width: 1200px;
-        margin: 20px auto; /* Dodajemy margines zewnętrzny */
-        background: transparent; /* Reset tła – tło będzie w wrapperach */
+        margin: 0 auto;
+        background: #FFFFFF;
         overflow: visible;
     }
     .result-container {
         display: flex;
-        flex-direction: column; /* Zmieniamy na kolumnę dla lepszej kontroli */
-        align-items: center;
         gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
         position: relative;
+        overflow: visible; /* Dodajemy */
     }
     .result-header {
         text-align: center;
@@ -214,9 +215,6 @@
         font-weight: 700;
         display: inline-block;
     }
-    body.dark-mode .result-header h4 {
-        color: #e0e0e0;
-    }
     .chart-container {
         display: flex;
         justify-content: center;
@@ -225,14 +223,14 @@
         margin-bottom: 20px;
         position: relative;
         overflow: visible;
-        flex-wrap: wrap; /* Pozwalamy na zawijanie na małych ekranach */
     }
     .chart {
+        flex: 0 0 auto;
         width: 160px;
         height: 160px;
         position: relative;
-        z-index: 25;
-        overflow: visible;
+        z-index: 25; /* Już masz, ale upewniamy się */
+        overflow: visible; /* Dodajemy, aby wycinki nie były przycinane */
     }
     /* Dodajemy styl dla canvasu w wykresie */
     .chart canvas {
@@ -265,6 +263,7 @@
         padding-left: 8px;
     }
     .chart-legend .color-box {
+        .chart-legend .color-box {
         width: 130px !important; /* Zastępuje wszelkie nadpisy */
         min-width: 130px; /* Zapobiega zmniejszaniu */
         height: 26px;
@@ -289,7 +288,7 @@
         transform: translate(-50%, -50%);
         background-color: rgba(0, 0, 0, 0.8);
         color: #fff;
-        font-size: 0.7em;
+        font-size: 0.7em; /* Poprzednia wielkość */
         padding: 4px 8px;
         border-radius: 3px;
         z-index: 10;
@@ -325,7 +324,7 @@
         display: flex;
         justify-content: center;
         gap: 15px;
-        margin-top: 20px; /* Zwiększamy margines */
+        margin-top: 10px;
     }
     .summary-footer .highlight {
         font-size: 0.8em;
@@ -378,30 +377,35 @@
     }
     /* Harmonogram – bez własnego tła */
     .harmonogram {
-        padding: 0;
-        background-color: transparent;
+        padding: 0; /* Usuwamy padding, bo jest w wrapperze */
+        background-color: transparent; /* Reset tła */
     }
     .harmonogram table {
-        width: 100%; /* Zmieniamy na 100% zamiast auto */
-        max-width: 1000px;
         margin: 0 auto;
+        width: auto;
+        max-width: 1000px;
+        display: table;
         border-collapse: separate;
         border-spacing: 0;
         border-radius: 10px;
         overflow: hidden;
-        box-shadow: none; /* Cień przenosimy do wrappera */
-        background: #f9f9f9;
-        font-size: 0.8em;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        background: #f9f9f9; /* Tło tabeli w trybie jasnym */
+        font-size: 0.8em; /* Przywrócenie oryginalnej wielkości czcionki */
     }
     
     .harmonogram th {
-        background: linear-gradient(90deg, #C2B280, #b0a070);
+        background: linear-gradient(90deg, #C2B280, #b0a070); /* Oryginalny kolor nagłówka w trybie jasnym */
         color: #000000;
         padding: 12px;
         text-align: center;
+        vertical-align: middle;
         font-weight: 500;
         border-bottom: 2px solid #ddd;
-        white-space: nowrap; /* Zmieniamy na nowrap dla nagłówków */
+        white-space: normal;
+        line-height: 1.2;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     .harmonogram td {
@@ -409,9 +413,11 @@
         text-align: center;
         font-weight: 400;
         border-bottom: 1px solid #eee;
-        background-color: #f9f9f9;
+        background-color: #f9f9f9; /* Tło komórek w trybie jasnym */
         color: #000000;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     /* Kolor czcionki "Harmonogram odsetek" */
     .harmonogram .btn-toggle {
@@ -419,11 +425,8 @@
         font-size: 0.65em;
         color: #000000;
         text-decoration: underline;
-        margin-bottom: 25px;
+        margin-bottom: 25px; /* Większy odstęp od tabelki (było 15px) */
         position: relative;
-        display: block; /* Dodajemy block */
-        text-align: center; /* Wyśrodkowanie tekstu */
-        width: 100%; /* Pełna szerokość dla wyrównania */
     }
     .btn-toggle {
         cursor: pointer;
@@ -482,23 +485,22 @@
     }
     .harmonogram-container {
         display: flex;
-        flex-direction: column;
-        align-items: center;
         gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
         margin-top: 20px;
-        background: transparent !important;
-        padding: 0; /* Usuwamy padding – przenosimy do wrappera */
+        position: relative;
+        background-color: transparent !important; /* Reset tła */
+        padding: 20px;
     }
     /* Nowy wrapper dla harmonogramu i wykresu */
     .harmonogram-chart-wrapper {
-        .harmonogram-chart-wrapper {
-        background-color: #f9f9f9; /* Jasny tryb */
+        background-color: #f9f9f9; /* Tło w trybie jasnym */
         padding: 20px;
         border-radius: 10px;
-        width: 100%; /* Zmieniamy na 100% zamiast calc */
-        max-width: 1100px; /* Maksymalna szerokość */
+        max-width: 1100px; /* Zwiększona szerokość */
+        width: calc(100% + 60px); /* Szersze tło */
         margin: 0 auto;
-        box-shadow: 0 0 15px rgba(0,0,0,0.1); /* Dodajemy cień dla spójności */
     }
     /* Reset tła dla podsumowania */
     .result-wrapper-chart {
@@ -528,11 +530,8 @@
     .chart-container-line {
         margin-top: 20px;
         width: 100%;
-        max-width: 1000px; /* Ograniczamy szerokość */
-        height: 400px; /* Zachowujemy wysokość, ale można dostosować */
+        height: 400px;
         background-color: transparent;
-        margin-left: auto;
-        margin-right: auto;
     }
     .chart-line {
         width: 100%;
@@ -541,10 +540,6 @@
     .variable-rate-container {
         margin-top: 15px;
         text-align: center;
-        display: flex; /* Dodajemy flex */
-        flex-direction: column; /* Ustawiamy kolumnę */
-        align-items: center; /* Wyśrodkowanie w poziomie */
-        width: 100%; /* Zapewniamy pełną szerokość */
     }
     .checkbox-row {
         display: flex;
@@ -554,33 +549,21 @@
     }
     .variable-inputs {
         margin-top: 10px;
-        width: 100%; /* Zapewniamy pełną szerokość */
-        display: flex; /* Dodajemy flex */
-        justify-content: center; /* Wyśrodkowanie w poziomie */
-    }
-    .variable-inputs-wrapper {
-        display: flex; /* Ustawiamy poziomy układ */
-        flex-wrap: wrap; /* Zawijanie, jeśli nie mieszczą się obok siebie */
-        gap: 20px; /* Odstęp między polami */
-        justify-content: center; /* Wyśrodkowanie pól */
-        max-width: 800px; /* Ograniczamy maksymalną szerokość */
     }
     .variable-input-group {
         display: flex;
-        flex-direction: row; /* Zmieniamy na wiersz */
-        align-items: center; /* Wyrównanie w pionie */
-        gap: 10px; /* Odstęp między polami w grupie */
+        flex-direction: column;
         margin-bottom: 10px;
+        align-items: center;
     }
     .fields-wrapper {
         display: flex;
-        flex-direction: row; /* Ustawiamy poziomo cykl i stopę */
-        gap: 10px; /* Odstęp między polami */
+        justify-content: center;
+        gap: 10px;
     }
     .variable-input-group .form-group {
-        max-width: 180px;
+        max-width: 180px; /* Taki sam rozmiar jak w głównych polach */
         min-width: 0;
-        flex: 1; /* Elastyczne dopasowanie szerokości */
     }
     .variable-input-group .form-control,
     .variable-input-group .form-range {
@@ -593,19 +576,17 @@
     }
     .remove-btn-wrapper {
         display: flex;
-        align-items: center; /* Wyrównanie przycisku "Usuń" w pionie */
-        margin-left: 10px; /* Odstęp od pól */
+        justify-content: center;
+        margin-top: 5px;
     }
     .variable-input-group .form-label {
-        font-size: 0.7em; /* Zachowujemy spójność z innymi etykietami */
+        font-size: 0.7em; /* Taki sam jak w głównych polach */
         text-transform: uppercase;
         margin-bottom: 2px;
         color: #333333;
-        text-align: left; /* Wyrównanie do lewej */
     }
     body.dark-mode .variable-input-group .form-label {
         color: #e0e0e0; /* Spójność z trybem ciemnym */
-        text-align: left; /* Wyrównanie do lewej */
     }
     
     .variable-input-group .input-group {
@@ -725,10 +706,8 @@
         background-color: transparent !important; /* Reset tła w trybie ciemnym */
     }
     body.dark-mode .harmonogram-chart-wrapper {
-        background-color: #404040; /* Ciemny tryb */
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        background-color: #404040; /* Tło w trybie ciemnym */
     }
-        
     body.dark-mode .harmonogram {
         background-color: #404040; /* Nowe: Dopasowane tło */
         padding: 20px;
@@ -750,7 +729,7 @@
     }
     
     body.dark-mode .harmonogram th {
-        background: linear-gradient(90deg, #8B7D47, #70673b);
+        background: linear-gradient(90deg, #8B7D47, #70673b); /* Oryginalny kolor nagłówka w trybie ciemnym */
         color: #e0e0e0;
         border-bottom: 2px solid #555;
     }
@@ -760,7 +739,7 @@
     }
 
     body.dark-mode .harmonogram td {
-        background: #1f1f1f;
+        background: #1f1f1f; /* Tło komórek w trybie ciemnym */
         color: #e0e0e0;
         border-bottom: 1px solid #555;
     }
@@ -936,40 +915,42 @@
                     </div>
                 </div>
                 <div class="summary-footer">
-                    <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span></span>
-                    <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span></span>
+                    <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span> </span>
+                    <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span> </span>
                 </div>
                 <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
             </div>
         </div>
         <div class="harmonogram-container">
-            <div class="harmonogram-chart-wrapper">
-                <div class="harmonogram">
-                    <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
-                    <div id="harmonogramContent">
-                        <table class="table table-striped">
-                            <thead id="harmonogramNaglowek">
-                                <tr>
-                                    <th id="pierwszaKolumnaNaglowek">Rok</th>
-                                    <th>Wartość inwestycji</th>
-                                    <th>Oproc.</th>
-                                    <th>Odsetki</th>
-                                    <th>Suma odsetek</th>
-                                    <th>Podatek</th>
-                                    <th id="zyskKolumnaNaglowek">Zysk netto</th>
-                                    <th>Opłata za wykup</th>
-                                    <th id="kolumnaStopaInflacja">Inflacja</th>
-                                    <th>Suma netto</th>
-                                </tr>
-                            </thead>
-                            <tbody id="harmonogramTabela"></tbody>
-                        </table>
-                        <div class="harmonogram-opis" id="harmonogramOpis"></div>
+            <div class="result-wrapper-harmonogram">
+                <div class="harmonogram-chart-wrapper">
+                    <div class="harmonogram">
+                        <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
+                        <div id="harmonogramContent">
+                            <table class="table table-striped">
+                                <thead id="harmonogramNaglowek">
+                                    <tr>
+                                        <th id="pierwszaKolumnaNaglowek">Rok</th>
+                                        <th>Wartość inwestycji</th>
+                                        <th>Oproc.</th>
+                                        <th>Odsetki</th>
+                                        <th>Suma odsetek</th>
+                                        <th>Podatek</th>
+                                        <th id="zyskKolumnaNaglowek">Zysk netto</th>
+                                        <th>Opłata za wykup</th>
+                                        <th id="kolumnaStopaInflacja">Inflacja</th>
+                                        <th>Suma netto</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="harmonogramTabela"></tbody>
+                            </table>
+                            <div class="harmonogram-opis" id="harmonogramOpis"></div>
+                        </div>
                     </div>
-                </div>
-                <div class="chart-container-line">
-                    <div class="chart-line">
-                        <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
+                    <div class="chart-container-line">
+                        <div class="chart-line">
+                            <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
