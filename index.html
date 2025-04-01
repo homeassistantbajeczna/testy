@@ -551,7 +551,10 @@
     }
     .variable-rate-container {
         margin-top: 15px;
-        text-align: center;
+        text-align: center; /* Wyśrodkowanie tekstu */
+        display: flex; /* Ustawiamy flex dla wyśrodkowania */
+        flex-direction: column;
+        align-items: center; /* Wyśrodkowanie w pionie */
     }
     .checkbox-row {
         display: flex;
@@ -560,27 +563,30 @@
         margin-bottom: 10px;
     }
     .variable-inputs {
+        .variable-inputs {
         margin-top: 10px;
+        width: 100%; /* Upewniamy się, że zajmuje pełną szerokość */
+        display: flex;
+        justify-content: center; /* Wyśrodkowanie zawartości */
     }
     .variable-input-group {
-        .variable-input-group {
         display: flex;
         flex-direction: row; /* Poziomy układ dla całej grupy */
         align-items: flex-start; /* Wyrównanie do góry */
         margin-bottom: 10px;
-        gap: 15px; /* Odstęp między elementami */
+        gap: 10px; /* Odstęp między elementami */
         justify-content: center; /* Wyśrodkowanie */
     }
     .fields-wrapper {
         display: flex;
         flex-direction: row; /* Pola "Od" i "Stopa Ref. NBP" obok siebie */
-        gap: 20px; /* Odstęp między polami */
+        gap: 10px; /* Odstęp między polami */
         align-items: flex-start;
     }
     .variable-input-group .form-group {
         display: flex;
         flex-direction: column; /* Etykieta nad polem */
-        align-items: center; /* Wyśrodkowanie w pionie */
+        align-items: flex-start; /* Wyśrodkowanie w pionie */
         max-width: 150px; /* Spójne z głównym formularzem */
         width: 150px; /* Stała szerokość */
     }
