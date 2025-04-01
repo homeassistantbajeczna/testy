@@ -175,7 +175,7 @@
         max-width: 1000px;
         margin: 10px auto 0;
         line-height: 1.4;
-        padding-left: 10em;
+        padding-left: 8em;
     }
     .data-container {
         text-align: right;
@@ -551,10 +551,7 @@
     }
     .variable-rate-container {
         margin-top: 15px;
-        text-align: center; /* Wyśrodkowanie tekstu */
-        display: flex; /* Ustawiamy flex dla wyśrodkowania */
-        flex-direction: column;
-        align-items: center; /* Wyśrodkowanie w pionie */
+        text-align: center;
     }
     .checkbox-row {
         display: flex;
@@ -563,90 +560,49 @@
         margin-bottom: 10px;
     }
     .variable-inputs {
-        .variable-inputs {
         margin-top: 10px;
-        width: 100%; /* Upewniamy się, że zajmuje pełną szerokość */
-        display: flex;
-        justify-content: center; /* Wyśrodkowanie zawartości */
     }
     .variable-input-group {
         display: flex;
-        flex-direction: column; /* Zmieniamy na column, aby przycisk "Usuń" był pod polami */
-        align-items: center; /* Wyśrodkowanie w pionie */
+        flex-direction: column;
         margin-bottom: 10px;
-        gap: 5px;
+        align-items: center;
     }
     .fields-wrapper {
         display: flex;
-        flex-direction: row; /* Pola "Od" i "Stopa Ref. NBP" obok siebie */
-        gap: 10px; /* Odstęp między polami */
-        align-items: flex-start;
         justify-content: center;
+        gap: 10px;
     }
     .variable-input-group .form-group {
-        display: flex;
-        flex-direction: column; /* Etykieta nad polem */
-        align-items: flex-start; /* Wyśrodkowanie w pionie */
-        max-width: 150px; /* Spójne z głównym formularzem */
-        width: 150px; /* Stała szerokość */
-    }
-
-    .variable-input-group .form-control {
-        height: 22px !important; /* Upewniamy się, że wysokość nie jest nadpisywana */
-        font-size: 0.7em;
-        padding: 2px 5px; /* Dopasowanie paddingu do głównego formularza */
-        line-height: 18px; /* Dopasowanie wysokości linii */
-        text-align: center;
-        flex: 1;
+        max-width: 120px; /* Taki sam rozmiar jak w głównych polach */
         min-width: 0;
-        box-sizing: border-box;
-        background-color: #fff;
-        width: 100%;
     }
-        
     .variable-input-group .form-control,
     .variable-input-group .form-range {
-        height: 8px;
+        height: 22px; /* Taki sam jak w głównych polach */
         font-size: 0.7em;
-        margin-top: 2px; /* Odstęp od pola */
-        background: #d3d3d3;
-        border-radius: 5px;
-        width: 100%; /* Pełna szerokość .form-group */
-    }
-        
-    .variable-input-group .input-group-text {
-        font-size: 0.7em;
-        padding: 2px 5px;
-        flex-shrink: 0;
-    }
-
-    body.dark-mode .variable-input-group .form-control,
-    body.dark-mode .variable-input-group .form-range {
-        background-color: #fff; /* Białe tło w trybie ciemnym */
-        color: #333333; /* Ciemny tekst dla kontrastu */
+        padding: 2px;
+        text-align: center;
+        max-width: 120px;
+        background: #fff;
     }
     .remove-btn-wrapper {
         display: flex;
-        align-items: center; /* Przycisk "Usuń" w linii z polami */
-        margin-left: 5px; /* Odstęp od pól */
+        justify-content: center;
+        margin-top: 5px;
     }
     .variable-input-group .form-label {
-        font-size: 0.7em;
+        font-size: 0.7em; /* Taki sam jak w głównych polach */
         text-transform: uppercase;
         margin-bottom: 2px;
         color: #333333;
-        white-space: nowrap;
     }
     body.dark-mode .variable-input-group .form-label {
         color: #e0e0e0; /* Spójność z trybem ciemnym */
     }
     
     .variable-input-group .input-group {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        width: 100%; /* Pełna szerokość .form-group */
-        max-width: 150px; /* Maksymalna szerokość z jednostką */
+        justify-content: center;
     }
     .variable-input-group .btn-danger {
         font-size: 0.7em;
@@ -696,6 +652,12 @@
     body.dark-mode {
     background-color: #2b2b2b;
     color: #e0e0e0;
+    }
+
+    body.dark-mode .variable-input-group .form-control,
+    body.dark-mode .variable-input-group .form-range {
+        background: #fff; /* Białe tło w trybie ciemnym */
+        color: #333333; /* Ciemny tekst dla kontrastu */
     }
 
     body.dark-mode .container {
