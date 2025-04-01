@@ -565,24 +565,28 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 10px;
-        align-items: center;
+        align-items: flex-start;
     }
     .fields-wrapper {
         display: flex;
         justify-content: center;
         gap: 10px;
+        width: 100%;
     }
     .variable-input-group .form-group {
-        max-width: 300px; /* Taki sam rozmiar jak w głównych polach */
+        max-width: 150px; /* Dopasowujemy szerokość do głównego formularza */
         min-width: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Centrujemy pola wejściowe i suwaki w obrębie .form-group */
     }
     .variable-input-group .form-control,
     .variable-input-group .form-range {
-        height: 22px; /* Taki sam jak w głównych polach */
+        height: 22px;
         font-size: 0.7em;
         padding: 2px;
         text-align: center;
-        max-width: 300px;
+        max-width: 150px; /* Dopasowujemy szerokość do głównego formularza */
         background: #fff;
     }
     .remove-btn-wrapper {
@@ -595,13 +599,16 @@
         text-transform: uppercase;
         margin-bottom: 2px;
         color: #333333;
-    }
+        text-align: left; /* Wyrównanie tekstu do lewej strony */
+        width: 100%;
+        }
     body.dark-mode .variable-input-group .form-label {
         color: #e0e0e0; /* Spójność z trybem ciemnym */
     }
     
     .variable-input-group .input-group {
         justify-content: center;
+        width: 100%;
     }
     .variable-input-group .btn-danger {
         font-size: 0.7em;
