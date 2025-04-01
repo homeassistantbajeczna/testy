@@ -581,15 +581,38 @@
         flex-direction: column;
         align-items: center; /* Centrujemy pola wejściowe i suwaki w obrębie .form-group */
     }
-    .variable-input-group .form-control,
+    /* Styl dla pola liczbowego w sekcji zmiennych */
+    .variable-input-group .form-control {
+        height: 22px; /* Taka sama wysokość jak w sekcji "Kwota inwestycji" */
+        font-size: 0.7em; /* Taka sama wielkość czcionki */
+        padding: 2px; /* Takie samo padding */
+        text-align: center; /* Wyrównanie tekstu */
+        background: #fff; /* Białe tło w trybie jasnym */
+        color: #333333; /* Ciemny tekst w trybie jasnym */
+        border: 1px solid #C2B280; /* Ramka w kolorze złotym */
+        border-radius: 5px;
+    }
+    /* Styl dla jednostki (np. "%" lub "miesiąca") */
+    .variable-input-group .input-group-text {
+        height: 22px; /* Taka sama wysokość jak pole liczbowe */
+        font-size: 0.7em;
+        padding: 2px 5px;
+        background: #fff; /* Białe tło w trybie jasnym */
+        color: #333333; /* Ciemny tekst w trybie jasnym */
+        border: 1px solid #C2B280; /* Ramka w kolorze złotym */
+        border-radius: 5px;
+    }
+    
+    /* Styl dla suwaka w sekcji zmiennych */
     .variable-input-group .form-range {
-        margin-top: 2px; /* Taki sam odstęp jak w sekcji "Kwota inwestycji" */
-        height: 8px;
+        margin-top: 2px;
+        height: 8px; /* Wysokość suwaka pozostaje taka sama */
         background: #d3d3d3; /* Szare tło w trybie jasnym */
         border-radius: 5px;
-        -webkit-appearance: none; /* Usuwamy domyślny styl przeglądarki */
+        -webkit-appearance: none;
         appearance: none;
     }
+    
     /* Styl dla kciuka suwaka w trybie jasnym */
     .variable-input-group .form-range::-webkit-slider-thumb {
         -webkit-appearance: none;
@@ -615,11 +638,11 @@
     }
     
     body.dark-mode .variable-input-group .form-range::-webkit-slider-thumb {
-        background: #8B7D47; /* Ciemniejszy odcień kciuka w trybie ciemnym */
+        background: #C2B280; /* Ciemniejszy odcień kciuka w trybie ciemnym */
     }
     
     body.dark-mode .variable-input-group .form-range::-moz-range-thumb {
-        background: #8B7D47;
+        background: #C2B280;
     }
 
     
@@ -641,8 +664,10 @@
     }
     
     .variable-input-group .input-group {
-        justify-content: center;
-        width: 100%;
+        display: flex;
+        align-items: center;
+        max-width: 150px; /* Taka sama szerokość jak w sekcji "Kwota inwestycji" */
+        width: 100%; /* Upewniamy się, że zajmuje pełną dostępną szerokość */
     }
     .variable-input-group .btn-danger {
         font-size: 0.7em;
