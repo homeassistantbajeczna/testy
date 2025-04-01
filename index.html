@@ -627,6 +627,8 @@
         display: flex;
         justify-content: center;
         margin-top: 5px;
+        align-self: center; /* Centruje kontener w poziomie w obrębie .variable-input-group */
+        width: 100%; /* Upewniamy się, że kontener zajmuje pełną szerokość, aby centrowanie działało */
     }
     
     .variable-input-group .btn-danger.remove-first-btn {
@@ -642,6 +644,13 @@
     
     .variable-input-group .btn-danger.remove-first-btn:hover {
         background: #c82333;
+    }
+    .variable-input-group .remove-btn-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+        align-self: center; /* Centruje kontener w poziomie w obrębie .variable-input-group */
+        width: 100%; /* Upewniamy się, że kontener zajmuje pełną szerokość, aby centrowanie działało */
     }
     
     #addVariableBtn {
