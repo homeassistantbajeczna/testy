@@ -565,7 +565,13 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 10px;
-        align-items: flex-start;
+        align-items: center; /* Centrujemy elementy */
+    }
+    .variable-input-group .fields-wrapper {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
     }
     .fields-wrapper {
         display: flex;
@@ -574,21 +580,52 @@
         width: 100%;
     }
     .variable-input-group .form-group {
-        max-width: 150px; /* Dopasowujemy szerokość do głównego formularza */
+        flex: 1;
         min-width: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center; /* Centrujemy pola wejściowe i suwaki w obrębie .form-group */
+        max-width: 150px; /* Taka sama szerokość jak w sekcji "Kwota inwestycji" */
     }
     .variable-input-group .form-control,
     .variable-input-group .form-range {
-        height: 22px;
-        font-size: 0.7em;
-        padding: 2px;
-        text-align: center;
-        max-width: 150px; /* Dopasowujemy szerokość do głównego formularza */
-        background: #fff;
+        margin-top: 2px; /* Taki sam odstęp jak w sekcji "Kwota inwestycji" */
+        height: 8px;
+        background: #d3d3d3; /* Szare tło w trybie jasnym */
+        border-radius: 5px;
+        -webkit-appearance: none; /* Usuwamy domyślny styl przeglądarki */
+        appearance: none;
     }
+    /* Styl dla kciuka suwaka w trybie jasnym */
+    .variable-input-group .form-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        background: #C2B280; /* Taki sam kolor jak w sekcji "Kwota inwestycji" */
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .variable-input-group .form-range::-moz-range-thumb {
+        width: 12px;
+        height: 12px;
+        background: #C2B280;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    /* Styl dla suwaka w trybie ciemnym */
+    body.dark-mode .variable-input-group .form-range {
+        background: #666666; /* Ciemniejsze tło w trybie ciemnym dla lepszego kontrastu */
+    }
+    
+    body.dark-mode .variable-input-group .form-range::-webkit-slider-thumb {
+        background: #8B7D47; /* Ciemniejszy odcień kciuka w trybie ciemnym */
+    }
+    
+    body.dark-mode .variable-input-group .form-range::-moz-range-thumb {
+        background: #8B7D47;
+    }
+
+    
     .remove-btn-wrapper {
         display: flex;
         justify-content: center;
@@ -688,12 +725,6 @@
     body.dark-mode {
     background-color: #2b2b2b;
     color: #e0e0e0;
-    }
-
-    body.dark-mode .variable-input-group .form-control,
-    body.dark-mode .variable-input-group .form-range {
-        background: #fff; /* Białe tło w trybie ciemnym */
-        color: #333333; /* Ciemny tekst dla kontrastu */
     }
 
     body.dark-mode .container {
