@@ -263,12 +263,12 @@
         padding-left: 8px;
     }
     .chart-legend .color-box {
-        width: 90px;
-        height: 18px;
+        width: 110px; /* Powiększona szerokość */
+        height: 22px; /* Powiększona wysokość */
         border-radius: 5px;
         text-align: center;
         font-weight: 500;
-        line-height: 18px;
+        line-height: 22px; /* Dopasowanie do nowej wysokości */
         font-size: 0.7em;
         white-space: nowrap;
         overflow: hidden;
@@ -276,6 +276,7 @@
         color: #fff;
         margin-right: 6px;
     }
+    
     .chart-legend .color-box .value {
         display: block;
     }
@@ -542,7 +543,15 @@
         gap: 10px;
     }
     .variable-input-group .form-group {
-        max-width: 120px;
+        max-width: 150px; /* Taki sam rozmiar jak w głównych polach */
+        min-width: 0;
+    }
+    .variable-input-group .form-control,
+    .variable-input-group .form-range {
+        height: 22px; /* Taki sam jak w głównych polach */
+        font-size: 0.7em;
+        padding: 2px;
+        text-align: center;
     }
     .remove-btn-wrapper {
         display: flex;
@@ -550,10 +559,15 @@
         margin-top: 5px;
     }
     .variable-input-group .form-label {
-        text-align: left !important;
-        width: 100%;
-        padding-left: 0;
+        font-size: 0.7em; /* Taki sam jak w głównych polach */
+        text-transform: uppercase;
+        margin-bottom: 2px;
+        color: #333333;
     }
+    body.dark-mode .variable-input-group .form-label {
+        color: #e0e0e0; /* Spójność z trybem ciemnym */
+    }
+    
     .variable-input-group .input-group {
         justify-content: center;
     }
@@ -1630,7 +1644,11 @@
                         ticks: { 
                             font: { size: 12 },
                             color: isDarkMode ? '#e0e0e0' : '#333333'
-                        } 
+                        },
+                        grid: {
+                            color: '#808080', // Średni szary, subtelny w obu trybach
+                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
+                        }
                     },
                     y: { 
                         title: { 
@@ -1645,7 +1663,11 @@
                             stepSize: stepSize, 
                             font: { size: 12 },
                             color: isDarkMode ? '#e0e0e0' : '#333333'
-                        } 
+                        },
+                        grid: {
+                            color: '#808080', // Średni szary, subtelny w obu trybach
+                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
+                        }
                     }
                 },
                 plugins: { 
@@ -1871,6 +1893,8 @@
             state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.update();
         }
     });
