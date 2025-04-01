@@ -2030,25 +2030,45 @@
         });
     
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        
-        // Zapamiętujemy oryginalne kolory siatki
-        const originalXGridColor = state.chartLine.options.scales.x.grid.color;
-        const originalYGridColor = state.chartLine.options.scales.y.grid.color;
-        
-        // Tymczasowo zmieniamy kolory siatki w trybie ciemnym na jaśniejsze
-        if (isDarkMode) {
-            state.chartLine.options.scales.x.grid.color = '#666666';
-            state.chartLine.options.scales.y.grid.color = '#666666';
-            state.chartLine.update(); // Aktualizujemy wykres, aby zastosować nowe kolory
-        }
-        
+    
+        // Zapamiętujemy oryginalne kolory wykresu
+        const originalColors = {
+            xGridColor: state.chartLine.options.scales.x.grid.color,
+            yGridColor: state.chartLine.options.scales.y.grid.color,
+            xGridBorderColor: state.chartLine.options.scales.x.grid.borderColor,
+            yGridBorderColor: state.chartLine.options.scales.y.grid.borderColor,
+            xTitleColor: state.chartLine.options.scales.x.title.color,
+            yTitleColor: state.chartLine.options.scales.y.title.color,
+            xTicksColor: state.chartLine.options.scales.x.ticks.color,
+            yTicksColor: state.chartLine.options.scales.y.ticks.color,
+            legendColor: state.chartLine.options.plugins.legend.labels.color
+        };
+    
+        // Ustawiamy kolory na wartości trybu jasnego, niezależnie od trybu
+        state.chartLine.options.scales.x.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
+        state.chartLine.options.scales.y.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
+        state.chartLine.options.scales.x.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
+        state.chartLine.options.scales.y.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
+        state.chartLine.options.scales.x.title.color = '#333333'; // Kolor tytułu osi X w trybie jasnym
+        state.chartLine.options.scales.y.title.color = '#333333'; // Kolor tytułu osi Y w trybie jasnym
+        state.chartLine.options.scales.x.ticks.color = '#333333'; // Kolor etykiet osi X w trybie jasnym
+        state.chartLine.options.scales.y.ticks.color = '#333333'; // Kolor etykiet osi Y w trybie jasnym
+        state.chartLine.options.plugins.legend.labels.color = '#333333'; // Kolor legendy w trybie jasnym
+        state.chartLine.update(); // Aktualizujemy wykres, aby zastosować nowe kolory
+    
         // Generujemy obraz wykresu
         const lineChartImage = lineChartCanvas.toDataURL("image/png");
-        
-        // Przywracamy oryginalne kolory siatki
-        state.chartLine.options.scales.x.grid.color = originalXGridColor;
-        state.chartLine.options.scales.y.grid.color = originalYGridColor;
+    
+        // Przywracamy oryginalne kolory
+        state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
+        state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
+        state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
+        state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
+        state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
+        state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
+        state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
+        state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
+        state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
         state.chartLine.update(); // Aktualizujemy wykres, aby przywrócić oryginalne kolory
     
         function getBase64ImageFromUrl(url) {
@@ -2072,7 +2092,7 @@
         const generateDoc = (logoBase64) => {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
             const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
-            const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
+            const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym razie opłata będzie do wartości narosłych odsetek.";
             const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
             const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
     
