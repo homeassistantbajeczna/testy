@@ -694,11 +694,13 @@
     }
     
     body.dark-mode .variable-input-group .form-range::-webkit-slider-thumb {
-        background: #C2B280; /* Ciemniejszy odcień kciuka w trybie ciemnym */
+        background: #70673B; /* Ciemniejszy odcień złotego */
+        border: 1px solid #70673B;
     }
     
     body.dark-mode .variable-input-group .form-range::-moz-range-thumb {
-        background: #C2B280;
+        background: #70673B; /* Ciemniejszy odcień złotego */
+        border: 1px solid #70673B;
     }
 
     
@@ -898,18 +900,18 @@
     }
     
     body.dark-mode .form-range::-webkit-slider-thumb {
-        background: #8B7A47; /* Ciemniejszy złoty w trybie ciemnym */
-        border: 1px solid #8B7A47;
+        background: #70673B; /* Ciemniejszy złoty w trybie ciemnym */
+        border: 1px solid #70673B;
     }
     
     body.dark-mode .form-range::-moz-range-thumb {
-        background: #8B7A47; /* Ciemniejszy złoty w trybie ciemnym */
-        border: 1px solid #8B7A47;
+        background: #70673B; /* Ciemniejszy złoty w trybie ciemnym */
+        border: 1px solid #70673B;
     }
     
     body.dark-mode .form-range::-ms-thumb {
-        background: #8B7A47; /* Ciemniejszy złoty w trybie ciemnym */
-        border: 1px solid #8B7A47;
+        background: #70673B; /* Ciemniejszy złoty w trybie ciemnym */
+        border: 1px solid #70673B;
     }
     
     body.dark-mode .harmonogram th {
@@ -1900,8 +1902,8 @@
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
-                            color: isDarkMode ? '#e0e0e0' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
-                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#333333' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
+                            borderColor: isDarkMode ? '#333333' : '#333333'
                         }
                     },
                     y: { 
@@ -1919,8 +1921,8 @@
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
-                            color: isDarkMode ? '#e0e0e0' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
-                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#333333' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
+                            borderColor: isDarkMode ? '#333333' : '#333333'
                         }
                     }
                 },
@@ -2169,14 +2171,10 @@
             state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            /*state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
             state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
             state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';*/
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
-            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#333333' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#333333' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.update();
         }
     });
