@@ -2038,8 +2038,8 @@
         
         // Tymczasowo zmieniamy kolory siatki w trybie ciemnym na jaśniejsze
         if (isDarkMode) {
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#e0e0e0' : '#666666'; // Jaśniejszy kolor w trybie ciemnym dla PDF-a
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#e0e0e0' : '#666666';
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#999999' : '#e0e0e0'; // Jaśniejszy kolor w trybie ciemnym dla PDF-a
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#999999' : '#e0e0e0';
             state.chartLine.update(); // Aktualizujemy wykres, aby zastosować nowe kolory
         }
         
