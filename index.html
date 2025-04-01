@@ -691,8 +691,35 @@
     /* Styl dla suwaka w trybie ciemnym */
     body.dark-mode .variable-input-group .form-range {
         background: #666666; /* Ciemniejsze tło w trybie ciemnym dla lepszego kontrastu */
+        border: none !important; /* Usuwamy ramkę */
+        outline: none !important; /* Usuwamy outline dodawany przez przeglądarkę */
+    }
+    /* Upewniamy się, że tory suwaków nie mają ramki */
+    body.dark-mode .variable-input-group .form-range::-webkit-slider-runnable-track {
+        background: #666666;
+        border: none !important;
+        border-radius: 5px;
+        height: 5px;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    body.dark-mode .variable-input-group .form-range::-moz-range-track {
+        background: #666666;
+        border: none !important;
+        border-radius: 5px;
+        height: 5px;
+        box-shadow: none !important;
+        outline: none !important;
     }
     
+    body.dark-mode .variable-input-group .form-range::-ms-track {
+        background: #666666;
+        border: none !important;
+        border-radius: 5px;
+        height: 5px;
+        box-shadow: none !important;
+        outline: none !important;
+    }
     body.dark-mode .variable-input-group .form-range::-webkit-slider-thumb {
         background: #70673B; /* Ciemniejszy odcień złotego */
         border: 1px solid #70673B;
@@ -2006,12 +2033,10 @@
         const originalXGridColor = state.chartLine.options.scales.x.grid.color;
         const originalYGridColor = state.chartLine.options.scales.y.grid.color;
         
-        // Tymczasowo zmieniamy kolory siatki w trybie ciemnym na jaśniejsze
-        if (isDarkMode) {
-            state.chartLine.options.scales.x.grid.color = '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = '#e0e0e0';
-            state.chartLine.update(); // Aktualizujemy wykres, aby zastosować nowe kolory
-        }
+        / Tymczasowo zmieniamy kolory siatki na jaśniejsze dla PDF-a
+        state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0'; // Jaśniejszy kolor w trybie ciemnym dla PDF-a
+        state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0'; // Jaśniejszy kolor w trybie ciemnym dla PDF-a
+        state.chartLine.update(); // Aktualizujemy wykres, aby zastosować nowe kolory
         
         // Generujemy obraz wykresu
         const lineChartImage = lineChartCanvas.toDataURL("image/png");
