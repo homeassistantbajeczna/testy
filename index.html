@@ -1410,6 +1410,7 @@
         const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
         const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
         const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
+        const maxCykl = ["ROR", "DOR"].includes(typ) ? obligacjeConfig[typ].okres : obligacjeConfig[typ].okres / 12;
     
         const inputs = document.querySelectorAll(".variable-input-group");
         const newChanges = [];
@@ -1417,13 +1418,19 @@
         inputs.forEach((inputGroup, index) => {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
             const rateInput = inputGroup.querySelector(".variable-rate");
-            let period = parseInt(cyklInput.value);
+            let period = Math.round(parseFloat(cyklInput.value));
             const value = parseFloat(rateInput.value);
     
-            // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza
-            const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 1;
+            // Ustalamy minimalną i maksymalną wartość okresu
+            const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 2;
             if (period < minPeriod) {
                 period = minPeriod;
+                cyklInput.value = period;
+                const cyklRange = inputGroup.querySelector(".variable-cykl-range");
+                cyklRange.value = period;
+            }
+            if (period > maxCykl) {
+                period = maxCykl;
                 cyklInput.value = period;
                 const cyklRange = inputGroup.querySelector(".variable-cykl-range");
                 cyklRange.value = period;
@@ -1431,6 +1438,17 @@
     
             newChanges.push({ period, value });
         });
+    
+        // Usuwamy kolejne wiersze, które mają okres mniejszy lub równy bieżącemu
+        for (let i = 0; i < newChanges.length; i++) {
+            const currentPeriod = newChanges[i].period;
+            // Sprawdzamy wszystkie kolejne wiersze
+            for (let j = newChanges.length - 1; j > i; j--) {
+                if (newChanges[j].period <= currentPeriod) {
+                    newChanges.splice(j, 1); // Usuwamy wiersz
+                }
+            }
+        }
     
         if (isInflacjaZmienna) {
             state.variableInflation = newChanges;
@@ -1527,8 +1545,8 @@
                 const fieldsWrapper = document.createElement("div");
                 fieldsWrapper.className = "fields-wrapper";
     
-                // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza
-                const minPeriod = index > 0 ? changes[index - 1].period + 1 : 1;
+                // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza, ale dla pierwszego wiersza min to 2
+                const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
     
                 const cyklGroup = document.createElement("div");
                 cyklGroup.className = "form-group";
@@ -1600,7 +1618,7 @@
     
                 cyklInput.addEventListener("input", () => {
                     let value = parseInt(cyklInput.value);
-                    // Sprawdzamy, czy wartość jest większa niż poprzedni okres
+                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                         cyklInput.value = value;
@@ -1612,21 +1630,21 @@
                     cyklRange.value = value;
                     changes[index].period = value;
                     updateVariableData();
-                    // Aktualizujemy min dla kolejnych wierszy
+                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
                 cyklRange.addEventListener("input", () => {
                     let value = parseFloat(cyklRange.value);
-                    // Aktualizujemy pole numeryczne podczas przesuwania (płynnie)
-                    cyklInput.value = value.toFixed(2); // Pokazujemy wartość z 2 miejscami po przecinku podczas przesuwania
+                    // Podczas przesuwania pokazujemy tylko wartości całkowite
+                    cyklInput.value = Math.round(value);
                 });
     
                 cyklRange.addEventListener("change", () => {
                     let value = parseFloat(cyklRange.value);
                     // Po zakończeniu przesuwania zaokrąglamy do najbliższej liczby całkowitej
                     value = Math.round(value);
-                    // Sprawdzamy, czy wartość jest większa niż poprzedni okres
+                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                     }
@@ -1637,7 +1655,7 @@
                     cyklInput.value = value;
                     changes[index].period = value;
                     updateVariableData();
-                    // Aktualizujemy min dla kolejnych wierszy
+                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
@@ -1681,7 +1699,7 @@
         }
     
         const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-        const lastCykl = lastChange ? lastChange.period : 1;
+        const lastCykl = lastChange ? lastChange.period : 1; // lastCykl nie będzie mniejszy niż 2, bo minPeriod = 2
         const newCykl = Math.min(lastCykl + 1, maxCykl);
         const newValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
     
