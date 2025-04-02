@@ -83,19 +83,32 @@
         background-color: #C2B280; /* Złote tło w trybie jasnym */
         border-color: #C2B280; /* Ramka w kolorze tła */
     }
-    .checkbox-label input:checked + .checkbox-custom::after {
-        content: '✔';
+
+    /* Styl ptaszka za pomocą ::after */
+    .checkbox-custom::after {
+        content: "";
         position: absolute;
         left: 4px;
         top: 2px;
         width: 4px;
         height: 8px;
-        border: solid #000000; /* Biały ptaszek w trybie jasnym */
+        border: solid #ffffff; /* Biały ptaszek w trybie jasnym */
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
         opacity: 0; /* Ukrywamy ptaszka, gdy checkbox nie jest zaznaczony */
         transition: opacity 0.2s ease;
+    }
+    
+    .checkbox-label input:checked + .checkbox-custom::after {
+        content: '✔';
+        color: #000;
+        font-size: 12px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         opacity: 1; /* Pokazujemy ptaszka */
+        
     }
     .checkbox-label.header-checkbox {
         position: absolute;
