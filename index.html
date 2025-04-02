@@ -86,7 +86,7 @@
 
     /* Styl ptaszka za pomocą ::after */
     .checkbox-custom::after {
-        content: "";
+        content: '✔';
         position: absolute;
         left: 4px;
         top: 2px;
@@ -114,15 +114,14 @@
     }
     .form-row {
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         margin-bottom: 10px;
         gap: 10px;
         align-items: flex-start;
     }
     .form-group {
-        flex: 1;
+        flex: 0 1 150px; /* Stała szerokość 150px dla każdego form-group */        
         min-width: 0;
-        max-width: 150px;
     }
     .form-label {
         font-size: 0.7em;
@@ -155,6 +154,8 @@
         height: 8px;
         background: #d3d3d3;
         border-radius: 5px;
+        width: 100%;
+        max-width: 150px; /* Dopasowujemy szerokość suwaka do maksymalnej szerokości form-group */
     }
     .form-range::-webkit-slider-thumb {
         background: #C2B280;
@@ -180,6 +181,17 @@
         border: 1px solid #C2B280;
         border-radius: 50%;
         cursor: pointer;
+    }
+    @media (max-width: 768px) {
+        .form-row {
+            flex-direction: column;
+            align-items: center;
+        }
+    
+        .form-group {
+            flex: 0 1 100%;
+            max-width: 300px;
+        }
     }
     .input-group-text {
         height: 22px; /* Jawnie ustawiona wysokość */
