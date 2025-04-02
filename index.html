@@ -1977,18 +1977,18 @@
 
     
     
-    // Dodajemy plugin do ustawienia białego tła globalnie (na początku kodu JavaScript)
-    Chart.register({
+    // Dodajemy plugin do ustawiania tła, ale nie rejestrujemy go globalnie
+    const backgroundPlugin = {
         id: 'customBackground',
-        beforeDraw: (chart) => {
+        beforeDraw: (chart, args, options) => {
             const ctx = chart.ctx;
             ctx.save();
-            ctx.fillStyle = '#ffffff'; // Białe tło
+            ctx.fillStyle = options.color || '#ffffff'; // Domyślnie białe tło
             ctx.fillRect(0, 0, chart.width, chart.height);
             ctx.restore();
         }
-    });
-    
+    };
+        
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
