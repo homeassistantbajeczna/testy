@@ -1276,24 +1276,28 @@
     elements.ikeIkzeBtn.addEventListener("change", updateDynamicRateField);
     elements.inflacjaZmiennaBtn.addEventListener("change", () => { 
         state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked; 
+        const typ = elements.typObligacji.value;
         if (!elements.inflacjaZmiennaBtn.checked) {
             state.variableInflation = [];
         } else {
-            // Gdy checkbox jest włączany, resetujemy tablicę i dodajemy domyślny wiersz z period: 2
+            // Pobieramy wartość z górnego panelu
+            const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
             state.variableInflation = [];
-            state.variableInflation.push({ value: 4.90, period: 2 });
+            state.variableInflation.push({ value: defaultValue, period: 2 });
         }
         updateVariableInputs(); 
     });
     
     elements.stopaZmiennaBtn.addEventListener("change", () => { 
         state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; 
+        const typ = elements.typObligacji.value;
         if (!elements.stopaZmiennaBtn.checked) {
             state.variableReferenceRates = [];
         } else {
-            // Gdy checkbox jest włączany, resetujemy tablicę i dodajemy domyślny wiersz z period: 2
+            // Pobieramy wartość z górnego panelu
+            const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
             state.variableReferenceRates = [];
-            state.variableReferenceRates.push({ value: 5.75, period: 2 });
+            state.variableReferenceRates.push({ value: defaultValue, period: 2 });
         }
         updateVariableInputs(); 
     });
@@ -1375,8 +1379,9 @@
             elements.inflacjaZmiennaBtn.checked = false;
             state.lastFormData.inflacjaZmienna = false;
         } else if (elements.inflacjaZmiennaBtn.checked && state.variableInflation.length === 0) {
-            // Jeśli checkbox jest włączony i tablica jest pusta, dodajemy domyślny wiersz z period: 2
-            state.variableInflation = [{ value: 4.90, period: 2 }];
+            // Pobieramy wartość z górnego panelu
+            const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
+            state.variableInflation = [{ value: defaultValue, period: 2 }];
         }
     
         if (!["ROR", "DOR"].includes(typ)) {
@@ -1384,8 +1389,9 @@
             elements.stopaZmiennaBtn.checked = false;
             state.lastFormData.stopaZmienna = false;
         } else if (elements.stopaZmiennaBtn.checked && state.variableReferenceRates.length === 0) {
-            // Jeśli checkbox jest włączony i tablica jest pusta, dodajemy domyślny wiersz z period: 2
-            state.variableReferenceRates = [{ value: 5.75, period: 2 }];
+            // Pobieramy wartość z górnego panelu
+            const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
+            state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
         }
     
         updateVariableInputs();
@@ -1488,6 +1494,14 @@
     
             const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
             const maxChanges = maxVariableChanges[typ] || 0;
+    
+            // Pobieramy wartość z górnego panelu
+            const defaultValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75); // Fallback na 4.90 lub 5.75, jeśli brak wartości
+            const defaultPeriod = 2;
+    
+            if (data.length === 0 && data.length < maxChanges) {
+                data.push({ value: defaultValue, period: defaultPeriod });
+            }
     
             wrapper.innerHTML = "";
             const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
@@ -1620,7 +1634,8 @@
         const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
         const lastCykl = lastChange ? lastChange.period : 1;
         const newCykl = Math.min(lastCykl + 1, maxCykl);
-        const newValue = isInflacjaZmienna ? 4.90 : 5.75;
+        // Pobieramy wartość z górnego panelu
+        const newValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
     
         changes.push({ period: newCykl, value: newValue });
         updateVariableInputs();
@@ -1723,7 +1738,7 @@
         let skumulowaneOdsetki = 0;
     
         let liczbaCykli = ["OTS", "ROR", "DOR"].includes(typ) ? miesiace : miesiace / 12;
-        let changes = inflacjaZmienna ? state.variableInflation : (stopaZmienna ? state.variableReferenceRates : []);        changes.sort((a, b) => a.cykl - b.cykl);
+        let changes = inflacjaZmienna ? state.variableInflation : (stopaZmienna ? state.variableReferenceRates : []);
         let poprzedniaStopaLubInflacja = null;
         for (let i = 1; i <= liczbaCykli; i++) {
             let okresWiersz = i;
@@ -1732,18 +1747,18 @@
         
             let oprocentowanieRoczne;
             if (inflacjaZmienna || stopaZmienna) {
-                let dynamicValue = (inflacjaZmienna ? 4.90 : 5.75) / 100; // Domyślna wartość
+                // Pobieramy wartość z górnego panelu jako domyślną
+                let dynamicValue = (state.lastFormData.dynamicRates[typ] || (inflacjaZmienna ? 4.90 : 5.75)) / 100;
                 for (const change of changes) {
                     if (i >= change.period) {
                         dynamicValue = change.value / 100;
                     }
                 }
-                // Sprawdzamy, czy w tym cyklu następuje zmiana
                 if (poprzedniaStopaLubInflacja !== null && dynamicValue !== poprzedniaStopaLubInflacja) {
                     changeApplied = true;
                 }
                 if (i === 1 && changes.length > 0 && changes[0].period === 1) {
-                    changeApplied = true; // Pierwsza zmiana w cyklu 1
+                    changeApplied = true;
                 }
                 oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (dynamicValue + config.marza / 100);
                 stopaRefLubInflacja = (dynamicValue * 100).toFixed(2) + "%";
