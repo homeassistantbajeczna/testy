@@ -1277,8 +1277,11 @@
     elements.inflacjaZmiennaBtn.addEventListener("change", () => { 
         state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked; 
         if (!elements.inflacjaZmiennaBtn.checked) {
-            // Resetujemy tablicę zmiennych inflacji, gdy checkbox jest odznaczony
             state.variableInflation = [];
+        } else {
+            // Gdy checkbox jest włączany, resetujemy tablicę i dodajemy domyślny wiersz z period: 2
+            state.variableInflation = [];
+            state.variableInflation.push({ value: 4.90, period: 2 });
         }
         updateVariableInputs(); 
     });
@@ -1286,8 +1289,11 @@
     elements.stopaZmiennaBtn.addEventListener("change", () => { 
         state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; 
         if (!elements.stopaZmiennaBtn.checked) {
-            // Resetujemy tablicę zmiennych stopy referencyjnej, gdy checkbox jest odznaczony
             state.variableReferenceRates = [];
+        } else {
+            // Gdy checkbox jest włączany, resetujemy tablicę i dodajemy domyślny wiersz z period: 2
+            state.variableReferenceRates = [];
+            state.variableReferenceRates.push({ value: 5.75, period: 2 });
         }
         updateVariableInputs(); 
     });
@@ -1363,16 +1369,23 @@
         document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
         document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(typ) ? "flex" : "none";
     
-        // Czyszczenie danych zmiennych, jeśli typ obligacji nie obsługuje zmiennej inflacji/stopy
+        // Resetowanie danych zmiennych, jeśli typ obligacji nie obsługuje zmiennej inflacji/stopy
         if (!["COI", "EDO", "ROS", "ROD"].includes(typ)) {
             state.variableInflation = [];
             elements.inflacjaZmiennaBtn.checked = false;
             state.lastFormData.inflacjaZmienna = false;
+        } else if (elements.inflacjaZmiennaBtn.checked && state.variableInflation.length === 0) {
+            // Jeśli checkbox jest włączony i tablica jest pusta, dodajemy domyślny wiersz z period: 2
+            state.variableInflation = [{ value: 4.90, period: 2 }];
         }
+    
         if (!["ROR", "DOR"].includes(typ)) {
             state.variableReferenceRates = [];
             elements.stopaZmiennaBtn.checked = false;
             state.lastFormData.stopaZmienna = false;
+        } else if (elements.stopaZmiennaBtn.checked && state.variableReferenceRates.length === 0) {
+            // Jeśli checkbox jest włączony i tablica jest pusta, dodajemy domyślny wiersz z period: 2
+            state.variableReferenceRates = [{ value: 5.75, period: 2 }];
         }
     
         updateVariableInputs();
@@ -1473,17 +1486,8 @@
             variableInputs.style.display = "block";
             addVariableBtn.style.display = "block";
     
-            // Odtwarzamy dane z state
             const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
             const maxChanges = maxVariableChanges[typ] || 0;
-    
-            // Sprawdzamy, czy dane są puste i czy nie przekroczono limitu
-            if (data.length === 0 && data.length < maxChanges) {
-                // Jeśli brak danych i limit nie został przekroczony, dodajemy jeden domyślny wiersz
-                const defaultValue = isInflacjaZmienna ? 4.90 : 5.75;
-                const defaultPeriod = 2;
-                data.push({ value: defaultValue, period: defaultPeriod });
-            }
     
             wrapper.innerHTML = "";
             const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
@@ -1521,7 +1525,6 @@
                 fieldsWrapper.appendChild(rateGroup);
                 inputGroup.appendChild(fieldsWrapper);
     
-                // Dodajemy przycisk "Usuń" w pierwszym wierszu, ale tylko jeśli jest dokładnie jeden wiersz
                 if (index === 0 && changes.length === 1) {
                     const removeFirstBtnWrapper = document.createElement("div");
                     removeFirstBtnWrapper.className = "remove-first-btn-wrapper";
@@ -1529,7 +1532,6 @@
                     removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
                     removeFirstBtn.textContent = "Usuń";
                     removeFirstBtn.onclick = () => {
-                        // Resetujemy sekcję zmiennych
                         if (isInflacjaZmienna) {
                             state.variableInflation = [];
                             elements.inflacjaZmiennaBtn.checked = false;
@@ -1539,7 +1541,6 @@
                             elements.stopaZmiennaBtn.checked = false;
                             state.lastFormData.stopaZmienna = false;
                         }
-                        // Ukrywamy sekcję zmiennych i przycisk "Dodaj kolejne"
                         variableInputs.style.display = "none";
                         addVariableBtn.style.display = "none";
                         wrapper.innerHTML = "";
@@ -1548,7 +1549,6 @@
                     inputGroup.appendChild(removeFirstBtnWrapper);
                 }
     
-                // Dodajemy przycisk "Usuń" dla kolejnych wierszy (od drugiego wzwyż)
                 if (index === changes.length - 1 && changes.length > 1) {
                     const removeBtnWrapper = document.createElement("div");
                     removeBtnWrapper.className = "remove-btn-wrapper";
