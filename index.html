@@ -86,15 +86,13 @@
 
     /* Styl ptaszka za pomocą ::after */
     .checkbox-custom::after {
-        content: '✔';
+        content: "✔"; /* Używamy znaku Unicode dla ptaszka */
         position: absolute;
-        left: 4px;
-        top: 2px;
-        width: 4px;
-        height: 8px;
-        border: solid #000000; /* Czarny ptaszek w trybie jasnym */
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
+        left: 50%; /* Centrujemy w poziomie */
+        top: 50%; /* Centrujemy w pionie */
+        transform: translate(-50%, -50%); /* Precyzyjne centrowanie */
+        font-size: 12px; /* Rozmiar ptaszka */
+        color: #000000; /* Kolor ptaszka w trybie jasnym */
         opacity: 0; /* Ukrywamy ptaszka, gdy checkbox nie jest zaznaczony */
         transition: opacity 0.2s ease;
     }
@@ -148,6 +146,10 @@
         max-width: 100px;
         appearance: none;
         background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
+    }
+    .form-group:has(#typObligacji) .form-select {
+        position: relative;
+        top: -2px; /* Delikatne podniesienie boxa o 2px */
     }
     .form-range {
         margin-top: 2px;
