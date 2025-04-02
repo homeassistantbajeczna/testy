@@ -392,22 +392,30 @@
         font-size: 10px; /* Zmniejszona wielkość czcionki */
         white-space: nowrap;
         z-index: 10;
+        ackground-color: #000000; /* Domyślne tło */
+        color: #ffffff; /* Domyślny kolor tekstu */
     }
+
+    
     
     /* Kapitał (data-index="0") */
     .legend-item[data-index="0"] .color-box:hover::after {
         background-color: #28a745; /* Taki sam kolor jak pasek Kapitał */
+        color: #000000; /* Czarny tekst dla lepszej czytelności */
     }
     
     /* Odsetki (data-index="1") */
     .legend-item[data-index="1"] .color-box:hover::after {
         background-color: #007bff; /* Taki sam kolor jak pasek Odsetki */
+        color: #ffffff; /* Biały tekst */
     }
     
     /* Podatek (data-index="2") */
     .legend-item[data-index="2"] .color-box:hover::after {
         background-color: #dc3545; /* Taki sam kolor jak pasek Podatek */
+        color: #ffffff; /* Biały tekst */
     }
+    
 
     .legend-text:hover::after {
         content: attr(data-tooltip);
@@ -1950,6 +1958,11 @@
         if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
         if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
+
+        // Ustawianie data-tooltip dla etykiet tekstowych w legendzie
+        document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
+        document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
+        document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
     
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
         const okresInwestycji = document.getElementById("okresInwestycji");
