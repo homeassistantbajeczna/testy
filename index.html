@@ -1538,7 +1538,7 @@
                         <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
                         <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+                    <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
                 `;
     
                 const rateGroup = document.createElement("div");
@@ -1617,12 +1617,23 @@
                 });
     
                 cyklRange.addEventListener("input", () => {
-                    let value = parseInt(cyklRange.value);
+                    let value = parseFloat(cyklRange.value);
+                    // Aktualizujemy pole numeryczne podczas przesuwania (płynnie)
+                    cyklInput.value = value.toFixed(2); // Pokazujemy wartość z 2 miejscami po przecinku podczas przesuwania
+                });
+    
+                cyklRange.addEventListener("change", () => {
+                    let value = parseFloat(cyklRange.value);
+                    // Po zakończeniu przesuwania zaokrąglamy do najbliższej liczby całkowitej
+                    value = Math.round(value);
                     // Sprawdzamy, czy wartość jest większa niż poprzedni okres
                     if (value < minPeriod) {
                         value = minPeriod;
-                        cyklRange.value = value;
                     }
+                    if (value > maxCykl) {
+                        value = maxCykl;
+                    }
+                    cyklRange.value = value;
                     cyklInput.value = value;
                     changes[index].period = value;
                     updateVariableData();
