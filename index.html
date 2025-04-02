@@ -1367,10 +1367,18 @@
         document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
         document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(typ) ? "flex" : "none";
     
-        elements.inflacjaZmiennaBtn.checked = state.lastFormData.inflacjaZmienna || false;
-        elements.stopaZmiennaBtn.checked = state.lastFormData.stopaZmienna || false;
+        // Czyszczenie danych zmiennych, jeśli typ obligacji nie obsługuje zmiennej inflacji/stopy
+        if (!["COI", "EDO", "ROS", "ROD"].includes(typ)) {
+            state.variableInflation = [];
+            elements.inflacjaZmiennaBtn.checked = false;
+            state.lastFormData.inflacjaZmienna = false;
+        }
+        if (!["ROR", "DOR"].includes(typ)) {
+            state.variableReferenceRates = [];
+            elements.stopaZmiennaBtn.checked = false;
+            state.lastFormData.stopaZmienna = false;
+        }
     
-        // Usuwamy resetowanie zmiennych, ponieważ dane są teraz przechowywane w state.variableInflation i state.variableReferenceRates
         updateVariableInputs();
     }
 
@@ -1471,10 +1479,14 @@
     
             // Odtwarzamy dane z state
             const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
+            const maxChanges = maxVariableChanges[typ] || 0;
     
-            if (data.length === 0) {
-                // Jeśli brak danych, dodajemy jeden domyślny wiersz
-                addVariableChange();
+            // Sprawdzamy, czy dane są puste i czy nie przekroczono limitu
+            if (data.length === 0 && data.length < maxChanges) {
+                // Jeśli brak danych i limit nie został przekroczony, dodajemy jeden domyślny wiersz
+                const defaultValue = isInflacjaZmienna ? 4.90 : 5.75;
+                const defaultPeriod = 1;
+                data.push({ value: defaultValue, period: defaultPeriod });
             }
     
             wrapper.innerHTML = "";
@@ -1564,28 +1576,27 @@
                     if (value < 1 || value > maxCykl) cyklInput.value = Math.max(1, Math.min(maxCykl, value));
                     cyklRange.value = cyklInput.value;
                     changes[index].period = parseInt(cyklInput.value);
-                    updateVariableData(); // Aktualizujemy dane w stanie
+                    updateVariableData();
                 });
                 cyklRange.addEventListener("input", () => {
                     cyklInput.value = cyklRange.value;
                     changes[index].period = parseInt(cyklRange.value);
-                    updateVariableData(); // Aktualizujemy dane w stanie
+                    updateVariableData();
                 });
                 rateInput.addEventListener("input", () => {
                     let value = parseFloat(rateInput.value);
                     if (value < 0 || value > (isInflacjaZmienna ? 50 : 20)) rateInput.value = Math.max(0, Math.min(isInflacjaZmienna ? 50 : 20, value));
                     rateRange.value = rateInput.value;
                     changes[index].value = parseFloat(rateInput.value);
-                    updateVariableData(); // Aktualizujemy dane w stanie
+                    updateVariableData();
                 });
                 rateRange.addEventListener("input", () => {
                     rateInput.value = rateRange.value;
                     changes[index].value = parseFloat(rateRange.value);
-                    updateVariableData(); // Aktualizujemy dane w stanie
+                    updateVariableData();
                 });
             });
     
-            const maxChanges = maxVariableChanges[typ] || 0;
             addVariableBtn.style.display = changes.length < maxChanges ? "block" : "none";
         } else {
             variableInputs.style.display = "none";
