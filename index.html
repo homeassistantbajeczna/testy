@@ -116,7 +116,7 @@
         justify-content: center;
         margin-bottom: 10px;
         gap: 10px;
-        align-items: center;
+        align-items: flex-start;
     }
     .form-group {
         flex: 0 1 150px; /* Stała szerokość 150px dla każdego form-group */        
@@ -142,29 +142,12 @@
         display: inline-flex; /* Lepsze wyrównanie w pionie */
         align-items: center; /* Centrowanie tekstu w pionie */
         justify-content: center; /* Centrowanie tekstu w poziomie */
-        vertical-align: middle; /* Dodajemy, aby upewnić się, że elementy są wyrównane w pionie */
-        margin: 0; /* Usuwamy potencjalne marginesy */
     }
     .form-select {
         max-width: 100px;
         appearance: none;
         background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
     }
-    .form-group:has(#typObligacji) .form-select {
-        margin-top: -5px; /* Zamiast position: relative i top, używamy margin-top */
-    }
-
-    .form-group:has(#typObligacji) {
-        position: relative;
-        top: -5px; /* Przesuwamy cały form-group */
-    }
-    
-    .form-group:has(#typObligacji) .form-label,
-    .form-group:has(#typObligacji) .sub-info {
-        position: relative;
-        top: 5px; /* Przywracamy pozycję etykiety i sub-info */
-    }
-    
     .form-range {
         margin-top: 2px;
         height: 8px;
