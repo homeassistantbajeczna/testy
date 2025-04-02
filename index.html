@@ -86,16 +86,17 @@
 
     /* Styl ptaszka za pomocą ::after */
     .checkbox-custom::after {
-        content: "✔"; /* Używamy znaku Unicode dla ptaszka */
+        content: "";
         position: absolute;
-        left: 50%; /* Centrujemy w poziomie */
-        top: 50%; /* Centrujemy w pionie */
-        transform: translate(-50%, -50%); /* Precyzyjne centrowanie */
-        font-size: 10px; /* Zmniejszamy rozmiar ptaszka, aby lepiej pasował do checkboxa 16x16px */
-        color: #000000; /* Kolor ptaszka w trybie jasnym */
+        left: 4px;
+        top: 2px;
+        width: 4px;
+        height: 8px;
+        border: solid #000000; /* Czarny ptaszek w trybie jasnym */
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
         opacity: 0; /* Ukrywamy ptaszka, gdy checkbox nie jest zaznaczony */
         transition: opacity 0.2s ease;
-        line-height: 1; /* Zapobiega przesunięciom związanym z line-height */
     }
     
     .checkbox-label input:checked + .checkbox-custom::after {
@@ -119,8 +120,9 @@
         align-items: flex-start;
     }
     .form-group {
-        flex: 0 1 150px; /* Stała szerokość 150px dla każdego form-group */        
+        flex: 1;
         min-width: 0;
+        max-width: 150px;
     }
     .form-label {
         font-size: 0.7em;
@@ -153,8 +155,6 @@
         height: 8px;
         background: #d3d3d3;
         border-radius: 5px;
-        width: 100%;
-        max-width: 150px; /* Dopasowujemy szerokość suwaka do maksymalnej szerokości form-group */
     }
     .form-range::-webkit-slider-thumb {
         background: #C2B280;
@@ -180,17 +180,6 @@
         border: 1px solid #C2B280;
         border-radius: 50%;
         cursor: pointer;
-    }
-    @media (max-width: 768px) {
-        .form-row {
-            flex-direction: column;
-            align-items: center;
-        }
-    
-        .form-group {
-            flex: 0 1 100%;
-            max-width: 300px;
-        }
     }
     .input-group-text {
         height: 22px; /* Jawnie ustawiona wysokość */
@@ -656,17 +645,13 @@
         height: 100%;
     }
     .variable-rate-container {
-        /*margin-top: 15px;*/
+        margin-top: 15px;
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 10px;
     }
     .checkbox-row {
         display: flex;
         justify-content: center;
-        gap: 10px;
+        gap: 20px;
         margin-bottom: 10px;
     }
     .variable-inputs {
@@ -1064,6 +1049,15 @@
                 <form id="obligacjeForm">
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="kwota" class="form-label">Kwota inwestycji</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
+                                <span class="input-group-text">zł</span>
+                            </div>
+                            <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
+                            <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
+                        </div>
+                        <div class="form-group">
                             <label for="typObligacji" class="form-label">Typ obligacji*</label>
                             <select class="form-control" id="typObligacji">
                                 <option value="OTS" selected>3-miesięczne (OTS)</option>
@@ -1076,15 +1070,6 @@
                                 <option value="ROD">12-letnie (ROD)</option>
                             </select>
                             <div class="sub-info"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="kwota" class="form-label">Kwota inwestycji</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
-                                <span class="input-group-text">zł</span>
-                            </div>
-                            <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
-                            <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
                         </div>
                         <div class="form-group" id="dynamicRateGroup" style="display: none;">
                             <label for="dynamicRate" class="form-label" id="dynamicRateLabel">Stopa Ref. NBP</label>
