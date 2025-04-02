@@ -392,6 +392,31 @@
         display: block;
     }
 
+    /* Ustawiamy zmienną CSS na podstawie atrybutu data-color */
+    .color-box {
+        --tooltip-bg: var(--tooltip-color, #000000); /* Domyślne tło, jeśli data-color nie jest ustawione */
+    }
+    
+    .color-box[data-color] {
+        --tooltip-color: attr(data-color); /* Przypisujemy wartość data-color do zmiennej CSS */
+    }
+    
+    /* Styl tooltipa */
+    .color-box:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--tooltip-color); /* Używamy zmiennej CSS jako tła */
+        color: #ffffff; /* Biały tekst */
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 10;
+    }
+
     .chart-legend .legend-text {
         font-weight: bold;
         font-size: 14px;
@@ -1142,25 +1167,24 @@
                     </div>
                     <div class="chart-legend">
                         <div class="legend-item" data-index="0">
-                            <div class="color-box" style="background-color: #A68A64;" data-tooltip="">
+                            <div class="color-box" style="background-color: #28a745;" data-tooltip="" data-color="#28a745">
                                 <span class="value" id="valueKapital">-</span>
                             </div>
                             <span class="legend-text" id="legendKapital">Kapitał</span>
                         </div>
                         <div class="legend-item" data-index="1">
-                            <div class="color-box" style="background-color: #70673B;" data-tooltip="">
+                            <div class="color-box" style="background-color: #007bff;" data-tooltip="" data-color="#007bff">
                                 <span class="value" id="valueOdsetki">-</span>
                             </div>
                             <span class="legend-text" id="legendOdsetki">Odsetki</span>
                         </div>
                         <div class="legend-item" data-index="2">
-                            <div class="color-box" style="background-color: #8B5A2B;" data-tooltip="">
+                            <div class="color-box" style="background-color: #dc3545;" data-tooltip="" data-color="#dc3545">
                                 <span class="value" id="valuePodatek">-</span>
                             </div>
                             <span class="legend-text" id="legendPodatek">Podatek</span>
                         </div>
                     </div>
-                </div>
                 <div class="summary-footer">
                     <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span> </span>
                     <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span> </span>
