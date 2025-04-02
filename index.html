@@ -405,7 +405,7 @@
         color: #ffffff; /* Biały tekst */
         padding: 5px 10px;
         border-radius: 4px;
-        font-size: 12px;
+        font-size: 10px;
         white-space: nowrap;
         z-index: 10;
     }
@@ -423,6 +423,21 @@
     /* Podatek (data-index="2") */
     .legend-item[data-index="2"] .color-box:hover::after {
         background-color: #dc3545; /* Taki sam kolor jak pasek Podatek */
+    }
+
+    .legend-text:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #000000;
+        color: #ffffff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px; /* Nowa wielkość czcionki */
+        white-space: nowrap;
+        z-index: 10;
     }
 
     .chart-legend .legend-text {
