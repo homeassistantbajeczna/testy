@@ -169,9 +169,10 @@
     .fields-wrapper {
         display: flex;
         justify-content: center;
+        align-items: center;
         margin-bottom: 10px;
         gap: 10px;
-        align-items: flex-start;
+        flex-wrap: wrap;
     }
     
     .form-group {
@@ -180,7 +181,8 @@
         max-width: 150px;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;;
+        justify-content: center;
     }
     
     .form-label,
@@ -223,11 +225,24 @@
         max-width: 100px;
         appearance: none;
         background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
+        height: 22px;
+        font-size: 0.7em;
+        padding: 2px 20px 2px 5px; /* Dodajemy padding, aby lepiej wyśrodkować tekst */
+        text-align: center;
+        background-color: #fff;
+        color: #333333;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        box-sizing: border-box;
+        line-height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .form-range,
     .variable-input-group .form-range {
-        margin-top: 2px;
+        margin-top: 5px;
         height: 8px;
         background: #d3d3d3;
         border-radius: 5px;
@@ -309,8 +324,8 @@
     }
     
     .data-date {
-        font-size: 0.8em;
-        color: #333333;
+        font-size: 0.9em;
+        color: #c2b280;
     }
     
     /* Sekcja wyników */
