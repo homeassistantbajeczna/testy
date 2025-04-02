@@ -363,7 +363,7 @@
         text-align: center;
         font-weight: bold; /* Pogrubienie */
         line-height: 26px;
-        font-size: 14px; /* Powiększenie */
+        font-size: 10px; /* Powiększenie */
         white-space: nowrap;
         overflow: hidden;
         position: relative;
@@ -389,17 +389,20 @@
         transform: translateX(-50%);
         padding: 5px 10px;
         border-radius: 4px;
-        font-size: 10px; /* Zmniejszona wielkość czcionki */
+        font-size: 10px !important; /* Zmniejszona wielkość czcionki z !important */
         white-space: nowrap;
         z-index: 10;
         background-color: #000000; /* Domyślne tło */
         color: #ffffff; /* Domyślny kolor tekstu */
+        line-height: normal !important; /* Reset potencjalnych nadpisywań */
+        font-family: 'Montserrat', sans-serif !important; /* Upewniamy się, że czcionka jest poprawna */
     }
 
     /* Dodaj tutaj, jeśli potrzeba większej specyficzności */
     .chart-legend .color-box:hover::after {
         font-size: 10px !important; /* Zwiększamy specyficzność */
-    }    
+        font-family: 'Montserrat', sans-serif !important; /* Upewniamy się, że czcionka jest poprawna */
+    }  
     
     /* Kapitał (data-index="0") */
     .legend-item[data-index="0"] .color-box:hover::after {
