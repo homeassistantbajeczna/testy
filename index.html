@@ -1081,7 +1081,7 @@
                         </div>
                         <div class="variable-inputs" id="variableInputs" style="display: none;">
                             <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejne</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                         </div>
                     </div>
                     <div class="form-row">
@@ -1674,7 +1674,15 @@
                 });
             });
     
-            addVariableBtn.style.display = changes.length < maxChanges ? "block" : "none";
+            // Ustawiamy tekst przycisku
+            addVariableBtn.textContent = "Dodaj kolejną zmianę";
+    
+            // Sprawdzamy, czy ostatni okres osiągnął maxCykl
+            const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+            const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
+    
+            // Ukrywamy przycisk, jeśli liczba zmian osiągnęła maxChanges lub ostatni okres osiągnął maxCykl
+            addVariableBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
         } else {
             variableInputs.style.display = "none";
             addVariableBtn.style.display = "none";
@@ -1692,14 +1700,19 @@
     
         if (!isInflacjaZmienna && !isStopaZmienna) return;
     
-        if (changes.length >= maxChanges) {
-            alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
+        // Sprawdzamy, czy ostatni okres osiągnął maxCykl
+        const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+        const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
+    
+        if (changes.length >= maxChanges || isMaxPeriodReached) {
+            if (changes.length >= maxChanges) {
+                alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
+            }
             elements.addVariableBtn.style.display = "none"; // Ukryj przycisk
             return;
         }
     
-        const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-        const lastCykl = lastChange ? lastChange.period : 1; // lastCykl nie będzie mniejszy niż 2, bo minPeriod = 2
+        const lastCykl = lastChange ? lastChange.period : 1;
         const newCykl = Math.min(lastCykl + 1, maxCykl);
         const newValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
     
