@@ -86,18 +86,15 @@
 
     /* Styl ptaszka za pomocą ::after */
     .checkbox-custom::after {
-        content: "\f00c"; /* Kod ikony ptaszka w Font Awesome */
-        font-family: "Font Awesome 6 Free"; /* Używamy Font Awesome */
-        font-weight: 900; /* Font Awesome wymaga wagi 900 dla ikon solid */
+        content: "✔"; /* Używamy znaku Unicode dla ptaszka */
         position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 10px; /* Rozmiar ikony */
+        left: 50%; /* Centrujemy w poziomie */
+        top: 50%; /* Centrujemy w pionie */
+        transform: translate(-50%, -50%); /* Precyzyjne centrowanie */
+        font-size: 12px; /* Rozmiar ptaszka */
         color: #000000; /* Kolor ptaszka w trybie jasnym */
-        opacity: 0;
+        opacity: 0; /* Ukrywamy ptaszka, gdy checkbox nie jest zaznaczony */
         transition: opacity 0.2s ease;
-        line-height: 1;
     }
     
     .checkbox-label input:checked + .checkbox-custom::after {
@@ -1050,15 +1047,6 @@
                 <form id="obligacjeForm">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="kwota" class="form-label">Kwota inwestycji</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
-                                <span class="input-group-text">zł</span>
-                            </div>
-                            <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
-                            <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
-                        </div>
-                        <div class="form-group">
                             <label for="typObligacji" class="form-label">Typ obligacji*</label>
                             <select class="form-control" id="typObligacji">
                                 <option value="OTS" selected>3-miesięczne (OTS)</option>
@@ -1071,6 +1059,15 @@
                                 <option value="ROD">12-letnie (ROD)</option>
                             </select>
                             <div class="sub-info"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="kwota" class="form-label">Kwota inwestycji</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
+                                <span class="input-group-text">zł</span>
+                            </div>
+                            <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
+                            <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
                         </div>
                         <div class="form-group" id="dynamicRateGroup" style="display: none;">
                             <label for="dynamicRate" class="form-label" id="dynamicRateLabel">Stopa Ref. NBP</label>
