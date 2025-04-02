@@ -1404,24 +1404,38 @@
         if (iloscElement) iloscElement.textContent = `Ilość obligacji: ${ilosc}`;
         else console.warn("Element #iloscObligacji nie znaleziony.");
     }
+    
     function updateVariableData() {
         const typ = elements.typObligacji.value;
-        const container = document.getElementById("variableInputsWrapper");
-        const inputs = container.querySelectorAll(".variable-input-group");
+        const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
+        const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
+        const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
     
-        const data = Array.from(inputs).map(row => {
-            const valueInput = row.querySelector(".variable-rate");
-            const periodInput = row.querySelector(".variable-cykl");
-            return {
-                value: parseFloat(valueInput.value) || 0,
-                period: parseInt(periodInput.value) || 1
-            };
+        const inputs = document.querySelectorAll(".variable-input-group");
+        const newChanges = [];
+    
+        inputs.forEach((inputGroup, index) => {
+            const cyklInput = inputGroup.querySelector(".variable-cykl");
+            const rateInput = inputGroup.querySelector(".variable-rate");
+            let period = parseInt(cyklInput.value);
+            const value = parseFloat(rateInput.value);
+    
+            // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza
+            const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 1;
+            if (period < minPeriod) {
+                period = minPeriod;
+                cyklInput.value = period;
+                const cyklRange = inputGroup.querySelector(".variable-cykl-range");
+                cyklRange.value = period;
+            }
+    
+            newChanges.push({ period, value });
         });
     
-        if (["TOS", "COI", "ROI", "EDO", "ROS", "ROD"].includes(typ)) {
-            state.variableInflation = data;
-        } else if (["ROR", "DOR"].includes(typ)) {
-            state.variableReferenceRates = data;
+        if (isInflacjaZmienna) {
+            state.variableInflation = newChanges;
+        } else {
+            state.variableReferenceRates = newChanges;
         }
     }
 
@@ -1496,7 +1510,7 @@
             const maxChanges = maxVariableChanges[typ] || 0;
     
             // Pobieramy wartość z górnego panelu
-            const defaultValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75); // Fallback na 4.90 lub 5.75, jeśli brak wartości
+            const defaultValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
             const defaultPeriod = 2;
     
             if (data.length === 0 && data.length < maxChanges) {
@@ -1513,15 +1527,18 @@
                 const fieldsWrapper = document.createElement("div");
                 fieldsWrapper.className = "fields-wrapper";
     
+                // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza
+                const minPeriod = index > 0 ? changes[index - 1].period + 1 : 1;
+    
                 const cyklGroup = document.createElement("div");
                 cyklGroup.className = "form-group";
                 cyklGroup.innerHTML = `
                     <label class="form-label">Od</label>
                     <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl}" step="1" value="${change.period}">
+                        <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
                         <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl}" step="1" value="${change.period}">
+                    <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
                 `;
     
                 const rateGroup = document.createElement("div");
@@ -1583,16 +1600,36 @@
     
                 cyklInput.addEventListener("input", () => {
                     let value = parseInt(cyklInput.value);
-                    if (value < 1 || value > maxCykl) cyklInput.value = Math.max(1, Math.min(maxCykl, value));
-                    cyklRange.value = cyklInput.value;
-                    changes[index].period = parseInt(cyklInput.value);
+                    // Sprawdzamy, czy wartość jest większa niż poprzedni okres
+                    if (value < minPeriod) {
+                        value = minPeriod;
+                        cyklInput.value = value;
+                    }
+                    if (value > maxCykl) {
+                        value = maxCykl;
+                        cyklInput.value = value;
+                    }
+                    cyklRange.value = value;
+                    changes[index].period = value;
                     updateVariableData();
+                    // Aktualizujemy min dla kolejnych wierszy
+                    updateVariableInputs();
                 });
+    
                 cyklRange.addEventListener("input", () => {
-                    cyklInput.value = cyklRange.value;
-                    changes[index].period = parseInt(cyklRange.value);
+                    let value = parseInt(cyklRange.value);
+                    // Sprawdzamy, czy wartość jest większa niż poprzedni okres
+                    if (value < minPeriod) {
+                        value = minPeriod;
+                        cyklRange.value = value;
+                    }
+                    cyklInput.value = value;
+                    changes[index].period = value;
                     updateVariableData();
+                    // Aktualizujemy min dla kolejnych wierszy
+                    updateVariableInputs();
                 });
+    
                 rateInput.addEventListener("input", () => {
                     let value = parseFloat(rateInput.value);
                     if (value < 0 || value > (isInflacjaZmienna ? 50 : 20)) rateInput.value = Math.max(0, Math.min(isInflacjaZmienna ? 50 : 20, value));
@@ -1600,6 +1637,7 @@
                     changes[index].value = parseFloat(rateInput.value);
                     updateVariableData();
                 });
+    
                 rateRange.addEventListener("input", () => {
                     rateInput.value = rateRange.value;
                     changes[index].value = parseFloat(rateRange.value);
@@ -1634,7 +1672,6 @@
         const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
         const lastCykl = lastChange ? lastChange.period : 1;
         const newCykl = Math.min(lastCykl + 1, maxCykl);
-        // Pobieramy wartość z górnego panelu
         const newValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
     
         changes.push({ period: newCykl, value: newValue });
