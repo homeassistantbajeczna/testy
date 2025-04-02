@@ -86,17 +86,18 @@
 
     /* Styl ptaszka za pomocą ::after */
     .checkbox-custom::after {
-        content: "";
+        content: "\f00c"; /* Kod ikony ptaszka w Font Awesome */
+        font-family: "Font Awesome 6 Free"; /* Używamy Font Awesome */
+        font-weight: 900; /* Font Awesome wymaga wagi 900 dla ikon solid */
         position: absolute;
-        left: 4px;
-        top: 2px;
-        width: 4px;
-        height: 8px;
-        border: solid #000000; /* Czarny ptaszek w trybie jasnym */
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-        opacity: 0; /* Ukrywamy ptaszka, gdy checkbox nie jest zaznaczony */
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 10px; /* Rozmiar ikony */
+        color: #000000; /* Kolor ptaszka w trybie jasnym */
+        opacity: 0;
         transition: opacity 0.2s ease;
+        line-height: 1;
     }
     
     .checkbox-label input:checked + .checkbox-custom::after {
