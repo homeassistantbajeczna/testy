@@ -1203,16 +1203,18 @@
         isIkeIkzeMode: false,
         variableInflacjaChanges: [],
         variableStopaChanges: [],
+        variableInflation: [], // Nowa tablica dla danych "Zmienna inflacja"
+        variableReferenceRates: [], // Nowa tablica dla danych "Zmienne stopy referencyjne NBP"
         lastFormData: {
             kwota: 10000,
             typObligacji: "OTS",
             dynamicRates: {
-                "ROR": 5.75,  // Domyślna stopa referencyjna dla ROR
-                "DOR": 5.75,  // Domyślna stopa referencyjna dla DOR
-                "COI": 4.90,  // Domyślna inflacja dla COI
-                "EDO": 4.90,  // Domyślna inflacja dla EDO
-                "ROS": 4.90,  // Domyślna inflacja dla ROS
-                "ROD": 4.90   // Domyślna inflacja dla ROD
+                "ROR": 5.75,
+                "DOR": 5.75,
+                "COI": 4.90,
+                "EDO": 4.90,
+                "ROS": 4.90,
+                "ROD": 4.90
             },
             okres: 3,
             oprocentowanie: 3,
@@ -1280,7 +1282,7 @@
         state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked; 
         if (!elements.inflacjaZmiennaBtn.checked) {
             // Resetujemy tablicę zmiennych inflacji, gdy checkbox jest odznaczony
-            state.variableInflacjaChanges = [];
+            state.variableInflation = [];
         }
         updateVariableInputs(); 
     });
@@ -1289,10 +1291,11 @@
         state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; 
         if (!elements.stopaZmiennaBtn.checked) {
             // Resetujemy tablicę zmiennych stopy referencyjnej, gdy checkbox jest odznaczony
-            state.variableStopaChanges = [];
+            state.variableReferenceRates = [];
         }
         updateVariableInputs(); 
     });
+    
     elements.obliczBtn.addEventListener("click", () => { console.log("Oblicz clicked"); obliczObligacje(); });
     elements.addVariableBtn.addEventListener("click", () => { console.log("AddVariable clicked"); addVariableChange(); });
     elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
@@ -1313,7 +1316,7 @@
         state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
         const select = elements.typObligacji;
         const previousTyp = select.value;
-
+    
         select.innerHTML = state.isIkeIkzeMode ? `
             <option value="ROR">12-miesięczne (ROR)</option>
             <option value="DOR">24-miesięczne (DOR)</option>
@@ -1330,13 +1333,13 @@
             <option value="ROS">6-letnie (ROS)</option>
             <option value="ROD">12-letnich (ROD)</option>
         `;
-
+    
         const availableOptions = Array.from(select.options).map(opt => opt.value);
         select.value = availableOptions.includes(previousTyp) ? previousTyp : (state.isIkeIkzeMode ? "TOS" : "OTS");
-
+    
         const typ = select.value;
         const config = obligacjeConfig[typ];
-
+    
         elements.okres.value = config.okres;
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
         const inputGroup = elements.okres.closest('.input-group');
@@ -1350,7 +1353,7 @@
         updateLata();
         updateOprocentowanieInfo();
         updateOpisObligacji();
-
+    
         if (["ROR", "DOR"].includes(typ)) {
             const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
             setDynamicRateField("Stopa Ref. NBP", stopaRefValue, "0.05", "20");
@@ -1360,18 +1363,14 @@
         } else {
             document.getElementById("dynamicRateGroup").style.display = "none";
         }
-
+    
         document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
         document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(typ) ? "flex" : "none";
-
+    
         elements.inflacjaZmiennaBtn.checked = state.lastFormData.inflacjaZmienna || false;
         elements.stopaZmiennaBtn.checked = state.lastFormData.stopaZmienna || false;
-        state.variableInflacjaChanges = state.lastFormData.variableInflacjaChanges ? [...state.lastFormData.variableInflacjaChanges] : [];
-        state.variableStopaChanges = state.lastFormData.variableStopaChanges ? [...state.lastFormData.variableStopaChanges] : [];
-        // Reset zmiennych i widoczności przycisku przy zmianie typu
-        state.variableInflacjaChanges = [];
-        state.variableStopaChanges = [];
-        elements.addVariableBtn.style.display = "block"; // Pokaż przycisk przy zmianie typu
+    
+        // Usuwamy resetowanie zmiennych, ponieważ dane są teraz przechowywane w state.variableInflation i state.variableReferenceRates
         updateVariableInputs();
     }
 
@@ -1381,6 +1380,26 @@
         const iloscElement = document.getElementById("iloscObligacji");
         if (iloscElement) iloscElement.textContent = `Ilość obligacji: ${ilosc}`;
         else console.warn("Element #iloscObligacji nie znaleziony.");
+    }
+    function updateVariableData() {
+        const typ = elements.typObligacji.value;
+        const container = document.getElementById("variableInputsWrapper");
+        const inputs = container.querySelectorAll(".variable-input-group");
+    
+        const data = Array.from(inputs).map(row => {
+            const valueInput = row.querySelector(".variable-rate");
+            const periodInput = row.querySelector(".variable-cykl");
+            return {
+                value: parseFloat(valueInput.value) || 0,
+                period: parseInt(periodInput.value) || 1
+            };
+        });
+    
+        if (["TOS", "COI", "ROI", "EDO", "ROS", "ROD"].includes(typ)) {
+            state.variableInflation = data;
+        } else if (["ROR", "DOR"].includes(typ)) {
+            state.variableReferenceRates = data;
+        }
     }
 
     function updateLata() {
@@ -1417,7 +1436,7 @@
     function showForm() {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
-
+    
         elements.kwota.value = state.lastFormData.kwota;
         elements.kwotaRange.value = state.lastFormData.kwota;
         elements.okres.value = state.lastFormData.okres;
@@ -1427,14 +1446,13 @@
         elements.typObligacji.value = state.lastFormData.typObligacji;
         elements.inflacjaZmiennaBtn.checked = state.lastFormData.inflacjaZmienna || false;
         elements.stopaZmiennaBtn.checked = state.lastFormData.stopaZmienna || false;
-        state.variableInflacjaChanges = state.lastFormData.variableInflacjaChanges ? [...state.lastFormData.variableInflacjaChanges] : [];
-        state.variableStopaChanges = state.lastFormData.variableStopaChanges ? [...state.lastFormData.variableStopaChanges] : [];
-
+    
         updateDynamicRateField();
         updateIloscObligacji();
         updateLata();
         updateOprocentowanieInfo();
         updateOpisObligacji();
+        updateVariableInputs(); // Aktualizujemy pola zmiennych na podstawie danych z state
     }
 
     function updateVariableInputs() {
@@ -1451,12 +1469,16 @@
             variableInputs.style.display = "block";
             addVariableBtn.style.display = "block";
     
-            if ((isInflacjaZmienna && state.variableInflacjaChanges.length === 0) || (isStopaZmienna && state.variableStopaChanges.length === 0)) {
+            // Odtwarzamy dane z state
+            const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
+    
+            if (data.length === 0) {
+                // Jeśli brak danych, dodajemy jeden domyślny wiersz
                 addVariableChange();
             }
     
             wrapper.innerHTML = "";
-            const changes = isInflacjaZmienna ? state.variableInflacjaChanges : state.variableStopaChanges;
+            const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
     
             changes.forEach((change, index) => {
                 const inputGroup = document.createElement("div");
@@ -1470,10 +1492,10 @@
                 cyklGroup.innerHTML = `
                     <label class="form-label">Od</label>
                     <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
+                        <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl}" step="1" value="${change.period}">
                         <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl}" step="1" value="${change.cykl}">
+                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl}" step="1" value="${change.period}">
                 `;
     
                 const rateGroup = document.createElement("div");
@@ -1481,10 +1503,10 @@
                 rateGroup.innerHTML = `
                     <label class="form-label">${isInflacjaZmienna ? "Inflacja" : "Stopa Ref. NBP"}</label>
                     <div class="input-group">
-                        <input type="number" class="form-control variable-rate" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.wartosc}">
+                        <input type="number" class="form-control variable-rate" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
                         <span class="input-group-text">%</span>
                     </div>
-                    <input type="range" class="form-range variable-rate-range" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.wartosc}">
+                    <input type="range" class="form-range variable-rate-range" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
                 `;
     
                 fieldsWrapper.appendChild(cyklGroup);
@@ -1501,11 +1523,11 @@
                     removeFirstBtn.onclick = () => {
                         // Resetujemy sekcję zmiennych
                         if (isInflacjaZmienna) {
-                            state.variableInflacjaChanges = [];
+                            state.variableInflation = [];
                             elements.inflacjaZmiennaBtn.checked = false;
                             state.lastFormData.inflacjaZmienna = false;
                         } else {
-                            state.variableStopaChanges = [];
+                            state.variableReferenceRates = [];
                             elements.stopaZmiennaBtn.checked = false;
                             state.lastFormData.stopaZmienna = false;
                         }
@@ -1541,21 +1563,25 @@
                     let value = parseInt(cyklInput.value);
                     if (value < 1 || value > maxCykl) cyklInput.value = Math.max(1, Math.min(maxCykl, value));
                     cyklRange.value = cyklInput.value;
-                    changes[index].cykl = parseInt(cyklInput.value);
+                    changes[index].period = parseInt(cyklInput.value);
+                    updateVariableData(); // Aktualizujemy dane w stanie
                 });
                 cyklRange.addEventListener("input", () => {
                     cyklInput.value = cyklRange.value;
-                    changes[index].cykl = parseInt(cyklRange.value);
+                    changes[index].period = parseInt(cyklRange.value);
+                    updateVariableData(); // Aktualizujemy dane w stanie
                 });
                 rateInput.addEventListener("input", () => {
                     let value = parseFloat(rateInput.value);
                     if (value < 0 || value > (isInflacjaZmienna ? 50 : 20)) rateInput.value = Math.max(0, Math.min(isInflacjaZmienna ? 50 : 20, value));
                     rateRange.value = rateInput.value;
-                    changes[index].wartosc = parseFloat(rateInput.value);
+                    changes[index].value = parseFloat(rateInput.value);
+                    updateVariableData(); // Aktualizujemy dane w stanie
                 });
                 rateRange.addEventListener("input", () => {
                     rateInput.value = rateRange.value;
-                    changes[index].wartosc = parseFloat(rateRange.value);
+                    changes[index].value = parseFloat(rateRange.value);
+                    updateVariableData(); // Aktualizujemy dane w stanie
                 });
             });
     
@@ -1591,6 +1617,7 @@
         const newCykl = Math.min(lastCykl + 1, maxCykl);
         changes.push({ cykl: newCykl, wartosc: isInflacjaZmienna ? 4.90 : 5.75 });
         updateVariableInputs();
+        updateVariableData(); // Dodajemy wywołanie updateVariableData
     }
 
     function removeVariableChange(index) {
@@ -1600,6 +1627,7 @@
         if (changes.length > 1) {
             changes.splice(index, 1);
             updateVariableInputs();
+            updateVariableData(); // Dodajemy wywołanie updateVariableData
         }
     }
 
@@ -1661,8 +1689,8 @@
             ikeIkze: state.isIkeIkzeMode,
             inflacjaZmienna: inflacjaZmienna,
             stopaZmienna: stopaZmienna,
-            variableInflacjaChanges: [...state.variableInflacjaChanges],
-            variableStopaChanges: [...state.variableStopaChanges]
+            variableInflacjaChanges: [...state.variableInflation], // Zapisujemy aktualne dane inflacji
+            variableStopaChanges: [...state.variableReferenceRates] // Zapisujemy aktualne dane stóp referencyjnych
         };
     
         if (kwota < 100 || miesiace <= 0 || (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(typ) && (!dynamicRate || dynamicRate < 0))) {
