@@ -2042,6 +2042,7 @@
             xTicksColor: state.chartLine.options.scales.x.ticks.color,
             yTicksColor: state.chartLine.options.scales.y.ticks.color,
             legendColor: state.chartLine.options.plugins.legend.labels.color
+            backgroundColor: state.chartLine.options.plugins.backgroundColor // W razie potrzeby
         };
     
         // Ustawiamy kolory na wartości trybu jasnego, niezależnie od trybu
@@ -2054,7 +2055,20 @@
         state.chartLine.options.scales.x.ticks.color = '#333333'; // Kolor etykiet osi X w trybie jasnym
         state.chartLine.options.scales.y.ticks.color = '#333333'; // Kolor etykiet osi Y w trybie jasnym
         state.chartLine.options.plugins.legend.labels.color = '#333333'; // Kolor legendy w trybie jasnym
-        state.chartLine.update(); // Aktualizujemy wykres, aby zastosować nowe kolory
+
+        // Debugowanie: Sprawdzamy, czy kolory zostały poprawnie ustawione
+        console.log("Kolory przed aktualizacją wykresu:", {
+            xGridColor: state.chartLine.options.scales.x.grid.color,
+            yGridColor: state.chartLine.options.scales.y.grid.color,
+            xTitleColor: state.chartLine.options.scales.x.title.color,
+            yTitleColor: state.chartLine.options.scales.y.title.color,
+            xTicksColor: state.chartLine.options.scales.x.ticks.color,
+            yTicksColor: state.chartLine.options.scales.y.ticks.color,
+            legendColor: state.chartLine.options.plugins.legend.labels.color
+        });
+    
+        // Aktualizujemy wykres, aby zastosować nowe kolory
+        state.chartLine.update();
     
         // Generujemy obraz wykresu
         const lineChartImage = lineChartCanvas.toDataURL("image/png");
