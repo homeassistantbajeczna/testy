@@ -1975,6 +1975,20 @@
         console.log("ObliczObligacje completed");
     }
 
+    
+    
+    // Dodajemy plugin do ustawienia białego tła globalnie (na początku kodu JavaScript)
+    Chart.register({
+        id: 'customBackground',
+        beforeDraw: (chart) => {
+            const ctx = chart.ctx;
+            ctx.save();
+            ctx.fillStyle = '#ffffff'; // Białe tło
+            ctx.fillRect(0, 0, chart.width, chart.height);
+            ctx.restore();
+        }
+    });
+    
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
@@ -2029,199 +2043,148 @@
             return row;
         });
     
-        // Tworzymy tymczasowy canvas dla wykresu w PDF-ie
-        const lineChartCanvas = document.createElement('canvas');
-        lineChartCanvas.id = 'tempChartCanvas';
-        lineChartCanvas.style.display = 'none'; // Ukrywamy canvas
-        document.body.appendChild(lineChartCanvas); // Dodajemy do DOM, aby Chart.js mógł go użyć
-        const ctxLine = lineChartCanvas.getContext('2d');
+        const lineChartCanvas = document.getElementById("obligacjeChartLine");
     
-        // Obliczamy wartości yMin, yMax i stepSize (tak jak w obliczObligacje)
-        const kwota = parseFloat(state.lastFormData.kwota);
-        const maxKwotaPoZakonczeniu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
-        const yMax = Math.ceil(maxKwotaPoZakonczeniu / 1000) * 1000;
-        const yMin = Math.floor(kwota / 1000) * 1000;
-        const stepSize = (yMax - yMin) / 5;
-    
-        // Tworzymy nowy wykres z kolorami trybu jasnego
-        const tempChart = new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: state.harmonogramData.map(wiersz => ["OTS", "ROR", "DOR"].includes(typ) ? `Miesiąc ${wiersz.okres}` : `Rok ${wiersz.okres}`),
-                datasets: [
-                    {
-                        label: 'Zainwestowana kwota',
-                        data: state.harmonogramData.map(() => kwota),
-                        borderColor: '#8B7D47',
-                        backgroundColor: 'rgba(139, 125, 71, 0.1)',
-                        fill: false,
-                        tension: 0,
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Kwota po zakończeniu cyklu',
-                        data: state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)),
-                        borderColor: '#D4C791',
-                        backgroundColor: 'rgba(212, 199, 145, 0.2)',
-                        fill: true,
-                        tension: 0.1,
-                        borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)',
-                            font: { size: 14 },
-                            color: '#333333' // Kolor trybu jasnego
-                        },
-                        ticks: {
-                            font: { size: 12 },
-                            color: '#333333' // Kolor trybu jasnego
-                        },
-                        grid: {
-                            color: '#e0e0e0', // Siatka trybu jasnego
-                            borderColor: '#333333'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Wartość (PLN)',
-                            font: { size: 14 },
-                            color: '#333333' // Kolor trybu jasnego
-                        },
-                        min: yMin,
-                        max: yMax,
-                        ticks: {
-                            stepSize: stepSize,
-                            font: { size: 12 },
-                            color: '#333333' // Kolor trybu jasnego
-                        },
-                        grid: {
-                            color: '#e0e0e0', // Siatka trybu jasnego
-                            borderColor: '#333333'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            font: { size: 12 },
-                            color: '#333333' // Kolor trybu jasnego
-                        }
-                    },
-                    // Dodajemy plugin do ustawienia białego tła
-                    background: {
-                        color: '#ffffff' // Białe tło w PDF-ie
-                    }
-                }
-            },
-            plugins: [{
-                id: 'background',
-                beforeDraw: (chart) => {
-                    const ctx = chart.ctx;
-                    ctx.save();
-                    ctx.fillStyle = '#ffffff'; // Białe tło
-                    ctx.fillRect(0, 0, chart.width, chart.height);
-                    ctx.restore();
-                }
-            }]
-        });
-    
-        // Generujemy obraz wykresu
-        const lineChartImage = lineChartCanvas.toDataURL("image/png");
-    
-        // Niszczymy tymczasowy wykres i usuwamy canvas
-        tempChart.destroy();
-        document.body.removeChild(lineChartCanvas);
-    
-        function getBase64ImageFromUrl(url) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.crossOrigin = "Anonymous";
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = this.width;
-                    canvas.height = this.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(this, 0, 0);
-                    const dataURL = canvas.toDataURL('image/png');
-                    resolve(dataURL);
-                };
-                img.onerror = reject;
-                img.src = url;
-            });
-        }
-    
-        const generateDoc = (logoBase64) => {
-            const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
-            const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym razie opłata będzie do wartości narosłych odsetek.";
-            const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
-            const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
-    
-            const docDefinition = {
-                pageSize: 'A4',
-                pageMargins: [20, 60, 20, 20],
-                defaultStyle: { font: 'Roboto' },
-                header: logoBase64 ? {
-                    columns: [
-                        { image: logoBase64, width: 100, alignment: 'center', margin: [0, 10, 0, 0] },
-                        { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] }
-                    ]
-                } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
-                content: [
-                    { text: headerText, style: 'header' },
-                    { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [0, 10, 0, 10] },
-                    { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
-                    { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] },
-                    {
-                        table: {
-                            headerRows: 1,
-                            widths: headers.map(() => '*'),
-                            body: [
-                                headers.map(h => ({ text: h, style: 'tableHeader' })),
-                                ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
-                            ]
-                        },
-                        layout: {
-                            fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                            hLineWidth: function () { return 0.5; },
-                            vLineWidth: function () { return 0.5; }
-                        },
-                        margin: [0, 10, 0, 10]
-                    },
-                    { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
-                    { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
-                    { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
-                ],
-                styles: {
-                    header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
-                    subheader: { fontSize: 10, alignment: 'justify' },
-                    sectionHeader: { fontSize: 12, bold: true },
-                    listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                    tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
-                    tableCell: { fontSize: 8, alignment: 'center' },
-                    footerNote: { fontSize: 8, italics: true }
-                }
-            };
-    
-            pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${nazwaObligacji.replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`);
+        // Zapamiętujemy oryginalne kolory wykresu
+        const originalColors = {
+            xGridColor: state.chartLine.options.scales.x.grid.color,
+            yGridColor: state.chartLine.options.scales.y.grid.color,
+            xGridBorderColor: state.chartLine.options.scales.x.grid.borderColor,
+            yGridBorderColor: state.chartLine.options.scales.y.grid.borderColor,
+            xTitleColor: state.chartLine.options.scales.x.title.color,
+            yTitleColor: state.chartLine.options.scales.y.title.color,
+            xTicksColor: state.chartLine.options.scales.x.ticks.color,
+            yTicksColor: state.chartLine.options.scales.y.ticks.color,
+            legendColor: state.chartLine.options.plugins.legend.labels.color
         };
     
-        getBase64ImageFromUrl('cropped-logo-FB-1.png')
-            .then(logoBase64 => generateDoc(logoBase64))
-            .catch(error => {
-                console.error("Błąd ładowania logo:", error);
-                alert("Nie udało się załadować logo – PDF zostanie wygenerowany bez logo.");
-                generateDoc(null);
-            });
+        // Ustawiamy kolory na wartości trybu jasnego, niezależnie od trybu
+        state.chartLine.options.scales.x.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
+        state.chartLine.options.scales.y.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
+        state.chartLine.options.scales.x.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
+        state.chartLine.options.scales.y.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
+        state.chartLine.options.scales.x.title.color = '#333333'; // Kolor tytułu osi X w trybie jasnym
+        state.chartLine.options.scales.y.title.color = '#333333'; // Kolor tytułu osi Y w trybie jasnym
+        state.chartLine.options.scales.x.ticks.color = '#333333'; // Kolor etykiet osi X w trybie jasnym
+        state.chartLine.options.scales.y.ticks.color = '#333333'; // Kolor etykiet osi Y w trybie jasnym
+        state.chartLine.options.plugins.legend.labels.color = '#333333'; // Kolor legendy w trybie jasnym
+    
+        // Debugowanie: Sprawdzamy, czy kolory zostały poprawnie ustawione
+        console.log("Kolory przed aktualizacją wykresu:", {
+            xGridColor: state.chartLine.options.scales.x.grid.color,
+            yGridColor: state.chartLine.options.scales.y.grid.color,
+            xTitleColor: state.chartLine.options.scales.x.title.color,
+            yTitleColor: state.chartLine.options.scales.y.title.color,
+            xTicksColor: state.chartLine.options.scales.x.ticks.color,
+            yTicksColor: state.chartLine.options.scales.y.ticks.color,
+            legendColor: state.chartLine.options.plugins.legend.labels.color
+        });
+    
+        // Aktualizujemy wykres, aby zastosować nowe kolory
+        state.chartLine.update();
+    
+        // Dodajemy opóźnienie, aby upewnić się, że wykres jest w pełni wyrenderowany
+        setTimeout(() => {
+            // Generujemy obraz wykresu
+            const lineChartImage = lineChartCanvas.toDataURL("image/png");
+    
+            // Debugowanie: Sprawdzamy, czy obraz został wygenerowany
+            console.log("Wygenerowany obraz (pierwsze 50 znaków):", lineChartImage.substring(0, 50));
+    
+            // Przywracamy oryginalne kolory
+            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
+            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
+            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
+            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
+            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
+            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
+            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
+            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
+            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+            state.chartLine.update(); // Aktualizujemy wykres, aby przywrócić oryginalne kolory
+    
+            function getBase64ImageFromUrl(url) {
+                return new Promise((resolve, reject) => {
+                    const img = new Image();
+                    img.crossOrigin = "Anonymous";
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = this.width;
+                        canvas.height = this.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(this, 0, 0);
+                        const dataURL = canvas.toDataURL('image/png');
+                        resolve(dataURL);
+                    };
+                    img.onerror = reject;
+                    img.src = url;
+                });
+            }
+    
+            const generateDoc = (logoBase64) => {
+                const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
+                const starText = hasStar ? "★ - miejsce, w którym zmieniono oprocentowanie.\n" : "";
+                const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym razie opłata będzie do wartości narosłych odsetek.";
+                const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
+                const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
+    
+                const docDefinition = {
+                    pageSize: 'A4',
+                    pageMargins: [20, 60, 20, 20],
+                    defaultStyle: { font: 'Roboto' },
+                    header: logoBase64 ? {
+                        columns: [
+                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 10, 0, 0] },
+                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] }
+                        ]
+                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
+                    content: [
+                        { text: headerText, style: 'header' },
+                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [0, 10, 0, 10] },
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
+                        { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] },
+                        {
+                            table: {
+                                headerRows: 1,
+                                widths: headers.map(() => '*'),
+                                body: [
+                                    headers.map(h => ({ text: h, style: 'tableHeader' })),
+                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
+                                ]
+                            },
+                            layout: {
+                                fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
+                                hLineWidth: function () { return 0.5; },
+                                vLineWidth: function () { return 0.5; }
+                            },
+                            margin: [0, 10, 0, 10]
+                        },
+                        { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
+                        { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
+                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
+                    ],
+                    styles: {
+                        header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
+                        subheader: { fontSize: 10, alignment: 'justify' },
+                        sectionHeader: { fontSize: 12, bold: true },
+                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
+                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
+                        tableCell: { fontSize: 8, alignment: 'center' },
+                        footerNote: { fontSize: 8, italics: true }
+                    }
+                };
+    
+                pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${nazwaObligacji.replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`);
+            };
+    
+            getBase64ImageFromUrl('cropped-logo-FB-1.png')
+                .then(logoBase64 => generateDoc(logoBase64))
+                .catch(error => {
+                    console.error("Błąd ładowania logo:", error);
+                    alert("Nie udało się załadować logo – PDF zostanie wygenerowany bez logo.");
+                    generateDoc(null);
+                });
+        }, 100); // Opóźnienie 100ms, aby upewnić się, że wykres jest wyrenderowany
     }
 
     document.getElementById('siteLogo').addEventListener('click', () => {
