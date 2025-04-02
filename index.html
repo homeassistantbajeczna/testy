@@ -396,7 +396,10 @@
         color: #ffffff; /* Domyślny kolor tekstu */
     }
 
-    
+    /* Dodaj tutaj, jeśli potrzeba większej specyficzności */
+    .chart-legend .color-box:hover::after {
+        font-size: 10px !important; /* Zwiększamy specyficzność */
+    }    
     
     /* Kapitał (data-index="0") */
     .legend-item[data-index="0"] .color-box:hover::after {
