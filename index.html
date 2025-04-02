@@ -391,30 +391,38 @@
         font-size: 14px;
         display: block;
     }
-
-    /* Ustawiamy zmienną CSS na podstawie atrybutu data-color */
+    
     .color-box {
-        --tooltip-bg: var(--tooltip-color, #000000); /* Domyślne tło, jeśli data-color nie jest ustawione */
+        position: relative; /* Upewniamy się, że pozycja jest ustawiona */
     }
     
-    .color-box[data-color] {
-        --tooltip-color: attr(data-color); /* Przypisujemy wartość data-color do zmiennej CSS */
-    }
-    
-    /* Styl tooltipa */
     .color-box:hover::after {
         content: attr(data-tooltip);
         position: absolute;
         bottom: 100%;
         left: 50%;
         transform: translateX(-50%);
-        background-color: var(--tooltip-color); /* Używamy zmiennej CSS jako tła */
         color: #ffffff; /* Biały tekst */
         padding: 5px 10px;
         border-radius: 4px;
         font-size: 12px;
         white-space: nowrap;
         z-index: 10;
+    }
+    
+    /* Kapitał (data-index="0") */
+    .legend-item[data-index="0"] .color-box:hover::after {
+        background-color: #28a745; /* Taki sam kolor jak pasek Kapitał */
+    }
+    
+    /* Odsetki (data-index="1") */
+    .legend-item[data-index="1"] .color-box:hover::after {
+        background-color: #007bff; /* Taki sam kolor jak pasek Odsetki */
+    }
+    
+    /* Podatek (data-index="2") */
+    .legend-item[data-index="2"] .color-box:hover::after {
+        background-color: #dc3545; /* Taki sam kolor jak pasek Podatek */
     }
 
     .chart-legend .legend-text {
