@@ -70,12 +70,12 @@
     .checkbox-custom {
         width: 16px;
         height: 16px;
-        border: 2px solid #C2B280;
-        background-color: #fff;
+        border: 2px solid #e0e0e0; /* Szary kolor ramki w trybie jasnym (jak ramki boxów) */
+        background-color: #ffffff; /* Białe tło w trybie jasnym */
         margin-right: 5px;
         display: inline-block;
         position: relative;
-        order-radius: 4px; /* Lekko zaokrąglone rogi */
+        border-radius: 4px; /* Lekko zaokrąglone rogi */
         transition: all 0.2s ease; /* Płynne przejścia */
     }
     
@@ -86,13 +86,13 @@
 
     /* Styl ptaszka za pomocą ::after */
     .checkbox-custom::after {
-        content: "";
+        ontent: "";
         position: absolute;
         left: 4px;
         top: 2px;
         width: 4px;
         height: 8px;
-        border: solid #ffffff; /* Biały ptaszek w trybie jasnym */
+        border: solid #000000; /* Biały ptaszek w trybie jasnym */
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
         opacity: 0; /* Ukrywamy ptaszka, gdy checkbox nie jest zaznaczony */
@@ -100,16 +100,9 @@
     }
     
     .checkbox-label input:checked + .checkbox-custom::after {
-        content: '✔';
-        color: #000;
-        font-size: 12px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         opacity: 1; /* Pokazujemy ptaszka */
-        
     }
+    
     .checkbox-label.header-checkbox {
         position: absolute;
         top: -20px;
@@ -946,7 +939,7 @@
 
     body.dark-mode .checkbox-custom {
         border: 2px solid #e0e0e0; /* Ciemny szary kolor ramki w trybie ciemnym (jak teksty stałe) */
-        background-color: #2b2b2b; /* Tło w kolorze tła strony w trybie ciemnym */
+        background-color: #404040; /* Tło w kolorze tła strony w trybie ciemnym */
     }
 
     body.dark-mode .checkbox-label input:checked + .checkbox-custom {
