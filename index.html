@@ -2029,60 +2029,117 @@
             return row;
         });
     
-        const lineChartCanvas = document.getElementById("obligacjeChartLine");
+        // Tworzymy tymczasowy canvas dla wykresu w PDF-ie
+        const lineChartCanvas = document.createElement('canvas');
+        lineChartCanvas.id = 'tempChartCanvas';
+        lineChartCanvas.style.display = 'none'; // Ukrywamy canvas
+        document.body.appendChild(lineChartCanvas); // Dodajemy do DOM, aby Chart.js mógł go użyć
+        const ctxLine = lineChartCanvas.getContext('2d');
     
-        // Zapamiętujemy oryginalne kolory wykresu
-        const originalColors = {
-            xGridColor: state.chartLine.options.scales.x.grid.color,
-            yGridColor: state.chartLine.options.scales.y.grid.color,
-            xGridBorderColor: state.chartLine.options.scales.x.grid.borderColor,
-            yGridBorderColor: state.chartLine.options.scales.y.grid.borderColor,
-            xTitleColor: state.chartLine.options.scales.x.title.color,
-            yTitleColor: state.chartLine.options.scales.y.title.color,
-            xTicksColor: state.chartLine.options.scales.x.ticks.color,
-            yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color
-        };
+        // Obliczamy wartości yMin, yMax i stepSize (tak jak w obliczObligacje)
+        const kwota = parseFloat(state.lastFormData.kwota);
+        const maxKwotaPoZakonczeniu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
+        const yMax = Math.ceil(maxKwotaPoZakonczeniu / 1000) * 1000;
+        const yMin = Math.floor(kwota / 1000) * 1000;
+        const stepSize = (yMax - yMin) / 5;
     
-        // Ustawiamy kolory na wartości trybu jasnego, niezależnie od trybu
-        state.chartLine.options.scales.x.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
-        state.chartLine.options.scales.y.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
-        state.chartLine.options.scales.x.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
-        state.chartLine.options.scales.y.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
-        state.chartLine.options.scales.x.title.color = '#333333'; // Kolor tytułu osi X w trybie jasnym
-        state.chartLine.options.scales.y.title.color = '#333333'; // Kolor tytułu osi Y w trybie jasnym
-        state.chartLine.options.scales.x.ticks.color = '#333333'; // Kolor etykiet osi X w trybie jasnym
-        state.chartLine.options.scales.y.ticks.color = '#333333'; // Kolor etykiet osi Y w trybie jasnym
-        state.chartLine.options.plugins.legend.labels.color = '#333333'; // Kolor legendy w trybie jasnym
-
-        // Debugowanie: Sprawdzamy, czy kolory zostały poprawnie ustawione
-        console.log("Kolory przed aktualizacją wykresu:", {
-            xGridColor: state.chartLine.options.scales.x.grid.color,
-            yGridColor: state.chartLine.options.scales.y.grid.color,
-            xTitleColor: state.chartLine.options.scales.x.title.color,
-            yTitleColor: state.chartLine.options.scales.y.title.color,
-            xTicksColor: state.chartLine.options.scales.x.ticks.color,
-            yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color
+        // Tworzymy nowy wykres z kolorami trybu jasnego
+        const tempChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: state.harmonogramData.map(wiersz => ["OTS", "ROR", "DOR"].includes(typ) ? `Miesiąc ${wiersz.okres}` : `Rok ${wiersz.okres}`),
+                datasets: [
+                    {
+                        label: 'Zainwestowana kwota',
+                        data: state.harmonogramData.map(() => kwota),
+                        borderColor: '#8B7D47',
+                        backgroundColor: 'rgba(139, 125, 71, 0.1)',
+                        fill: false,
+                        tension: 0,
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Kwota po zakończeniu cyklu',
+                        data: state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)),
+                        borderColor: '#D4C791',
+                        backgroundColor: 'rgba(212, 199, 145, 0.2)',
+                        fill: true,
+                        tension: 0.1,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)',
+                            font: { size: 14 },
+                            color: '#333333' // Kolor trybu jasnego
+                        },
+                        ticks: {
+                            font: { size: 12 },
+                            color: '#333333' // Kolor trybu jasnego
+                        },
+                        grid: {
+                            color: '#e0e0e0', // Siatka trybu jasnego
+                            borderColor: '#333333'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Wartość (PLN)',
+                            font: { size: 14 },
+                            color: '#333333' // Kolor trybu jasnego
+                        },
+                        min: yMin,
+                        max: yMax,
+                        ticks: {
+                            stepSize: stepSize,
+                            font: { size: 12 },
+                            color: '#333333' // Kolor trybu jasnego
+                        },
+                        grid: {
+                            color: '#e0e0e0', // Siatka trybu jasnego
+                            borderColor: '#333333'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: { size: 12 },
+                            color: '#333333' // Kolor trybu jasnego
+                        }
+                    },
+                    // Dodajemy plugin do ustawienia białego tła
+                    background: {
+                        color: '#ffffff' // Białe tło w PDF-ie
+                    }
+                }
+            },
+            plugins: [{
+                id: 'background',
+                beforeDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.fillStyle = '#ffffff'; // Białe tło
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            }]
         });
-    
-        // Aktualizujemy wykres, aby zastosować nowe kolory
-        state.chartLine.update();
     
         // Generujemy obraz wykresu
         const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
-        // Przywracamy oryginalne kolory
-        state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
-        state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
-        state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
-        state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
-        state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
-        state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
-        state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
-        state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
-        state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-        state.chartLine.update(); // Aktualizujemy wykres, aby przywrócić oryginalne kolory
+        // Niszczymy tymczasowy wykres i usuwamy canvas
+        tempChart.destroy();
+        document.body.removeChild(lineChartCanvas);
     
         function getBase64ImageFromUrl(url) {
             return new Promise((resolve, reject) => {
