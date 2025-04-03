@@ -1304,9 +1304,6 @@
                 const inputGroup = document.createElement("div");
                 inputGroup.className = "variable-input-group";
     
-                const fieldsWrapper = document.createElement("div");
-                fieldsWrapper.className = "fields-wrapper";
-    
                 // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza, ale dla pierwszego wiersza min to 2
                 const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
     
@@ -1319,6 +1316,7 @@
                         <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
                     </div>
                     <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
+                    <div class="sub-info"></div>
                 `;
     
                 const rateGroup = document.createElement("div");
@@ -1330,11 +1328,11 @@
                         <span class="input-group-text">%</span>
                     </div>
                     <input type="range" class="form-range variable-rate-range" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
+                    <div class="sub-info"></div>
                 `;
     
-                fieldsWrapper.appendChild(cyklGroup);
-                fieldsWrapper.appendChild(rateGroup);
-                inputGroup.appendChild(fieldsWrapper);
+                inputGroup.appendChild(cyklGroup);
+                inputGroup.appendChild(rateGroup);
     
                 if (index === 0 && changes.length === 1) {
                     const removeFirstBtnWrapper = document.createElement("div");
@@ -1380,7 +1378,6 @@
     
                 cyklInput.addEventListener("input", () => {
                     let value = parseInt(cyklInput.value);
-                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                         cyklInput.value = value;
@@ -1392,21 +1389,17 @@
                     cyklRange.value = value;
                     changes[index].period = value;
                     updateVariableData();
-                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
                 cyklRange.addEventListener("input", () => {
                     let value = parseFloat(cyklRange.value);
-                    // Podczas przesuwania pokazujemy tylko wartości całkowite
                     cyklInput.value = Math.round(value);
                 });
     
                 cyklRange.addEventListener("change", () => {
                     let value = parseFloat(cyklRange.value);
-                    // Po zakończeniu przesuwania zaokrąglamy do najbliższej liczby całkowitej
                     value = Math.round(value);
-                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                     }
@@ -1417,7 +1410,6 @@
                     cyklInput.value = value;
                     changes[index].period = value;
                     updateVariableData();
-                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
@@ -1436,14 +1428,11 @@
                 });
             });
     
-            // Ustawiamy tekst przycisku
             addVariableBtn.textContent = "Dodaj kolejną zmianę";
     
-            // Sprawdzamy, czy ostatni okres osiągnął maxCykl
             const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
             const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
     
-            // Ukrywamy przycisk, jeśli liczba zmian osiągnęła maxChanges lub ostatni okres osiągnął maxCykl
             addVariableBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
         } else {
             variableInputs.style.display = "none";
