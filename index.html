@@ -311,35 +311,50 @@
         box-shadow: inset 2px 0 4px rgba(176, 176, 176, 0.5), inset -2px 0 4px rgba(176, 176, 176, 0.5);
     }
     
-    .form-range::-webkit-slider-thumb,
-    .form-range::-moz-range-thumb,
-    .form-range::-ms-thumb {
+    .form-range::-webkit-slider-thumb {
         background: #a3945c;
         width: 10px;
         height: 10px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
-    }
-    
-    
-    .form-range::-webkit-slider-thumb {
         -webkit-appearance: none;
-        transform: translateY(-1%);
+        transform: translateY(-1px);
+    }
+
+    .form-range::-moz-range-thumb {
+        background: #a3945c;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
     }
     
-    .dark-mode .form-range::-webkit-slider-thumb,
-    .dark-mode .form-range::-moz-range-thumb,
+    .form-range::-ms-thumb {
+        background: #a3945c;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .dark-mode .form-range::-webkit-slider-thumb {
+        background: #a3945c;
+        transform: translateY(-4px);
+    }
+    
+    .dark-mode .form-range::-moz-range-thumb {
+        background: #a3945c;
+    }
+    
     .dark-mode .form-range::-ms-thumb {
         background: #a3945c;
     }
 
     .dark-mode .form-range {
         box-shadow: inset 2px 0 4px rgba(136, 136, 136, 0.5), inset -2px 0 4px rgba(136, 136, 136, 0.5);
-    }
-    
-    .dark-mode .form-range::-webkit-slider-thumb {
-        transform: translateY(-1%);
     }
     
     .sub-info {
