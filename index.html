@@ -792,7 +792,7 @@
                                 <span class="input-group-text">%</span>
                             </div>
                             <input type="range" class="form-range" id="dynamicRateRange" min="0" max="50" step="0.05" value="4.90">
-                            <div class="sub-info"></div>
+                            <div class="sub-info" id="dynamicRateInfo"></div>
                         </div>
                     </div>
                     <div class="form-row">
@@ -1055,6 +1055,7 @@
 
     function setDynamicRateField(label, value, step, max) {
         const dynamicRateLabel = document.getElementById("dynamicRateLabel");
+        const dynamicRateInfo = document.getElementById("dynamicRateInfo"); // Nowy element
         dynamicRateLabel.textContent = label;
         elements.dynamicRate.value = value;
         elements.dynamicRateRange.value = value;
@@ -1063,6 +1064,13 @@
         elements.dynamicRate.max = max;
         elements.dynamicRateRange.max = max;
         document.getElementById("dynamicRateGroup").style.display = "block";
+    
+        // Aktualizacja sub-info
+        if (dynamicRateInfo) {
+            dynamicRateInfo.textContent = `Min: 0%, Max: ${max}%`;
+        } else {
+            console.warn("Element #dynamicRateInfo nie znaleziony.");
+        }
     }
 
     function updateDynamicRateField() {
