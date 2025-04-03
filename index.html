@@ -219,7 +219,7 @@
     .form-group {
         flex: 1;
         min-width: 120px;
-        max-width: 200px;
+        max-width: 150px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -227,7 +227,7 @@
     }
     
     #dynamicRateGroup {
-        width: 200px;
+        width: 150px;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
@@ -269,9 +269,9 @@
     }
 
     .input-group {
-        width: 200px;
+        width: 150px;
         display: flex;
-        justify-content: flex-start;/*center;*/
+        justify-content: center;
     }
     
     .form-select {
@@ -292,7 +292,7 @@
         border-radius: 5px;
         -webkit-appearance: none;
         appearance: none;
-        width: 100%;
+        width: 200px;
         margin-left: auto;
         margin-right: auto;
         outline: none;
@@ -725,12 +725,19 @@
         align-items: center;
         gap: 10px;
     }
+
+    .variable-input-group .form-group {
+        width: 200px;
+        min-width: 0;
+        max-width: none;
+        flex: none;
+    }
     
     .variable-input-group .input-group {
         display: flex;
         align-items: center;
-        max-width: 150px;
-        width: 100%;
+        max-width: 200px;
+        width: 200px;
     }
     
     .variable-input-group .btn-danger,
