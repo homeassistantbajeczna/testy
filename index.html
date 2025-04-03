@@ -285,15 +285,30 @@
         justify-content: center;
     }
 
-    .form-control:focus,
-    .form-select:focus,
+    input.form-control:focus,
+    select.form-select:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: var(--border-color) !important;
+        background: var(--input-bg) !important;
+        color: var(--primary-text) !important;
+    }
+    
+    input.form-control:active,
+    input.form-control:focus-visible,
+    select.form-select:active,
+    select.form-select:focus-visible {
+        outline: none !important;
+        box-shadow: none !important;
+        border-color: var(--border-color) !important;
+        background: var(--input-bg) !important;
+        color: var(--primary-text) !important;
+    }
+    
     .form-range:focus {
         outline: none !important;
         box-shadow: none !important;
-        background: var(--input-bg);
-        color: var(--primary-text);
     }
-    
     .form-range:focus::-webkit-slider-runnable-track {
         background: var(--input-group-bg) !important;
         box-shadow: none !important;
@@ -306,7 +321,6 @@
         background: var(--input-group-bg) !important;
         box-shadow: none !important;
     }
-    
     .form-range:focus::-webkit-slider-thumb {
         background: var(--accent-color);
         box-shadow: none !important;
@@ -323,8 +337,8 @@
         outline: none !important;
     }
     
-    .form-control:focus,
-    .form-select:focus {
+    input.form-control:focus,
+    select.form-select:focus {
         box-shadow: 0 0 3px var(--accent-color);
     }
     
