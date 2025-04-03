@@ -240,7 +240,7 @@
         max-width: 150px;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         justify-content: flex-start;
     }
     
@@ -378,66 +378,6 @@
     .dark-mode input[type="range"].form-range::-ms-thumb {
         background: var(--accent-gradient-start-black);
     }
-    
-    /*.form-range {
-        margin-top: 5px;
-        height: 6px;
-        background: #e5e5e5 !important;
-        border: none;
-        border-radius: var(--border-radius);
-        -webkit-appearance: none;
-        appearance: none;
-        width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-        outline: none;
-    }
-    
-    .form-range::-webkit-slider-thumb {
-        background: #c2b280;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-        -webkit-appearance: none;
-        transform: translateY(2px);
-    }
-
-    .form-range::-moz-range-thumb {
-        background: #c2b280;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .form-range::-ms-thumb {
-        background: #c2b280;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-    }
-
-    .dark-mode .form-range {
-        background: #333333 !important;
-    }
-    
-    .dark-mode .form-range::-webkit-slider-thumb {
-        background: #c2b280;
-        transform: translateY(2px);
-    }
-    
-    .dark-mode .form-range::-moz-range-thumb {
-        background: #c2b280;
-    }
-    
-    .dark-mode .form-range::-ms-thumb {
-        background: #c2b280;
-    }*/
     
     .sub-info {
         font-size: 0.4em;
@@ -1249,11 +1189,11 @@
         elements.dynamicRateRange.max = max;
     
         // Aktualizacja sub-info
-        if (dynamicRateInfo) {
+        /*if (dynamicRateInfo) {
             dynamicRateInfo.textContent = `Min: 0%, Max: ${max}%`;
         } else {
             console.warn("Element #dynamicRateInfo nie znaleziony.");
-        }
+        }*/
     }
 
     function updateDynamicRateField() {
