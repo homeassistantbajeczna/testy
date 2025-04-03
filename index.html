@@ -198,11 +198,12 @@
     .checkbox-row,
     .fields-wrapper {
         display: flex;
-        flex-direction: row; 
-        gap: 15px;
         justify-content: center;
-        width: 100%;
-    }
+        align-items: flex-start;
+        margin-bottom: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
+        text-align: left;
     }
     
     .form-group {
@@ -243,26 +244,11 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        flex: 1;
-        min-width: 0;
     }
     
     .input-group-text {
-        height: 22px;
-        font-size: 0.7em;
-        padding: 2px 5px;
-        text-align: center;
         background: var(--input-group-bg);
-        color: var(--primary-text);
-        border: 1px solid var(--border-color);
-        border-radius: 5px;
-        box-sizing: border-box;
-        line-height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: auto;
-        min-width: 30px;
+        padding: 2px 5px;
     }
     
     .form-select {
@@ -719,11 +705,9 @@
     
     .variable-input-group .input-group {
         display: flex;
-        flex-direction: row;
         align-items: center;
-        /*max-width: 150px;*/
+        max-width: 150px;
         width: 100%;
-        gap: 5px;
     }
     
     .variable-input-group .btn-danger,
@@ -755,36 +739,6 @@
     #harmonogramContent {
         display: block;
     }
-    #dynamicRateGroup {
-        display: none;
-    }
-    
-    #dynamicRateGroup[style*="display: block"] {
-        display: flex !important; 
-        flex-direction: column;
-        align-items: center;
-    }
-
-    @media (max-width: 768px) {
-        .form-group {
-            max-width: 100%; /* Na mniejszych ekranach pola mogą zajmować pełną szerokość */
-            min-width: 200px;
-        }
-        .input-group {
-            flex-direction: column; /* Na mniejszych ekranach układ pionowy */
-            gap: 2px;
-        }
-    
-        .form-control,
-        .input-group-text {
-            width: 100%; /* Na mniejszych ekranach oba elementy zajmują pełną szerokość */
-        }
-    
-        .fields-wrapper {
-            flex-direction: column; /* Na mniejszych ekranach układ pionowy dla zmiennych stóp */
-        }
-    }
-    
 </style>
 <div class="logo-container">
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
@@ -871,10 +825,6 @@
                                 <span class="checkbox-custom"></span>
                                 <b>Zmienna Stopa Ref. NBP</b>
                             </label>
-                        </div>
-                        <div class="variable-inputs" id="variableInputs" style="display: none;">
-                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                         </div>
                         <div class="variable-inputs" id="variableInputs" style="display: none;">
                             <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
