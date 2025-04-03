@@ -245,15 +245,24 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 100%;
+        flex: 1;
+        min-width: 0;
     }
     
     .input-group-text {
-        background: var(--input-group-bg);
+        flex-shrink: 0;
+        height: 22px;
+        font-size: 0.7em;
         padding: 2px 5px;
+        background: var(--input-group-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        line-height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    
     
     .form-select {
         max-width: 100px;
@@ -266,8 +275,9 @@
     .input-group {
         display: flex;
         align-items: center;
-        width: 100%; /* Ujednolicenie szerokości */
+        width: 100%;
         justify-content: center;
+        height: 22px;
     }
     
     /* Style dla suwaków */
