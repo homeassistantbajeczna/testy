@@ -205,12 +205,28 @@
         flex-wrap: wrap;
         text-align: left;
     }
+
+    .form-row {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        margin-bottom: 10px;
+        gap: 15px;
+        flex-wrap: wrap;
+        text-align: left;
+    }
     
     .form-group {
         flex: 1;
         min-width: 120px;
         max-width: 150px;
         display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    #dynamicRateGroup {
+        display: flex !important; /* Zapewniamy, że pole jest widoczne i wyrównane */
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
@@ -244,6 +260,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
     }
     
     .input-group-text {
