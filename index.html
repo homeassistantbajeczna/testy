@@ -244,6 +244,14 @@
         justify-content: flex-start;
     }
 
+    #obligacjeForm .form-row:first-child .form-group:first-child .form-label {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+    
     #obligacjeForm .form-row:first-child {
         margin-bottom: 25px;
     }
@@ -283,6 +291,30 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .form-control:focus,
+    .form-select:focus,
+    .form-range:focus {
+        outline: none;
+        background: var(--input-bg);
+        color: var(--primary-text);
+    }
+    
+    .form-range:focus::-webkit-slider-runnable-track {
+        background: var(--input-group-bg) !important;
+    }
+    .form-range:focus::-moz-range-track {
+        background: var(--input-group-bg) !important;
+    }
+    .form-range:focus::-ms-track {
+        background: var(--input-group-bg) !important;
+    }
+    
+    /* Opcjonalny cień dla fokusu */
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 3px var(--accent-color);
     }
     
     .input-group-text {
