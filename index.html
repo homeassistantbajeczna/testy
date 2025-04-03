@@ -51,6 +51,7 @@
         --harmonogram-bg: #404040;
         --slider-thumb-color: #FFD700;
         --range-bg: #333333;
+        --accent-gradient-start-black: #a3945c;
     }
     
     /* Reset i style bazowe */
@@ -301,7 +302,7 @@
     input[type="range"].form-range {
         margin-top: 5px;
         height: 6px;
-        background: var(--range-bg) !important; /* Nowa zmienna z wymuszeniem */
+        background: var(--input-group-bg) !important; /* Nowa zmienna z wymuszeniem */
         border: none;
         border-radius: var(--border-radius);
         -webkit-appearance: none;
@@ -314,20 +315,20 @@
     
     /* Reset tła toru w przeglądarkach */
     input[type="range"].form-range::-webkit-slider-runnable-track {
-        background: var(--range-bg) !important; /* Tor w Chrome/Safari */
+        background: var(--input-group-bg) !important; /* Tor w Chrome/Safari */
         height: 6px;
         border-radius: var(--border-radius);
         -webkit-appearance: none;
     }
     
     input[type="range"].form-range::-moz-range-track {
-        background: var(--range-bg) !important; /* Tor w Firefox */
+        background: var(--input-group-bg) !important; /* Tor w Firefox */
         height: 6px;
         border-radius: var(--border-radius);
     }
     
     input[type="range"].form-range::-ms-track {
-        background: var(--range-bg) !important; /* Tor w Edge/IE */
+        background: var(--input-group-bg) !important; /* Tor w Edge/IE */
         height: 6px;
         border-radius: var(--border-radius);
         border: none;
@@ -336,18 +337,18 @@
     
     /* Style kciuka */
     input[type="range"].form-range::-webkit-slider-thumb {
-        background: #c2b280; /* Kolor z btn-primary */
+        background: var(--accent-gradient-start); /* Kolor z btn-primary */
         width: 10px;
         height: 10px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
         -webkit-appearance: none;
-        transform: translateY(-2px); /* Centrowanie */
+        transform: translateY(2px); /* Centrowanie */
     }
     
     input[type="range"].form-range::-moz-range-thumb {
-        background: #c2b280; /* Kolor z btn-primary */
+        background: var(--accent-gradient-start); /* Kolor z btn-primary */
         width: 10px;
         height: 10px;
         border-radius: 50%;
@@ -356,7 +357,7 @@
     }
     
     input[type="range"].form-range::-ms-thumb {
-        background: #c2b280; /* Kolor z btn-primary */
+        background: var(--accent-gradient-start); /* Kolor z btn-primary */
         width: 10px;
         height: 10px;
         border-radius: 50%;
@@ -366,16 +367,16 @@
     
     /* Tryb ciemny dla kciuka */
     .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
-        background: #a3945c; /* Jaśniejszy odcień dla trybu ciemnego */
-        transform: translateY(-2px);
+        background: var(--accent-gradient-start-black); /* Jaśniejszy odcień dla trybu ciemnego */
+        transform: translateY(2px);
     }
     
     .dark-mode input[type="range"].form-range::-moz-range-thumb {
-        background: #a3945c;
+        background: var(--accent-gradient-start-black);
     }
     
     .dark-mode input[type="range"].form-range::-ms-thumb {
-        background: #a3945c;
+        background: var(--accent-gradient-start-black);
     }
     
     /*.form-range {
