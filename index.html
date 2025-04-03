@@ -256,11 +256,6 @@
         justify-content: flex-start;
         margin-right: 15px; 
     }
-
-    *:focus {
-        outline: none !important;
-        box-shadow: none !important;
-    }
     
     .form-label,
     .variable-input-group .form-label {
@@ -310,10 +305,14 @@
         color: var(--primary-text) !important;
     }
     
+    .form-control:focus,
+    .form-select:focus,
     .form-range:focus {
         outline: none !important;
-        box-shadow: none !important;
+        background: var(--input-bg);
+        color: var(--primary-text);
     }
+    
     .form-range:focus::-webkit-slider-runnable-track {
         background: var(--input-group-bg) !important;
         box-shadow: none !important;
@@ -326,6 +325,7 @@
         background: var(--input-group-bg) !important;
         box-shadow: none !important;
     }
+    
     .form-range:focus::-webkit-slider-thumb {
         background: var(--accent-color);
         box-shadow: none !important;
@@ -342,9 +342,9 @@
         outline: none !important;
     }
     
-    input.form-control:focus,
-    select.form-select:focus {
-        box-shadow: 0 0 3px var(--accent-color);
+    .form-control:focus,
+    .form-select:focus {
+        box-shadow: 0 0 4px var(--accent-color);
     }
     
     .input-group-text {
