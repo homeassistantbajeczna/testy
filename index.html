@@ -218,8 +218,9 @@
     
     .form-group {
         flex: 1;
-        min-width: 120px;
-        max-width: 150px;
+        /*min-width: 120px;*/
+        /*max-width: 150px;*/
+        max-width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -266,6 +267,12 @@
     .input-group-text {
         background: var(--input-group-bg);
         padding: 2px 5px;
+    }
+
+    .input-group {
+        width: 100%;
+        display: flex;
+        justify-content: center;
     }
     
     .form-select {
