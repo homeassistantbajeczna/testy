@@ -198,11 +198,11 @@
     .checkbox-row,
     .fields-wrapper {
         display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        margin-bottom: 10px;
+        flex-direction: row; 
         gap: 15px;
-        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
     }
     
     .form-group {
@@ -243,12 +243,26 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 100%;
+        flex: 1;
+        min-width: 0;
     }
     
     .input-group-text {
-        background: var(--input-group-bg);
+        height: 22px;
+        font-size: 0.7em;
         padding: 2px 5px;
+        text-align: center;
+        background: var(--input-group-bg);
+        color: var(--primary-text);
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        box-sizing: border-box;
+        line-height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: auto;
+        min-width: 30px;
     }
     
     .form-select {
@@ -705,9 +719,11 @@
     
     .variable-input-group .input-group {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        max-width: 150px;
+        /*max-width: 150px;*/
         width: 100%;
+        gap: 5px;
     }
     
     .variable-input-group .btn-danger,
@@ -753,6 +769,19 @@
         .form-group {
             max-width: 100%; /* Na mniejszych ekranach pola mogą zajmować pełną szerokość */
             min-width: 200px;
+        }
+        .input-group {
+            flex-direction: column; /* Na mniejszych ekranach układ pionowy */
+            gap: 2px;
+        }
+    
+        .form-control,
+        .input-group-text {
+            width: 100%; /* Na mniejszych ekranach oba elementy zajmują pełną szerokość */
+        }
+    
+        .fields-wrapper {
+            flex-direction: column; /* Na mniejszych ekranach układ pionowy dla zmiennych stóp */
         }
     }
     
@@ -842,6 +871,10 @@
                                 <span class="checkbox-custom"></span>
                                 <b>Zmienna Stopa Ref. NBP</b>
                             </label>
+                        </div>
+                        <div class="variable-inputs" id="variableInputs" style="display: none;">
+                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                         </div>
                         <div class="variable-inputs" id="variableInputs" style="display: none;">
                             <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
