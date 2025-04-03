@@ -42,7 +42,7 @@
         --accent-color: #8b7d47;
         --accent-gradient-start: #8b7d47;
         --accent-gradient-end: #70673b;
-        --border-color: #c2b280;
+        --border-color: #f5f5f5;
         --shadow-color: rgba(0, 0, 0, 0.5);
         --logo-bg: #3a3a3a;
         --input-bg: #3a3a3a;
@@ -331,7 +331,7 @@
         background: var(--input-group-bg) !important; /* Tor w Edge/IE */
         height: 6px;
         border-radius: var(--border-radius);
-        border: 2px solid var(--input-group-bg);
+        border: 2px solid var(--border-color);
         color: transparent; /* Ukrywa domyślny tor w IE */
     }
     
@@ -348,7 +348,7 @@
     }
     
     input[type="range"].form-range::-moz-range-thumb {
-        background: var(--accent-gradient-start); /* Kolor z btn-primary */
+        background: var(--accent-gradient-start);
         width: 11px;
         height: 11px;
         border-radius: 50%;
@@ -357,7 +357,7 @@
     }
     
     input[type="range"].form-range::-ms-thumb {
-        background: var(--accent-gradient-start); /* Kolor z btn-primary */
+        background: var(--accent-gradient-start);
         width: 11px;
         height: 11px;
         border-radius: 50%;
@@ -367,7 +367,7 @@
     
     /* Tryb ciemny dla kciuka */
     .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
-        background: var(--accent-gradient-start-black); /* Jaśniejszy odcień dla trybu ciemnego */
+        background: var(--accent-gradient-start-black);
         transform: translateY(2px);
     }
     
