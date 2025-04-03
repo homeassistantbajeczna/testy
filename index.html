@@ -42,7 +42,7 @@
         --accent-color: #8b7d47;
         --accent-gradient-start: #8b7d47;
         --accent-gradient-end: #70673b;
-        --border-color: #555555;
+        --border-color: #c2b280;
         --shadow-color: rgba(0, 0, 0, 0.5);
         --logo-bg: #3a3a3a;
         --input-bg: #3a3a3a;
@@ -303,7 +303,7 @@
         margin-top: 5px;
         height: 6px;
         background: var(--input-group-bg) !important; /* Nowa zmienna z wymuszeniem */
-        border: none;
+        border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
         -webkit-appearance: none;
         appearance: none;
@@ -331,15 +331,15 @@
         background: var(--input-group-bg) !important; /* Tor w Edge/IE */
         height: 6px;
         border-radius: var(--border-radius);
-        border: none;
+        border: 1px solid var(--border-color);
         color: transparent; /* Ukrywa domyślny tor w IE */
     }
     
     /* Style kciuka */
     input[type="range"].form-range::-webkit-slider-thumb {
         background: var(--accent-gradient-start); /* Kolor z btn-primary */
-        width: 10px;
-        height: 10px;
+        width: 11px;
+        height: 11px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
@@ -349,8 +349,8 @@
     
     input[type="range"].form-range::-moz-range-thumb {
         background: var(--accent-gradient-start); /* Kolor z btn-primary */
-        width: 10px;
-        height: 10px;
+        width: 11px;
+        height: 11px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
@@ -358,8 +358,8 @@
     
     input[type="range"].form-range::-ms-thumb {
         background: var(--accent-gradient-start); /* Kolor z btn-primary */
-        width: 10px;
-        height: 10px;
+        width: 11px;
+        height: 11px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
