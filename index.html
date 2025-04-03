@@ -794,6 +794,28 @@
                             <input type="range" class="form-range" id="dynamicRateRange" min="0" max="50" step="0.05" value="4.90">
                             <div class="sub-info" id="dynamicRateInfo"></div>
                         </div>
+                        <!-- Przeniesiony variable-rate-container (tylko checkboxy) -->
+                        <div class="variable-rate-container">
+                            <div class="checkbox-row" id="variableCheckboxRow">
+                                <label class="checkbox-label" id="inflacjaZmiennaLabel" for="inflacjaZmiennaBtn" style="display: none;">
+                                    <input type="checkbox" id="inflacjaZmiennaBtn">
+                                    <span class="checkbox-custom"></span>
+                                    <b>Zmienna Inflacja</b>
+                                </label>
+                                <label class="checkbox-label" id="stopaZmiennaLabel" for="stopaZmiennaBtn" style="display: none;">
+                                    <input type="checkbox" id="stopaZmiennaBtn">
+                                    <span class="checkbox-custom"></span>
+                                    <b>Zmienna Stopa Ref. NBP</b>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Oddzielny form-row dla dynamicznych pól -->
+                    <div class="form-row" id="variableInputsRow">
+                        <div class="variable-inputs" id="variableInputs" style="display: none;">
+                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -811,24 +833,6 @@
                                 <span class="input-group-text">%</span>
                             </div>
                             <div class="sub-info" id="oprocentowanieInfo"></div>
-                        </div>
-                    </div>
-                    <div class="variable-rate-container">
-                        <div class="checkbox-row" id="variableCheckboxRow">
-                            <label class="checkbox-label" id="inflacjaZmiennaLabel" for="inflacjaZmiennaBtn" style="display: none;">
-                                <input type="checkbox" id="inflacjaZmiennaBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Zmienna Inflacja</b>
-                            </label>
-                            <label class="checkbox-label" id="stopaZmiennaLabel" for="stopaZmiennaBtn" style="display: none;">
-                                <input type="checkbox" id="stopaZmiennaBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Zmienna Stopa Ref. NBP</b>
-                            </label>
-                        </div>
-                        <div class="variable-inputs" id="variableInputs" style="display: none;">
-                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                         </div>
                     </div>
                     <div class="form-row">
