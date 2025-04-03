@@ -259,10 +259,8 @@
     
     .form-control,
     .form-select,
-    .form-range,
     .input-group-text,
     .variable-input-group .form-control,
-    .variable-input-group .form-range {
         height: 22px;
         font-size: var(--small-font-size);
         padding: 2px;
@@ -298,7 +296,51 @@
     }
     
     /* Style dla suwaków */
-    .form-range,
+    .form-range {
+        margin-top: 5px;
+        height: 6px;
+        background: var(--range-track);
+        border: none;
+        border-radius: var(--border-radius);
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        outline: none;
+        box-shadow: none;
+    }
+    
+    /* Stylizacja kciuka suwaka dla wszystkich przeglądarek */
+    .form-range::-webkit-slider-thumb {
+        background: var(--slider-thumb-color);
+        width: 8px; 
+        height: 8px; 
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        -webkit-appearance: none;
+        transform: translateY(-50%);
+    }
+    
+    .form-range::-moz-range-thumb {
+        background: var(--slider-thumb-color);
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .form-range::-ms-thumb {
+        background: var(--slider-thumb-color);
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+    }
+    /*.form-range,
     .variable-input-group .form-range {
         margin-top: 5px;
         height: 6px;
@@ -312,18 +354,9 @@
         margin-right: auto;
         outline: none;
         box-shadow: none;
-    }
-
-    .form-range {
-    background: red; /* Sprawdź, czy tor suwaka zmienia kolor */
-    }
-    .form-range::-webkit-slider-thumb {
-        background: green;
-        width: 20px;
-        height: 20px;
-    }
+    }*/
     
-    .form-range::-webkit-slider-runnable-track,
+    /*.form-range::-webkit-slider-runnable-track,
     .variable-input-group .form-range::-webkit-slider-runnable-track,
     .form-range::-moz-range-track,
     .variable-input-group .form-range::-moz-range-track,
@@ -335,14 +368,14 @@
         height: 6px;
         box-shadow: none;
         outline: none;
-    }
+    }*/
     
     .form-range::-ms-track,
     .variable-input-group .form-range::-ms-track {
         color: transparent;
     }
     
-    .form-range::-webkit-slider-thumb,
+    /*.form-range::-webkit-slider-thumb,
     .variable-input-group .form-range::-webkit-slider-thumb,
     .form-range::-moz-range-thumb,
     .variable-input-group .form-range::-moz-range-thumb,
@@ -356,7 +389,7 @@
         cursor: pointer;
         -webkit-appearance: none;
         transform: translateY(-50%);
-    }
+    }*/
     
     .sub-info {
         font-size: 0.4em;
