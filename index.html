@@ -299,7 +299,9 @@
     .form-range {
         margin-top: 5px;
         height: 6px;
-        background: linear-gradient(90deg, #000000 2px, var(--input-group-bg) 2px, var(--input-group-bg) calc(100% - 2px), #000000 calc(100% - 2px)); /* Czarne krawędzie w trybie jasnym */
+        background: var(--input-group-bg);
+        border-left: 2px solid #000000;
+        border-right: 2px solid #000000;
         border: none;
         border-radius: var(--border-radius);
         -webkit-appearance: none;
@@ -340,7 +342,9 @@
     }
 
     .dark-mode .form-range {
-        background: linear-gradient(90deg, #333333 2px, #555555 2px, #555555 calc(100% - 2px), #333333 calc(100% - 2px));
+        background: #555555;
+        border-left: 2px solid #333333; /* Ciemniejsza krawędź w trybie ciemnym */
+        border-right: 2px solid #333333;
     }
     
     .dark-mode .form-range::-webkit-slider-thumb {
