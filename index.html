@@ -215,6 +215,12 @@
         align-items: center;
         justify-content: flex-start;
     }
+/*jak coś to usunąć*/
+    .variable-input-group .form-group {
+        flex: 1;
+        min-width: 120px;
+        max-width: 150px;
+    }
     
     .form-label,
     .variable-input-group .form-label {
@@ -656,6 +662,7 @@
     #addVariableBtn {
         font-size: 0.7em;
         padding: 3px 10px;
+        margin: 10px auto;
     }
     
     #addVariableBtn {
@@ -690,10 +697,18 @@
     }
     
     .variable-input-group {
-        display: flex;
+        /*display: flex;
         flex-direction: column;
         margin-bottom: 10px;
-        align-items: center;
+        align-items: center;*/
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        align-items: flex-start;
+        min-width: 240px;
+        max-width: 300px;
+}
     }
     
     .variable-inputs-wrapper {
