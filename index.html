@@ -215,12 +215,6 @@
         align-items: center;
         justify-content: flex-start;
     }
-/*jak coś to usunąć*/
-    .variable-input-group .form-group {
-        flex: 1;
-        min-width: 120px;
-        max-width: 150px;
-    }
     
     .form-label,
     .variable-input-group .form-label {
@@ -662,7 +656,6 @@
     #addVariableBtn {
         font-size: 0.7em;
         padding: 3px 10px;
-        margin: 10px auto;
     }
     
     #addVariableBtn {
@@ -697,18 +690,10 @@
     }
     
     .variable-input-group {
-        /*display: flex;
+        display: flex;
         flex-direction: column;
         margin-bottom: 10px;
-        align-items: center;*/
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        justify-content: center;
-        align-items: flex-start;
-        min-width: 240px;
-        max-width: 300px;
-}
+        align-items: center;
     }
     
     .variable-inputs-wrapper {
@@ -842,7 +827,7 @@
                             </label>
                         </div>
                         <div class="variable-inputs" id="variableInputs" style="display: none;">
-                            <div class="form-row" id="variableInputsWrapper"></div>
+                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
                             <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                         </div>
                     </div>
@@ -1304,6 +1289,9 @@
                 const inputGroup = document.createElement("div");
                 inputGroup.className = "variable-input-group";
     
+                const fieldsWrapper = document.createElement("div");
+                fieldsWrapper.className = "fields-wrapper";
+    
                 // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza, ale dla pierwszego wiersza min to 2
                 const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
     
@@ -1316,7 +1304,6 @@
                         <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
                     </div>
                     <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
-                    <div class="sub-info"></div>
                 `;
     
                 const rateGroup = document.createElement("div");
@@ -1328,11 +1315,11 @@
                         <span class="input-group-text">%</span>
                     </div>
                     <input type="range" class="form-range variable-rate-range" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
-                    <div class="sub-info"></div>
                 `;
     
-                inputGroup.appendChild(cyklGroup);
-                inputGroup.appendChild(rateGroup);
+                fieldsWrapper.appendChild(cyklGroup);
+                fieldsWrapper.appendChild(rateGroup);
+                inputGroup.appendChild(fieldsWrapper);
     
                 if (index === 0 && changes.length === 1) {
                     const removeFirstBtnWrapper = document.createElement("div");
@@ -1378,6 +1365,7 @@
     
                 cyklInput.addEventListener("input", () => {
                     let value = parseInt(cyklInput.value);
+                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                         cyklInput.value = value;
@@ -1389,17 +1377,21 @@
                     cyklRange.value = value;
                     changes[index].period = value;
                     updateVariableData();
+                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
                 cyklRange.addEventListener("input", () => {
                     let value = parseFloat(cyklRange.value);
+                    // Podczas przesuwania pokazujemy tylko wartości całkowite
                     cyklInput.value = Math.round(value);
                 });
     
                 cyklRange.addEventListener("change", () => {
                     let value = parseFloat(cyklRange.value);
+                    // Po zakończeniu przesuwania zaokrąglamy do najbliższej liczby całkowitej
                     value = Math.round(value);
+                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                     }
@@ -1410,6 +1402,7 @@
                     cyklInput.value = value;
                     changes[index].period = value;
                     updateVariableData();
+                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
@@ -1428,11 +1421,14 @@
                 });
             });
     
+            // Ustawiamy tekst przycisku
             addVariableBtn.textContent = "Dodaj kolejną zmianę";
     
+            // Sprawdzamy, czy ostatni okres osiągnął maxCykl
             const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
             const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
     
+            // Ukrywamy przycisk, jeśli liczba zmian osiągnęła maxChanges lub ostatni okres osiągnął maxCykl
             addVariableBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
         } else {
             variableInputs.style.display = "none";
