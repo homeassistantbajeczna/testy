@@ -214,7 +214,6 @@
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        height: 100px;
     }
     
     .form-label,
@@ -232,8 +231,6 @@
     .input-group-text,
     .variable-input-group .form-control,
     .variable-input-group .form-range {
-        flex: 1;
-        min-width: 0; 
         height: 22px;
         font-size: 0.7em;
         padding: 2px;
@@ -250,19 +247,9 @@
     }
     
     .input-group-text {
-        flex-shrink: 0;
-        height: 22px;
-        font-size: 0.7em;
-        padding: 2px 5px;
         background: var(--input-group-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 5px;
-        line-height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        padding: 2px 5px;
     }
-
     
     .form-select {
         max-width: 100px;
@@ -270,14 +257,6 @@
         background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
         padding: 0 20px 0 5px;
         line-height: 22px;
-    }
-
-    .input-group {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        height: 22px;
-        flex-wrap: nowrap;
     }
     
     /* Style dla suwaków */
@@ -727,8 +706,8 @@
     .variable-input-group .input-group {
         display: flex;
         align-items: center;
+        max-width: 150px;
         width: 100%;
-        justify-content: center;
     }
     
     .variable-input-group .btn-danger,
