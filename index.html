@@ -289,23 +289,44 @@
     .form-select:focus,
     .form-range:focus {
         outline: none;
+        box-shadow: none;
         background: var(--input-bg);
         color: var(--primary-text);
     }
     
-    /*.form-range:focus::-webkit-slider-runnable-track {
+   
+    .form-range:focus::-webkit-slider-runnable-track {
         background: var(--input-group-bg) !important;
+        box-shadow: none;
     }
     .form-range:focus::-moz-range-track {
         background: var(--input-group-bg) !important;
+        box-shadow: none;
     }
     .form-range:focus::-ms-track {
         background: var(--input-group-bg) !important;
-    }*/
-
+        box-shadow: none; 
+    }
+    
+    .form-range:focus::-webkit-slider-thumb {
+        background: var(--accent-color);
+        box-shadow: none;
+        outline: none;
+    }
+    .form-range:focus::-moz-range-thumb {
+        background: var(--accent-color);
+        box-shadow: none;
+        outline: none;
+    }
+    .form-range:focus::-ms-thumb {
+        background: var(--accent-color);
+        box-shadow: none;
+        outline: none;
+    }
+    
     .form-control:focus,
     .form-select:focus {
-        box-shadow: 0 0 3px #000000; /* Subtelny efekt */
+        box-shadow: 0 0 3px var(--accent-color);
     }
     
     .input-group-text {
