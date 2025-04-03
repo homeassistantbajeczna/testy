@@ -232,6 +232,8 @@
     .input-group-text,
     .variable-input-group .form-control,
     .variable-input-group .form-range {
+        flex: 1;
+        min-width: 0; 
         height: 22px;
         font-size: 0.7em;
         padding: 2px;
@@ -245,8 +247,6 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        flex: 1;
-        min-width: 0;
     }
     
     .input-group-text {
@@ -276,8 +276,8 @@
         display: flex;
         align-items: center;
         width: 100%;
-        justify-content: center;
         height: 22px;
+        flex-wrap: nowrap;
     }
     
     /* Style dla suwaków */
