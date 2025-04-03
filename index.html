@@ -1071,7 +1071,7 @@
 
     function setDynamicRateField(label, value, step, max) {
         const dynamicRateLabel = document.getElementById("dynamicRateLabel");
-        const dynamicRateInfo = document.getElementById("dynamicRateInfo"); // Nowy element
+        const dynamicRateInfo = document.getElementById("dynamicRateInfo");
         dynamicRateLabel.textContent = label;
         elements.dynamicRate.value = value;
         elements.dynamicRateRange.value = value;
@@ -1079,7 +1079,6 @@
         elements.dynamicRateRange.step = step;
         elements.dynamicRate.max = max;
         elements.dynamicRateRange.max = max;
-        document.getElementById("dynamicRateGroup").style.display = "block";
     
         // Aktualizacja sub-info
         if (dynamicRateInfo) {
@@ -1131,26 +1130,31 @@
         updateOprocentowanieInfo();
         updateOpisObligacji();
     
+        // Logika widoczności dynamicRateGroup
+        const dynamicRateGroup = document.getElementById("dynamicRateGroup");
         if (["ROR", "DOR"].includes(typ)) {
             const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
             setDynamicRateField("Stopa Ref. NBP", stopaRefValue, "0.05", "20");
+            dynamicRateGroup.style.display = "flex";
+            console.log(`Pokazuję dynamicRateGroup dla typu ${typ}`); // Logowanie
         } else if (["COI", "EDO", "ROS", "ROD"].includes(typ)) {
             const inflacjaValue = state.lastFormData.dynamicRates[typ] || 4.90;
             setDynamicRateField("Inflacja", inflacjaValue, "0.1", "50");
+            dynamicRateGroup.style.display = "flex";
+            console.log(`Pokazuję dynamicRateGroup dla typu ${typ}`); // Logowanie
         } else {
-            document.getElementById("dynamicRateGroup").style.display = "none";
+            dynamicRateGroup.style.display = "none";
+            console.log(`Ukrywam dynamicRateGroup dla typu ${typ}`); // Logowanie
         }
     
         document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
         document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(typ) ? "flex" : "none";
     
-        // Resetowanie danych zmiennych, jeśli typ obligacji nie obsługuje zmiennej inflacji/stopy
         if (!["COI", "EDO", "ROS", "ROD"].includes(typ)) {
             state.variableInflation = [];
             elements.inflacjaZmiennaBtn.checked = false;
             state.lastFormData.inflacjaZmienna = false;
         } else if (elements.inflacjaZmiennaBtn.checked && state.variableInflation.length === 0) {
-            // Pobieramy wartość z górnego panelu
             const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
             state.variableInflation = [{ value: defaultValue, period: 2 }];
         }
@@ -1160,14 +1164,13 @@
             elements.stopaZmiennaBtn.checked = false;
             state.lastFormData.stopaZmienna = false;
         } else if (elements.stopaZmiennaBtn.checked && state.variableReferenceRates.length === 0) {
-            // Pobieramy wartość z górnego panelu
             const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
             state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
         }
     
         updateVariableInputs();
     }
-
+    
     function updateIloscObligacji() {
         const kwota = parseFloat(elements.kwota.value) || 0;
         const ilosc = Math.floor(kwota / 100);
