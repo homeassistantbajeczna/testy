@@ -1153,18 +1153,6 @@
             box-sizing: border-box; /* Padding wliczony w szerokość */
             background-color: #f0f0f0; /* Domyślne tło dla wszystkich */
         }
-        .summary-footer .highlight:nth-child(1) {
-            background-color: #28a745; /* Czerwony -> Zielony dla Kapitału (spójność z wykresem) */
-            color: #fff;
-        }
-        .summary-footer .highlight:nth-child(2) {
-            background-color: #007bff; /* Niebieski dla Odsetek */
-            color: #fff;
-        }
-        .summary-footer .highlight.green {
-            background-color: #28a745; /* Zielony dla Zysku netto */
-            color: #fff;
-        }
         
         .harmonogram-container {
             width: 95vw;
@@ -1352,9 +1340,8 @@
                     </div>
                 </div>
                <div class="summary-footer">
-                    <span class="highlight" id="kapital">-</span>
-                    <span class="highlight" id="odsetki">-</span>
-                    <span class="highlight green" id="zyskNetto">-</span>
+                    <span class="highlight yellow" data-hover="3 miesięcy" id="okresInwestycji">-</span>
+                    <span class="highlight green" data-hover="" id="zyskNetto">-</span>
                 </div>
                 <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
             </div>
