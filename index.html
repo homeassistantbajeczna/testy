@@ -2381,69 +2381,75 @@
         const zyskNetto = document.getElementById("zyskNetto");
     
         const typ = state.lastFormData.typObligacji;
+        if (!typ) {
+            console.error("Brak typu obligacji w state.lastFormData.typObligacji");
+            alert("Błąd: Brak typu obligacji.");
+            return;
+        }
+    
         const nazwaObligacji = nazwyObligacji[typ];
         const headerText = `Wynik inwestycji dla obligacji ${nazwaObligacji}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
         const opis = opisyObligacji[typ] || "";
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
         const today = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
     
+        const parseNumber = (text) => {
+            const cleaned = text.replace(/[^\d,.]/g, "").replace(",", ".");
+            const number = parseFloat(cleaned);
+            return isNaN(number) ? 0 : number;
+        };
+    
         const summary = [
             `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Odsetki: ${parseFloat(valueOdsetki.textContent.replace(/[^\d,.]/g, "").replace(",", ".")).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(valuePodatek.textContent.replace(/[^\d,.]/g, "").replace(",", ".")).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`,
+            `Odsetki: ${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+            `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`,
             `Okres inwestycji: ${state.lastFormData.okres} ${jednostkaOkresu}`,
-            `Zysk netto: ${parseFloat(zyskNetto.textContent.replace(/[^\d,.]/g, "").replace(",", ".")).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
+            `Zysk netto: ${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
         ];
     
-        const headers = ["OTS", "ROR", "DOR"].includes(typ) ?
-            ["Miesiąc", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Stopa Ref. NBP", "Suma netto"] :
-            ["Rok", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Inflacja", "Suma netto"];
+        const headers = ["OTS", "ROR", "DOR"].includes(typ)
+            ? ["Miesiąc", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Stopa Ref. NBP", "Suma netto"]
+            : ["Rok", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Inflacja", "Suma netto"];
         if (["OTS", "TOS"].includes(typ)) headers.splice(8, 1);
+    
+        const safeParseFloat = (value) => isNaN(parseFloat(value)) ? 0 : parseFloat(value);
     
         const tableData = state.harmonogramData.map(wiersz => {
             const row = [
-                wiersz.okres.toString(),
-                `${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}`,
-                `${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                state.isIkeIkzeMode ? "0,00 zł***" : `${parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
+                (wiersz.okres || 0).toString(),
+                `${safeParseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl || '0%'}`,
+                `${safeParseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${safeParseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                state.isIkeIkzeMode ? "0,00 zł***" : `${safeParseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${safeParseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${safeParseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
             ];
             if (!["OTS", "TOS"].includes(typ)) {
-                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`);
+                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja || '0%'}`);
             }
-            row.push(`${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+            row.push(`${safeParseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
             return row;
         });
     
-        // Obliczanie szerokości kolumn z uwzględnieniem zwijania tekstu
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
             const columnWidths = headers.map((_, colIndex) => {
                 const maxLength = Math.max(
                     ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
                 );
-                // Mniejszy mnożnik (4 zamiast 5), bo tekst będzie zwijany
                 const baseWidth = maxLength * 4;
-                // Ustalamy minimalną i maksymalną szerokość dla każdej kolumny
-                return Math.min(Math.max(baseWidth, 30), 100); // Min 30 pt, max 100 pt
+                return Math.min(Math.max(baseWidth, 30), 100);
             });
     
-            // Całkowita szerokość strony A4 (595 pt) minus marginesy (2 × 14.17 = 28.34 pt)
-            const pageWidth = 595 - 28.34; // Marginesy po 0.5 cm (14.17 pt)
+            const pageWidth = 595 - 28.34;
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-    
-            // Proporcjonalne skalowanie do dostępnej przestrzeni
             return columnWidths.map(width => (width / totalCalculatedWidth) * pageWidth);
         };
     
         const columnWidths = calculateColumnWidths();
-    
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
     
-        // Zapamiętujemy oryginalne kolory wykresu
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2456,7 +2462,6 @@
             legendColor: state.chartLine.options.plugins.legend.labels.color
         };
     
-        // Ustawiamy kolory na wartości trybu jasnego
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
         state.chartLine.options.scales.y.grid.color = '#e0e0e0';
         state.chartLine.options.scales.x.grid.borderColor = '#333333';
@@ -2468,10 +2473,9 @@
         state.chartLine.options.plugins.legend.labels.color = '#333333';
         state.chartLine.update();
     
-        setTimeout(() => {
+        requestAnimationFrame(() => {
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
-            // Przywracamy oryginalne kolory
             state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
             state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
             state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
@@ -2510,7 +2514,7 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [14.17, 60, 14.17, 20], // Marginesy 0.5 cm (14.17 pt)
+                    pageMargins: [14.17, 60, 14.17, 20],
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         columns: [
@@ -2536,10 +2540,10 @@
                                 fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
                                 hLineWidth: function () { return 0.5; },
                                 vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 2; },  // Mniejszy margines lewy (2 pt)
-                                paddingRight: function () { return 2; }, // Mniejszy margines prawy (2 pt)
-                                paddingTop: function () { return 1; },   // Mniejszy margines górny (1 pt)
-                                paddingBottom: function () { return 1; } // Mniejszy margines dolny (1 pt)
+                                paddingLeft: function () { return 1; },
+                                paddingRight: function () { return 1; },
+                                paddingTop: function () { return 1; },
+                                paddingBottom: function () { return 1; }
                             },
                             margin: [0, 10, 0, 10]
                         },
@@ -2564,11 +2568,10 @@
             getBase64ImageFromUrl('cropped-logo-FB-1.png')
                 .then(logoBase64 => generateDoc(logoBase64))
                 .catch(error => {
-                    console.error("Błąd ładowania logo:", error);
-                    alert("Nie udało się załadować logo – PDF zostanie wygenerowany bez logo.");
+                    console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
                     generateDoc(null);
                 });
-        }, 100);
+        });
     }
     
     initializeTheme();
