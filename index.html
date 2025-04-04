@@ -364,9 +364,13 @@
         background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
         padding: 0 20px 0 5px;
         line-height: 22px;
+        text-align: center;
+    }
+
+    .form-select option {
+        text-align: center;
     }
     
-    /* Style dla suwaków */
     input[type="range"].form-range {
         margin-top: 5px;
         height: 6px;
@@ -681,6 +685,21 @@
         gap: 15px;
         margin-top: 10px;
     }
+
+    .highlight {
+        font-size: 0.8em;
+        padding: 4px 6px;
+        border-radius: var(--border-radius);
+        position: relative;
+        cursor: pointer;
+        color: #ffffff;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center; 
+        width: 100%;
+        max-width: 200px;
+    }
     
     .summary-footer .highlight {
         font-size: 0.8em;
@@ -718,6 +737,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        text-align: center;
+        
     }
     
     /* Style dla harmonogramu */
@@ -831,9 +852,9 @@
     }
     
     #generatePdfBtn {
-        position: absolute;
-        top: 0;
-        right: 10px;
+        display: block;
+        margin: 0 auto 15px;
+        padding: 6px 15px;
     }
     
     /* Pola dla zmiennych stóp */
@@ -920,26 +941,14 @@
             flex-direction: column;
             padding: 15px;
         }
-    }
-    
-    /* Mobile (max 480px) */
-    @media (max-width: 480px) {
-        .calculator-container {
-            padding: 10px;
-        }
-        .calculator-container input,
-        .calculator-container select {
-            width: 100%; /* Pełna szerokość pól */
-            font-size: 14px; /* Mniejszy tekst */
-        }
-    }
-    
-    /* Responsywność */
-    @media (max-width: 768px) {
         .form-group,
         .input-group {
             width: 100%;
             max-width: none;
+        }
+
+        .form-select {
+            max-width: 100%;
         }
     
         .chart-container {
@@ -973,6 +982,23 @@
         .harmonogram-opis {
             padding-left: 1em;
         }
+        
+        #generatePdfBtn {
+            padding: 5px 12px;
+            font-size: 0.8em;
+        }
+    }
+    
+    /* Mobile (max 480px) */
+    @media (max-width: 480px) {
+        .calculator-container {
+            padding: 10px;
+        }
+        .calculator-container input,
+        .calculator-container select {
+            width: 100%; /* Pełna szerokość pól */
+            font-size: 14px; /* Mniejszy tekst */
+        }
     }
     
     @media (max-width: 576px) {
@@ -991,14 +1017,7 @@
             flex-direction: column;
             gap: 10px;
         }
-    }
-
-    /* Tablet (max 768px) */
-    @media (max-width: 768px) {
-        .calculator-container {
-            flex-direction: column;
-            padding: 15px;
-        }
+    
         .form-row, .checkbox-row, .fields-wrapper {
             flex-direction: column;
             align-items: center;
@@ -1006,14 +1025,20 @@
         }
         .form-group, .input-group, #dynamicRateGroup {
             width: 100%;
-            max-width: 300px; /* Ograniczenie, żeby nie było za szerokie */
+            max-width: 300px;
             min-width: 0;
         }
+        
         .variable-input-group .input-group {
             max-width: 300px;
         }
+        
         .variable-input-group .form-group {
             width: 100%;
+        }
+        
+        .highlight {
+            max-width: 100%;
         }
     }
     
@@ -1022,6 +1047,13 @@
         .calculator-container {
             padding: 10px;
         }
+
+        #generatePdfBtn {
+            padding: 4px 10px;
+            font-size: 0.7em; /* Mniejszy tekst */
+            width: 120px; /* Stała szerokość dla kompaktowości */
+        }
+        
         .form-group, .input-group, #dynamicRateGroup {
             max-width: 100%; /* Pełna szerokość na małych ekranach */
         }
@@ -1064,15 +1096,15 @@
     <div class="form-section" id="formSection">
         <div class="header-row">
             <h4>Kalkulator Obligacji Skarbu Państwa</h4>
-            <label class="checkbox-label header-checkbox" for="ikeIkzeBtn">
-                <input type="checkbox" id="ikeIkzeBtn">
-                <span class="checkbox-custom"></span>
-                <b>Inwestycje w IKE lub IKZE</b>
-            </label>
         </div>
         <div class="form-container">
             <div class="form-wrapper">
                 <form id="obligacjeForm">
+                    <label class="checkbox-label" for="ikeIkzeBtn">
+                        <input type="checkbox" id="ikeIkzeBtn">
+                        <span class="checkbox-custom"></span>
+                        <b>Inwestycje w IKE lub IKZE</b>
+                    </label>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="typObligacji" class="form-label">Typ obligacji*</label>
@@ -1157,9 +1189,9 @@
         </div>
     </div>
     <div class="result-section" id="resultSection">
+        <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
         <div class="result-header">
             <h4 id="resultHeader">Podsumowanie wyników</h4>
-            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
         </div>
         <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
         <div class="result-container">
