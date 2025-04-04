@@ -987,6 +987,7 @@
     
         .harmonogram table {
             font-size: 0.7em;
+            max-width: 100%;
         }
     
         .harmonogram th,
@@ -1051,6 +1052,7 @@
 
         .harmonogram table {
             font-size: 0.65em;
+            max-width: 100%;
         }
     
         .harmonogram th {
@@ -1061,7 +1063,7 @@
         }
     
         .harmonogram-opis {
-            padding-left: 0.95em;
+            padding-left: 0.9em;
         }
     }
     
@@ -1131,21 +1133,25 @@
 
         .harmonogram {
             overflow-x: auto;
+            width: 100%;
         }
     
         .harmonogram table {
-            font-size: 0.5em;
-            max-width: 100%;
+            font-size: 0.55em;
+            max-width: none; /* jak coś to zmień na 100% */
+            width: auto; /* Pozwalamy tabeli rozciągnąć się naturalnie */
+            min-width: 100%;
         }
     
         .harmonogram th {
             padding: 5px;
             font-size: 0.55em;
+            white-space: nowrap;
         }
     
         .harmonogram td {
             padding: 3px;
-            font-size: 0.5em;
+            font-size: 0.55em;
             white-space: normal;
             word-wrap: break-word;
         }
