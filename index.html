@@ -2389,7 +2389,7 @@
     
         const summary = [
             `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Odsetki: ${parseFloat(valueOdsetki.textContent.replace(/[^\d,.]/g, "").replace(",", ".")).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+            `Odsetki: ${parseFloat(valueOdsetki.textContent.replace(/[^\d,.]/g, "").replace(",",).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
             `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(valuePodatek.textContent.replace(/[^\d,.]/g, "").replace(",", ".")).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`,
             `Okres inwestycji: ${state.lastFormData.okres} ${jednostkaOkresu}`,
             `Zysk netto: ${parseFloat(zyskNetto.textContent.replace(/[^\d,.]/g, "").replace(",", ".")).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
@@ -2425,17 +2425,12 @@
                 const maxLength = Math.max(
                     ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
                 );
-                // Mniejszy mnożnik (4 zamiast 5), bo tekst będzie zwijany
-                const baseWidth = maxLength * 4;
-                // Ustalamy minimalną i maksymalną szerokość dla każdej kolumny
+                const baseWidth = maxLength * 4; // Mniejszy mnożnik, bo mamy zwijanie tekstu
                 return Math.min(Math.max(baseWidth, 30), 100); // Min 30 pt, max 100 pt
             });
     
-            // Całkowita szerokość strony A4 (595 pt) minus marginesy (2 × 14.17 = 28.34 pt)
-            const pageWidth = 595 - 28.34; // Marginesy po 0.5 cm (14.17 pt)
+            const pageWidth = 595 - 28.34; // A4 (595 pt) minus marginesy 0.5 cm (28.34 pt)
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-    
-            // Proporcjonalne skalowanie do dostępnej przestrzeni
             return columnWidths.map(width => (width / totalCalculatedWidth) * pageWidth);
         };
     
@@ -2536,10 +2531,10 @@
                                 fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
                                 hLineWidth: function () { return 0.5; },
                                 vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 2; },  // Mniejszy margines lewy (2 pt)
-                                paddingRight: function () { return 2; }, // Mniejszy margines prawy (2 pt)
-                                paddingTop: function () { return 1; },   // Mniejszy margines górny (1 pt)
-                                paddingBottom: function () { return 1; } // Mniejszy margines dolny (1 pt)
+                                paddingLeft: function () { return 1; },  // Margines lewy 1 pt (~0.035 cm)
+                                paddingRight: function () { return 1; }, // Margines prawy 1 pt (~0.035 cm)
+                                paddingTop: function () { return 1; },   // Margines górny 1 pt (~0.035 cm)
+                                paddingBottom: function () { return 1; } // Margines dolny 1 pt (~0.035 cm)
                             },
                             margin: [0, 10, 0, 10]
                         },
