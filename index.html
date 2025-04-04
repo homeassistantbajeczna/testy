@@ -1069,7 +1069,7 @@
     
     /* Mobile (max 480px) */
     @media (max-width: 480px) {
-        body{
+        body {
             margin: 0;
             padding: 0;
         }
@@ -1077,13 +1077,13 @@
         .calculator-container {
             padding: 10px;
         }
-
+    
         .calculator-container input,
         .calculator-container select {
             width: 100%;
             font-size: 14px;
         }
-
+    
         #generatePdfBtn {
             padding: 4px 10px;
             font-size: 0.7em;
@@ -1100,14 +1100,8 @@
         .form-range {
             height: 8px;
         }
-        .form-range::-webkit-slider-thumb {
-            width: 14px;
-            height: 14px;
-        }
-        .form-range::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-        }
+        .form-range::-webkit-slider-thumb,
+        .form-range::-moz-range-thumb,
         .form-range::-ms-thumb {
             width: 14px;
             height: 14px;
@@ -1118,106 +1112,104 @@
         .btn-primary, #addVariableBtn {
             padding: 6px 15px;
         }
-
+    
         .checkbox-label {
             font-size: 0.7em;
         }
+    
+        /* 1. Poprawa przesunięcia logo na lewo */
         .logo-container {
             text-align: left;
-            justify-content: flex-start;
+            justify-content: flex-start; /* Nadpisujemy domyślne center */
             flex-wrap: wrap;
         }
         .logo, #siteLogo {
             max-width: 150px;
+            margin: 0; /* Usuwamy automatyczne marginesy */
+            padding: 10px 0;
         }
         .zoom-controls {
             position: static;
             transform: none;
             margin-left: auto;
         }
-
-        .harmonogram-container {
-            width: 95vw; /* 95% szerokości ekranu */
-            max-width: none;
-            margin: 0 auto; /* Standardowe wyśrodkowanie */
-            padding: 10px;
-            box-sizing: border-box;
-            position: relative; /* Ustawiamy kontekst pozycjonowania */
-            left: 50%; /* Przesuwamy na środek ekranu */
-            transform: translateX(-50%); /* Cofamy o połowę szerokości dla idealnego wyśrodkowania */
+    
+        /* 2. Wyśrodkowanie tekstu w TYP OBLIGACJI */
+        #typObligacji.form-control { /* Precyzyjny selektor dla select */
+            text-align: center;
+            text-align-last: center; /* Dla opcji w select */
+            width: 100%;
+        }
+        #typObligacji.form-control option {
+            text-align: center; /* Opcje w select */
         }
     
-        /* Kontener wykresu liniowego */
-        .harmonogram-chart-wrapper {
-            width: 100%; /* Wypełnia .harmonogram-container (95vw) */
+        /* 3. Zmniejszenie tekstu pod tabelką harmonogramu */
+        .harmonogram-opis {
+            font-size: 0.45em; /* Zmniejszamy z 0.5em */
+            padding-left: 0.9em;
+        }
+    
+        /* 4. Zmniejszenie Zysk netto i Okres inwestycji w summary-footer */
+        .summary-footer .highlight {
+            font-size: 0.7em; /* Zmniejszamy z 0.8em */
+            padding: 3px 5px; /* Mniejszy padding */
+            max-width: 180px; /* Węższe niż domyślne 200px */
+        }
+    
+        /* Poprzednie style harmonogramu */
+        .harmonogram-container {
+            width: 95vw;
             max-width: none;
-            margin: 0 auto; /* Wyśrodkowanie w ramach .harmonogram-container */
+            margin: 0 auto;
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .harmonogram-chart-wrapper {
+            width: 100%;
+            max-width: none;
+            margin: 0 auto;
             padding: 15px;
             box-sizing: border-box;
         }
-    
-        /* Kontener tabeli */
+        
         .harmonogram {
-            overflow-x: auto; /* Przewijanie poziome */
-            width: 100%; /* Wypełnia .harmonogram-container */
+            overflow-x: auto;
+            width: 100%;
         }
-    
-        /* Tabela */
+        
         .harmonogram table {
-            font-size: 0.55em; /* Mała czcionka */
-            max-width: none; /* Bez ograniczenia maksymalnej szerokości */
-            width: auto; /* Naturalna szerokość tabeli */
-            min-width: 100%; /* Minimum 100% szerokości .harmonogram (90vw) */
+            font-size: 0.55em;
+            max-width: none;
+            width: auto;
+            min-width: 100%;
         }
-    
+        
         .harmonogram th {
             padding: 1px;
             font-size: 0.6em;
             white-space: normal;
         }
-    
+        
         .harmonogram td {
             padding: 1px;
             font-size: 0.55em;
             white-space: normal;
         }
-    
-        /* Wykres liniowy */
+        
         .chart-container-line {
-            width: 100%; /* Wypełnia .harmonogram-chart-wrapper */
+            width: 100%;
             max-width: 100%;
-            height: 200px; /* Zmniejszona wysokość dla telefonów */
+            height: 200px;
         }
-    
+        
         .chart-line {
-            width: 100%; /* Dopasowanie canvasu do kontenera */
+            width: 100%;
             height: 100%;
-        }
-
-        .form-box select, 
-        .form-box label[for="typ"] { /* Dopasuj selektor do swojego HTML */
-            text-align: center;
-            width: 100%; /* Upewniamy się, że zajmuje pełną szerokość */
-            display: block; /* Dla label, jeśli jest inline */
-        }
-    
-        /* 2. Logo po lewej stronie */
-        .logo {
-            text-align: left; /* Wyrównanie do lewej */
-            margin: 0; /* Resetujemy marginesy */
-            padding: 10px 0; /* Dodajemy trochę odstępu */
-        }
-    
-        .logo img { /* Jeśli logo to obrazek */
-            text-align: left;
-            display: block;
-            margin: 0; /* Bez marginesów automatycznych */
-        }
-    
-        /* 3. Zmniejszenie tekstu pod tabelką harmonogramu */
-        .harmonogram-info {
-            font-size: 0.6em; /* Mniejszy tekst, np. z 1em na 0.8em */
-            line-height: 1.2; /* Lepsza czytelność */
         }
     }
 </style>
