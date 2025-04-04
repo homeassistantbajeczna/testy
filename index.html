@@ -1135,13 +1135,6 @@
         #typObligacji.form-control option {
             text-align: center;
         }
-        /* Wymuszenie stylu dla harmonogram-opis */
-        .harmonogram-container div.harmonogram-opis#harmonogramOpis {
-            font-size: 0.45em !important;
-            line-height: 1.2 !important;
-            padding-left: 0.9em !important;
-            background-color: yellow !important; /* Testowy kolor, żeby zobaczyć, czy styl się stosuje */
-        }
         .summary-footer {
             display: flex;
             flex-direction: row;
@@ -2235,20 +2228,6 @@
             const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
-            // Logowanie i wymuszenie stylu
-            console.log("Szerokość okna:", window.innerWidth);
-            if (window.innerWidth <= 480) {
-                harmonogramOpis.style.fontSize = "0.45em";
-                console.log("Ustawiam font-size na 0.45em dla mobilki");
-                // Wymuszenie stylu po krótkim opóźnieniu, żeby sprawdzić nadpisywanie
-                setTimeout(() => {
-                    harmonogramOpis.style.fontSize = "0.45em";
-                    console.log("Ponowne ustawienie font-size na 0.45em po 500ms");
-                }, 500);
-            } else {
-                harmonogramOpis.style.fontSize = "0.5em";
-                console.log("Ustawiam font-size na 0.5em dla większych ekranów");
-            }
         }
     
         const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
