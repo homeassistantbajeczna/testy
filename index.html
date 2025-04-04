@@ -161,6 +161,8 @@
         cursor: pointer;
         position: relative;
         margin-bottom: 10px;
+        margin: 15px 0;
+        justify-content: center;
     }
     
     .checkbox-label input {
@@ -854,7 +856,7 @@
     
     #generatePdfBtn {
         display: block;
-        margin: 0 auto 15px;
+        margin: 0 0 15px auto; 
         padding: 6px 15px;
     }
     
@@ -1104,11 +1106,6 @@
         <div class="form-container">
             <div class="form-wrapper">
                 <form id="obligacjeForm">
-                    <label class="checkbox-label" for="ikeIkzeBtn">
-                        <input type="checkbox" id="ikeIkzeBtn">
-                        <span class="checkbox-custom"></span>
-                        <b>Inwestycje w IKE lub IKZE</b>
-                    </label>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="typObligacji" class="form-label">Typ obligacji*</label>
@@ -1161,6 +1158,11 @@
                             <div class="sub-info" id="oprocentowanieInfo"></div>
                         </div>
                     </div>
+                    <label class="checkbox-label" for="ikeIkzeBtn">
+                        <input type="checkbox" id="ikeIkzeBtn">
+                        <span class="checkbox-custom"></span>
+                        <b>Inwestycje w IKE lub IKZE</b>
+                    </label>
                     <div class="variable-rate-container">
                         <div class="checkbox-row" id="variableCheckboxRow">
                             <label class="checkbox-label" id="inflacjaZmiennaLabel" for="inflacjaZmiennaBtn" style="display: none;">
