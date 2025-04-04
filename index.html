@@ -2404,14 +2404,14 @@
             const row = [
                 wiersz.okres.toString(),
                 `${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                wiersz.oprocentowanieNaCykl + (wiersz.changeApplied ? ' ★' : ''),
+                wiersz.oprocentowanieNaCykl + (wiersz.changeApplied ? '★' : ''),
                 `${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 state.isIkeIkzeMode ? "0,00 zł***" : `${parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
             ];
-            if (!["OTS", "TOS"].includes(typ)) row.push(wiersz.stopaRefLubInflacja + (wiersz.changeApplied ? ' ★' : ''));
+            if (!["OTS", "TOS"].includes(typ)) row.push(wiersz.stopaRefLubInflacja + (wiersz.changeApplied ? '★' : ''));
             row.push(`${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
             return row;
         });
