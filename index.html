@@ -2404,7 +2404,7 @@
             const row = [
                 wiersz.okres.toString(),
                 `${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}`, // Gwiazdka przed wartością
+                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}`,
                 `${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 state.isIkeIkzeMode ? "0,00 zł***" : `${parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
@@ -2412,11 +2412,32 @@
                 `${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
             ];
             if (!["OTS", "TOS"].includes(typ)) {
-                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`); // Gwiazdka przed wartością
+                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`);
             }
             row.push(`${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
             return row;
         });
+    
+        // Obliczanie szerokości kolumn na podstawie zawartości
+        const calculateColumnWidths = () => {
+            const allRows = [headers, ...tableData];
+            const columnWidths = headers.map((_, colIndex) => {
+                const maxLength = Math.max(
+                    ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
+                );
+                // Przyjmujemy, że 1 znak ≈ 5 pikseli przy fontSize: 8 (dostosuj jeśli potrzeba)
+                return maxLength * 5;
+            });
+    
+            // Całkowita szerokość strony A4 (595 pt) minus marginesy (2 cm = 56.7 pt)
+            const pageWidth = 595 - 56.7; // 1 cm = 28.35 pt
+            const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+    
+            // Proporcjonalne skalowanie szerokości do dostępnej przestrzeni
+            return columnWidths.map(width => (width / totalCalculatedWidth) * pageWidth);
+        };
+    
+        const columnWidths = calculateColumnWidths();
     
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
     
@@ -2487,7 +2508,7 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [20, 60, 20, 20],
+                    pageMargins: [28.35, 60, 28.35, 20], // 1 cm = 28.35 pt
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         columns: [
@@ -2503,9 +2524,7 @@
                         {
                             table: {
                                 headerRows: 1,
-                                widths: ["OTS", "ROR", "DOR"].includes(typ) ?
-                                    [25, 70, 40, 50, 50, 40, 50, 55, 40, 60] : // Dopasowane szerokości dla typów miesięcznych
-                                    [20, 70, 40, 50, 50, 40, 50, 55, 40, 60], // Dopasowane szerokości dla typów rocznych
+                                widths: columnWidths, // Dynamiczne szerokości
                                 body: [
                                     headers.map(h => ({ text: h, style: 'tableHeader' })),
                                     ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
