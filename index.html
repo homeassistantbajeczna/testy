@@ -1069,6 +1069,11 @@
     
     /* Mobile (max 480px) */
     @media (max-width: 480px) {
+        body{
+            margin: 0;
+            padding: 0 5px;
+        }
+        
         .calculator-container {
             padding: 10px;
         }
@@ -1132,20 +1137,20 @@
         }
 
         .harmonogram-container {
-            width: 90vw; /* 90% szerokości viewportu, omija ograniczenie .container */
-            max-width: none; /* Usuwamy ograniczenie szerokości */
-            margin-left: auto; /* Wyśrodkowanie */
-            margin-right: auto;
-            padding: 10px; /* Zmniejszony padding, aby tło sięgało bliżej krawędzi */
+            width: 95vw; /* Zwiększamy do 95vw, aby lepiej wypełnić ekran */
+            max-width: none;
+            margin: 0 calc((100vw - 95vw) / 2); /* Precyzyjne wyśrodkowanie z równymi marginesami */
+            padding: 10px;
+            box-sizing: border-box; /* Upewniamy się, że padding nie zwiększa szerokości */
         }
     
         /* Kontener wykresu liniowego */
         .harmonogram-chart-wrapper {
-            width: 100%; /* Wypełnia .harmonogram-container (90vw) */
+            width: 100%; /* Wypełnia .harmonogram-container (95vw) */
             max-width: none;
-            margin-left: auto;
-            margin-right: auto;
-            padding: 15px; /* Standardowy padding */
+            margin: 0 auto; /* Wyśrodkowanie w ramach .harmonogram-container */
+            padding: 15px;
+            box-sizing: border-box;
         }
     
         /* Kontener tabeli */
