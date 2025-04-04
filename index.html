@@ -759,11 +759,9 @@
     /* Style dla harmonogramu */
     .harmonogram {
         padding: 0;
-        overflow-x: auto;
-        max-width: 100%;
     }
     
-    /*.harmonogram table {
+    .harmonogram table {
         margin: 0 auto;
         width: 100%;
         max-width: 1000px;
@@ -775,26 +773,12 @@
         box-shadow: 0 1px 3px var(--shadow-color);
         background: var(--harmonogram-bg);
         font-size: 0.8em;
-    }*/
-
-    .harmonogram table {
-        width: 100%;
-        max-width: 1000px;
-        margin: 0 auto;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px var(--shadow-color);
-        background: var(--harmonogram-bg);
-        font-size: 0.8em;
-        table-layout: auto;
     }
     
     .harmonogram th {
         background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--primary-text);
-        padding: 8px; /* Zmniejszamy z 12px */
+        padding: 12px;
         text-align: center;
         vertical-align: middle;
         font-weight: 500;
@@ -803,7 +787,6 @@
         line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 0.75em; /* Zmniejszamy czcionkę jak coś to usunąć */
     }
     
     .harmonogram td {
@@ -813,12 +796,9 @@
         border-bottom: 1px solid var(--border-color);
         background-color: var(--harmonogram-bg);
         color: var(--primary-text);
-        white-space: normal; /* jak coś to zmienić na nowrap*/
+        white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 0.7em; /* Zmniejszamy czcionkę  jak coś to usunąć*/
-        word-wrap: break-word; /* Zawijanie słów jak coś to usunąć */
-        
     }
     
     .harmonogram .btn-toggle {
@@ -1006,12 +986,12 @@
         }
     
         .harmonogram table {
-            font-size: 0.65em;
+            font-size: 0.7em;
         }
     
         .harmonogram th,
         .harmonogram td {
-            padding: 6px;
+            padding: 8px;
         }
     
         .harmonogram-opis {
@@ -1067,6 +1047,21 @@
         
         .highlight {
             max-width: 100%;
+        }
+
+        .harmonogram table {
+            font-size: 0.65em;
+        }
+    
+        .harmonogram th {
+            padding: 8px;
+        }    
+        .harmonogram td {
+            padding: 6px;
+        }
+    
+        .harmonogram-opis {
+            padding-left: 0.95em;
         }
     }
     
@@ -1134,12 +1129,25 @@
             margin-left: auto;
         }
 
-        .harmonogram table { /*jak coś to usunąć całość*/
-            font-size: 0.6em; 
+        .harmonogram {
+            overflow-x: auto;
         }
-        .harmonogram th,/*jak coś to usunąć całość*/
+    
+        .harmonogram table {
+            font-size: 0.5em;
+            max-width: 100%;
+        }
+    
+        .harmonogram th {
+            padding: 5px;
+            font-size: 0.55em;
+        }
+    
         .harmonogram td {
-            padding: 4px;
+            padding: 3px;
+            font-size: 0.5em;
+            white-space: normal;
+            word-wrap: break-word;
         }
     }
 </style>
