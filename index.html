@@ -2248,8 +2248,8 @@
         const harmonogramOpis = document.getElementById("harmonogramOpis");
         if (harmonogramOpis) {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? '<span class="star">★</span> Zmiana oprocentowania.<br>' : "";
-            const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
+            const starText = hasStar ? '<span class="star">★</span> <strong>Zmiana</strong> oprocentowania.<br>' : "";
+            const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
             const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
