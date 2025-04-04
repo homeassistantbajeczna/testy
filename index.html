@@ -2236,7 +2236,7 @@
         const harmonogramOpis = document.getElementById("harmonogramOpis");
         if (harmonogramOpis) {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? '<span class="star">★</span><strong> Zmiana</strong> oprocentowania.<br>' : "";
+            const starText = hasStar ? '<span class="star">★</span><strong> Zmiana oprocentowania.</strong><br>' : "";
             const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
             const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
@@ -2504,8 +2504,8 @@
                             table: {
                                 headerRows: 1,
                                 widths: ["OTS", "ROR", "DOR"].includes(typ) ?
-                                    [30, 80, 50, 60, 60, 50, 60, 60, 50, 70] : // Dopasowane szerokości dla typów miesięcznych
-                                    [25, 80, 50, 60, 60, 50, 60, 60, 50, 70], // Dopasowane szerokości dla typów rocznych
+                                    [25, 70, 40, 50, 50, 40, 50, 55, 40, 60] : // Dopasowane szerokości dla typów miesięcznych
+                                    [20, 70, 40, 50, 50, 40, 50, 55, 40, 60], // Dopasowane szerokości dla typów rocznych
                                 body: [
                                     headers.map(h => ({ text: h, style: 'tableHeader' })),
                                     ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
