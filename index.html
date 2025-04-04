@@ -2044,13 +2044,13 @@
         document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
     
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-        const okresInwestycji = document.getElementById("okresInwestycji");
-        if (okresInwestycji) okresInwestycji.textContent = `${miesiace} ${jednostkaOkresu}`;
+        const okresInwestycjiSpan = document.querySelector('.summary-footer .highlight.yellow');
+        if (okresInwestycjiSpan) okresInwestycjiSpan.textContent = `Okres inwestycji: ${miesiace} ${jednostkaOkresu}`;
         const highlightYellow = document.querySelector('.result-wrapper-chart .highlight.yellow');
         if (highlightYellow) highlightYellow.setAttribute('data-hover', `${miesiace} ${jednostkaOkresu}`);
     
-        const zyskNetto = document.getElementById("zyskNetto");
-        if (zyskNetto) zyskNetto.textContent = `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        const zyskNettoSpan = document.querySelector('.summary-footer .highlight.green');
+        if (zyskNettoSpan) zyskNettoSpan.textContent = `Zysk netto: ${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         const highlightGreen = document.querySelector('.result-wrapper-chart .highlight.green');
         if (highlightGreen) highlightGreen.setAttribute('data-hover', `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
     
