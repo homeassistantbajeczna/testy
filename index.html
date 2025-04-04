@@ -2362,7 +2362,7 @@
         }
     };
         
-    function generatePdf() {
+        function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
             console.error("Biblioteka PDFMake nie została załadowana.");
@@ -2418,22 +2418,24 @@
             return row;
         });
     
-        // Obliczanie szerokości kolumn na podstawie zawartości
+        // Obliczanie szerokości kolumn z uwzględnieniem zwijania tekstu
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
             const columnWidths = headers.map((_, colIndex) => {
                 const maxLength = Math.max(
                     ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
                 );
-                // Przyjmujemy, że 1 znak ≈ 5 pikseli przy fontSize: 8 (dostosuj jeśli potrzeba)
-                return maxLength * 5;
+                // Mniejszy mnożnik (4 zamiast 5), bo tekst będzie zwijany
+                const baseWidth = maxLength * 4;
+                // Ustalamy minimalną i maksymalną szerokość dla każdej kolumny
+                return Math.min(Math.max(baseWidth, 30), 100); // Min 30 pt, max 100 pt
             });
     
-            // Całkowita szerokość strony A4 (595 pt) minus marginesy (2 cm = 56.7 pt)
-            const pageWidth = 595 - 56.7; // 1 cm = 28.35 pt
+            // Całkowita szerokość strony A4 (595 pt) minus marginesy (2 × 14.17 = 28.34 pt)
+            const pageWidth = 595 - 28.34; // Marginesy po 0.5 cm (14.17 pt)
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
     
-            // Proporcjonalne skalowanie szerokości do dostępnej przestrzeni
+            // Proporcjonalne skalowanie do dostępnej przestrzeni
             return columnWidths.map(width => (width / totalCalculatedWidth) * pageWidth);
         };
     
@@ -2508,7 +2510,7 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [28.35, 60, 28.35, 20], // 1 cm = 28.35 pt
+                    pageMargins: [14.17, 60, 14.17, 20], // Marginesy 0.5 cm (14.17 pt)
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         columns: [
@@ -2524,16 +2526,20 @@
                         {
                             table: {
                                 headerRows: 1,
-                                widths: columnWidths, // Dynamiczne szerokości
+                                widths: columnWidths,
                                 body: [
-                                    headers.map(h => ({ text: h, style: 'tableHeader' })),
-                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
+                                    headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
+                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
                                 ]
                             },
                             layout: {
                                 fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
                                 hLineWidth: function () { return 0.5; },
-                                vLineWidth: function () { return 0.5; }
+                                vLineWidth: function () { return 0.5; },
+                                paddingLeft: function () { return 2; },  // Mniejszy margines lewy (2 pt)
+                                paddingRight: function () { return 2; }, // Mniejszy margines prawy (2 pt)
+                                paddingTop: function () { return 1; },   // Mniejszy margines górny (1 pt)
+                                paddingBottom: function () { return 1; } // Mniejszy margines dolny (1 pt)
                             },
                             margin: [0, 10, 0, 10]
                         },
