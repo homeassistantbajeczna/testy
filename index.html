@@ -1137,16 +1137,16 @@
         }
         .summary-footer {
             display: flex;
-            flex-direction: column; /* Zmiana na pionowy układ */
+            flex-direction: column; /* Pionowy układ */
             justify-content: center; /* Wyśrodkowanie w pionie */
-            align-items: center; /* Wyśrodkowanie w poziomie */
+            align-items: flex-start; /* Wyrównanie do lewej zamiast środka */
             gap: 10px; /* Odstęp między paskami */
         }
         .summary-footer .highlight {
             font-size: 0.7em;
             padding: 3px 5px;
             max-width: 180px;
-            text-align: center;
+            text-align: left; /* Tekst w paskach też wyrównany do lewej */
         }
         .harmonogram-container {
             width: 95vw;
@@ -2222,7 +2222,7 @@
         const harmonogramOpis = document.getElementById("harmonogramOpis");
         if (harmonogramOpis) {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? '<span class="star">★</span> <strong>Zmiana</strong> oprocentowania.<br>' : "";
+            const starText = hasStar ? '<span class="star">★</span><strong>Zmiana</strong> oprocentowania.<br>' : "";
             const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
             const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
