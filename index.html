@@ -103,6 +103,18 @@
         text-align: center;
         margin-bottom: 20px;
         position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .zoom-controls {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        gap: 5px;
     }
     
     .logo,
@@ -161,7 +173,7 @@
         cursor: pointer;
         position: relative;
         margin-bottom: 10px;
-        margin: 10px 0;
+        margin: 5px 0;
         justify-content: center;
     }
     
@@ -1088,6 +1100,19 @@
         .checkbox-label {
             font-size: 0.7em;
         }
+        .logo-container {
+            text-align: left;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        .logo, #siteLogo {
+            max-width: 150px;
+        }
+        .zoom-controls {
+            position: static;
+            transform: none;
+            margin-left: auto;
+        }
     }
 </style>
 <div class="logo-container">
@@ -1228,8 +1253,8 @@
                     </div>
                 </div>
                 <div class="summary-footer">
-                    <span class="highlight yellow" data-hover="3 miesięcy">Okres inwestycji: <span id="okresInwestycji">-</span> </span>
-                    <span class="highlight green" data-hover="">Zysk netto: <span id="zyskNetto">-</span> </span>
+                    <span class="highlight yellow" data-hover="3 miesięcy" id="okresInwestycji">-</span>
+                    <span class="highlight green" data-hover="" id="zyskNetto">-</span>
                 </div>
                 <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
             </div>
