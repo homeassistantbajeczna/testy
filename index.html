@@ -1073,23 +1073,19 @@
             margin: 0;
             padding: 0;
         }
-        
         .calculator-container {
             padding: 10px;
         }
-    
         .calculator-container input,
         .calculator-container select {
             width: 100%;
             font-size: 14px;
         }
-    
         #generatePdfBtn {
             padding: 4px 10px;
             font-size: 0.7em;
             width: 120px;
         }
-        
         .form-group, .input-group, #dynamicRateGroup {
             max-width: 100%;
         }
@@ -1112,20 +1108,17 @@
         .btn-primary, #addVariableBtn {
             padding: 6px 15px;
         }
-    
         .checkbox-label {
             font-size: 0.7em;
         }
-    
-        /* 1. Przesunięcie logo na lewo - wymuszenie */
         .logo-container {
-            display: flex !important; /* Wymuszenie flex */
-            justify-content: flex-start !important; /* Na lewo */
-            text-align: left !important; /* Na wszelki wypadek */
+            display: flex !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
             flex-wrap: wrap;
         }
         .logo, #siteLogo {
-            margin: 0 !important; /* Usuwamy wszelkie marginesy */
+            margin: 0 !important;
             padding: 10px 0;
             max-width: 150px;
         }
@@ -1134,8 +1127,6 @@
             transform: none;
             margin-left: auto;
         }
-    
-        /* Wyśrodkowanie tekstu w TYP OBLIGACJI */
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
@@ -1144,26 +1135,13 @@
         #typObligacji.form-control option {
             text-align: center;
         }
-    
-        /* 2. Zmniejszenie tekstu pod tabelką - większa specyficzność */
-        div.harmonogram-opis#harmonogramOpis { /* Precyzyjny selektor */
-            font-size: 0.45em !important; /* Wymuszenie */
-            line-height: 1.2 !important; /* Dla pewności, jakby coś innego wpływało */
-            padding-left: 0.9em;
-        }
-
-        /* Jeśli powyższe nie działa, alternatywa z szerszym selektorem */
-        .harmonogram-container div.harmonogram-opis {
-            font-size: 0.45em !important; /* Dla pewności, jeśli ID się zmienia */
-        }
-
+        /* Wymuszenie stylu dla harmonogram-opis */
         .harmonogram-container div.harmonogram-opis#harmonogramOpis {
             font-size: 0.45em !important;
             line-height: 1.2 !important;
             padding-left: 0.9em !important;
+            background-color: yellow !important; /* Testowy kolor, żeby zobaczyć, czy styl się stosuje */
         }
-    
-        /* Wyśrodkowanie Zysk netto i Okres inwestycji */
         .summary-footer {
             display: flex;
             flex-direction: row;
@@ -1178,8 +1156,6 @@
             max-width: 180px;
             text-align: center;
         }
-    
-        /* Poprzednie style harmonogramu */
         .harmonogram-container {
             width: 95vw;
             max-width: none;
@@ -1190,7 +1166,6 @@
             left: 50%;
             transform: translateX(-50%);
         }
-        
         .harmonogram-chart-wrapper {
             width: 100%;
             max-width: none;
@@ -1198,37 +1173,31 @@
             padding: 15px;
             box-sizing: border-box;
         }
-        
         .harmonogram {
             overflow-x: auto;
             width: 100%;
         }
-        
         .harmonogram table {
             font-size: 0.55em;
             max-width: none;
             width: auto;
             min-width: 100%;
         }
-        
         .harmonogram th {
             padding: 1px;
             font-size: 0.6em;
             white-space: normal;
         }
-        
         .harmonogram td {
             padding: 1px;
             font-size: 0.55em;
             white-space: normal;
         }
-        
         .chart-container-line {
             width: 100%;
             max-width: 100%;
             height: 200px;
         }
-        
         .chart-line {
             width: 100%;
             height: 100%;
@@ -2266,11 +2235,14 @@
             const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
-            // Dodajemy dynamiczne ustawienie font-size
+            // Logowanie i wymuszenie stylu
+            console.log("Szerokość okna:", window.innerWidth);
             if (window.innerWidth <= 480) {
                 harmonogramOpis.style.fontSize = "0.45em";
+                console.log("Ustawiam font-size na 0.45em dla mobilki");
             } else {
-                harmonogramOpis.style.fontSize = "0.5em"; // Przywracamy domyślny rozmiar dla większych ekranów
+                harmonogramOpis.style.fontSize = "0.5em";
+                console.log("Ustawiam font-size na 0.5em dla większych ekranów");
             }
         }
     
