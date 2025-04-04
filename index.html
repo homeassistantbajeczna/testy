@@ -1117,16 +1117,17 @@
             font-size: 0.7em;
         }
     
-        /* Poprawa przesunięcia logo na lewo */
+        /* 1. Przesunięcie logo na lewo - wymuszenie */
         .logo-container {
-            text-align: left;
-            justify-content: flex-start;
+            display: flex !important; /* Wymuszenie flex */
+            justify-content: flex-start !important; /* Na lewo */
+            text-align: left !important; /* Na wszelki wypadek */
             flex-wrap: wrap;
         }
         .logo, #siteLogo {
-            max-width: 150px;
-            margin: 0;
+            margin: 0 !important; /* Usuwamy wszelkie marginesy */
             padding: 10px 0;
+            max-width: 150px;
         }
         .zoom-controls {
             position: static;
@@ -1144,26 +1145,26 @@
             text-align: center;
         }
     
-        /* 1. Zmniejszenie i wymuszenie rozmiaru tekstu pod tabelką harmonogramu */
-        .harmonogram-opis {
-            font-size: 0.45em !important; /* Wymuszenie nadpisu */
+        /* 2. Zmniejszenie tekstu pod tabelką - większa specyficzność */
+        div.harmonogram-opis#harmonogramOpis { /* Precyzyjny selektor */
+            font-size: 0.45em !important; /* Wymuszenie */
             padding-left: 0.9em;
         }
     
-        /* 2. Wyśrodkowanie Zysk netto i Okres inwestycji w summary-footer */
+        /* Wyśrodkowanie Zysk netto i Okres inwestycji */
         .summary-footer {
-            display: flex; /* Przywracamy flex poziomy */
-            flex-direction: row; /* Nadpisujemy column z 576px */
-            justify-content: center; /* Wyśrodkowanie poziome */
-            align-items: center; /* Wyśrodkowanie pionowe */
-            gap: 10px; /* Zachowujemy odstęp */
-            flex-wrap: wrap; /* Zawijanie, jeśli nie mieszczą się obok siebie */
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         .summary-footer .highlight {
             font-size: 0.7em;
             padding: 3px 5px;
             max-width: 180px;
-            text-align: center; /* Tekst w środku każdego paska */
+            text-align: center;
         }
     
         /* Poprzednie style harmonogramu */
