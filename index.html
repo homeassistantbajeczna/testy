@@ -2438,8 +2438,8 @@
                 const maxLength = Math.max(
                     ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
                 );
-                const baseWidth = maxLength * 4;
-                return Math.min(Math.max(baseWidth, 30), 100);
+                const baseWidth = maxLength * 2.5;
+                return Math.min(Math.max(baseWidth, 20), 80);
             });
     
             const pageWidth = 595 - 28.34;
@@ -2540,10 +2540,10 @@
                                 fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
                                 hLineWidth: function () { return 0.5; },
                                 vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 0.5; },
-                                paddingRight: function () { return 0.5; },
-                                paddingTop: function () { return 1; },
-                                paddingBottom: function () { return 1; }
+                                paddingLeft: function () { return 1; },
+                                paddingRight: function () { return 1; },
+                                paddingTop: function () { return 2; },
+                                paddingBottom: function () { return 2; }
                             },
                             margin: [0, 10, 0, 10]
                         },
