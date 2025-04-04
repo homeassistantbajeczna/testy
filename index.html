@@ -2438,13 +2438,11 @@
                 const maxLength = Math.max(
                     ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
                 );
-                const baseWidth = maxLength * 2.5;
-                return Math.min(Math.max(baseWidth, 20), 80);
+                const baseWidth = maxLength * 4;
+                return Math.min(Math.max(baseWidth, 30), 100);
             });
     
-            const pageWidth = 595 - 28.34;
-            const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-            return columnWidths.map(width => (width / totalCalculatedWidth) * pageWidth);
+            return columnWidths;
         };
     
         const columnWidths = calculateColumnWidths();
