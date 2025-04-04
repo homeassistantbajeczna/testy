@@ -2404,14 +2404,16 @@
             const row = [
                 wiersz.okres.toString(),
                 `${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                wiersz.oprocentowanieNaCykl + (wiersz.changeApplied ? '★' : ''),
+                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}`, // Gwiazdka przed wartością
                 `${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 state.isIkeIkzeMode ? "0,00 zł***" : `${parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
             ];
-            if (!["OTS", "TOS"].includes(typ)) row.push(wiersz.stopaRefLubInflacja + (wiersz.changeApplied ? '★' : ''));
+            if (!["OTS", "TOS"].includes(typ)) {
+                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`); // Gwiazdka przed wartością
+            }
             row.push(`${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
             return row;
         });
@@ -2431,38 +2433,20 @@
             legendColor: state.chartLine.options.plugins.legend.labels.color
         };
     
-        // Ustawiamy kolory na wartości trybu jasnego, niezależnie od trybu
-        state.chartLine.options.scales.x.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
-        state.chartLine.options.scales.y.grid.color = '#e0e0e0'; // Siatka w trybie jasnym
-        state.chartLine.options.scales.x.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
-        state.chartLine.options.scales.y.grid.borderColor = '#333333'; // Krawędź osi w trybie jasnym
-        state.chartLine.options.scales.x.title.color = '#333333'; // Kolor tytułu osi X w trybie jasnym
-        state.chartLine.options.scales.y.title.color = '#333333'; // Kolor tytułu osi Y w trybie jasnym
-        state.chartLine.options.scales.x.ticks.color = '#333333'; // Kolor etykiet osi X w trybie jasnym
-        state.chartLine.options.scales.y.ticks.color = '#333333'; // Kolor etykiet osi Y w trybie jasnym
-        state.chartLine.options.plugins.legend.labels.color = '#333333'; // Kolor legendy w trybie jasnym
-    
-        // Debugowanie: Sprawdzamy, czy kolory zostały poprawnie ustawione
-        console.log("Kolory przed aktualizacją wykresu:", {
-            xGridColor: state.chartLine.options.scales.x.grid.color,
-            yGridColor: state.chartLine.options.scales.y.grid.color,
-            xTitleColor: state.chartLine.options.scales.x.title.color,
-            yTitleColor: state.chartLine.options.scales.y.title.color,
-            xTicksColor: state.chartLine.options.scales.x.ticks.color,
-            yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color
-        });
-    
-        // Aktualizujemy wykres, aby zastosować nowe kolory
+        // Ustawiamy kolory na wartości trybu jasnego
+        state.chartLine.options.scales.x.grid.color = '#e0e0e0';
+        state.chartLine.options.scales.y.grid.color = '#e0e0e0';
+        state.chartLine.options.scales.x.grid.borderColor = '#333333';
+        state.chartLine.options.scales.y.grid.borderColor = '#333333';
+        state.chartLine.options.scales.x.title.color = '#333333';
+        state.chartLine.options.scales.y.title.color = '#333333';
+        state.chartLine.options.scales.x.ticks.color = '#333333';
+        state.chartLine.options.scales.y.ticks.color = '#333333';
+        state.chartLine.options.plugins.legend.labels.color = '#333333';
         state.chartLine.update();
     
-        // Dodajemy opóźnienie, aby upewnić się, że wykres jest w pełni wyrenderowany
         setTimeout(() => {
-            // Generujemy obraz wykresu
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
-    
-            // Debugowanie: Sprawdzamy, czy obraz został wygenerowany
-            console.log("Wygenerowany obraz (pierwsze 50 znaków):", lineChartImage.substring(0, 50));
     
             // Przywracamy oryginalne kolory
             state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
@@ -2474,7 +2458,7 @@
             state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.update(); // Aktualizujemy wykres, aby przywrócić oryginalne kolory
+            state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
                 return new Promise((resolve, reject) => {
@@ -2519,7 +2503,9 @@
                         {
                             table: {
                                 headerRows: 1,
-                                widths: headers.map(() => '*'),
+                                widths: ["OTS", "ROR", "DOR"].includes(typ) ?
+                                    [30, 80, 50, 60, 60, 50, 60, 60, 50, 70] : // Dopasowane szerokości dla typów miesięcznych
+                                    [25, 80, 50, 60, 60, 50, 60, 60, 50, 70], // Dopasowane szerokości dla typów rocznych
                                 body: [
                                     headers.map(h => ({ text: h, style: 'tableHeader' })),
                                     ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
@@ -2557,82 +2543,8 @@
                     alert("Nie udało się załadować logo – PDF zostanie wygenerowany bez logo.");
                     generateDoc(null);
                 });
-        }, 100); // Opóźnienie 100ms, aby upewnić się, że wykres jest wyrenderowany
+        }, 100);
     }
-
-    document.getElementById('siteLogo').addEventListener('click', () => {
-        window.open('https://finance-brothers.pl', '_blank');
-    });
-    // Zoomowanie
-    let currentZoom = 1;
-    const zoomStep = 0.1;
-    const minZoom = 0.5;
-    const maxZoom = 2;
-    
-    function updateZoom() {
-        const container = document.querySelector('.container');
-        container.style.transform = `scale(${currentZoom})`;
-        container.style.transformOrigin = 'top center';
-    }
-    
-    document.getElementById("zoomInBtn").addEventListener("click", () => {
-        if (currentZoom < maxZoom) {
-            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
-            updateZoom();
-        }
-    });
-    
-    document.getElementById("zoomOutBtn").addEventListener("click", () => {
-        if (currentZoom > minZoom) {
-            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
-            updateZoom();
-        }
-    });
-    
-    function toggleDarkMode() {
-        const body = document.body;
-        const isDarkMode = body.classList.contains('dark-mode');
-        
-        if (isDarkMode) {
-            body.classList.remove('dark-mode');
-            body.classList.add('light-mode');
-            localStorage.setItem('theme', 'light');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        } else {
-            body.classList.remove('light-mode');
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        }
-    }
-    
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        } else {
-            document.body.classList.add('light-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        }
-    }
-    
-    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
-        toggleDarkMode();
-        if (state.chartLine) {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.update();
-        }
-    });
     
     initializeTheme();
 </script>
