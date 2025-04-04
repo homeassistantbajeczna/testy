@@ -1071,7 +1071,7 @@
     @media (max-width: 480px) {
         body{
             margin: 0;
-            padding: 0 5px;
+            padding: 0;
         }
         
         .calculator-container {
@@ -1137,11 +1137,14 @@
         }
 
         .harmonogram-container {
-            width: 95vw; /* Zwiększamy do 95vw, aby lepiej wypełnić ekran */
+            width: 95vw; /* 95% szerokości ekranu */
             max-width: none;
-            margin: 0 calc((100vw - 95vw) / 2); /* Precyzyjne wyśrodkowanie z równymi marginesami */
+            margin: 0 auto; /* Standardowe wyśrodkowanie */
             padding: 10px;
-            box-sizing: border-box; /* Upewniamy się, że padding nie zwiększa szerokości */
+            box-sizing: border-box;
+            position: relative; /* Ustawiamy kontekst pozycjonowania */
+            left: 50%; /* Przesuwamy na środek ekranu */
+            transform: translateX(-50%); /* Cofamy o połowę szerokości dla idealnego wyśrodkowania */
         }
     
         /* Kontener wykresu liniowego */
