@@ -2245,6 +2245,13 @@
     
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
         const isDarkMode = document.body.classList.contains('dark-mode');
+        
+        // Dynamiczne ustawienie rozmiaru czcionek w zależności od szerokości ekranu
+        const screenWidth = window.innerWidth;
+        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14; // Mobile: 10px, Tablet: 12px, Desktop: 14px
+        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;  // Mobile: 8px, Tablet: 10px, Desktop: 12px
+        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12; // Mobile: 8px, Tablet: 10px, Desktop: 12px
+        
         state.chartLine = new Chart(ctxLine, {
             type: 'line',
             data: {
@@ -2278,11 +2285,11 @@
                         title: { 
                             display: true, 
                             text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
-                            font: { size: 14 },
+                            font: { size: titleFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         }, 
                         ticks: { 
-                            font: { size: 12 },
+                            font: { size: tickFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333',
                             maxRotation: 45, // Obrót etykiet dla małych ekranów
                             minRotation: 0,
@@ -2298,14 +2305,14 @@
                         title: { 
                             display: true, 
                             text: 'Wartość (PLN)', 
-                            font: { size: 14 },
+                            font: { size: titleFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         }, 
                         min: yMin, 
                         max: yMax, 
                         ticks: { 
                             stepSize: stepSize, 
-                            font: { size: 12 },
+                            font: { size: tickFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
@@ -2317,7 +2324,7 @@
                 plugins: { 
                     legend: { 
                         labels: { 
-                            font: { size: 12 },
+                            font: { size: legendFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         } 
                     } 
