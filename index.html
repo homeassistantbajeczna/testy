@@ -1193,6 +1193,31 @@
             width: 100%; /* Dopasowanie canvasu do kontenera */
             height: 100%;
         }
+
+        .form-box select, 
+        .form-box label[for="typ"] { /* Dopasuj selektor do swojego HTML */
+            text-align: center;
+            width: 100%; /* Upewniamy się, że zajmuje pełną szerokość */
+            display: block; /* Dla label, jeśli jest inline */
+        }
+    
+        /* 2. Logo po lewej stronie */
+        .logo {
+            text-align: left; /* Wyrównanie do lewej */
+            margin: 0; /* Resetujemy marginesy */
+            padding: 10px 0; /* Dodajemy trochę odstępu */
+        }
+    
+        .logo img { /* Jeśli logo to obrazek */
+            display: block;
+            margin: 0; /* Bez marginesów automatycznych */
+        }
+    
+        /* 3. Zmniejszenie tekstu pod tabelką harmonogramu */
+        .harmonogram-info {
+            font-size: 0.8em; /* Mniejszy tekst, np. z 1em na 0.8em */
+            line-height: 1.2; /* Lepsza czytelność */
+        }
     }
 </style>
 <div class="logo-container">
