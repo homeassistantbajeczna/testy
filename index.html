@@ -1135,21 +1135,37 @@
         #typObligacji.form-control option {
             text-align: center;
         }
+        
         .summary-footer {
             display: flex;
             flex-direction: column; /* Pionowy układ */
             justify-content: center; /* Wyśrodkowanie w pionie */
-            align-items: center; /* Wyrównanie do lewej zamiast środka */
+            align-items: center; /* Wyrównanie do środka */
             gap: 10px; /* Odstęp między paskami */
+            width: 100%; /* Pełna szerokość kontenera */
         }
         .summary-footer .highlight {
             font-size: 0.7em;
             padding: 3px 5px;
-            max-width: 180px;
-            text-align: left; /* Tekst w paskach też wyrównany do lewej */
-            justify-content: center; /* Wyśrodkowanie w pionie */
-            align-items: center;
+            width: 180px; /* Stała szerokość dla wszystkich pasków */
+            max-width: 100%; /* Nie przekracza kontenera */
+            text-align: center; /* Tekst wyśrodkowany w pasku */
+            box-sizing: border-box; /* Padding wliczony w szerokość */
+            background-color: #f0f0f0; /* Domyślne tło dla wszystkich */
         }
+        .summary-footer .highlight:nth-child(1) {
+            background-color: #28a745; /* Czerwony -> Zielony dla Kapitału (spójność z wykresem) */
+            color: #fff;
+        }
+        .summary-footer .highlight:nth-child(2) {
+            background-color: #007bff; /* Niebieski dla Odsetek */
+            color: #fff;
+        }
+        .summary-footer .highlight.green {
+            background-color: #28a745; /* Zielony dla Zysku netto */
+            color: #fff;
+        }
+        
         .harmonogram-container {
             width: 95vw;
             max-width: none;
@@ -1335,9 +1351,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="summary-footer">
-                    <span class="highlight yellow" data-hover="3 miesięcy" id="okresInwestycji">-</span>
-                    <span class="highlight green" data-hover="" id="zyskNetto">-</span>
+               <div class="summary-footer">
+                    <span class="highlight" id="kapital">-</span>
+                    <span class="highlight" id="odsetki">-</span>
+                    <span class="highlight green" id="zyskNetto">-</span>
                 </div>
                 <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
             </div>
@@ -2279,10 +2296,14 @@
                         }, 
                         ticks: { 
                             font: { size: 12 },
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
+                            color: isDarkMode ? '#e0e0e0' : '#333333',
+                            maxRotation: 45, // Obrót etykiet dla małych ekranów
+                            minRotation: 0,
+                            autoSkip: true, // Automatyczne pomijanie etykiet
+                            maxTicksLimit: 10 // Ograniczenie liczby etykiet
                         },
                         grid: {
-                            color: isDarkMode ? '#333333' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
+                            color: isDarkMode ? '#333333' : '#e0e0e0',
                             borderColor: isDarkMode ? '#333333' : '#333333'
                         }
                     },
@@ -2301,7 +2322,7 @@
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
-                            color: isDarkMode ? '#333333' : '#e0e0e0', // Zmieniamy kolor siatki w trybie ciemnym na jaśniejszy
+                            color: isDarkMode ? '#333333' : '#e0e0e0',
                             borderColor: isDarkMode ? '#333333' : '#333333'
                         }
                     }
