@@ -2240,6 +2240,11 @@
             if (window.innerWidth <= 480) {
                 harmonogramOpis.style.fontSize = "0.45em";
                 console.log("Ustawiam font-size na 0.45em dla mobilki");
+                // Wymuszenie stylu po krótkim opóźnieniu, żeby sprawdzić nadpisywanie
+                setTimeout(() => {
+                    harmonogramOpis.style.fontSize = "0.45em";
+                    console.log("Ponowne ustawienie font-size na 0.45em po 500ms");
+                }, 500);
             } else {
                 harmonogramOpis.style.fontSize = "0.5em";
                 console.log("Ustawiam font-size na 0.5em dla większych ekranów");
