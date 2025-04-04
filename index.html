@@ -1156,6 +1156,12 @@
         .harmonogram-container div.harmonogram-opis {
             font-size: 0.45em !important; /* Dla pewności, jeśli ID się zmienia */
         }
+
+        .harmonogram-container div.harmonogram-opis#harmonogramOpis {
+            font-size: 0.45em !important;
+            line-height: 1.2 !important;
+            padding-left: 0.9em !important;
+        }
     
         /* Wyśrodkowanie Zysk netto i Okres inwestycji */
         .summary-footer {
@@ -2260,6 +2266,12 @@
             const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
+            // Dodajemy dynamiczne ustawienie font-size
+            if (window.innerWidth <= 480) {
+                harmonogramOpis.style.fontSize = "0.45em";
+            } else {
+                harmonogramOpis.style.fontSize = "0.5em"; // Przywracamy domyślny rozmiar dla większych ekranów
+            }
         }
     
         const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
