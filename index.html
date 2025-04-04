@@ -160,6 +160,7 @@
         font-size: var(--small-font-size);
         cursor: pointer;
         position: relative;
+        margin-bottom: 10px;
     }
     
     .checkbox-label input {
@@ -203,9 +204,9 @@
     }
     
     .checkbox-label.header-checkbox {
-        position: absolute;
-        top: -20px;
-        right: 10px;
+        position: static;
+        top: auto;
+        right: auto;
     }
     
     /* Style dla formularzy i sekcji wyników */
@@ -987,20 +988,13 @@
             padding: 5px 12px;
             font-size: 0.8em;
         }
-    }
-    
-    /* Mobile (max 480px) */
-    @media (max-width: 480px) {
-        .calculator-container {
-            padding: 10px;
-        }
-        .calculator-container input,
-        .calculator-container select {
-            width: 100%; /* Pełna szerokość pól */
-            font-size: 14px; /* Mniejszy tekst */
+
+        .checkbox-label {
+            font-size: 0.8em;
+            justify-content: center;
         }
     }
-    
+   
     @media (max-width: 576px) {
         .header-row h4,
         .result-header h4 {
@@ -1048,25 +1042,31 @@
             padding: 10px;
         }
 
+        .calculator-container input,
+        .calculator-container select {
+            width: 100%;
+            font-size: 14px;
+        }
+
         #generatePdfBtn {
             padding: 4px 10px;
-            font-size: 0.7em; /* Mniejszy tekst */
-            width: 120px; /* Stała szerokość dla kompaktowości */
+            font-size: 0.7em;
+            width: 120px;
         }
         
         .form-group, .input-group, #dynamicRateGroup {
-            max-width: 100%; /* Pełna szerokość na małych ekranach */
+            max-width: 100%;
         }
         .form-control, .form-select, .input-group-text {
-            font-size: 0.9em; /* Lepsza czytelność */
-            height: 28px; /* Większe pola dla palców */
+            font-size: 0.9em;
+            height: 28px;
         }
         .form-range {
-            height: 8px; /* Grubszy suwak */
+            height: 8px;
         }
         .form-range::-webkit-slider-thumb {
             width: 14px;
-            height: 14px; /* Większy kciuk */
+            height: 14px;
         }
         .form-range::-moz-range-thumb {
             width: 14px;
@@ -1077,10 +1077,14 @@
             height: 14px;
         }
         .sub-info {
-            font-size: 0.6em; /* Mniejszy tekst pod polami */
+            font-size: 0.6em;
         }
         .btn-primary, #addVariableBtn {
-            padding: 6px 15px; /* Mniejszy przycisk */
+            padding: 6px 15px;
+        }
+
+        .checkbox-label {
+            font-size: 0.7em;
         }
     }
 </style>
