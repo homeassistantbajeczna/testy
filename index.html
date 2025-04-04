@@ -1148,7 +1148,13 @@
         /* 2. Zmniejszenie tekstu pod tabelką - większa specyficzność */
         div.harmonogram-opis#harmonogramOpis { /* Precyzyjny selektor */
             font-size: 0.45em !important; /* Wymuszenie */
+            line-height: 1.2 !important; /* Dla pewności, jakby coś innego wpływało */
             padding-left: 0.9em;
+        }
+
+        /* Jeśli powyższe nie działa, alternatywa z szerszym selektorem */
+        .harmonogram-container div.harmonogram-opis {
+            font-size: 0.45em !important; /* Dla pewności, jeśli ID się zmienia */
         }
     
         /* Wyśrodkowanie Zysk netto i Okres inwestycji */
