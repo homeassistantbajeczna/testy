@@ -966,31 +966,35 @@
             padding: 15px;
         }
     
-        /* Wykres liniowy */
-        .chart-container-line {
-            width: 97vw; /* 95% kontenera nadrzędnego (.harmonogram-chart-wrapper) */
-            /*max-width: 95%;*/
-            height: 250px;
+        /* Kontener nadrzędny dla harmonogramu */
+        .harmonogram-container {
+            width: 98vw; /* Bazowa szerokość dla hierarchii */
+            max-width: none;
             margin: 0 auto;
+            padding: 10px;
+            box-sizing: border-box;
         }
     
-        .chart-line {
-            width: 91vw; /* 95% kontenera nadrzędnego (.chart-container-line) */
-            height: 100%;
-            font-size: 0.65em;
+        /* Kontener nadrzędny dla wykresu */
+        .harmonogram-chart-wrapper {
+            width: 100%; /* Bazowa szerokość dla hierarchii */
+            max-width: none;
+            margin: 0 auto;
+            padding: 15px;
+            box-sizing: border-box;
         }
     
-        /* Tabelka (harmonogram) */
+        /* Harmonogram */
         .harmonogram {
             overflow-x: auto;
-            width: 94vw; /* 95% kontenera nadrzędnego (.harmonogram-container) */
+            width: 95%; /* 95% .harmonogram-container */
             margin: 0 auto;
         }
     
         .harmonogram table {
             font-size: 0.6em;
-            width: 91vw; /* 95% kontenera nadrzędnego (.harmonogram) */
-            /*max-width: 95%;*/
+            width: 95%; /* 95% .harmonogram */
+            max-width: 95%;
             margin: 0 auto;
         }
     
@@ -1002,6 +1006,20 @@
     
         .harmonogram-opis {
             padding-left: 1em;
+        }
+    
+        /* Wykres liniowy */
+        .chart-container-line {
+            width: 95%; /* 95% .harmonogram-chart-wrapper */
+            max-width: 95%;
+            height: 250px;
+            margin: 0 auto;
+        }
+    
+        .chart-line {
+            width: 95%; /* 95% .chart-container-line */
+            height: 100%;
+            font-size: 0.65em;
         }
     
         .checkbox-label {
