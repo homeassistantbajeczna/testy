@@ -1063,7 +1063,7 @@
         .input-group,
         #dynamicRateGroup {
             width: 100%;
-            max-width: 300px;
+            max-width: 250px; /* Zmienione z 300px na 250px */
             min-width: 250px;
             margin: 2px auto;
         }
@@ -1078,7 +1078,7 @@
         .form-select {
             font-size: 0.75em;
             height: 26px;
-            width: 210px;
+            width: 170px; /* Zmienione z 210px na 170px, proporcja do 250px */
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1086,7 +1086,7 @@
         .input-group-text {
             font-size: 0.75em;
             height: 26px;
-            width: 90px;
+            width: 80px; /* Zmienione z 90px na 80px, proporcja do 250px */
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
@@ -1096,13 +1096,13 @@
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
-            width: 300px;
+            width: 250px; /* Zmienione z 300px na 250px */
             height: 26px;
         }
     
         /* Sekcja zmiennych stóp/inflacji */
         .variable-input-group .input-group {
-            max-width: 300px;
+            max-width: 250px; /* Zmienione z 300px na 250px */
             min-width: 250px;
             display: flex;
             justify-content: center;
@@ -1111,13 +1111,13 @@
     
         .variable-input-group .form-group {
             width: 100%;
-            max-width: 300px;
+            max-width: 250px; /* Zmienione z 300px na 250px */
             min-width: 250px;
             margin: 2px auto;
         }
     
         .variable-input-group .form-control {
-            width: 210px;
+            width: 170px; /* Zmienione z 210px na 170px */
             height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
@@ -1125,7 +1125,7 @@
         }
     
         .variable-input-group .input-group-text {
-            width: 90px;
+            width: 80px; /* Zmienione z 90px na 80px */
             height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
@@ -1139,29 +1139,29 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            max-width: 300px;
+            max-width: 250px; /* Zmienione z 300px na 250px */
             min-width: 250px;
             gap: 2px;
         }
     
         .variable-input-group .form-group:nth-child(1) .input-group { /* Pole "Od" */
-            width: 300px;
-            max-width: 300px;
+            width: 250px; /* Zmienione z 300px na 250px */
+            max-width: 250px; /* Zmienione z 300px na 250px */
             min-width: 250px;
         }
     
         .variable-input-group .form-group:nth-child(1) .form-control {
-            width: 210px;
+            width: 170px; /* Zmienione z 210px na 170px */
         }
     
         .variable-input-group .form-group:nth-child(2) .input-group { /* Pole "Inflacja/Stopa" */
-            width: 300px;
-            max-width: 300px;
+            width: 250px; /* Zmienione z 300px na 250px */
+            max-width: 250px; /* Zmienione z 300px na 250px */
             min-width: 250px;
         }
     
         .variable-input-group .form-group:nth-child(2) .form-control {
-            width: 210px;
+            width: 170px; /* Zmienione z 210px na 170px */
         }
     
         /* Harmonogram i tabelka */
@@ -1257,12 +1257,12 @@
         }
     
         .chart-legend .color-box {
-            width: 150px; /* Zwiększone z 120px na 150px */
-            min-width: 150px; /* Zwiększone z 120px na 150px */
+            width: 150px;
+            min-width: 150px;
             height: 24px;
             line-height: 24px;
             margin-right: 10px;
-            font-size: 9px !important; /* Zmniejszone z 12px o 3px, wzmocniona specyficzność */
+            font-size: 9px !important;
         }
     
         .chart-legend .legend-text {
@@ -1547,11 +1547,12 @@
         }
     
         .chart-legend .color-box {
-            width: 100px;
-            min-width: 100px;
+            width: 120px;
+            min-width: 120px;
             height: 24px;
             line-height: 24px;
             margin-right: 10px;
+            font-size: 9px !important;
         }
     
         .chart-legend .legend-text {
