@@ -995,16 +995,6 @@
         .harmonogram-opis {
             padding-left: 1em;
         }
-    
-        #generatePdfBtn {
-            padding: 5px 12px;
-            font-size: 0.8em;
-        }
-    
-        .checkbox-label {
-            font-size: 0.8em;
-            justify-content: center;
-        }
     }
    
     @media (max-width: 576px) {
@@ -1294,18 +1284,18 @@
         .checkbox-row,
         .fields-wrapper,
         .variable-inputs-wrapper {
-            display: block; /* Zamiast flex, pełna kontrola nad wierszami */
-            text-align: center; /* Wyśrodkowanie zawartości */
+            display: block;
+            text-align: center;
         }
     
         /* Każdy form-group jako osobny wiersz */
         .form-group,
         #dynamicRateGroup {
             display: block;
-            width: 200px; /* Zmienione z 250px na 200px */
-            max-width: 200px; /* Dodane dla spójności */
-            min-width: 200px; /* Dodane dla spójności */
-            margin: 10px auto; /* Odstęp między wierszami i wyśrodkowanie */
+            width: 200px;
+            max-width: 200px;
+            min-width: 200px;
+            margin: 10px auto;
         }
     
         /* Inputy i jednostki */
@@ -1313,7 +1303,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 200px; /* Zmienione z 250px na 200px */
+            width: 200px;
             margin: 0 auto;
         }
     
@@ -1321,7 +1311,7 @@
         .form-select {
             font-size: 0.9em;
             height: 28px;
-            width: 130px; /* Dostosowane do 200px (130px + 70px = 200px) */
+            width: 130px;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1329,7 +1319,7 @@
         .input-group-text {
             font-size: 0.9em;
             height: 28px;
-            width: 70px; /* Dostosowane do 200px (130px + 70px = 200px) */
+            width: 70px;
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
@@ -1338,8 +1328,8 @@
         .form-range {
             display: block;
             height: 8px;
-            width: 200px; /* Zmienione z 250px na 200px */
-            margin: 5px auto 0; /* Wyśrodkowanie i odstęp od inputa */
+            width: 200px;
+            margin: 5px auto 0;
         }
     
         .form-range::-webkit-slider-thumb,
@@ -1360,33 +1350,33 @@
     
         .variable-input-group {
             display: block;
-            width: 200px; /* Zmienione z 250px na 200px */
-            margin: 15px auto; /* Odstęp między grupami */
+            width: 200px;
+            margin: 15px auto;
         }
     
         .variable-input-group .fields-wrapper {
             display: block;
-            width: 200px; /* Zmienione z 250px na 200px */
+            width: 200px;
         }
     
         .variable-input-group .form-group {
             display: block;
-            width: 200px; /* Zmienione z 250px na 200px */
-            max-width: 200px; /* Dodane dla spójności */
-            min-width: 200px; /* Dodane dla spójności */
-            margin: 10px auto; /* Odstęp między polami w grupie */
+            width: 200px;
+            max-width: 200px;
+            min-width: 200px;
+            margin: 10px auto;
         }
     
         .variable-input-group .input-group {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 200px; /* Zmienione z 250px na 200px */
+            width: 200px;
             margin: 0 auto;
         }
     
         .variable-input-group .form-control {
-            width: 130px; /* Dostosowane do 200px (130px + 70px = 200px) */
+            width: 130px;
             height: 28px;
             font-size: 0.9em;
             padding: 4px 8px;
@@ -1394,7 +1384,7 @@
         }
     
         .variable-input-group .input-group-text {
-            width: 70px; /* Dostosowane do 200px (130px + 70px = 200px) */
+            width: 70px;
             height: 28px;
             font-size: 0.9em;
             padding: 4px 8px;
@@ -1402,7 +1392,7 @@
         }
     
         .variable-input-group .form-range {
-            width: 200px; /* Zmienione z 250px na 200px */
+            width: 200px;
             margin: 5px auto 0;
         }
     
@@ -1424,9 +1414,10 @@
     
         /* Przyciski */
         .btn-primary,
-        #addVariableBtn {
+        #addVariableBtn,
+        #generatePdfBtn { /* Dodałem #generatePdfBtn dla pewności */
             display: block;
-            width: 180px;
+            /* Usunięto width: 180px – szerokość zależy od tekstu */
             margin: 20px auto;
             padding: 6px 15px;
         }
@@ -1512,7 +1503,7 @@
         .chart-container-line {
             width: 100%;
             max-width: 100%;
-            height: 250px; /* Zmienione z 200px na 250px */
+            height: 250px;
         }
     }
 </style>
