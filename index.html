@@ -964,22 +964,23 @@
         .calculator-container {
             flex-direction: column;
             padding: 15px;
+            gap: 5px; /* Dodane, aby kontrolować odstęp między elementami w kontenerze */
         }
     
         /* Stała szerokość boxów formularza na 150px */
         .form-group,
         .input-group {
-            width: 150px; /* Zmniejszone z 200px na 150px */
+            width: 150px;
             max-width: 150px;
             min-width: 150px;
-            margin: 0 auto; /* Wyśrodkowanie */
+            margin: 2px auto; /* Zmniejszone z 0 auto na 2px auto, aby zredukować odstęp */
         }
     
         .form-select {
-            width: 150px; /* Zmniejszone z 200px na 150px */
+            width: 150px;
             max-width: 150px;
             min-width: 150px;
-            margin: 0 auto; /* Wyśrodkowanie */
+            margin: 2px auto; /* Spójne z form-group i input-group */
         }
     
         /* Wykres kołowy i legenda pod spodem */
@@ -1104,11 +1105,11 @@
         }
     
         .form-group,
-        .input-group,
+        .input-bookgroup,
         #dynamicRateGroup {
             width: 100%;
-            max-width: 250px; /* Zmienione z 300px na 250px */
-            min-width: 250px;
+            max-width: 200px; /* Zmienione z 250px na 200px */
+            min-width: 200px; /* Zmienione z 250px na 200px */
             margin: 2px auto;
         }
     
@@ -1122,7 +1123,7 @@
         .form-select {
             font-size: 0.75em;
             height: 26px;
-            width: 170px; /* Zmienione z 210px na 170px, proporcja do 250px */
+            width: 130px; /* Dostosowane do 200px (130px + 70px = 200px) */
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1130,7 +1131,7 @@
         .input-group-text {
             font-size: 0.75em;
             height: 26px;
-            width: 80px; /* Zmienione z 90px na 80px, proporcja do 250px */
+            width: 70px; /* Dostosowane do 200px (130px + 70px = 200px) */
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
@@ -1140,14 +1141,14 @@
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
-            width: 250px; /* Zmienione z 300px na 250px */
+            width: 200px; /* Zmienione z 250px na 200px */
             height: 26px;
         }
     
         /* Sekcja zmiennych stóp/inflacji */
         .variable-input-group .input-group {
-            max-width: 250px; /* Zmienione z 300px na 250px */
-            min-width: 250px;
+            max-width: 200px; /* Zmienione z 250px na 200px */
+            min-width: 200px; /* Zmienione z 250px na 200px */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1155,13 +1156,13 @@
     
         .variable-input-group .form-group {
             width: 100%;
-            max-width: 250px; /* Zmienione z 300px na 250px */
-            min-width: 250px;
+            max-width: 200px; /* Zmienione z 250px na 200px */
+            min-width: 200px; /* Zmienione z 250px na 200px */
             margin: 2px auto;
         }
     
         .variable-input-group .form-control {
-            width: 170px; /* Zmienione z 210px na 170px */
+            width: 130px; /* Dostosowane do 200px */
             height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
@@ -1169,7 +1170,7 @@
         }
     
         .variable-input-group .input-group-text {
-            width: 80px; /* Zmienione z 90px na 80px */
+            width: 70px; /* Dostosowane do 200px */
             height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
@@ -1183,29 +1184,29 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            max-width: 250px; /* Zmienione z 300px na 250px */
-            min-width: 250px;
+            max-width: 200px; /* Zmienione z 250px na 200px */
+            min-width: 200px; /* Zmienione z 250px na 200px */
             gap: 2px;
         }
     
         .variable-input-group .form-group:nth-child(1) .input-group { /* Pole "Od" */
-            width: 250px; /* Zmienione z 300px na 250px */
-            max-width: 250px; /* Zmienione z 300px na 250px */
-            min-width: 250px;
+            width: 200px; /* Zmienione z 250px na 200px */
+            max-width: 200px;
+            min-width: 200px;
         }
     
         .variable-input-group .form-group:nth-child(1) .form-control {
-            width: 170px; /* Zmienione z 210px na 170px */
+            width: 130px; /* Dostosowane do 200px */
         }
     
         .variable-input-group .form-group:nth-child(2) .input-group { /* Pole "Inflacja/Stopa" */
-            width: 250px; /* Zmienione z 300px na 250px */
-            max-width: 250px; /* Zmienione z 300px na 250px */
-            min-width: 250px;
+            width: 200px; /* Zmienione z 250px na 200px */
+            max-width: 200px;
+            min-width: 200px;
         }
     
         .variable-input-group .form-group:nth-child(2) .form-control {
-            width: 170px; /* Zmienione z 210px na 170px */
+            width: 130px; /* Dostosowane do 200px */
         }
     
         /* Harmonogram i tabelka */
@@ -1259,7 +1260,7 @@
         }
     
         /* Przyciski */
-        .btn-primary { /* Przycisk "Oblicz" */
+        .btn-primary {
             display: block;
             width: auto;
             min-width: 120px;
@@ -1267,7 +1268,7 @@
             padding: 6px 10px;
         }
     
-        #addVariableBtn { /* Przycisk "Dodaj kolejną zmianę" */
+        #addVariableBtn {
             display: block;
             width: auto;
             min-width: 120px;
@@ -1313,283 +1314,137 @@
             font-size: 12px;
         }
     
-        /* Wykres liniowy */
+        /* Powiększony wykres liniowy */
         .chart-container-line {
             width: 100%;
             max-width: 100%;
-            height: 200px;
+            height: 250px; /* Zwiększone z 200px na 250px */
+            margin: 0 auto;
         }
     
         .chart-line {
             width: 100%;
             height: 100%;
-            font-size: 0.55em;
+            font-size: 0.65em; /* Zwiększone z 0.55em na 0.65em */
         }
     }
     
     /* Mobile (max 480px) */
     @media (max-width: 480px) {
-        /* Ogólne style dla body i kontenera */
-        body {
-            margin: 0;
-            padding: 0;
-        }
-    
-        .calculator-container {
-            padding: 10px;
-        }
-    
-        /* Formularz - każdy box w nowym wierszu */
-        .form-row,
-        .checkbox-row,
-        .fields-wrapper,
-        .variable-inputs-wrapper {
-            display: block; /* Zamiast flex, pełna kontrola nad wierszami */
-            text-align: center; /* Wyśrodkowanie zawartości */
-        }
-    
-        /* Każdy form-group jako osobny wiersz */
+        /* Formularz */
         .form-group,
+        .input-group,
         #dynamicRateGroup {
-            display: block;
-            width: 250px; /* Stała szerokość */
-            margin: 10px auto; /* Odstęp między wierszami i wyśrodkowanie */
-        }
-    
-        /* Inputy i jednostki */
-        .input-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 250px; /* Stała szerokość */
-            margin: 0 auto;
+            width: 100%;
+            max-width: 200px; /* Ustawione na 200px */
+            min-width: 200px; /* Ustawione na 200px */
+            margin: 2px auto;
         }
     
         .form-control,
         .form-select {
-            font-size: 0.9em;
-            height: 28px;
-            width: 170px; /* Zaktualizowana szerokość (było 180px) */
+            font-size: 0.75em;
+            height: 26px;
+            width: 130px; /* Dostosowane do 200px */
             padding: 4px 8px;
             line-height: 20px;
         }
     
         .input-group-text {
-            font-size: 0.9em;
-            height: 28px;
-            width: 80px; /* Zaktualizowana szerokość (było 70px) */
+            font-size: 0.75em;
+            height: 26px;
+            width: 70px; /* Dostosowane do 200px */
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
         }
     
-        .form-range {
-            display: block;
-            height: 8px;
-            width: 250px; /* Suwak też 250px */
-            margin: 5px auto 0; /* Wyśrodkowanie i odstęp od inputa */
-        }
-    
-        .form-range::-webkit-slider-thumb,
-        .form-range::-moz-range-thumb,
-        .form-range::-ms-thumb {
-            width: 14px;
-            height: 14px;
+        /* Specyficzne dla "Typ Obligacji" */
+        #typObligacji.form-control {
+            text-align: center;
+            text-align-last: center;
+            width: 200px; /* Ustawione na 200px */
+            height: 26px;
         }
     
         /* Sekcja zmiennych stóp/inflacji */
-        .variable-rate-container {
-            text-align: center;
-        }
-    
-        .variable-inputs {
-            display: block;
-        }
-    
-        .variable-input-group {
-            display: block;
-            width: 250px; /* Stała szerokość */
-            margin: 15px auto; /* Odstęp między grupami */
-        }
-    
-        .variable-input-group .fields-wrapper {
-            display: block;
-            width: 250px;
-        }
-    
-        .variable-input-group .form-group {
-            display: block;
-            width: 250px;
-            margin: 10px auto; /* Odstęp między polami w grupie */
-        }
-    
         .variable-input-group .input-group {
+            max-width: 200px; /* Ustawione na 200px */
+            min-width: 200px; /* Ustawione na 200px */
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 250px;
-            margin: 0 auto;
+        }
+    
+        .variable-input-group .form-group {
+            width: 100%;
+            max-width: 200px; /* Ustawione na 200px */
+            min-width: 200px; /* Ustawione na 200px */
+            margin: 2px auto;
         }
     
         .variable-input-group .form-control {
-            width: 170px; /* Zaktualizowana szerokość (było 180px) */
-            height: 28px;
-            font-size: 0.9em;
+            width: 130px; /* Dostosowane do 200px */
+            height: 26px;
+            font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
         }
     
         .variable-input-group .input-group-text {
-            width: 80px; /* Zaktualizowana szerokość (było 70px) */
-            height: 28px;
-            font-size: 0.9em;
+            width: 70px; /* Dostosowane do 200px */
+            height: 26px;
+            font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
         }
     
-        .variable-input-group .form-range {
-            width: 250px;
-            margin: 5px auto 0;
-        }
-    
-        /* Typ obligacji */
-        #typObligacji.form-control {
-            text-align: center;
-            text-align-last: center;
-            width: 250px; /* Spójne z innymi polami, bez jednostki */
-            height: 28px;
-        }
-    
-        /* Checkboxy */
-        .checkbox-label {
+        .variable-input-group .fields-wrapper {
             display: flex;
+            flex-wrap: nowrap;
             justify-content: center;
-            font-size: 0.7em;
-            margin: 10px 0;
-        }
-    
-        /* Przyciski */
-        .btn-primary,
-        #addVariableBtn {
-            display: block;
-            width: 180px; /* Zaktualizowana szerokość (było 150px) */
-            margin: 20px auto;
-            padding: 6px 15px;
-        }
-    
-        /* Logo i inne sekcje bez zmian */
-        .logo-container {
-            display: flex !important;
-            justify-content: flex-start !important;
-            text-align: left !important;
-            flex-wrap: wrap;
-        }
-    
-        .logo,
-        #siteLogo {
-            margin: 0 !important;
-            padding: 10px 0;
-            max-width: 150px;
-        }
-    
-        .zoom-controls {
-            position: static;
-            transform: none;
-            margin-left: auto;
-        }
-    
-        .summary-footer {
-            display: block;
-            text-align: center;
-        }
-    
-        .summary-footer .highlight {
-            display: block;
-            width: 180px;
-            margin: 10px auto;
-            font-size: 0.7em;
-            padding: 3px 5px;
-        }
-    
-        /* Harmonogram i wykresy */
-        .harmonogram-container {
-            width: 98vw;
-            max-width: none;
-            margin: 0 auto;
-            padding: 10px;
-            box-sizing: border-box;
-            position: relative;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-    
-        .harmonogram-chart-wrapper {
+            align-items: center;
             width: 100%;
-            max-width: none;
-            margin: 0 auto;
-            padding: 15px;
-            box-sizing: border-box;
+            max-width: 200px; /* Ustawione na 200px */
+            min-width: 200px; /* Ustawione na 200px */
+            gap: 2px;
         }
     
-        .harmonogram {
-            overflow-x: auto;
-            width: 100%;
+        .variable-input-group .form-group:nth-child(1) .input-group { /* Pole "Od" */
+            width: 200px; /* Ustawione na 200px */
+            max-width: 200px;
+            min-width: 200px;
         }
     
-        .harmonogram table {
-            font-size: 0.55em;
-            max-width: none;
-            width: auto;
-            min-width: 100%;
+        .variable-input-group .form-group:nth-child(1) .form-control {
+            width: 130px; /* Dostosowane do 200px */
         }
     
-        .harmonogram th {
-            padding: 1px;
-            font-size: 0.6em;
-            white-space: normal;
+        .variable-input-group .form-group:nth-child(2) .input-group { /* Pole "Inflacja/Stopa" */
+            width: 200px; /* Ustawione na 200px */
+            max-width: 200px;
+            min-width: 200px;
         }
     
-        .harmonogram td {
-            padding: 1px;
-            font-size: 0.55em;
-            white-space: normal;
+        .variable-input-group .form-group:nth-child(2) .form-control {
+            width: 130px; /* Dostosowane do 200px */
         }
     
+        /* Powiększony wykres liniowy */
         .chart-container-line {
             width: 100%;
             max-width: 100%;
-            height: 200px;
+            height: 250px; /* Zwiększone z domyślnych (np. 200px) na 250px */
+            margin: 0 auto;
         }
     
         .chart-line {
             width: 100%;
             height: 100%;
+            font-size: 0.65em; /* Zwiększone z domyślnych (np. 0.55em) na 0.65em */
         }
     
-        .chart-container {
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-    
-        .chart {
-            width: 120px;
-            height: 120px;
-        }
-    
-        .chart-legend {
-            max-width: 100%;
-            align-items: center;
-            margin-top: 10px;
-        }
-    
-        .chart-legend .legend-item {
-            width: 100%;
-            max-width: 200px;
-            justify-content: flex-start;
-            padding-left: 0;
-        }
-    
+        /* Wykres kołowy i legenda (z poprzednich zmian) */
         .chart-legend .color-box {
             width: 120px;
             min-width: 120px;
@@ -1597,16 +1452,6 @@
             line-height: 24px;
             margin-right: 10px;
             font-size: 9px !important;
-        }
-    
-        .chart-legend .legend-text {
-            font-size: 12px;
-        }
-    
-        .sub-info {
-            font-size: 0.6em;
-            text-align: center;
-            margin-top: 5px;
         }
     }
 </style>
