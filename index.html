@@ -1063,8 +1063,8 @@
         .input-group,
         #dynamicRateGroup {
             width: 100%;
-            max-width: 250px; /* Ograniczone do 250px */
-            min-width: 250px; /* Ustawione na 250px */
+            max-width: 200px; /* Zmniejszone z 250px na 200px */
+            min-width: 200px; /* Zmniejszone z 250px na 200px */
             margin: 2px auto;
         }
     
@@ -1076,17 +1076,17 @@
     
         .form-control,
         .form-select {
-            font-size: 0.75em; /* Zmniejszone z 0.9em (14.4px) do 0.75em (12px), czyli o 2.4px; można dostosować do 0.7em (11.2px) dla 3-4px */
-            height: 28px;
-            width: 170px; /* Dostosowane do szerokości 250px dla całego input-group */
+            font-size: 0.75em;
+            height: 26px; /* Zmniejszone z 28px na 26px */
+            width: 130px; /* Zmniejszone z 170px na 130px, aby razem z input-group-text dało 200px */
             padding: 4px 8px;
             line-height: 20px;
         }
     
         .input-group-text {
-            font-size: 0.75em; /* Zmniejszone z 0.9em do 0.75em */
-            height: 28px;
-            width: 80px; /* Razem z form-control daje 250px */
+            font-size: 0.75em;
+            height: 26px; /* Zmniejszone z 28px na 26px */
+            width: 70px; /* Zmniejszone z 80px na 70px, aby razem z form-control dało 200px */
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
@@ -1094,8 +1094,8 @@
     
         /* Sekcja zmiennych stóp/inflacji */
         .variable-input-group .input-group {
-            max-width: 250px; /* Ograniczone do 250px */
-            min-width: 250px; /* Ustawione na 250px */
+            max-width: 200px; /* Zmniejszone z 250px na 200px */
+            min-width: 200px; /* Zmniejszone z 250px na 200px */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1103,23 +1103,23 @@
     
         .variable-input-group .form-group {
             width: 100%;
-            max-width: 250px; /* Ograniczone do 250px */
-            min-width: 250px; /* Ustawione na 250px */
+            max-width: 200px; /* Zmniejszone z 250px na 200px */
+            min-width: 200px; /* Zmniejszone z 250px na 200px */
             margin: 2px auto;
         }
     
         .variable-input-group .form-control {
-            width: 170px; /* Dostosowane do szerokości 250px dla całego input-group */
-            height: 28px;
-            font-size: 0.75em; /* Zmniejszone z 0.9em do 0.75em */
+            width: 130px; /* Zmniejszone z 170px na 130px */
+            height: 26px; /* Zmniejszone z 28px na 26px */
+            font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
         }
     
         .variable-input-group .input-group-text {
-            width: 80px; /* Razem z form-control daje 250px */
-            height: 28px;
-            font-size: 0.75em; /* Zmniejszone z 0.9em do 0.75em */
+            width: 70px; /* Zmniejszone z 80px na 70px */
+            height: 26px; /* Zmniejszone z 28px na 26px */
+            font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1131,29 +1131,29 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            max-width: 250px; /* Ograniczone do 250px zamiast 320px */
-            min-width: 250px; /* Ustawione na 250px */
+            max-width: 200px; /* Zmniejszone z 250px na 200px */
+            min-width: 200px; /* Zmniejszone z 250px na 200px */
             gap: 2px;
         }
     
         .variable-input-group .form-group:nth-child(1) .input-group { /* Pole "Od" */
-            width: 250px; /* Ustawione na 250px */
-            max-width: 250px; /* Ograniczone do 250px */
-            min-width: 250px; /* Ustawione na 250px */
+            width: 200px; /* Zmniejszone z 250px na 200px */
+            max-width: 200px; /* Zmniejszone z 250px na 200px */
+            min-width: 200px; /* Zmniejszone z 250px na 200px */
         }
     
         .variable-input-group .form-group:nth-child(1) .form-control {
-            width: 170px; /* Dostosowane do szerokości 250px dla całego input-group */
+            width: 130px; /* Zmniejszone z 170px na 130px */
         }
     
         .variable-input-group .form-group:nth-child(2) .input-group { /* Pole "Inflacja/Stopa" */
-            width: 250px; /* Ustawione na 250px */
-            max-width: 250px; /* Ograniczone do 250px */
-            min-width: 250px; /* Ustawione na 250px */
+            width: 200px; /* Zmniejszone z 250px na 200px */
+            max-width: 200px; /* Zmniejszone z 250px na 200px */
+            min-width: 200px; /* Zmniejszone z 250px na 200px */
         }
     
         .variable-input-group .form-group:nth-child(2) .form-control {
-            width: 170px; /* Dostosowane do szerokości 250px dla całego input-group */
+            width: 130px; /* Zmniejszone z 170px na 130px */
         }
     
         /* Harmonogram i tabelka */
@@ -1168,7 +1168,7 @@
             transform: translateX(-50%);
         }
     
-        .-plan-chart-wrapper {
+        .harmonogram-chart-wrapper {
             width: 100%;
             max-width: none;
             margin: 0 auto;
