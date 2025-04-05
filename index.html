@@ -970,46 +970,46 @@
         }
     
         .harmonogram-container {
-            width: 99%;
+            width: 98%;
             max-width: 100%;
             margin: 0 auto;
-            padding: 2px; /* Jeszcze mniejszy padding */
+            padding: 2px;
             box-sizing: border-box;
         }
     
         .harmonogram-chart-wrapper {
-            width: 100%;
+            width: 98%;
             max-width: none;
             margin: 0 auto;
-            padding: 2px; /* Jeszcze mniejszy padding */
+            padding: 2px;
             box-sizing: border-box;
         }
     
         .harmonogram {
-            width: 99%;
+            width: 98%;
             margin: 0 auto;
         }
     
         .harmonogram table {
-            font-size: 0.6em;
-            width: 99%;
+            font-size: 0.6em; /* Bazowa, nadpisywana w th/td */
+            width: 98%;
             max-width: 100%;
             margin: 0 auto;
             table-layout: auto;
         }
     
         .harmonogram th {
-            padding: clamp(1px, 0.2vw, 2px); /* Minimalny padding */
-            font-size: clamp(0.5em, 1.5vw, 1.5em); /* Większa czcionka */
+            padding: clamp(1px, 0.2vw, 2px);
+            font-size: clamp(0.4em, 1vw, 1em); /* Mniejsza czcionka */
             white-space: normal;
-            word-break: break-word;
+            word-break: normal; /* Tylko całe słowa się zawijają */
         }
     
         .harmonogram td {
-            padding: clamp(1px, 0.2vw, 2px); /* Minimalny padding */
-            font-size: clamp(0.5em, 1.5vw, 1.5em); /* Większa czcionka */
+            padding: clamp(1px, 0.2vw, 2px);
+            font-size: clamp(0.4em, 1vw, 1em); /* Mniejsza czcionka */
             white-space: normal;
-            word-break: break-word;
+            word-break: normal; /* Tylko całe słowa się zawijają */
         }
     
         .harmonogram-opis {
@@ -1017,20 +1017,20 @@
         }
     
         .chart-container-line {
-            width: 99%;
+            width: 98%;
             max-width: 100%;
             height: 250px;
             margin: 0 auto;
         }
     
         .chart-line {
-            width: 99%;
+            width: 98%;
             height: 100%;
-            font-size: 0.65em;
+            font-size: clamp(0.45em, calc(1vw + 1px), 1.1em); /* O 1px większa niż w tabelce */
         }
     
         .checkbox-label {
-            font-size: 0.8em;
+            font-size: 0.7em;
             justify-content: center;
         }
     }
