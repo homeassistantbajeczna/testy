@@ -968,21 +968,29 @@
     
         /* Wykres liniowy */
         .chart-container-line {
+            width: 95%; /* 95% kontenera nadrzędnego (.harmonogram-chart-wrapper) */
+            max-width: 95%;
             height: 250px;
-            max-width: 85%;
             margin: 0 auto;
         }
     
         .chart-line {
-            width: 100%;
+            width: 95%; /* 95% kontenera nadrzędnego (.chart-container-line) */
             height: 100%;
             font-size: 0.65em;
         }
     
         /* Tabelka (harmonogram) */
+        .harmonogram {
+            overflow-x: auto;
+            width: 95%; /* 95% kontenera nadrzędnego (.harmonogram-container) */
+            margin: 0 auto;
+        }
+    
         .harmonogram table {
             font-size: 0.6em;
-            max-width: 80%;
+            width: 95%; /* 95% kontenera nadrzędnego (.harmonogram) */
+            max-width: 95%;
             margin: 0 auto;
         }
     
@@ -995,23 +1003,25 @@
         .harmonogram-opis {
             padding-left: 1em;
         }
+    
+        .checkbox-label {
+            font-size: 0.8em;
+            justify-content: center;
+        }
     }
    
     @media (max-width: 576px) {
-        /* Nagłówki */
         .header-row h4,
         .result-header h4 {
             font-size: 1em;
         }
-    
-        /* Checkbox w nagłówku */
+
         .checkbox-label.header-checkbox {
             top: -15px;
             right: 5px;
             font-size: 0.6em;
         }
     
-        /* Podsumowanie */
         .summary-footer {
             flex-direction: column;
             gap: 5px;
@@ -1027,7 +1037,6 @@
             padding: 3px 5px;
         }
     
-        /* Formularz */
         .form-row,
         .checkbox-row,
         .fields-wrapper,
@@ -1070,7 +1079,6 @@
             text-align: center;
         }
     
-        /* Specyficzne dla "Typ Obligacji" */
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
@@ -1078,7 +1086,6 @@
             height: 26px;
         }
     
-        /* Sekcja zmiennych stóp/inflacji */
         .variable-input-group .input-group {
             max-width: 200px;
             min-width: 200px;
@@ -1141,13 +1148,11 @@
             width: 130px;
         }
     
-        /* Czcionka dla "Inwestycje w IKE lub IKZE" i "Zmienna Stopa Ref. NBP" */
         .checkbox-label {
             font-size: 0.65em;
             justify-content: center;
         }
     
-        /* Harmonogram i tabelka */
         .harmonogram-container {
             width: 98vw;
             max-width: none;
@@ -1197,29 +1202,27 @@
             padding-left: 0.9em;
         }
     
-        /* Przyciski */
         .btn-primary {
             display: block;
-            width: auto; /* Szerokość zależna od tekstu */
+            width: auto;
             margin: 2.5px auto;
             padding: 6px 10px;
         }
     
         #addVariableBtn {
             display: block;
-            width: auto; /* Szerokość zależna od tekstu */
+            width: auto;
             margin: 2.5px auto;
             padding: 6px 10px;
         }
     
         #generatePdfBtn {
             display: block;
-            width: auto; /* Szerokość zależna od tekstu */
-            margin: 2.5px auto;
+            width: auto;
+            margin: 2.5px 0 2.5px auto;
             padding: 6px 10px;
         }
     
-        /* Wykres kołowy i legenda */
         .chart-container {
             flex-direction: column;
             align-items: center;
@@ -1244,20 +1247,10 @@
             padding-left: 0;
         }
     
-        .chart-legend .color-box {
-            width: 150px;
-            min-width: 150px;
-            height: 24px;
-            line-height: 24px;
-            margin-right: 10px;
-            font-size: 9px !important;
-        }
-    
         .chart-legend .legend-text {
             font-size: 12px;
         }
     
-        /* Powiększony wykres liniowy */
         .chart-container-line {
             width: 100%;
             max-width: 100%;
@@ -1274,7 +1267,6 @@
     
     /* Mobile (max 480px) */
     @media (max-width: 480px) {
-        /* Ogólne style dla body i kontenera */
         body {
             margin: 0;
             padding: 0;
@@ -1284,7 +1276,6 @@
             padding: 10px;
         }
     
-        /* Formularz - każdy box w nowym wierszu */
         .form-row,
         .checkbox-row,
         .fields-wrapper,
@@ -1293,7 +1284,6 @@
             text-align: center;
         }
     
-        /* Każdy form-group jako osobny wiersz */
         .form-group,
         #dynamicRateGroup {
             display: block;
@@ -1303,7 +1293,6 @@
             margin: 10px auto;
         }
     
-        /* Inputy i jednostki */
         .input-group {
             display: flex;
             justify-content: center;
@@ -1344,7 +1333,6 @@
             height: 14px;
         }
     
-        /* Sekcja zmiennych stóp/inflacji */
         .variable-rate-container {
             text-align: center;
         }
@@ -1401,7 +1389,6 @@
             margin: 5px auto 0;
         }
     
-        /* Typ obligacji */
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
@@ -1409,7 +1396,6 @@
             height: 28px;
         }
     
-        /* Checkboxy */
         .checkbox-label {
             display: flex;
             justify-content: center;
@@ -1417,18 +1403,27 @@
             margin: 10px 0;
         }
     
-        /* Przyciski */
-        .btn-primary,
-        #addVariableBtn,
-        #generatePdfBtn { /* Dodałem #generatePdfBtn dla pewności */
+        .btn-primary {
             display: block;
-            /* Usunięto width: 180px – szerokość zależy od tekstu */
+            width: auto;
             margin: 20px auto;
             padding: 6px 15px;
-            text-align: right;
         }
     
-        /* Logo i inne sekcje bez zmian */
+        #addVariableBtn {
+            display: block;
+            width: auto;
+            margin: 20px auto;
+            padding: 6px 15px;
+        }
+    
+        #generatePdfBtn {
+            display: block;
+            width: auto;
+            margin: 20px 0 20px auto;
+            padding: 6px 15px;
+        }
+    
         .logo-container {
             display: flex !important;
             justify-content: flex-start !important;
@@ -1462,7 +1457,6 @@
             padding: 3px 5px;
         }
     
-        /* Harmonogram i wykresy */
         .harmonogram-container {
             width: 98vw;
             max-width: none;
@@ -1474,7 +1468,7 @@
             transform: translateX(-50%);
         }
     
-        .harmonogram-chart-wrapper {
+        .harmonogram-chart-wrapperHardk {
             width: 100%;
             max-width: none;
             margin: 0 auto;
