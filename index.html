@@ -1040,7 +1040,7 @@
         .form-group,
         .input-group,
         #dynamicRateGroup {
-            width: 200px; /* Zmienione z 150px na 200px */
+            width: 200px;
             max-width: 200px;
             min-width: 200px;
             margin: 2px auto;
@@ -1056,7 +1056,7 @@
         .form-select {
             font-size: 0.75em;
             height: 26px;
-            width: 130px; /* Dostosowane do 200px (130px + 70px = 200px) */
+            width: 130px;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1064,7 +1064,7 @@
         .input-group-text {
             font-size: 0.75em;
             height: 26px;
-            width: 70px; /* Dostosowane do 200px (130px + 70px = 200px) */
+            width: 70px;
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
@@ -1074,13 +1074,13 @@
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
-            width: 200px; /* Zmienione z 150px na 200px */
+            width: 200px;
             height: 26px;
         }
     
         /* Sekcja zmiennych stóp/inflacji */
         .variable-input-group .input-group {
-            max-width: 200px; /* Zmienione z 150px na 200px */
+            max-width: 200px;
             min-width: 200px;
             display: flex;
             justify-content: center;
@@ -1088,14 +1088,14 @@
         }
     
         .variable-input-group .form-group {
-            width: 200px; /* Zmienione z 150px na 200px */
+            width: 200px;
             max-width: 200px;
             min-width: 200px;
             margin: 2px auto;
         }
     
         .variable-input-group .form-control {
-            width: 130px; /* Dostosowane do 200px */
+            width: 130px;
             height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
@@ -1103,7 +1103,7 @@
         }
     
         .variable-input-group .input-group-text {
-            width: 70px; /* Dostosowane do 200px */
+            width: 70px;
             height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
@@ -1116,29 +1116,29 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            max-width: 200px; /* Zmienione z 150px na 200px */
+            max-width: 200px;
             min-width: 200px;
             gap: 2px;
         }
     
-        .variable-input-group .form-group:nth-child(1) .input-group { /* Pole "Od" */
-            width: 200px; /* Zmienione z 150px na 200px */
+        .variable-input-group .form-group:nth-child(1) .input-group {
+            width: 200px;
             max-width: 200px;
             min-width: 200px;
         }
     
         .variable-input-group .form-group:nth-child(1) .form-control {
-            width: 130px; /* Dostosowane do 200px */
+            width: 130px;
         }
     
-        .variable-input-group .form-group:nth-child(2) .input-group { /* Pole "Inflacja/Stopa" */
-            width: 200px; /* Zmienione z 150px na 200px */
+        .variable-input-group .form-group:nth-child(2) .input-group {
+            width: 200px;
             max-width: 200px;
             min-width: 200px;
         }
     
         .variable-input-group .form-group:nth-child(2) .form-control {
-            width: 130px; /* Dostosowane do 200px */
+            width: 130px;
         }
     
         /* Czcionka dla "Inwestycje w IKE lub IKZE" i "Zmienna Stopa Ref. NBP" */
@@ -1200,16 +1200,21 @@
         /* Przyciski */
         .btn-primary {
             display: block;
-            width: auto;
-            min-width: 120px;
+            width: auto; /* Szerokość zależna od tekstu */
             margin: 2.5px auto;
             padding: 6px 10px;
         }
     
         #addVariableBtn {
             display: block;
-            width: auto;
-            min-width: 120px;
+            width: auto; /* Szerokość zależna od tekstu */
+            margin: 2.5px auto;
+            padding: 6px 10px;
+        }
+    
+        #generatePdfBtn {
+            display: block;
+            width: auto; /* Szerokość zależna od tekstu */
             margin: 2.5px auto;
             padding: 6px 10px;
         }
@@ -1420,6 +1425,7 @@
             /* Usunięto width: 180px – szerokość zależy od tekstu */
             margin: 20px auto;
             padding: 6px 15px;
+            text-align: right;
         }
     
         /* Logo i inne sekcje bez zmian */
