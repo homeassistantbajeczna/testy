@@ -1089,51 +1089,55 @@
             padding: 10px;
         }
     
-        /* Formularz - wyrównanie boxów w kolumnie */
+        /* Formularz - każdy box w nowym wierszu */
         .form-row,
         .checkbox-row,
-        .fields-wrapper {
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
+        .fields-wrapper,
+        .variable-inputs-wrapper {
+            display: block; /* Zamiast flex, pełna kontrola nad wierszami */
+            text-align: center; /* Wyśrodkowanie zawartości */
         }
     
-        /* Spójna szerokość dla wszystkich pól formularza */
+        /* Każdy form-group jako osobny wiersz */
         .form-group,
-        .input-group,
         #dynamicRateGroup {
-            width: 100%;
-            min-width: 250px; /* Stała minimalna szerokość */
-            max-width: 250px; /* Stała maksymalna szerokość */
-            align-items: center;
+            display: block;
+            width: 250px; /* Stała szerokość */
+            margin: 10px auto; /* Odstęp między wierszami i wyśrodkowanie */
         }
     
-        /* Dopasowanie inputów i jednostek */
+        /* Inputy i jednostki */
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 250px; /* Stała szerokość */
+            margin: 0 auto;
+        }
+    
         .form-control,
         .form-select {
             font-size: 0.9em;
             height: 28px;
-            width: 100%;
-            max-width: 190px; /* Input max 190px, reszta dla jednostki */
-            flex-grow: 1;
-            line-height: 20px;
+            width: 190px; /* Input 190px */
             padding: 4px 8px;
+            line-height: 20px;
         }
     
         .input-group-text {
             font-size: 0.9em;
             height: 28px;
+            width: 60px; /* Jednostka 60px, razem 250px */
             padding: 4px 8px;
-            width: auto;
-            min-width: 50px; /* Jednostka ma min 50px */
-            text-align: center;
             line-height: 20px;
+            text-align: center;
         }
     
         .form-range {
+            display: block;
             height: 8px;
-            width: 100%;
-            max-width: 250px; /* Suwak też 250px */
+            width: 250px; /* Suwak też 250px */
+            margin: 5px auto 0; /* Wyśrodkowanie i odstęp od inputa */
         }
     
         .form-range::-webkit-slider-thumb,
@@ -1148,45 +1152,37 @@
             text-align: center;
         }
     
-        .variable-inputs-wrapper {
-            align-items: center;
-            gap: 15px;
+        .variable-inputs {
+            display: block;
         }
     
         .variable-input-group {
-            width: 100%;
-            min-width: 250px; /* Spójne z innymi boxami */
-            max-width: 250px;
-            align-items: center;
+            display: block;
+            width: 250px; /* Stała szerokość */
+            margin: 15px auto; /* Odstęp między grupami */
         }
     
         .variable-input-group .fields-wrapper {
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            min-width: 250px;
-            max-width: 250px;
+            display: block;
+            width: 250px;
         }
     
         .variable-input-group .form-group {
-            width: 100%;
-            min-width: 250px; /* Spójne z innymi boxami */
-            max-width: 250px;
-            align-items: center;
+            display: block;
+            width: 250px;
+            margin: 10px auto; /* Odstęp między polami w grupie */
         }
     
         .variable-input-group .input-group {
-            min-width: 250px; /* Spójne z innymi boxami */
-            max-width: 250px;
-            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 250px;
+            margin: 0 auto;
         }
     
         .variable-input-group .form-control {
-            max-width: 190px; /* Takie samo jak w reszcie formularza */
+            width: 190px; /* Spójne z innymi inputami */
             height: 28px;
             font-size: 0.9em;
             padding: 4px 8px;
@@ -1194,28 +1190,44 @@
         }
     
         .variable-input-group .input-group-text {
-            min-width: 50px; /* Takie samo jak w reszcie formularza */
+            width: 60px; /* Spójne z innymi jednostkami */
             height: 28px;
             font-size: 0.9em;
             padding: 4px 8px;
             line-height: 20px;
         }
     
+        .variable-input-group .form-range {
+            width: 250px;
+            margin: 5px auto 0;
+        }
+    
         /* Typ obligacji */
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
-            width: 100%;
-            max-width: 250px; /* Spójne z innymi polami */
+            width: 250px; /* Spójne z innymi polami */
             height: 28px;
         }
     
         /* Checkboxy */
         .checkbox-label {
+            display: flex;
+            justify-content: center;
             font-size: 0.7em;
+            margin: 10px 0;
         }
     
-        /* Logo */
+        /* Przyciski */
+        .btn-primary,
+        #addVariableBtn {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 6px 15px;
+        }
+    
+        /* Logo i inne sekcje bez zmian */
         .logo-container {
             display: flex !important;
             justify-content: flex-start !important;
@@ -1236,26 +1248,20 @@
             margin-left: auto;
         }
     
-        /* Summary footer */
         .summary-footer {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
+            display: block;
+            text-align: center;
         }
     
         .summary-footer .highlight {
+            display: block;
+            width: 180px;
+            margin: 10px auto;
             font-size: 0.7em;
             padding: 3px 5px;
-            width: 180px;
-            max-width: 100%;
-            text-align: center;
-            box-sizing: border-box;
         }
     
-        /* Harmonogram i wykresy - bez zmian w szerokościach */
+        /* Harmonogram i wykresy - bez zmian */
         .harmonogram-container {
             width: 98vw;
             max-width: none;
@@ -1342,12 +1348,14 @@
             margin-right: 10px;
         }
     
-        .chart-legend .legend-text {
+        .chart-legend . gland-text {
             font-size: 12px;
         }
     
         .sub-info {
             font-size: 0.6em;
+            text-align: center;
+            margin-top: 5px;
         }
     }
 </style>
