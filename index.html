@@ -1044,7 +1044,7 @@
             display: block;
             width: 180px;
             max-width: 100%;
-            margin: 10px auto;
+            margin: 5px auto; /* Zmniejszone z 10px na 5px, jak w 480px */
             font-size: 0.7em;
             padding: 3px 5px;
         }
@@ -1056,16 +1056,16 @@
         .variable-inputs-wrapper {
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px; /* Zmniejszone z 10px na 8px */
         }
     
         .form-group,
         .input-group,
         #dynamicRateGroup {
             width: 100%;
-            max-width: 300px; /* Większa elastyczność niż 250px w 480px */
+            max-width: 300px;
             min-width: 0;
-            margin: 10px auto;
+            margin: 8px auto; /* Zmniejszone z 10px na 8px, bliżej 480px */
         }
     
         .input-group {
@@ -1078,7 +1078,7 @@
         .form-select {
             font-size: 0.9em;
             height: 28px;
-            width: 220px; /* Dostosowane do max-width 300px: 220px + 80px = 300px */
+            width: 220px;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1086,7 +1086,7 @@
         .input-group-text {
             font-size: 0.9em;
             height: 28px;
-            width: 80px; /* Jak w 480px */
+            width: 80px;
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
@@ -1103,11 +1103,11 @@
         .variable-input-group .form-group {
             width: 100%;
             max-width: 250px;
-            margin: 10px auto;
+            margin: 8px auto; /* Zmniejszone z 10px na 8px */
         }
     
         .variable-input-group .form-control {
-            width: 170px; /* Jak w 480px: 170px + 80px = 250px */
+            width: 170px;
             height: 28px;
             font-size: 0.9em;
             padding: 4px 8px;
@@ -1115,7 +1115,7 @@
         }
     
         .variable-input-group .input-group-text {
-            width: 80px; /* Jak w 480px */
+            width: 80px;
             height: 28px;
             font-size: 0.9em;
             padding: 4px 8px;
@@ -1148,22 +1148,24 @@
         }
     
         .harmonogram table {
-            font-size: 0.6em; /* Zmniejszone z 0.65em, ale większe niż 0.55em w 480px */
+            font-size: 0.6em;
             max-width: none;
             width: auto;
             min-width: 100%;
         }
     
         .harmonogram th {
-            padding: 4px; /* Kompromis między 8px a 1px */
+            padding: 4px;
             font-size: 0.6em;
-            white-space: normal;
+            white-space: nowrap; /* Dopasowanie do zawartości */
+            width: auto; /* Szerokość zależna od treści */
         }
     
         .harmonogram td {
-            padding: 4px; /* Kompromis między 6px a 1px */
+            padding: 4px;
             font-size: 0.6em;
-            white-space: normal;
+            white-space: nowrap; /* Dopasowanie do zawartości */
+            width: auto; /* Szerokość zależna od treści */
         }
     
         .harmonogram-opis {
@@ -1177,6 +1179,43 @@
             width: 180px;
             margin: 20px auto;
             padding: 6px 15px;
+        }
+    
+        /* Wykres kołowy i legenda */
+        .chart-container {
+            flex-direction: column; /* Legenda pod wykresem */
+            align-items: center;
+            gap: 10px;
+        }
+    
+        .chart {
+            width: 120px;
+            height: 120px;
+        }
+    
+        .chart-legend {
+            max-width: 100%;
+            align-items: center;
+            margin-top: 10px; /* Odstęp od wykresu */
+        }
+    
+        .chart-legend .legend-item {
+            width: 100%;
+            max-width: 200px;
+            justify-content: flex-start;
+            padding-left: 0;
+        }
+    
+        .chart-legend .color-box {
+            width: 100px;
+            min-width: 100px;
+            height: 24px;
+            line-height: 24px;
+            margin-right: 10px;
+        }
+    
+        .chart-legend .legend-text {
+            font-size: 12px;
         }
     }
     
