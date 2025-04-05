@@ -1278,11 +1278,15 @@
                             <div class="sub-info" id="oprocentowanieInfo"></div>
                         </div>
                     </div>
-                    <label class="checkbox-label" for="ikeIkzeBtn">
-                        <input type="checkbox" id="ikeIkzeBtn">
-                        <span class="checkbox-custom"></span>
-                        <b>Inwestycje w IKE lub IKZE</b>
-                    </label>
+                    <div class="form-row">
+                        <div id="ikeIkzeContainer" style="display: none;">
+                            <label class="checkbox-label" for="ikeIkzeBtn">
+                                <input type="checkbox" id="ikeIkzeBtn">
+                                <span class="checkbox-custom"></span>
+                                <b>Inwestycje w IKE lub IKZE</b>
+                            </label>
+                        </div>
+                    </div>
                     <div class="variable-rate-container">
                         <div class="checkbox-row" id="variableCheckboxRow">
                             <label class="checkbox-label" id="inflacjaZmiennaLabel" for="inflacjaZmiennaBtn" style="display: none;">
@@ -1533,13 +1537,6 @@
         elements.dynamicRateRange.step = step;
         elements.dynamicRate.max = max;
         elements.dynamicRateRange.max = max;
-    
-        // Aktualizacja sub-info
-        /*if (dynamicRateInfo) {
-            dynamicRateInfo.textContent = `Min: 0%, Max: ${max}%`;
-        } else {
-            console.warn("Element #dynamicRateInfo nie znaleziony.");
-        }*/
     }
 
     function updateDynamicRateField() {
@@ -1590,15 +1587,12 @@
             const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
             setDynamicRateField("Stopa Ref. NBP", stopaRefValue, "0.05", "20");
             dynamicRateGroup.style.display = "flex";
-            console.log(`Pokazuję dynamicRateGroup dla typu ${typ}`); // Logowanie
         } else if (["COI", "EDO", "ROS", "ROD"].includes(typ)) {
             const inflacjaValue = state.lastFormData.dynamicRates[typ] || 4.90;
             setDynamicRateField("Inflacja", inflacjaValue, "0.1", "50");
             dynamicRateGroup.style.display = "flex";
-            console.log(`Pokazuję dynamicRateGroup dla typu ${typ}`); // Logowanie
         } else {
             dynamicRateGroup.style.display = "none";
-            console.log(`Ukrywam dynamicRateGroup dla typu ${typ}`); // Logowanie
         }
     
         document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
@@ -1620,6 +1614,18 @@
         } else if (elements.stopaZmiennaBtn.checked && state.variableReferenceRates.length === 0) {
             const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
             state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
+        }
+    
+        // Logika widoczności checkboxa IKE/IKZE
+        const ikeIkzeContainer = document.getElementById("ikeIkzeContainer");
+        const allowedTypes = ["ROR", "DOR", "TOS", "COI", "EDO"];
+        if (allowedTypes.includes(typ)) {
+            ikeIkzeContainer.style.display = "block";
+        } else {
+            ikeIkzeContainer.style.display = "none";
+            elements.ikeIkzeBtn.checked = false; // Odznaczamy checkbox
+            state.isIkeIkzeMode = false; // Resetujemy stan
+            state.lastFormData.ikeIkze = false; // Aktualizujemy zapisany stan
         }
     
         updateVariableInputs();
