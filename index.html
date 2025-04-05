@@ -966,61 +966,86 @@
             padding: 15px;
         }
     
-        /* Ujednolicenie szerokości boxów formularza */
+        /* Ustalenie szerokości boxów formularza */
         .form-group,
         .input-group {
-            width: 200px; /* Stała szerokość 200px */
+            width: 100%; /* Zachowuje elastyczność w granicach min i max */
+            min-width: 150px; /* Minimalna szerokość 150px */
             max-width: 200px; /* Maksymalna szerokość 200px */
-            min-width: 200px; /* Minimalna szerokość 200px */
             margin: 0 auto; /* Wyśrodkowanie */
         }
     
         .form-select {
-            width: 200px; /* Stała szerokość 200px */
-            max-width: 200px;
-            min-width: 200px;
+            width: 100%;
+            min-width: 150px; /* Minimalna szerokość 150px */
+            max-width: 200px; /* Maksymalna szerokość 200px */
             margin: 0 auto; /* Wyśrodkowanie */
         }
     
+        /* Wykres kołowy i przeniesienie legendy pod spód */
         .chart-container {
             flex-direction: column;
             align-items: center;
+            gap: 10px; /* Odstęp między wykresem a legendą */
         }
     
         .chart {
             width: 120px;
             height: 120px;
+            order: 1; /* Wykres na górze */
         }
     
         .chart-legend {
             max-width: 100%;
             align-items: center;
+            order: 2; /* Legenda pod wykresem */
+            margin-top: 10px; /* Dodatkowy odstęp od wykresu */
         }
     
-        /* Zmniejszenie wykresu liniowego */
+        .chart-legend .legend-item {
+            width: 100%;
+            max-width: 200px;
+            justify-content: flex-start;
+            padding-left: 0;
+        }
+    
+        .chart-legend .color-box {
+            width: 150px; /* Szerokość z 576px dla spójności */
+            min-width: 150px;
+            height: 24px;
+            line-height: 24px;
+            margin-right: 10px;
+            font-size: 9px; /* Czcionka z 576px */
+        }
+    
+        .chart-legend .legend-text {
+            font-size: 12px;
+        }
+    
+        /* Wykres liniowy */
         .chart-container-line {
-            height: 200px; /* Zmniejszone z 300px na 200px */
-            max-width: 80%; /* Zmniejszone z 90% na 80% */
-            margin: 0 auto; /* Wyśrodkowanie */
+            height: 200px;
+            max-width: 80%;
+            margin: 0 auto;
         }
     
         .chart-line {
             width: 100%;
             height: 100%;
-            font-size: 0.6em; /* Zmniejszone z 0.65em na 0.6em */
+            font-size: 0.6em;
         }
     
-        /* Zmniejszenie tabelki (harmonogramu) */
+        /* Tabelka (harmonogram) */
         .harmonogram table {
-            font-size: 0.6em; /* Zmniejszone z 0.7em na 0.6em */
-            max-width: 80%; /* Zmniejszone z 100% na 80% */
-            margin: 0 auto; /* Wyśrodkowanie */
+            font-size: 0.6em;
+            max-width: 80%;
+            margin: 0 auto;
         }
     
         .harmonogram th,
         .harmonogram td {
-            padding: 5px; /* Zmniejszone z 8px na 5px */
-            font-size: 0.6em; /* Dodane, aby czcionka w komórkach była spójna z tabelą */
+            padding: 5px;
+            font-size: 0.6em;
         }
     
         .harmonogram-opis {
