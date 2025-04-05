@@ -999,15 +999,15 @@
         }
     
         .harmonogram th {
-            padding: clamp(1px, 0.25vw, 2.5px); /* Delikatnie większy padding */
-            font-size: clamp(0.45em, 1.2vw, 1.25em); /* Minimalnie mniejsza czcionka */
+            padding: clamp(1px, 0.25vw, 2.5px);
+            font-size: clamp(0.45em, 1.2vw, 1.25em);
             white-space: normal;
             word-break: normal;
         }
     
         .harmonogram td {
-            padding: clamp(1px, 0.25vw, 2.5px); /* Delikatnie większy padding */
-            font-size: clamp(0.45em, 1.2vw, 1.25em); /* Minimalnie mniejsza czcionka */
+            padding: clamp(1px, 0.25vw, 2.5px);
+            font-size: clamp(0.45em, 1.2vw, 1.25em);
             white-space: normal;
             word-break: normal;
         }
@@ -1019,14 +1019,14 @@
         .chart-container-line {
             width: 98%;
             max-width: 100%;
-            height: 250px;
+            height: clamp(200px, 32vw, 300px); /* Skalowana wysokość */
             margin: 0 auto;
         }
     
         .chart-line {
             width: 98%;
-            height: 100%;
-            font-size: clamp(0.5em, calc(1.2vw + 1px), 1.35em); /* O 1px większa niż w tabelce */
+            height: 100%; /* Dziedziczy skalowaną wysokość */
+            font-size: clamp(0.5em, calc(1.2vw + 1px), 1.35em);
         }
     
         .checkbox-label {
