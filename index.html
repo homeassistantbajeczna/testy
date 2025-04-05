@@ -1119,24 +1119,24 @@
     
         .form-group {
             width: 100%;
-            max-width: 300px; /* Cały form-group max 300px */
-            min-width: 0;
-            align-items: center; /* Wyśrodkowanie etykiety i input-group */
+            min-width: 200px; /* Stała minimalna szerokość */
+            max-width: 200px; /* Stała maksymalna szerokość */
+            align-items: center;
         }
     
         .input-group {
             width: 100%;
-            max-width: 300px; /* Input + jednostka razem max 300px */
-            min-width: 0;
-            display: flex; /* Zachowujemy układ poziomy */
-            justify-content: center; /* Wyśrodkowanie w poziomie */
+            min-width: 200px; /* Input + jednostka razem 200px */
+            max-width: 200px;
+            display: flex;
+            justify-content: center;
             align-items: center;
         }
     
         #dynamicRateGroup {
             width: 100%;
-            max-width: 300px;
-            min-width: 0;
+            min-width: 200px;
+            max-width: 200px;
             align-items: center;
         }
     
@@ -1144,24 +1144,24 @@
         .form-select {
             font-size: 0.9em;
             height: 28px;
-            width: 100%; /* Input zajmuje dostępną przestrzeń w input-group */
-            max-width: 230px; /* Ograniczenie dla inputa, aby zmieścić jednostkę */
-            flex-grow: 1; /* Rozciąga się, ale nie więcej niż max-width */
+            width: 100%;
+            max-width: 150px; /* Input max 150px, reszta dla jednostki */
+            flex-grow: 1;
         }
     
         .input-group-text {
             font-size: 0.9em;
             height: 28px;
             padding: 4px 8px;
-            width: auto; /* Jednostka zajmuje tylko potrzebną szerokość */
-            min-width: 50px; /* Minimalna szerokość dla jednostek, np. "miesięcy" */
+            width: auto;
+            min-width: 40px; /* Jednostka ma min 40px, np. "%" lub "m-cy" */
             text-align: center;
         }
     
         .form-range {
             height: 8px;
             width: 100%;
-            max-width: 300px; /* Suwak też max 300px */
+            max-width: 200px; /* Suwak też 200px */
         }
     
         .form-range::-webkit-slider-thumb,
@@ -1183,36 +1183,39 @@
     
         .variable-input-group {
             width: 100%;
-            max-width: 300px;
+            min-width: 200px;
+            max-width: 200px;
             align-items: center;
         }
     
         .variable-input-group .fields-wrapper {
             flex-direction: row; /* "Od" i "Inflacja/Stopa" w poziomie */
             align-items: center;
-            gap: 10px;
+            gap: 5px; /* Mniejszy odstęp, aby zmieścić się w 200px */
             width: 100%;
-            max-width: 300px;
+            max-width: 200px;
             justify-content: center;
         }
     
         .variable-input-group .form-group {
-            width: auto; /* Form-group dostosowuje się do zawartości */
-            max-width: 145px; /* Max połowa z 300px minus odstęp */
+            width: auto;
+            max-width: 97px; /* Max połowa z 200px minus odstęp 5px */
             align-items: center;
         }
     
         .variable-input-group .input-group {
-            max-width: 145px; /* Input + jednostka dla "Od" i "Inflacja" */
+            max-width: 97px; /* Input + jednostka dla "Od" i "Inflacja" */
+            min-width: 97px;
             width: 100%;
         }
     
         .variable-input-group .form-control {
-            max-width: 95px; /* Miejsce na jednostkę w 145px */
+            max-width: 57px; /* Miejsce na jednostkę w 97px */
         }
     
         .variable-input-group .input-group-text {
-            min-width: 40px; /* Mniejsza minimalna szerokość dla "roku" czy "%" */
+            min-width: 35px; /* Mniejsza szerokość dla "roku" czy "%" */
+            padding: 4px 4px; /* Mniejszy padding dla kompaktowości */
         }
     
         /* Checkboxy */
@@ -1247,7 +1250,7 @@
             text-align: center;
             text-align-last: center;
             width: 100%;
-            max-width: 300px; /* Spójne z innymi polami */
+            max-width: 200px; /* Spójne z innymi polami */
         }
     
         #typObligacji.form-control option {
