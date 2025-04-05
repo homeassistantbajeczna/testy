@@ -1079,92 +1079,158 @@
     
     /* Mobile (max 480px) */
     @media (max-width: 480px) {
+        /* Ogólne style dla body i kontenera */
         body {
             margin: 0;
             padding: 0;
         }
+    
         .calculator-container {
             padding: 10px;
         }
+    
+        /* Inputy i selecty */
         .calculator-container input,
         .calculator-container select {
             width: 100%;
             font-size: 14px;
         }
+    
+        /* Przyciski */
         #generatePdfBtn {
             padding: 4px 10px;
             font-size: 0.7em;
             width: 120px;
         }
-        .form-group, .input-group, #dynamicRateGroup {
-            width: 100%; 
-            max-width: 250px;
-            min-width: 0;
+    
+        .btn-primary,
+        #addVariableBtn {
+            padding: 6px 15px;
         }
-        .form-control, .form-select, .input-group-text {
+    
+        /* Formularz - wyrównanie boxów w kolumnie */
+        .form-row,
+        .checkbox-row,
+        .fields-wrapper {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+    
+        .form-group,
+        .input-group,
+        #dynamicRateGroup {
+            width: 100%;
+            max-width: 300px; /* Zwiększam z 250px dla lepszej czytelności */
+            min-width: 0;
+            align-items: center; /* Wyśrodkowanie zawartości w boxach */
+        }
+    
+        .form-control,
+        .form-select,
+        .input-group-text {
             font-size: 0.9em;
             height: 28px;
+            width: 100%; /* Pełna szerokość w input-group */
         }
+    
         .form-range {
             height: 8px;
         }
+    
         .form-range::-webkit-slider-thumb,
         .form-range::-moz-range-thumb,
         .form-range::-ms-thumb {
             width: 14px;
             height: 14px;
         }
-        .sub-info {
-            font-size: 0.6em;
+    
+        /* Sekcja zmiennych stóp/inflacji */
+        .variable-rate-container {
+            text-align: center;
         }
-        .btn-primary, #addVariableBtn {
-            padding: 6px 15px;
+    
+        .variable-inputs-wrapper {
+            align-items: center;
+            gap: 15px; /* Lepszy odstęp między wierszami */
         }
+    
+        .variable-input-group {
+            width: 100%;
+            max-width: 300px;
+            align-items: center;
+        }
+    
+        .variable-input-group .fields-wrapper {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+    
+        .variable-input-group .form-group,
+        .variable-input-group .input-group {
+            width: 100%;
+            max-width: 300px;
+        }
+    
+        /* Checkboxy */
         .checkbox-label {
             font-size: 0.7em;
         }
+    
+        /* Logo */
         .logo-container {
             display: flex !important;
             justify-content: flex-start !important;
             text-align: left !important;
             flex-wrap: wrap;
         }
-        .logo, #siteLogo {
+    
+        .logo,
+        #siteLogo {
             margin: 0 !important;
             padding: 10px 0;
             max-width: 150px;
         }
+    
+        /* Zoom controls */
         .zoom-controls {
             position: static;
             transform: none;
             margin-left: auto;
         }
+    
+        /* Typ obligacji */
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
             width: 100%;
         }
+    
         #typObligacji.form-control option {
             text-align: center;
         }
-        
+    
+        /* Summary footer */
         .summary-footer {
             display: flex;
-            flex-direction: column; /* Pionowy układ */
-            justify-content: center; /* Wyśrodkowanie w pionie */
-            align-items: center; /* Wyrównanie do środka */
-            gap: 10px; /* Odstęp między paskami */
-            width: 100%; /* Pełna szerokość kontenera */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
         }
+    
         .summary-footer .highlight {
             font-size: 0.7em;
             padding: 3px 5px;
-            width: 180px; /* Stała szerokość dla wszystkich pasków */
-            max-width: 100%; /* Nie przekracza kontenera */
-            text-align: center; /* Tekst wyśrodkowany w pasku */
-            box-sizing: border-box; /* Padding wliczony w szerokość */
+            width: 180px;
+            max-width: 100%;
+            text-align: center;
+            box-sizing: border-box;
         }
-        
+    
+        /* Harmonogram */
         .harmonogram-container {
             width: 98vw;
             max-width: none;
@@ -1175,6 +1241,7 @@
             left: 50%;
             transform: translateX(-50%);
         }
+    
         .harmonogram-chart-wrapper {
             width: 100%;
             max-width: none;
@@ -1182,70 +1249,83 @@
             padding: 15px;
             box-sizing: border-box;
         }
+    
         .harmonogram {
             overflow-x: auto;
             width: 100%;
         }
+    
         .harmonogram table {
             font-size: 0.55em;
             max-width: none;
             width: auto;
             min-width: 100%;
         }
+    
         .harmonogram th {
             padding: 1px;
             font-size: 0.6em;
             white-space: normal;
         }
+    
         .harmonogram td {
             padding: 1px;
             font-size: 0.55em;
             white-space: normal;
         }
+    
+        /* Wykres liniowy */
         .chart-container-line {
             width: 100%;
             max-width: 100%;
             height: 200px;
         }
+    
         .chart-line {
             width: 100%;
             height: 100%;
         }
-
+    
+        /* Wykres kołowy */
         .chart-container {
-            flex-direction: column; /* Ustawiamy układ pionowy */
+            flex-direction: column;
             align-items: center;
-            gap: 10px; /* Zmniejszamy odstęp dla kompaktowości */
+            gap: 10px;
         }
     
         .chart {
-            width: 120px; /* Zmniejszamy wykres na telefonach */
+            width: 120px;
             height: 120px;
         }
     
         .chart-legend {
-            max-width: 100%; /* Pełna szerokość pod wykresem */
-            align-items: center; /* Wyśrodkowanie elementów w legendzie */
-            margin-top: 10px; /* Odstęp od wykresu */
+            max-width: 100%;
+            align-items: center;
+            margin-top: 10px;
         }
     
         .chart-legend .legend-item {
-            width: 100%; /* Pełna szerokość dla każdego elementu */
-            max-width: 200px; /* Ograniczenie maksymalnej szerokości */
-            justify-content: flex-start; /* Wyrównanie do lewej */
-            padding-left: 0; /* Usuwamy padding, bo niepotrzebny w kolumnie */
+            width: 100%;
+            max-width: 200px;
+            justify-content: flex-start;
+            padding-left: 0;
         }
     
         .chart-legend .color-box {
-            width: 100px; /* Zmniejszamy szerokość dla telefonów */
+            width: 100px;
             min-width: 100px;
-            height: 24px; /* Lekko mniejsza wysokość */
+            height: 24px;
             line-height: 24px;
-            margin-right: 10px; /* Odstęp od tekstu */
+            margin-right: 10px;
         }
     
         .chart-legend .legend-text {
-            font-size: 12px; /* Lekko większa czcionka dla czytelności */
+            font-size: 12px;
+        }
+    
+        /* Inne */
+        .sub-info {
+            font-size: 0.6em;
         }
     }
 </style>
