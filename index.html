@@ -966,40 +966,42 @@
             padding: 15px;
         }
     
-        /* Ustalenie szerokości boxów formularza */
+        /* Stała szerokość boxów formularza, w tym Oprocentowanie i Okres Inwestycji */
         .form-group,
         .input-group {
-            width: 100%; /* Zachowuje elastyczność w granicach min i max */
-            min-width: 150px; /* Minimalna szerokość 150px */
-            max-width: 200px; /* Maksymalna szerokość 200px */
+            width: 200px; /* Stała szerokość 200px, bez rozciągania */
+            max-width: 200px;
+            min-width: 200px;
             margin: 0 auto; /* Wyśrodkowanie */
         }
     
         .form-select {
-            width: 100%;
-            min-width: 150px; /* Minimalna szerokość 150px */
-            max-width: 200px; /* Maksymalna szerokość 200px */
+            width: 200px; /* Stała szerokość 200px */
+            max-width: 200px;
+    
+    
+            min-width: 200px;
             margin: 0 auto; /* Wyśrodkowanie */
         }
     
-        /* Wykres kołowy i przeniesienie legendy pod spód */
+        /* Wykres kołowy i legenda pod spodem */
         .chart-container {
             flex-direction: column;
             align-items: center;
-            gap: 10px; /* Odstęp między wykresem a legendą */
+            gap: 10px;
         }
     
         .chart {
             width: 120px;
             height: 120px;
-            order: 1; /* Wykres na górze */
+            order: 1;
         }
     
         .chart-legend {
             max-width: 100%;
             align-items: center;
-            order: 2; /* Legenda pod wykresem */
-            margin-top: 10px; /* Dodatkowy odstęp od wykresu */
+            order: 2;
+            margin-top: 10px;
         }
     
         .chart-legend .legend-item {
@@ -1010,29 +1012,29 @@
         }
     
         .chart-legend .color-box {
-            width: 150px; /* Szerokość z 576px dla spójności */
+            width: 150px;
             min-width: 150px;
             height: 24px;
             line-height: 24px;
             margin-right: 10px;
-            font-size: 9px; /* Czcionka z 576px */
+            font-size: 9px;
         }
     
         .chart-legend .legend-text {
             font-size: 12px;
         }
     
-        /* Wykres liniowy */
+        /* Powiększenie wykresu liniowego */
         .chart-container-line {
-            height: 200px;
-            max-width: 80%;
+            height: 250px; /* Zwiększone z 200px na 250px */
+            max-width: 85%; /* Zwiększone z 80% na 85% dla lepszej widoczności */
             margin: 0 auto;
         }
     
         .chart-line {
             width: 100%;
             height: 100%;
-            font-size: 0.6em;
+            font-size: 0.65em; /* Zwiększone z 0.6em na 0.65em dla czytelności */
         }
     
         /* Tabelka (harmonogram) */
