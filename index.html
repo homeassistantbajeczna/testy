@@ -1257,12 +1257,12 @@
         }
     
         .chart-legend .color-box {
-            width: 120px;
-            min-width: 120px;
+            width: 150px; /* Zwiększone z 120px na 150px */
+            min-width: 150px; /* Zwiększone z 120px na 150px */
             height: 24px;
             line-height: 24px;
             margin-right: 10px;
-            font-size: 9px; /* Zmniejszone z 12px (domyślne z .legend-text) o 3px */
+            font-size: 9px !important; /* Zmniejszone z 12px o 3px, wzmocniona specyficzność */
         }
     
         .chart-legend .legend-text {
