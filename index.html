@@ -1063,8 +1063,8 @@
         .input-group,
         #dynamicRateGroup {
             width: 100%;
-            max-width: 200px; /* Zmniejszone z 250px na 200px */
-            min-width: 200px; /* Zmniejszone z 250px na 200px */
+            max-width: 250px; /* Wrócono do 250px */
+            min-width: 250px; /* Wrócono do 250px */
             margin: 2px auto;
         }
     
@@ -1077,25 +1077,33 @@
         .form-control,
         .form-select {
             font-size: 0.75em;
-            height: 26px; /* Zmniejszone z 28px na 26px */
-            width: 130px; /* Zmniejszone z 170px na 130px, aby razem z input-group-text dało 200px */
+            height: 26px;
+            width: 170px; /* Wrócono do 170px, jak w 480px */
             padding: 4px 8px;
             line-height: 20px;
         }
     
         .input-group-text {
             font-size: 0.75em;
-            height: 26px; /* Zmniejszone z 28px na 26px */
-            width: 70px; /* Zmniejszone z 80px na 70px, aby razem z form-control dało 200px */
+            height: 26px;
+            width: 80px; /* Wrócono do 80px, jak w 480px */
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
         }
     
+        /* Specyficzne dla "Typ Obligacji" */
+        #typObligacji.form-control {
+            text-align: center;
+            text-align-last: center;
+            width: 250px; /* Ustawione na 250px, jak w 480px, bez jednostki */
+            height: 26px;
+        }
+    
         /* Sekcja zmiennych stóp/inflacji */
         .variable-input-group .input-group {
-            max-width: 200px; /* Zmniejszone z 250px na 200px */
-            min-width: 200px; /* Zmniejszone z 250px na 200px */
+            max-width: 250px; /* Wrócono do 250px */
+            min-width: 250px; /* Wrócono do 250px */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1103,22 +1111,22 @@
     
         .variable-input-group .form-group {
             width: 100%;
-            max-width: 200px; /* Zmniejszone z 250px na 200px */
-            min-width: 200px; /* Zmniejszone z 250px na 200px */
+            max-width: 250px; /* Wrócono do 250px */
+            min-width: 250px; /* Wrócono do 250px */
             margin: 2px auto;
         }
     
         .variable-input-group .form-control {
-            width: 130px; /* Zmniejszone z 170px na 130px */
-            height: 26px; /* Zmniejszone z 28px na 26px */
+            width: 170px; /* Wrócono do 170px */
+            height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
         }
     
-        .variable-input-group .input-group-text {
-            width: 70px; /* Zmniejszone z 80px na 70px */
-            height: 26px; /* Zmniejszone z 28px na 26px */
+    .varia ble-input-group .input-group-text {
+            width: 80px; /* Wrócono do 80px */
+            height: 26px;
             font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
@@ -1131,29 +1139,29 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            max-width: 200px; /* Zmniejszone z 250px na 200px */
-            min-width: 200px; /* Zmniejszone z 250px na 200px */
+            max-width: 250px; /* Wrócono do 250px */
+            min-width: 250px; /* Wrócono do 250px */
             gap: 2px;
         }
     
         .variable-input-group .form-group:nth-child(1) .input-group { /* Pole "Od" */
-            width: 200px; /* Zmniejszone z 250px na 200px */
-            max-width: 200px; /* Zmniejszone z 250px na 200px */
-            min-width: 200px; /* Zmniejszone z 250px na 200px */
+            width: 250px; /* Wrócono do 250px */
+            max-width: 250px; /* Wrócono do 250px */
+            min-width: 250px; /* Wrócono do 250px */
         }
     
         .variable-input-group .form-group:nth-child(1) .form-control {
-            width: 130px; /* Zmniejszone z 170px na 130px */
+            width: 170px; /* Wrócono do 170px */
         }
     
         .variable-input-group .form-group:nth-child(2) .input-group { /* Pole "Inflacja/Stopa" */
-            width: 200px; /* Zmniejszone z 250px na 200px */
-            max-width: 200px; /* Zmniejszone z 250px na 200px */
-            min-width: 200px; /* Zmniejszone z 250px na 200px */
+            width: 250px; /* Wrócono do 250px */
+            max-width: 250px; /* Wrócono do 250px */
+            min-width: 250px; /* Wrócono do 250px */
         }
     
         .variable-input-group .form-group:nth-child(2) .form-control {
-            width: 130px; /* Zmniejszone z 170px na 130px */
+            width: 170px; /* Wrócono do 170px */
         }
     
         /* Harmonogram i tabelka */
@@ -1211,7 +1219,7 @@
             display: block;
             width: auto;
             min-width: 120px;
-            margin: 5px auto;
+            margin: 2.5px auto; /* Zmniejszone z 5px na 2.5px */
             padding: 6px 10px;
         }
     
@@ -1219,7 +1227,7 @@
             display: block;
             width: auto;
             min-width: 120px;
-            margin: 5px auto;
+            margin: 2.5px auto; /* Zmniejszone z 5px na 2.5px */
             padding: 6px 10px;
         }
     
