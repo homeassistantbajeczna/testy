@@ -1078,7 +1078,7 @@
     }
     
     /* Mobile (max 480px) */
-    @media (max-width: 480px) {
+        @media (max-width: 480px) {
         /* Ogólne style dla body i kontenera */
         body {
             margin: 0;
@@ -1094,16 +1094,16 @@
         .checkbox-row,
         .fields-wrapper,
         .variable-inputs-wrapper {
-            display: block;
-            text-align: center;
+            display: block; /* Zamiast flex, pełna kontrola nad wierszami */
+            text-align: center; /* Wyśrodkowanie zawartości */
         }
     
         /* Każdy form-group jako osobny wiersz */
         .form-group,
         #dynamicRateGroup {
             display: block;
-            width: 250px;
-            margin: 10px auto;
+            width: 250px; /* Stała szerokość */
+            margin: 10px auto; /* Odstęp między wierszami i wyśrodkowanie */
         }
     
         /* Inputy i jednostki */
@@ -1111,7 +1111,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 250px; /* Stała szerokość boksa */
+            width: 250px; /* Stała szerokość */
             margin: 0 auto;
         }
     
@@ -1119,32 +1119,25 @@
         .form-select {
             font-size: 0.9em;
             height: 28px;
+            width: 180px; /* Zaktualizowana szerokość */
             padding: 4px 8px;
             line-height: 20px;
-            flex-grow: 1; /* Input zajmuje resztę przestrzeni */
-            width: auto;
-            max-width: calc(250px - 80px); /* Maksymalna szerokość inputa, 80px dla jednostki */
         }
     
         .input-group-text {
             font-size: 0.9em;
             height: 28px;
+            width: 70px; /* Zaktualizowana szerokość */
             padding: 4px 8px;
             line-height: 20px;
             text-align: center;
-            width: auto; /* Dopasowanie do zawartości */
-            min-width: 40px; /* Minimalna szerokość dla krótkich jednostek */
-            max-width: 80px; /* Maksymalna szerokość dla długich jednostek, np. "miesiące" */
-            white-space: nowrap; /* Bez zawijania tekstu */
-            overflow: hidden; /* Ukrycie nadmiaru, jeśli coś się nie mieści */
-            text-overflow: ellipsis; /* Kropeczki, jeśli tekst jest za długi */
         }
     
         .form-range {
             display: block;
             height: 8px;
-            width: 250px;
-            margin: 5px auto 0;
+            width: 250px; /* Suwak też 250px */
+            margin: 5px auto 0; /* Wyśrodkowanie i odstęp od inputa */
         }
     
         .form-range::-webkit-slider-thumb,
@@ -1165,8 +1158,8 @@
     
         .variable-input-group {
             display: block;
-            width: 250px;
-            margin: 15px auto;
+            width: 250px; /* Stała szerokość */
+            margin: 15px auto; /* Odstęp między grupami */
         }
     
         .variable-input-group .fields-wrapper {
@@ -1177,7 +1170,7 @@
         .variable-input-group .form-group {
             display: block;
             width: 250px;
-            margin: 10px auto;
+            margin: 10px auto; /* Odstęp między polami w grupie */
         }
     
         .variable-input-group .input-group {
@@ -1189,26 +1182,19 @@
         }
     
         .variable-input-group .form-control {
-            font-size: 0.9em;
+            width: 180px; /* Zaktualizowana szerokość */
             height: 28px;
+            font-size: 0.9em;
             padding: 4px 8px;
             line-height: 20px;
-            flex-grow: 1;
-            width: auto;
-            max-width: calc(250px - 80px);
         }
     
         .variable-input-group .input-group-text {
-            font-size: 0.9em;
+            width: 70px; /* Zaktualizowana szerokość */
             height: 28px;
+            font-size: 0.9em;
             padding: 4px 8px;
             line-height: 20px;
-            width: auto;
-            min-width: 40px;
-            max-width: 80px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
     
         .variable-input-group .form-range {
@@ -1220,7 +1206,7 @@
         #typObligacji.form-control {
             text-align: center;
             text-align-last: center;
-            width: 250px;
+            width: 250px; /* Spójne z innymi polami, bez jednostki */
             height: 28px;
         }
     
@@ -1275,7 +1261,7 @@
             padding: 3px 5px;
         }
     
-        /* Harmonogram i wykresy - bez zmian */
+        /* Harmonogram i wykresy */
         .harmonogram-container {
             width: 98vw;
             max-width: none;
