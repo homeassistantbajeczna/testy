@@ -1117,25 +1117,51 @@
             gap: 10px;
         }
     
-        .form-group,
-        .input-group,
+        .form-group {
+            width: 100%;
+            max-width: 300px; /* Cały form-group max 300px */
+            min-width: 0;
+            align-items: center; /* Wyśrodkowanie etykiety i input-group */
+        }
+    
+        .input-group {
+            width: 100%;
+            max-width: 300px; /* Input + jednostka razem max 300px */
+            min-width: 0;
+            display: flex; /* Zachowujemy układ poziomy */
+            justify-content: center; /* Wyśrodkowanie w poziomie */
+            align-items: center;
+        }
+    
         #dynamicRateGroup {
             width: 100%;
-            max-width: 300px; /* Zwiększam z 250px dla lepszej czytelności */
+            max-width: 300px;
             min-width: 0;
-            align-items: center; /* Wyśrodkowanie zawartości w boxach */
+            align-items: center;
         }
     
         .form-control,
-        .form-select,
+        .form-select {
+            font-size: 0.9em;
+            height: 28px;
+            width: 100%; /* Input zajmuje dostępną przestrzeń w input-group */
+            max-width: 230px; /* Ograniczenie dla inputa, aby zmieścić jednostkę */
+            flex-grow: 1; /* Rozciąga się, ale nie więcej niż max-width */
+        }
+    
         .input-group-text {
             font-size: 0.9em;
             height: 28px;
-            width: 100%; /* Pełna szerokość w input-group */
+            padding: 4px 8px;
+            width: auto; /* Jednostka zajmuje tylko potrzebną szerokość */
+            min-width: 50px; /* Minimalna szerokość dla jednostek, np. "miesięcy" */
+            text-align: center;
         }
     
         .form-range {
             height: 8px;
+            width: 100%;
+            max-width: 300px; /* Suwak też max 300px */
         }
     
         .form-range::-webkit-slider-thumb,
@@ -1152,7 +1178,7 @@
     
         .variable-inputs-wrapper {
             align-items: center;
-            gap: 15px; /* Lepszy odstęp między wierszami */
+            gap: 15px;
         }
     
         .variable-input-group {
@@ -1162,15 +1188,31 @@
         }
     
         .variable-input-group .fields-wrapper {
-            flex-direction: column;
+            flex-direction: row; /* "Od" i "Inflacja/Stopa" w poziomie */
             align-items: center;
             gap: 10px;
-        }
-    
-        .variable-input-group .form-group,
-        .variable-input-group .input-group {
             width: 100%;
             max-width: 300px;
+            justify-content: center;
+        }
+    
+        .variable-input-group .form-group {
+            width: auto; /* Form-group dostosowuje się do zawartości */
+            max-width: 145px; /* Max połowa z 300px minus odstęp */
+            align-items: center;
+        }
+    
+        .variable-input-group .input-group {
+            max-width: 145px; /* Input + jednostka dla "Od" i "Inflacja" */
+            width: 100%;
+        }
+    
+        .variable-input-group .form-control {
+            max-width: 95px; /* Miejsce na jednostkę w 145px */
+        }
+    
+        .variable-input-group .input-group-text {
+            min-width: 40px; /* Mniejsza minimalna szerokość dla "roku" czy "%" */
         }
     
         /* Checkboxy */
@@ -1205,6 +1247,7 @@
             text-align: center;
             text-align-last: center;
             width: 100%;
+            max-width: 300px; /* Spójne z innymi polami */
         }
     
         #typObligacji.form-control option {
