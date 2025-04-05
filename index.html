@@ -964,15 +964,19 @@
         .calculator-container {
             flex-direction: column;
             padding: 15px;
+            width: 100%; /* Upewniamy się, że nadrzędny kontener jest pełnej szerokości */
+            max-width: none; /* Usuwamy ewentualne ograniczenia */
+            box-sizing: border-box;
         }
     
         /* Kontener nadrzędny dla harmonogramu */
         .harmonogram-container {
-            width: 98vw; /* Bazowa szerokość dla hierarchii */
-            max-width: none;
+            width: 95%; /* 95% .calculator-container */
+            max-width: 95%;
             margin: 0 auto;
             padding: 10px;
             box-sizing: border-box;
+            /* Usunięto position i transform, bo width: 95% z margin: 0 auto wystarczy */
         }
     
         /* Kontener nadrzędny dla wykresu */
@@ -992,16 +996,23 @@
         }
     
         .harmonogram table {
-            font-size: 0.6em;
+            font-size: 0.6em; /* Bazowa czcionka */
             width: 95%; /* 95% .harmonogram */
             max-width: 95%;
             margin: 0 auto;
+            table-layout: auto; /* Pozwala na elastyczność kolumn */
         }
     
-        .harmonogram th,
+        .harmonogram th {
+            padding: 5px;
+            font-size: clamp(0.4em, 1vw, 0.6em); /* Automatyczna zmiana czcionki */
+            white-space: normal; /* Zawijanie tekstu w nagłówkach */
+        }
+    
         .harmonogram td {
             padding: 5px;
-            font-size: 0.6em;
+            font-size: clamp(0.4em, 1vw, 0.6em); /* Automatyczna zmiana czcionki */
+            white-space: nowrap; /* Bez zawijania w komórkach */
         }
     
         .harmonogram-opis {
