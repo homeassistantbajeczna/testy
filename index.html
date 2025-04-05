@@ -1044,7 +1044,7 @@
             display: block;
             width: 180px;
             max-width: 100%;
-            margin: 5px auto; /* Zmniejszone z 10px na 5px, jak w 480px */
+            margin: 5px auto;
             font-size: 0.7em;
             padding: 3px 5px;
         }
@@ -1056,7 +1056,7 @@
         .variable-inputs-wrapper {
             flex-direction: column;
             align-items: center;
-            gap: 8px; /* Zmniejszone z 10px na 8px */
+            gap: 6px; /* Zmniejszone z 8px na 6px */
         }
     
         .form-group,
@@ -1065,7 +1065,7 @@
             width: 100%;
             max-width: 300px;
             min-width: 0;
-            margin: 8px auto; /* Zmniejszone z 10px na 8px, bliżej 480px */
+            margin: 6px auto; /* Zmniejszone z 8px na 6px */
         }
     
         .input-group {
@@ -1103,7 +1103,7 @@
         .variable-input-group .form-group {
             width: 100%;
             max-width: 250px;
-            margin: 8px auto; /* Zmniejszone z 10px na 8px */
+            margin: 6px auto; /* Zmniejszone z 8px na 6px */
         }
     
         .variable-input-group .form-control {
@@ -1120,6 +1120,33 @@
             font-size: 0.9em;
             padding: 4px 8px;
             line-height: 20px;
+        }
+    
+        /* Pola "Od" i "Inflacja/Stopa Ref. NBP" w jednym wierszu */
+        .variable-input-group .fields-wrapper {
+            display: flex; /* Zamiast block, jak w 480px */
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 300px; /* Dopasowane do głównego max-width */
+            gap: 6px; /* Mały odstęp między polami */
+        }
+    
+        .variable-input-group .form-group:nth-child(1) .input-group { /* Pole "Od" */
+            width: 145px; /* 65px input + 80px jednostka */
+        }
+    
+        .variable-input-group .form-group:nth-child(1) .form-control {
+            width: 65px; /* Mniejszy input dla "Od" */
+        }
+    
+        .variable-input-group .form-group:nth-child(2) .input-group { /* Pole "Inflacja/Stopa" */
+            width: 145px; /* 65px input + 80px jednostka */
+        }
+    
+        .variable-input-group .form-group:nth-child(2) .form-control {
+            width: 65px; /* Mniejszy input dla "Inflacja/Stopa" */
         }
     
         /* Harmonogram i tabelka */
@@ -1157,15 +1184,15 @@
         .harmonogram th {
             padding: 4px;
             font-size: 0.6em;
-            white-space: nowrap; /* Dopasowanie do zawartości */
-            width: auto; /* Szerokość zależna od treści */
+            white-space: normal; /* Zwijanie tekstu, zamiast nowrap */
+            width: auto;
         }
     
         .harmonogram td {
             padding: 4px;
             font-size: 0.6em;
-            white-space: nowrap; /* Dopasowanie do zawartości */
-            width: auto; /* Szerokość zależna od treści */
+            white-space: nowrap; /* Tekst w komórkach bez zwijania */
+            width: auto;
         }
     
         .harmonogram-opis {
@@ -1183,7 +1210,7 @@
     
         /* Wykres kołowy i legenda */
         .chart-container {
-            flex-direction: column; /* Legenda pod wykresem */
+            flex-direction: column;
             align-items: center;
             gap: 10px;
         }
@@ -1196,7 +1223,7 @@
         .chart-legend {
             max-width: 100%;
             align-items: center;
-            margin-top: 10px; /* Odstęp od wykresu */
+            margin-top: 10px;
         }
     
         .chart-legend .legend-item {
