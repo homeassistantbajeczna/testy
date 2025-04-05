@@ -1143,10 +1143,12 @@
         .form-control,
         .form-select {
             font-size: 0.9em;
-            height: 28px;
+            height: 28px; /* Ujednolicona wysokość z input-group-text */
             width: 100%;
             max-width: 150px; /* Input max 150px, reszta dla jednostki */
             flex-grow: 1;
+            line-height: 20px; /* Dla wyrównania tekstu w pionie */
+            padding: 4px 8px; /* Spójne paddingi */
         }
     
         .input-group-text {
@@ -1156,6 +1158,7 @@
             width: auto;
             min-width: 40px; /* Jednostka ma min 40px, np. "m-cy" */
             text-align: center;
+            line-height: 20px; /* Dla wyrównania tekstu w pionie */
         }
     
         .form-range {
@@ -1193,6 +1196,7 @@
             align-items: center;
             gap: 10px; /* Taki sam odstęp jak w reszcie formularza */
             width: 100%;
+            min-width: 200px;
             max-width: 200px;
         }
     
@@ -1207,15 +1211,25 @@
             min-width: 200px; /* Spójne z innymi boxami */
             max-width: 200px;
             width: 100%;
+            display: flex; /* Upewniamy się, że jest flex */
+            justify-content: center; /* Wyśrodkowanie w poziomie */
+            align-items: center; /* Wyśrodkowanie w pionie */
         }
     
         .variable-input-group .form-control {
             max-width: 150px; /* Takie samo jak w reszcie formularza */
+            height: 28px; /* Ujednolicona wysokość */
+            font-size: 0.9em;
+            padding: 4px 8px;
+            line-height: 20px;
         }
     
         .variable-input-group .input-group-text {
-            min-width: 40px; /* Mniejsza szerokość dla "roku" czy "%" */
+            min-width: 40px; /* Takie samo jak w reszcie formularza */
+            height: 28px;
+            font-size: 0.9em;
             padding: 4px 8px;
+            line-height: 20px;
         }
     
         /* Checkboxy */
@@ -1251,6 +1265,7 @@
             text-align-last: center;
             width: 100%;
             max-width: 200px; /* Spójne z innymi polami */
+            height: 28px; /* Ujednolicona wysokość */
         }
     
         #typObligacji.form-control option {
