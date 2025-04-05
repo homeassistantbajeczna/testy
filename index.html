@@ -965,14 +965,18 @@
             flex-direction: column;
             padding: 15px;
         }
+    
         .form-group,
         .input-group {
-            width: 100%;
-            max-width: none;
+            width: auto; /* Zmienione z 100% na auto, aby nie rozciągało się na całą szerokość */
+            max-width: 400px; /* Ograniczenie szerokości, można dostosować */
+            margin: 0 auto; /* Wyśrodkowanie */
         }
-
+    
         .form-select {
-            max-width: 100%;
+            max-width: 400px; /* Spójne z form-group i input-group */
+            width: auto;
+            margin: 0 auto; /* Wyśrodkowanie */
         }
     
         .chart-container {
@@ -990,29 +994,40 @@
             align-items: center;
         }
     
+        /* Zmniejszenie wykresu liniowego */
         .chart-container-line {
-            height: 300px;
+            height: 250px; /* Zmniejszone z 300px na 250px */
+            max-width: 90%; /* Ograniczenie szerokości dla lepszej proporcji */
+            margin: 0 auto; /* Wyśrodkowanie */
         }
     
+        .chart-line {
+            width: 100%;
+            height: 100%;
+            font-size: 0.65em; /* Lekkie zmniejszenie czcionki dla czytelności */
+        }
+    
+        /* Zmniejszenie tabelki (harmonogramu) */
         .harmonogram table {
-            font-size: 0.7em;
-            max-width: 100%;
+            font-size: 0.65em; /* Zmniejszone z 0.7em na 0.65em */
+            max-width: 90%; /* Ograniczenie szerokości zamiast 100% */
+            margin: 0 auto; /* Wyśrodkowanie */
         }
     
         .harmonogram th,
         .harmonogram td {
-            padding: 8px;
+            padding: 6px; /* Zmniejszone z 8px na 6px dla bardziej kompaktowego wyglądu */
         }
     
         .harmonogram-opis {
             padding-left: 1em;
         }
-        
+    
         #generatePdfBtn {
             padding: 5px 12px;
             font-size: 0.8em;
         }
-
+    
         .checkbox-label {
             font-size: 0.8em;
             justify-content: center;
