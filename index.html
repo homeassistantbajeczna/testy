@@ -1089,25 +1089,6 @@
             padding: 10px;
         }
     
-        /* Inputy i selecty */
-        .calculator-container input,
-        .calculator-container select {
-            width: 100%;
-            font-size: 14px;
-        }
-    
-        /* Przyciski */
-        #generatePdfBtn {
-            padding: 4px 10px;
-            font-size: 0.7em;
-            width: 120px;
-        }
-    
-        .btn-primary,
-        #addVariableBtn {
-            padding: 6px 15px;
-        }
-    
         /* Formularz - wyrównanie boxów w kolumnie */
         .form-row,
         .checkbox-row,
@@ -1117,29 +1098,17 @@
             gap: 10px;
         }
     
-        .form-group {
+        /* Spójna szerokość dla wszystkich pól formularza */
+        .form-group,
+        .input-group,
+        #dynamicRateGroup {
             width: 100%;
             min-width: 250px; /* Stała minimalna szerokość */
             max-width: 250px; /* Stała maksymalna szerokość */
             align-items: center;
         }
     
-        .input-group {
-            width: 100%;
-            min-width: 250px; /* Input + jednostka razem 250px */
-            max-width: 250px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    
-        #dynamicRateGroup {
-            width: 100%;
-            min-width: 250px;
-            max-width: 250px;
-            align-items: center;
-        }
-    
+        /* Dopasowanie inputów i jednostek */
         .form-control,
         .form-select {
             font-size: 0.9em;
@@ -1156,7 +1125,7 @@
             height: 28px;
             padding: 4px 8px;
             width: auto;
-            min-width: 50px; /* Jednostka ma min 50px, np. "miesięcy" */
+            min-width: 50px; /* Jednostka ma min 50px */
             text-align: center;
             line-height: 20px;
         }
@@ -1186,15 +1155,15 @@
     
         .variable-input-group {
             width: 100%;
-            min-width: 250px;
+            min-width: 250px; /* Spójne z innymi boxami */
             max-width: 250px;
             align-items: center;
         }
     
         .variable-input-group .fields-wrapper {
-            flex-direction: column; /* "Od" i "Inflacja/Stopa" w kolumnie */
+            flex-direction: column;
             align-items: center;
-            gap: 10px; /* Taki sam odstęp jak w reszcie formularza */
+            gap: 10px;
             width: 100%;
             min-width: 250px;
             max-width: 250px;
@@ -1232,6 +1201,15 @@
             line-height: 20px;
         }
     
+        /* Typ obligacji */
+        #typObligacji.form-control {
+            text-align: center;
+            text-align-last: center;
+            width: 100%;
+            max-width: 250px; /* Spójne z innymi polami */
+            height: 28px;
+        }
+    
         /* Checkboxy */
         .checkbox-label {
             font-size: 0.7em;
@@ -1252,24 +1230,10 @@
             max-width: 150px;
         }
     
-        /* Zoom controls */
         .zoom-controls {
             position: static;
             transform: none;
             margin-left: auto;
-        }
-    
-        /* Typ obligacji */
-        #typObligacji.form-control {
-            text-align: center;
-            text-align-last: center;
-            width: 100%;
-            max-width: 250px; /* Spójne z innymi polami */
-            height: 28px;
-        }
-    
-        #typObligacji.form-control option {
-            text-align: center;
         }
     
         /* Summary footer */
@@ -1291,7 +1255,7 @@
             box-sizing: border-box;
         }
     
-        /* Harmonogram */
+        /* Harmonogram i wykresy - bez zmian w szerokościach */
         .harmonogram-container {
             width: 98vw;
             max-width: none;
@@ -1335,7 +1299,6 @@
             white-space: normal;
         }
     
-        /* Wykres liniowy */
         .chart-container-line {
             width: 100%;
             max-width: 100%;
@@ -1347,7 +1310,6 @@
             height: 100%;
         }
     
-        /* Wykres kołowy */
         .chart-container {
             flex-direction: column;
             align-items: center;
@@ -1384,7 +1346,6 @@
             font-size: 12px;
         }
     
-        /* Inne */
         .sub-info {
             font-size: 0.6em;
         }
