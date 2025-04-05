@@ -991,7 +991,6 @@
         .harmonogram {
             width: 95%; /* 95% .harmonogram-container */
             margin: 0 auto;
-            /* Usunięto overflow-x: auto – tabelka ma się zmieścić */
         }
     
         .harmonogram table {
@@ -999,22 +998,22 @@
             width: 95%; /* 95% .harmonogram */
             max-width: 95%;
             margin: 0 auto;
-            table-layout: fixed; /* Równe rozłożenie kolumn */
+            table-layout: auto; /* Kolumny dostosowują się do zawartości */
         }
     
         .harmonogram th {
             padding: clamp(2px, 0.5vw, 5px); /* Dynamiczny padding */
-            font-size: clamp(0.3em, 0.8vw, 0.5em); /* Mniejsza, elastyczna czcionka */
+            font-size: clamp(0.3em, 0.8vw, 0.5em); /* Elastyczna czcionka */
             white-space: normal; /* Zawijanie w nagłówkach */
             word-break: break-word; /* Łamanie długich słów */
         }
     
         .harmonogram td {
             padding: clamp(2px, 0.5vw, 5px); /* Dynamiczny padding */
-            font-size: clamp(0.3em, 0.8vw, 0.5em); /* Mniejsza, elastyczna czcionka */
-            white-space: nowrap; /* Bez zawijania w komórkach */
-            overflow: hidden; /* Ukrycie nadmiaru */
-            text-overflow: ellipsis; /* Kropeczki przy przycięciu */
+            font-size: clamp(0.3em, 0.8vw, 0.5em); /* Elastyczna czcionka */
+            white-space: normal; /* Zawijanie tekstu w komórkach */
+            word-break: break-word; /* Łamanie długich słów */
+            /* Usunięto overflow: hidden i text-overflow: ellipsis */
         }
     
         .harmonogram-opis {
