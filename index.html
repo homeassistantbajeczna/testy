@@ -1208,6 +1208,42 @@
             width: 100%;
             height: 100%;
         }
+
+        .chart-container {
+            flex-direction: column; /* Ustawiamy układ pionowy */
+            align-items: center;
+            gap: 10px; /* Zmniejszamy odstęp dla kompaktowości */
+        }
+    
+        .chart {
+            width: 120px; /* Zmniejszamy wykres na telefonach */
+            height: 120px;
+        }
+    
+        .chart-legend {
+            max-width: 100%; /* Pełna szerokość pod wykresem */
+            align-items: center; /* Wyśrodkowanie elementów w legendzie */
+            margin-top: 10px; /* Odstęp od wykresu */
+        }
+    
+        .chart-legend .legend-item {
+            width: 100%; /* Pełna szerokość dla każdego elementu */
+            max-width: 200px; /* Ograniczenie maksymalnej szerokości */
+            justify-content: flex-start; /* Wyrównanie do lewej */
+            padding-left: 0; /* Usuwamy padding, bo niepotrzebny w kolumnie */
+        }
+    
+        .chart-legend .color-box {
+            width: 100px; /* Zmniejszamy szerokość dla telefonów */
+            min-width: 100px;
+            height: 24px; /* Lekko mniejsza wysokość */
+            line-height: 24px;
+            margin-right: 10px; /* Odstęp od tekstu */
+        }
+    
+        .chart-legend .legend-text {
+            font-size: 12px; /* Lekko większa czcionka dla czytelności */
+        }
     }
 </style>
 <div class="logo-container">
