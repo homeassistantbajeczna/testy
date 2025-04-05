@@ -969,16 +969,14 @@
             box-sizing: border-box;
         }
     
-        /* Kontener nadrzędny dla harmonogramu */
         .harmonogram-container {
-            width: 95%; /* 95% .calculator-container */
+            width: 95%;
             max-width: 95%;
             margin: 0 auto;
             padding: 10px;
             box-sizing: border-box;
         }
     
-        /* Kontener nadrzędny dla wykresu */
         .harmonogram-chart-wrapper {
             width: 100%;
             max-width: none;
@@ -987,48 +985,46 @@
             box-sizing: border-box;
         }
     
-        /* Harmonogram */
         .harmonogram {
-            width: 95%; /* 95% .harmonogram-container */
+            width: 95%;
             margin: 0 auto;
         }
     
         .harmonogram table {
-            font-size: 0.6em; /* Bazowa wartość, nadpisywana w th/td */
-            width: 95%; /* 95% .harmonogram */
+            font-size: 0.6em; /* Bazowa, nadpisywana w th/td */
+            width: 95%;
             max-width: 95%;
             margin: 0 auto;
-            table-layout: auto; /* Kolumny dostosowują się do zawartości */
+            table-layout: auto;
         }
     
         .harmonogram th {
-            padding: clamp(2px, 0.5vw, 5px); /* Dynamiczny padding */
-            font-size: clamp(0.3em, 0.8vw, 0.7em); /* Większy max, skaluje się w górę */
-            white-space: normal; /* Zawijanie w nagłówkach */
-            word-break: break-word; /* Łamanie długich słów */
+            padding: clamp(2px, 0.5vw, 5px);
+            font-size: clamp(0.3em, 0.8vw, 1em); /* Usunięto limit 0.7em */
+            white-space: normal;
+            word-break: break-word;
         }
     
         .harmonogram td {
-            padding: clamp(2px, 0.5vw, 5px); /* Dynamiczny padding */
-            font-size: clamp(0.3em, 0.8vw, 0.7em); /* Większy max, skaluje się w górę */
-            white-space: normal; /* Zawijanie tekstu w komórkach */
-            word-break: break-word; /* Łamanie długich słów */
+            padding: clamp(2px, 0.5vw, 5px);
+            font-size: clamp(0.3em, 0.8vw, 1em); /* Usunięto limit 0.7em */
+            white-space: normal;
+            word-break: break-word;
         }
     
         .harmonogram-opis {
             padding-left: 1em;
         }
     
-        /* Wykres liniowy */
         .chart-container-line {
-            width: 95%; /* 95% .harmonogram-chart-wrapper */
+            width: 95%;
             max-width: 95%;
             height: 250px;
             margin: 0 auto;
         }
     
         .chart-line {
-            width: 95%; /* 95% .chart-container-line */
+            width: 95%;
             height: 100%;
             font-size: 0.65em;
         }
