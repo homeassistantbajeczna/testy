@@ -985,11 +985,13 @@
         box-sizing: border-box;
     }
 
+    /* Styl dla kontenera dropdown */
     .dropdown {
         position: relative;
         display: inline-block;
     }
     
+    /* Styl dla głównego przycisku */
     .dropdown-btn {
         padding: 2px 8px;
         width: 25px;
@@ -998,17 +1000,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid var(--accent-gradient-start);
-        color: var(--primary-text);
-        font-size: 0.9em;
-        box-shadow: 0 4px 6px var(--shadow-color);
-        /*transition: transform 0.2s ease, box-shadow 0.3s ease;*/
-        background-size: cover; /* Dopasowanie obrazka do rozmiaru przycisku */
+        border: 2px solid var(--accent-gradient-start); /* Złote obramowanie */
+        box-shadow: 0 4px 6px var(--shadow-color); /* Stały cień */
+        background-size: cover;
         background-position: center;
-        text-indent: -9999px; /* Ukrycie tekstu, aby widoczne było tylko tło */
+        text-indent: -9999px; /* Ukrywa tekst, pozostawiając flagę */
     }
     
-    /* Style dla różnych języków w głównym przycisku */
+    /* Style dla flag w głównym przycisku */
     .dropdown-btn[data-lang="PL"] {
         background-image: url('flag-pl.png');
     }
@@ -1021,67 +1020,54 @@
         background-image: url('flag-ua.png');
     }
     
-    /*.dropdown-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px var(--shadow-color);*/
+    /* Brak efektów przy najechaniu na główny przycisk */
+    .dropdown-btn:hover {
+        /* Nic się nie zmienia */
     }
     
-    .dropdown-menu {
-        display: none;
+    /* Styl dla menu rozwijanego */
+    .dropdown-content {
+        display: none; /* Ukryte domyślnie */
         position: absolute;
-        top: 100%;
-        right: -8px; /* Przesunięcie w prawo o 12px, aby wyrównać z prawą krawędzią głównego przycisku */
-        padding: 5px;
-        z-index: 1000;
-        min-width: 50px;
-        flex-direction: column;
-        gap: 5px;
-        background: none !important;
-        box-shadow: none !important;
-        border: none !important;
+        background: transparent; /* Przezroczyste tło */
+        min-width: 25px;
+        z-index: 1;
     }
     
-    .dropdown-menu.show {
-        display: flex;
-    }
-    
-    /* Styl dla elementów listy rozwijanej */
-    .dropdown-item {
+    /* Styl dla elementów w menu rozwijanym */
+    .dropdown-content a {
+        display: block; /* Jeden pod drugim */
         width: 25px;
         height: 25px;
         border-radius: 50%;
-        border: 2px solid var(--accent-gradient-start);
-        color: var(--primary-text);
-        font-size: 0.9em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: transform 0.2s ease, border-color 0.3s ease;
-        padding: 0;
-        margin-left: auto;
-        background-size: cover; /* Dopasowanie obrazka do rozmiaru przycisku */
+        border: 2px solid var(--accent-gradient-start); /* Złote obramowanie */
+        background-size: cover;
         background-position: center;
-        text-indent: -9999px; /* Ukrycie tekstu, aby widoczne było tylko tło */
+        text-indent: -9999px; /* Ukrywa tekst */
+        margin: 5px 0; /* Odstęp między elementami */
     }
     
-    /* Style dla różnych języków w liście rozwijanej */
-    .dropdown-item[data-lang="PL"] {
+    /* Style dla flag w menu rozwijanym */
+    .dropdown-content a[data-lang="PL"] {
         background-image: url('flag-pl.png');
     }
     
-    .dropdown-item[data-lang="EN"] {
+    .dropdown-content a[data-lang="EN"] {
         background-image: url('flag-en.png');
     }
     
-    .dropdown-item[data-lang="UA"] {
+    .dropdown-content a[data-lang="UA"] {
         background-image: url('flag-ua.png');
     }
     
-    /* Hover dla elementów listy */
-    .dropdown-item:hover {
-        transform: scale(1.1);
-        border-color: var(--accent-gradient-end);
+    /* Brak efektów przy najechaniu na elementy menu */
+    .dropdown-content a:hover {
+        /* Nic się nie zmienia */
+    }
+    
+    /* Pokazanie menu po najechaniu na dropdown */
+    .dropdown:hover .dropdown-content {
+        display: block;
     }
     
     /* R E S P O N S Y W N O Ś Ć */
