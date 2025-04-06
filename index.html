@@ -1038,7 +1038,7 @@
         width: 25px; /* Rozmiar 25px */
         height: 25px; /* Rozmiar 25px */
         border-radius: 50%; /* Okrągły kształt */
-        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        background: none; /* Bez tła gradientowego */
         border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze przycisków +/- */
         color: var(--primary-text);
         font-size: 0.9em;
@@ -1046,12 +1046,13 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform 0.2s ease, background 0.3s ease;
+        transition: transform 0.2s ease, border-color 0.3s ease; /* Zmiana koloru ramki przy hover */
+        padding: 0; /* Usunięcie paddingu, aby uniknąć "jajka" */
     }
     
     .dropdown-item:hover {
         transform: scale(1.1);
-        background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+        border-color: var(--accent-gradient-end); /* Zmiana koloru ramki na hover */
     }
     
     /* R E S P O N S Y W N O Ś Ć */
