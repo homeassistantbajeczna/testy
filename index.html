@@ -1017,11 +1017,14 @@
         position: absolute;
         top: 100%;
         right: 0;
-        padding: 5px;
+        padding: 5px; /* Odstępy między przyciskami */
         z-index: 1000;
         min-width: 50px;
         flex-direction: column;
         gap: 5px;
+        background: none !important; /* Brak tła, z wysokim priorytetem */
+        box-shadow: none !important; /* Brak cienia, z wysokim priorytetem */
+        border: none !important; /* Brak obramowania */
     }
     
     .dropdown-menu.show {
