@@ -998,12 +998,27 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         border: 2px solid var(--accent-gradient-start);
         color: var(--primary-text);
         font-size: 0.9em;
         box-shadow: 0 4px 6px var(--shadow-color);
         transition: transform 0.2s ease, box-shadow 0.3s ease;
+        background-size: cover; /* Dopasowanie obrazka do rozmiaru przycisku */
+        background-position: center;
+        text-indent: -9999px; /* Ukrycie tekstu, aby widoczne było tylko tło */
+    }
+    
+    /* Style dla różnych języków w głównym przycisku */
+    .dropdown-btn[data-lang="PL"] {
+        background-image: url('flag-pl.png');
+    }
+    
+    .dropdown-btn[data-lang="EN"] {
+        background-image: url('flag-en.png');
+    }
+    
+    .dropdown-btn[data-lang="UA"] {
+        background-image: url('flag-ua.png');
     }
     
     .dropdown-btn:hover {
@@ -1016,7 +1031,7 @@
         display: none;
         position: absolute;
         top: 100%;
-        right: -12px; /* Przesunięcie w prawo o 12px, aby wyrównać z prawą krawędzią głównego przycisku */
+        right: -8px; /* Przesunięcie w prawo o 12px, aby wyrównać z prawą krawędzią głównego przycisku */
         padding: 5px;
         z-index: 1000;
         min-width: 50px;
@@ -1031,12 +1046,11 @@
         display: flex;
     }
     
-    /* Upewniamy się, że przyciski w liście są wyrównane do prawej */
+    /* Styl dla elementów listy rozwijanej */
     .dropdown-item {
         width: 25px;
         height: 25px;
         border-radius: 50%;
-        background: none;
         border: 2px solid var(--accent-gradient-start);
         color: var(--primary-text);
         font-size: 0.9em;
@@ -1046,9 +1060,26 @@
         cursor: pointer;
         transition: transform 0.2s ease, border-color 0.3s ease;
         padding: 0;
-        margin-left: auto; /* Wyrównanie do prawej strony w flexbox */
+        margin-left: auto;
+        background-size: cover; /* Dopasowanie obrazka do rozmiaru przycisku */
+        background-position: center;
+        text-indent: -9999px; /* Ukrycie tekstu, aby widoczne było tylko tło */
     }
     
+    /* Style dla różnych języków w liście rozwijanej */
+    .dropdown-item[data-lang="PL"] {
+        background-image: url('flag-pl.png');
+    }
+    
+    .dropdown-item[data-lang="EN"] {
+        background-image: url('flag-en.png');
+    }
+    
+    .dropdown-item[data-lang="UA"] {
+        background-image: url('flag-ua.png');
+    }
+    
+    /* Hover dla elementów listy */
     .dropdown-item:hover {
         transform: scale(1.1);
         border-color: var(--accent-gradient-end);
@@ -1397,7 +1428,7 @@
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
         <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
         <div class="dropdown">
-            <button id="dropdownBtn" class="btn btn-sm dropdown-btn" aria-label="Otwórz dodatkowe opcje">PL</button>
+            <button id="dropdownBtn" class="btn btn-sm dropdown-btn" data-lang="PL" aria-label="Otwórz dodatkowe opcje">PL</button>
             <div class="dropdown-menu" id="dropdownMenu">
                 <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
                 <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
@@ -2841,7 +2872,7 @@
     
     initializeTheme();
 
-     // Dostępne języki
+    // Dostępne języki
     const languages = ['PL', 'EN', 'UA'];
     let currentLanguage = 'PL'; // Domyślny język
     
@@ -2850,8 +2881,8 @@
         const dropdownBtn = document.getElementById('dropdownBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
     
-        // Aktualizacja głównego przycisku
-        dropdownBtn.textContent = selectedLang;
+        // Aktualizacja głównego przycisku - zmiana na atrybut data-lang zamiast tekstu
+        dropdownBtn.setAttribute('data-lang', selectedLang);
         currentLanguage = selectedLang;
     
         // Filtrowanie pozostałych języków do listy rozwijanej
@@ -2865,11 +2896,11 @@
         // Zamknij listę po wyborze
         dropdownMenu.classList.remove('show');
     
-        // Zmiana języka na stronie (placeholder)
+        // Zmiana języka na stronie
         changeLanguage(selectedLang);
     }
     
-    // Funkcja zmiany języka na stronie (do dostosowania)
+    // Funkcja zmiany języka na stronie (bez zmian)
     function changeLanguage(lang) {
         console.log(`Zmieniono język na: ${lang}`);
         // Tutaj dodaj logikę zmiany języka na stronie, np.:
@@ -2881,14 +2912,14 @@
         // });
     }
     
-    // Przełączanie listy rozwijanej
+    // Przełączanie listy rozwijanej (bez zmian)
     document.getElementById('dropdownBtn').addEventListener('click', function(e) {
         e.preventDefault();
         const dropdownMenu = document.getElementById('dropdownMenu');
         dropdownMenu.classList.toggle('show');
     });
     
-    // Zamykanie listy rozwijanej po kliknięciu poza nią
+    // Zamykanie listy rozwijanej po kliknięciu poza nią (bez zmian)
     document.addEventListener('click', function(e) {
         const dropdown = document.querySelector('.dropdown');
         const dropdownMenu = document.getElementById('dropdownMenu');
@@ -2897,7 +2928,7 @@
         }
     });
     
-    // Obsługa kliknięć w elementy listy rozwijanej
+    // Obsługa kliknięć w elementy listy rozwijanej (bez zmian)
     document.getElementById('dropdownMenu').addEventListener('click', function(e) {
         const target = e.target.closest('.dropdown-item');
         if (target) {
