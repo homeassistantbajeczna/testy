@@ -1016,15 +1016,16 @@
         display: none;
         position: absolute;
         top: 100%;
-        right: 0;
-        padding: 5px; /* Odstępy między przyciskami */
+        left: 50%; /* Ustawiamy lewą krawędź na środku głównego przycisku */
+        transform: translateX(-50%); /* Przesuwamy listę o połowę jej szerokości w lewo, aby wyśrodkować */
+        padding: 5px;
         z-index: 1000;
         min-width: 50px;
         flex-direction: column;
         gap: 5px;
-        background: none !important; /* Brak tła, z wysokim priorytetem */
-        box-shadow: none !important; /* Brak cienia, z wysokim priorytetem */
-        border: none !important; /* Brak obramowania */
+        background: none !important;
+        box-shadow: none !important;
+        border: none !important;
     }
     
     .dropdown-menu.show {
