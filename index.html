@@ -111,14 +111,8 @@
     }
 
     .zoom-controls {
-        pposition: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
         display: flex;
-        gap: 5px;
-        align-items: center;
-        justify-content: center;
+        gap: 10px;
     }
 
     .zoom-controls .btn,
@@ -922,6 +916,66 @@
         align-items: center;
         justify-content: center;
     }
+
+    .btn {
+    width: 25px;
+    height: 25px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 2px 4px var(--shadow-color);
+    }
+    
+    .lang-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .lang-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        padding-top: 5px;
+        z-index: 1000;
+        background-color: transparent;
+    }
+    
+    .lang-dropdown.active {
+        display: flex;
+    }
+    
+    .lang-option {
+        width: 25px;
+        height: 25px;
+        border: 2px solid var(--border-color);
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        font-size: var(--small-font-size);
+    }
+    
+    .lang-option:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 2px 4px var(--shadow-color);
+    }
+    
+    .dark-mode .btn,
+    .dark-mode .lang-option {
+        border-color: var(--border-color);
+        color: var(--primary-text);
+    }
     
     #generatePdfBtn {
         display: block;
@@ -1402,9 +1456,9 @@
 <div class="logo-container">
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     <div class="zoom-controls">
-        <button class="btn">+</button>
-        <button class="btn">-</button>
-        <button class="btn">🌙</button>
+        <button class="btn" id="zoomInBtn">+</button>
+        <button class="btn" id="zoomOutBtn">-</button>
+        <button class="btn" id="toggleDarkModeBtn">🌙</button>
         <div class="lang-container">
             <button class="btn" id="languageBtn">PL</button>
             <div class="lang-dropdown" id="langDropdown" style="display: none;">
@@ -2851,22 +2905,41 @@
     initializeTheme();
 
     // Pobierz elementy
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const toggleDarkModeBtn = document.getElementById("toggleDarkModeBtn");
     const languageBtn = document.getElementById("languageBtn");
     const langDropdown = document.getElementById("langDropdown");
     
-    // Domyślny język
+    // Zoom (powiększanie/pomniejszanie)
+    let zoomLevel = 1;
+    zoomInBtn.addEventListener("click", () => {
+        zoomLevel += 0.1;
+        document.body.style.transform = `scale(${zoomLevel})`;
+        document.body.style.transformOrigin = "top left";
+    });
+    
+    zoomOutBtn.addEventListener("click", () => {
+        zoomLevel = Math.max(0.5, zoomLevel - 0.1); // Minimalny zoom: 0.5
+        document.body.style.transform = `scale(${zoomLevel})`;
+        document.body.style.transformOrigin = "top left";
+    });
+    
+    // Tryb ciemny/jasny
+    toggleDarkModeBtn.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        toggleDarkModeBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+    });
+    
+    // Język
     let currentLang = "pl";
     languageBtn.textContent = "PL";
     
-    // Funkcja aktualizująca przycisk i listę
     function updateLanguageDisplay(lang) {
         currentLang = lang;
         languageBtn.textContent = lang.toUpperCase();
     
-        // Czyszczenie dropdownu
         langDropdown.innerHTML = "";
-    
-        // Lista dostępnych języków
         const languages = ["pl", "en", "ua"].filter(l => l !== lang);
         languages.forEach(l => {
             const option = document.createElement("button");
@@ -2877,22 +2950,19 @@
         });
     }
     
-    // Przełączanie widoczności dropdownu
     languageBtn.addEventListener("click", () => {
         langDropdown.classList.toggle("active");
     });
     
-    // Obsługa wyboru języka
     langDropdown.addEventListener("click", (e) => {
         const option = e.target.closest(".lang-option");
         if (option) {
             const newLang = option.dataset.lang;
             updateLanguageDisplay(newLang);
-            langDropdown.classList.remove("active"); // Zamknij dropdown po wyborze
+            langDropdown.classList.remove("active");
         }
     });
     
-    // Zamykanie dropdownu po kliknięciu poza nim
     document.addEventListener("click", (e) => {
         if (!languageBtn.contains(e.target) && !langDropdown.contains(e.target)) {
             langDropdown.classList.remove("active");
