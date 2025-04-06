@@ -171,7 +171,7 @@
     .checkbox-label {
         display: flex;
         align-items: center;
-        font-size: var(--small-font-size);
+        font-size: clamp(0.65em, 1vw, var(--small-font-size)); /* Skalowalna czcionka */
         cursor: pointer;
         position: relative;
         margin-bottom: 10px;
@@ -511,12 +511,12 @@
     }
     
     .harmonogram-opis {
-        font-size: 0.5em;
+        font-size: clamp(0.4em, 1vw, 0.5em);
         text-align: left;
-        max-width: 1000px;
+        max-width: clamp(98%, 100vw, 1000px);
         margin: 10px auto 0;
         line-height: 1.4;
-        padding-left: 8em;
+        padding-left: clamp(0.5em, 1vw, 8em);
     }
 
     .harmonogram td,
@@ -557,16 +557,22 @@
     
     .harmonogram-container {
         margin-top: 20px;
-        padding: 20px;
+        padding: clamp(2px, 2vw, 20px);
+        width: 100%;
+        max-width: clamp(98%, 100vw, 1100px);
+        margin-left: auto;
+        margin-right: auto;
+        box-sizing: border-box;
     }
     
     .harmonogram-chart-wrapper {
         background-color: var(--harmonogram-bg);
-        padding: 20px;
+        padding: clamp(2px, 2vw, 20px);
         border-radius: 10px;
-        max-width: 1100px;
         width: 100%;
+        max-width: clamp(98%, 100vw, 1100px);
         margin: 0 auto;
+        box-sizing: border-box;
     }
     
     .result-wrapper-chart {
@@ -606,13 +612,17 @@
     .chart-container-line {
         margin-top: 20px;
         width: 100%;
-        height: 400px;
+        max-width: clamp(98%, 100vw, 1100px);
+        height: clamp(200px, 32vw, 400px);
         background-color: transparent;
+        margin-left: auto;
+        margin-right: auto;
     }
     
     .chart-line {
         width: 100%;
         height: 100%;
+        font-size: clamp(0.5em, calc(1.2vw + 1px), 1.35em);
     }
     
     .chart-legend {
@@ -762,12 +772,16 @@
     /* Style dla harmonogramu */
     .harmonogram {
         padding: 0;
+        width: 100%;
+        max-width: clamp(98%, 100vw, 1000px);
+        margin: 0 auto;
+        overflow-x: auto;
     }
     
     .harmonogram table {
         margin: 0 auto;
         width: 100%;
-        max-width: 1000px;
+        max-width: clamp(98%, 100vw, 1000px);
         display: table;
         border-collapse: separate;
         border-spacing: 0;
@@ -775,34 +789,39 @@
         overflow: hidden;
         box-shadow: 0 1px 3px var(--shadow-color);
         background: var(--harmonogram-bg);
-        font-size: 0.8em;
+        font-size: clamp(0.55em, 1.2vw, 0.8em);
+        table-layout: auto;
     }
     
     .harmonogram th {
         background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--primary-text);
-        padding: 12px;
+        padding: clamp(1px, 0.5vw, 12px);
         text-align: center;
         vertical-align: middle;
         font-weight: 500;
         border-bottom: 2px solid var(--border-color);
         white-space: normal;
+        word-break: normal;
         line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-size: clamp(0.4em, 1.2vw, 1.25em);
     }
     
     .harmonogram td {
-        padding: 10px;
+        padding: clamp(1px, 0.5vw, 10px);
         text-align: center;
         font-weight: 400;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--harmonogram-bg);
         color: var(--primary-text);
-        white-space: nowrap;
+        white-space: normal;
+        word-break: normal;
         overflow: hidden;
         text-overflow: ellipsis;
         border-right: 1px solid rgba(var(--border-color-rgb, 102, 102, 102), 0.3);
+        font-size: clamp(0.4em, 1.2vw, 1.25em);
     }
     
     .harmonogram .btn-toggle {
@@ -956,82 +975,17 @@
         gap: 20px;
         max-width: 1200px;
         margin: 0 auto;
-        padding: 20px;
+        padding: clamp(10px, 2vw, 20px);
+        width: 100%;
+        box-sizing: border-box;
     }
     
-    /* Tablet (max 768px) */
+    /* R E S P O N S Y W N O Ś Ć */
+    
     @media (max-width: 768px) {
         .calculator-container {
-            flex-direction: column;
-            padding: 15px;
-            width: 100%;
-            max-width: none;
-            box-sizing: border-box;
-        }
-    
-        .harmonogram-container {
-            width: 98%;
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 2px;
-            box-sizing: border-box;
-        }
-    
-        .harmonogram-chart-wrapper {
-            width: 98%;
-            max-width: none;
-            margin: 0 auto;
-            padding: 2px;
-            box-sizing: border-box;
-        }
-    
-        .harmonogram {
-            width: 98%;
-            margin: 0 auto;
-        }
-    
-        .harmonogram table {
-            font-size: 0.6em; /* Bazowa, nadpisywana w th/td */
-            width: 98%;
-            max-width: 100%;
-            margin: 0 auto;
-            table-layout: auto;
-        }
-    
-        .harmonogram th {
-            padding: clamp(1px, 0.25vw, 2.5px);
-            font-size: clamp(0.4em, 1.2vw, 1.25em); /* Minimalnie mniejsza na dole zakresu */
-            white-space: normal;
-            word-break: normal;
-        }
-    
-        .harmonogram td {
-            padding: clamp(1px, 0.25vw, 2.5px);
-            font-size: clamp(0.4em, 1.2vw, 1.25em); /* Minimalnie mniejsza na dole zakresu */
-            white-space: normal;
-            word-break: normal;
-        }
-    
-        .harmonogram-opis {
-            padding-left: 0.5em;
-        }
-    
-        .chart-container-line {
-            width: 98%;
-            max-width: 100%;
-            height: clamp(200px, 32vw, 300px); /* Skalowana wysokość */
-            margin: 0 auto;
-        }
-    
-        .chart-line {
-            width: 98%;
-            height: 100%;
-            font-size: clamp(0.5em, calc(1.2vw + 1px), 1.35em);
-        }
-    
-        .checkbox-label {
-            font-size: 0.7em;
-            justify-content: center;
+            flex-direction: column; /* Zmiana na kolumnę */
+            padding: clamp(10px, 2vw, 15px); /* Lekko mniejszy padding */
         }
     }
    
@@ -1040,11 +994,10 @@
         .result-header h4 {
             font-size: 1em;
         }
-
+    
         .checkbox-label.header-checkbox {
             top: -15px;
             right: 5px;
-            font-size: 0.6em;
         }
     
         .summary-footer {
@@ -1058,7 +1011,6 @@
             width: 180px;
             max-width: 100%;
             margin: 2px auto;
-            font-size: 0.7em;
             padding: 3px 5px;
         }
     
@@ -1080,15 +1032,8 @@
             margin: 2px auto;
         }
     
-        .input-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    
         .form-control,
         .form-select {
-            font-size: 0.75em;
             height: 26px;
             width: 130px;
             padding: 4px 8px;
@@ -1096,12 +1041,10 @@
         }
     
         .input-group-text {
-            font-size: 0.75em;
             height: 26px;
             width: 70px;
             padding: 4px 8px;
             line-height: 20px;
-            text-align: center;
         }
     
         #typObligacji.form-control {
@@ -1114,9 +1057,6 @@
         .variable-input-group .input-group {
             max-width: 200px;
             min-width: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
     
         .variable-input-group .form-group {
@@ -1129,7 +1069,6 @@
         .variable-input-group .form-control {
             width: 130px;
             height: 26px;
-            font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1137,7 +1076,6 @@
         .variable-input-group .input-group-text {
             width: 70px;
             height: 26px;
-            font-size: 0.75em;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1153,99 +1091,28 @@
             gap: 2px;
         }
     
-        .variable-input-group .form-group:nth-child(1) .input-group {
-            width: 200px;
-            max-width: 200px;
-            min-width: 200px;
-        }
-    
-        .variable-input-group .form-group:nth-child(1) .form-control {
-            width: 130px;
-        }
-    
+        .variable-input-group .form-group:nth-child(1) .input-group,
         .variable-input-group .form-group:nth-child(2) .input-group {
             width: 200px;
             max-width: 200px;
             min-width: 200px;
         }
     
+        .variable-input-group .form-group:nth-child(1) .form-control,
         .variable-input-group .form-group:nth-child(2) .form-control {
             width: 130px;
         }
     
-        .checkbox-label {
-            font-size: 0.65em;
-            justify-content: center;
-        }
-    
-        .harmonogram-container {
-            width: 98vw;
-            max-width: none;
-            margin: 0 auto;
-            padding: 10px;
-            box-sizing: border-box;
-            position: relative;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-    
-        .harmonogram-chart-wrapper {
-            width: 100%;
-            max-width: none;
-            margin: 0 auto;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-    
-        .harmonogram {
-            overflow-x: auto;
-            width: 100%;
-        }
-    
-        .harmonogram table {
-            font-size: 0.6em;
-            max-width: none;
-            width: auto;
-            min-width: 100%;
-        }
-    
-        .harmonogram th {
-            padding: 4px;
-            font-size: 0.6em;
-            white-space: normal;
-            width: auto;
-        }
-    
-        .harmonogram td {
-            padding: 4px;
-            font-size: 0.6em;
-            white-space: nowrap;
-            width: auto;
-        }
-    
-        .harmonogram-opis {
-            padding-left: 0.9em;
-        }
-    
-        .btn-primary {
-            display: block;
-            width: auto;
-            margin: 2.5px auto;
-            padding: 6px 10px;
-        }
-    
-        #addVariableBtn {
-            display: block;
+        .btn-primary,
+        #addVariableBtn,
+        #generatePdfBtn {
             width: auto;
             margin: 2.5px auto;
             padding: 6px 10px;
         }
     
         #generatePdfBtn {
-            display: block;
-            width: auto;
             margin: 2.5px 0 2.5px auto;
-            padding: 6px 10px;
         }
     
         .chart-container {
@@ -1275,22 +1142,8 @@
         .chart-legend .legend-text {
             font-size: 12px;
         }
-    
-        .chart-container-line {
-            width: 100%;
-            max-width: 100%;
-            height: 250px;
-            margin: 0 auto;
-        }
-    
-        .chart-line {
-            width: 100%;
-            height: 100%;
-            font-size: 0.65em;
-        }
     }
     
-    /* Mobile (max 480px) */
     @media (max-width: 480px) {
         body {
             margin: 0;
@@ -1319,16 +1172,12 @@
         }
     
         .input-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             width: 200px;
             margin: 0 auto;
         }
     
         .form-control,
         .form-select {
-            font-size: 0.9em;
             height: 28px;
             width: 130px;
             padding: 4px 8px;
@@ -1336,16 +1185,13 @@
         }
     
         .input-group-text {
-            font-size: 0.9em;
             height: 28px;
             width: 70px;
             padding: 4px 8px;
             line-height: 20px;
-            text-align: center;
         }
     
         .form-range {
-            display: block;
             height: 8px;
             width: 200px;
             margin: 5px auto 0;
@@ -1356,14 +1202,6 @@
         .form-range::-ms-thumb {
             width: 14px;
             height: 14px;
-        }
-    
-        .variable-rate-container {
-            text-align: center;
-        }
-    
-        .variable-inputs {
-            display: block;
         }
     
         .variable-input-group {
@@ -1378,7 +1216,6 @@
         }
     
         .variable-input-group .form-group {
-            display: block;
             width: 200px;
             max-width: 200px;
             min-width: 200px;
@@ -1386,9 +1223,6 @@
         }
     
         .variable-input-group .input-group {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             width: 200px;
             margin: 0 auto;
         }
@@ -1396,7 +1230,6 @@
         .variable-input-group .form-control {
             width: 130px;
             height: 28px;
-            font-size: 0.9em;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1404,7 +1237,6 @@
         .variable-input-group .input-group-text {
             width: 70px;
             height: 28px;
-            font-size: 0.9em;
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -1421,32 +1253,16 @@
             height: 28px;
         }
     
-        .checkbox-label {
-            display: flex;
-            justify-content: center;
-            font-size: 0.65em;
-            margin: 10px 0;
-        }
-    
-        .btn-primary {
-            display: block;
-            width: auto;
-            margin: 20px auto;
-            padding: 6px 15px;
-        }
-    
-        #addVariableBtn {
-            display: block;
+        .btn-primary,
+        #addVariableBtn,
+        #generatePdfBtn {
             width: auto;
             margin: 20px auto;
             padding: 6px 15px;
         }
     
         #generatePdfBtn {
-            display: block;
-            width: auto;
             margin: 20px 0 20px auto;
-            padding: 6px 15px;
         }
     
         .logo-container {
@@ -1478,57 +1294,7 @@
             display: block;
             width: 180px;
             margin: 10px auto;
-            font-size: 0.7em;
             padding: 3px 5px;
-        }
-    
-        .harmonogram-container {
-            width: 98vw;
-            max-width: none;
-            margin: 0 auto;
-            padding: 10px;
-            box-sizing: border-box;
-            position: relative;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-    
-        .harmonogram-chart-wrapperHardk {
-            width: 100%;
-            max-width: none;
-            margin: 0 auto;
-            padding: 15px;
-            box-sizing: border-box;
-        }
-    
-        .harmonogram {
-            overflow-x: auto;
-            width: 100%;
-        }
-    
-        .harmonogram table {
-            font-size: 0.55em;
-            max-width: none;
-            width: auto;
-            min-width: 100%;
-        }
-    
-        .harmonogram th {
-            padding: 1px;
-            font-size: 0.6em;
-            white-space: normal;
-        }
-    
-        .harmonogram td {
-            padding: 1px;
-            font-size: 0.55em;
-            white-space: normal;
-        }
-    
-        .chart-container-line {
-            width: 100%;
-            max-width: 100%;
-            height: 250px;
         }
     }
 </style>
