@@ -985,7 +985,6 @@
         box-sizing: border-box;
     }
 
-    /* Styl dla przycisku rozwijanego */
     .dropdown {
         position: relative;
         display: inline-block;
@@ -1000,7 +999,7 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze przycisków +/- */
+        border: 2px solid var(--accent-gradient-start);
         color: var(--primary-text);
         font-size: 0.9em;
         box-shadow: 0 4px 6px var(--shadow-color);
@@ -1013,7 +1012,6 @@
         background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
     }
     
-    /* Styl dla listy rozwijanej */
     .dropdown-menu {
         display: none;
         position: absolute;
@@ -1033,13 +1031,12 @@
         display: flex;
     }
     
-    /* Styl dla elementów listy rozwijanej */
     .dropdown-item {
-        width: 25px; /* Rozmiar 25px */
-        height: 25px; /* Rozmiar 25px */
-        border-radius: 50%; /* Okrągły kształt */
-        background: none; /* Bez tła */
-        border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze przycisków +/- */
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: none;
+        border: 2px solid var(--accent-gradient-start);
         color: var(--primary-text);
         font-size: 0.9em;
         display: flex;
@@ -1047,12 +1044,12 @@
         justify-content: center;
         cursor: pointer;
         transition: transform 0.2s ease, border-color 0.3s ease;
-        padding: 0; /* Usunięcie paddingu dla idealnego koła */
+        padding: 0;
     }
     
     .dropdown-item:hover {
         transform: scale(1.1);
-        border-color: var(--accent-gradient-end); /* Zmiana koloru ramki na hover */
+        border-color: var(--accent-gradient-end);
     }
     
     /* R E S P O N S Y W N O Ś Ć */
