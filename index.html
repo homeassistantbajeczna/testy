@@ -984,6 +984,75 @@
         width: 100%;
         box-sizing: border-box;
     }
+
+    /* Styl dla przycisku rozwijanego */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .dropdown-btn {
+        padding: 2px 8px;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze gradientu */
+        color: var(--primary-text);
+        font-size: 0.9em;
+        box-shadow: 0 4px 6px var(--shadow-color);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    
+    .dropdown-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px var(--shadow-color);
+        background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+    }
+    
+    /* Styl dla listy rozwijanej */
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background-color: var(--secondary-bg);
+        border-radius: 5px;
+        box-shadow: 0 4px 8px var(--shadow-color);
+        padding: 5px;
+        z-index: 1000;
+        min-width: 50px;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .dropdown-menu.show {
+        display: flex;
+    }
+    
+    /* Styl dla elementów listy rozwijanej */
+    .dropdown-item {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        border: none;
+        color: var(--primary-text);
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s ease, background 0.3s ease;
+    }
+    
+    .dropdown-item:hover {
+        transform: scale(1.1);
+        background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+    }
     
     /* R E S P O N S Y W N O Ś Ć */
     
@@ -2771,6 +2840,32 @@
     });
     
     initializeTheme();
+
+    // Przełączanie listy rozwijanej
+    document.getElementById('dropdownBtn').addEventListener('click', function(e) {
+        e.preventDefault();
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        dropdownMenu.classList.toggle('show');
+    });
+    
+    // Zamykanie listy rozwijanej po kliknięciu poza nią
+    document.addEventListener('click', function(e) {
+        const dropdown = document.querySelector('.dropdown');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        if (!dropdown.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+        }
+    });
+    
+    // Przykładowe funkcje dla przycisków w liście rozwijanej (możesz je dostosować)
+    document.querySelectorAll('.dropdown-item').forEach((item, index) => {
+        item.addEventListener('click', function() {
+            console.log(`Kliknięto przycisk ${index + 1}`);
+            // Tutaj możesz dodać własną logikę, np.:
+            // if (index === 0) { funkcjaPierwsza(); }
+            // if (index === 1) { funkcjaDruga(); }
+        });
+    });
 </script>
 </body>
 </html>
