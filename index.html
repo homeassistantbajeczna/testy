@@ -1021,13 +1021,13 @@
         background-image: url('flag-ua.png') !important;
     }
     
-    /* Zachowanie wszystkich właściwości przy najechaniu na główny przycisk */
+    /* Zachowanie właściwości przy najechaniu, bez nadpisywania flagi */
     .dropdown-btn:hover {
         border: 2px solid var(--accent-gradient-start) !important;
         background-size: cover !important;
         background-position: center !important;
         background-color: transparent !important;
-        background-image: url('flag-pl.png') !important; /* Domyślna flaga dla PL */
+        /* Usunięto background-image, aby flaga pozostała zgodna z data-lang */
     }
     
     /* Styl dla menu rozwijanego - zwiększona specyficzność */
@@ -2900,7 +2900,7 @@
         changeLanguage(selectedLang);
     }
     
-    // Funkcja zmiany języka na stronie (bez zmian)
+    // Funkcja zmiany języka na stronie
     function changeLanguage(lang) {
         console.log(`Zmieniono język na: ${lang}`);
         // Tutaj dodaj logikę zmiany języka na stronie
@@ -2931,7 +2931,6 @@
             if (target) {
                 const selectedLang = target.getAttribute('data-lang');
                 updateLanguageUI(selectedLang);
-                // Zapobieganie dalszemu rozprzestrzenianiu się zdarzenia
                 e.stopPropagation();
             }
         });
