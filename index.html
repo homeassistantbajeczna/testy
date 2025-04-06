@@ -124,9 +124,16 @@
     .zoom-controls .lang-btn {
         width: 25px;
         height: 25px;
-        padding: 0; /* Usuwamy padding, aby wszystkie przyciski były równe */
+        padding: 0;
         font-size: var(--small-font-size);
-        line-height: 25px; /* Centrowanie zawartości */
+        line-height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%; /* Dla spójności z innymi przyciskami */
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
+        border: none;
     }
     
     .logo,
@@ -885,7 +892,6 @@
     .zoom-controls .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 12px var(--shadow-color);
-        background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
     }
     
     .btn-sm,
@@ -1016,6 +1022,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .lang-btn {
+        background-image: url('flag-pl.png'); /* Domyślna flaga */
+        background-size: cover;
+        background-position: center;
+        background-color: transparent; /* Zachowaj przezroczystość tła dla flagi */
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
@@ -2935,12 +2949,12 @@
     // Aktualizacja głównego przycisku
     function updateCurrentLangBtn(lang) {
         const currentLangBtn = document.getElementById("currentLangBtn");
-        currentLangBtn.style.backgroundImage = `url('flag-${lang}.png')`; // Popraw ścieżkę, jeśli potrzeba
+        currentLangBtn.style.backgroundImage = `url('flag-${lang}.png')`;
     }
 
     // Przykładowe wywołanie przy starcie (np. domyślny język "pl")
     document.addEventListener("DOMContentLoaded", () => {
-        updateCurrentLangBtn("pl"); // Ustaw domyślny język, np. polski
+        initLanguage(); // Zainicjuj język przy ładowaniu strony
     });
     
     // Przełączanie widoczności dropdownu
@@ -2963,7 +2977,9 @@
     document.querySelectorAll(".lang-option").forEach(option => {
         option.addEventListener("click", () => {
             const selectedLang = option.getAttribute("data-lang");
+            setLanguage(selectedLang); // Wywołaj zmianę języka
             updateCurrentLangBtn(selectedLang);
+            langDropdown.classList.remove("active"); // Zamknij dropdown po wyborze
         });
     });
     
