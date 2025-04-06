@@ -1021,13 +1021,13 @@
         background-image: url('flag-ua.png') !important;
     }
     
-    /* Zachowanie wszystkich właściwości przy najechaniu */
+    /* Pełne zablokowanie zmian przy najechaniu na główny przycisk */
     .dropdown-btn:hover {
         border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie zostaje */
-        background-image: inherit !important; /* Flaga zostaje */
         background-size: cover !important;
         background-position: center !important;
-        background-color: transparent !important; /* Bez zmian tła */
+        background-color: transparent !important;
+        background-image: url('flag-pl.png') !important; /* Domyślna flaga dla PL */
     }
     
     /* Styl dla menu rozwijanego */
@@ -1035,6 +1035,7 @@
         display: none; /* Ukryte domyślnie */
         position: absolute;
         background: transparent !important; /* Przezroczyste tło */
+        background-color: transparent !important; /* Dodatkowe wymuszenie */
         min-width: 25px;
         z-index: 1;
         padding: 5px 0; /* Lekki odstęp */
@@ -1069,13 +1070,12 @@
         background-image: url('flag-ua.png') !important;
     }
     
-    /* Zachowanie wszystkich właściwości przy najechaniu na elementy menu */
+    /* Pełne zablokowanie zmian przy najechaniu na elementy menu */
     .dropdown-item:hover {
         border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie zostaje */
-        background-image: inherit !important; /* Flaga zostaje */
         background-size: cover !important;
         background-position: center !important;
-        background-color: transparent !important; /* Bez zmian tła */
+        background-color: transparent !important;
     }
     
     /* Pokazanie menu po najechaniu na dropdown */
