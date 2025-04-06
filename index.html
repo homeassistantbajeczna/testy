@@ -1043,6 +1043,11 @@
         border: none !important; /* Usuwa ewentualną ramkę */
     }
     
+    /* Pokazanie menu, gdy ma klasę show */
+    .dropdown .dropdown-menu.show {
+        display: block;
+    }
+    
     /* Styl dla elementów w menu rozwijanym */
     .dropdown-item {
         display: block; /* Jeden pod drugim */
@@ -1077,11 +1082,6 @@
         background-size: cover !important;
         background-position: center !important;
         background-color: transparent !important;
-    }
-    
-    /* Pokazanie menu po najechaniu na dropdown */
-    .dropdown:hover .dropdown-menu {
-        display: block;
     }
     
     /* R E S P O N S Y W N O Ś Ć */
