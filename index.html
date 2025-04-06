@@ -1000,7 +1000,7 @@
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze gradientu */
+        border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze przycisków +/- */
         color: var(--primary-text);
         font-size: 0.9em;
         box-shadow: 0 4px 6px var(--shadow-color);
@@ -1035,11 +1035,11 @@
     
     /* Styl dla elementów listy rozwijanej */
     .dropdown-item {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
+        width: 25px; /* Rozmiar 25px */
+        height: 25px; /* Rozmiar 25px */
+        border-radius: 50%; /* Okrągły kształt */
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        border: none;
+        border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze przycisków +/- */
         color: var(--primary-text);
         font-size: 0.9em;
         display: flex;
@@ -2841,13 +2841,13 @@
     
     initializeTheme();
 
-    // Przełączanie listy rozwijanej
+        // Przełączanie listy rozwijanej
     document.getElementById('dropdownBtn').addEventListener('click', function(e) {
         e.preventDefault();
         const dropdownMenu = document.getElementById('dropdownMenu');
         dropdownMenu.classList.toggle('show');
     });
-    
+
     // Zamykanie listy rozwijanej po kliknięciu poza nią
     document.addEventListener('click', function(e) {
         const dropdown = document.querySelector('.dropdown');
@@ -2856,7 +2856,7 @@
             dropdownMenu.classList.remove('show');
         }
     });
-    
+
     // Przykładowe funkcje dla przycisków w liście rozwijanej (możesz je dostosować)
     document.querySelectorAll('.dropdown-item').forEach((item, index) => {
         item.addEventListener('click', function() {
