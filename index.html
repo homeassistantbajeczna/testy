@@ -984,6 +984,46 @@
         width: 100%;
         box-sizing: border-box;
     }
+
+    .lang-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .lang-btn, .lang-option {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        background-size: cover;
+        background-position: center;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    
+    .lang-btn:hover, .lang-option:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 4px var(--shadow-color);
+    }
+    
+    .lang-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        display: none; /* Domyślnie ukryte */
+        flex-direction: column;
+        gap: 5px;
+        padding-top: 5px;
+        z-index: 1000;
+    }
+    
+    .lang-dropdown.active {
+        display: flex; /* Pokazane po kliknięciu */
+    }
+    
+    .dark-mode .lang- btn, .dark-mode .lang-option {
+        border-color: var(--border-color);
+    }
     
     /* R E S P O N S Y W N O Ś Ć */
     
@@ -1324,6 +1364,15 @@
 <div class="logo-container">
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
+        <!-- Kontener językowy na początku -->
+        <div class="lang-container">
+            <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
+            <div class="lang-dropdown">
+                <button class="lang-option" data-lang="pl" style="background-image: url('flag-pl.png');" aria-label="Język polski"></button>
+                <button class="lang-option" data-lang="en" style="background-image: url('flag-en.png');" aria-label="Język angielski"></button>
+                <button class="lang-option" data-lang="ua" style="background-image: url('flag-ua.png');" aria-label="Język ukraiński"></button>
+            </div>
+        </div>
         <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
         <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
@@ -2764,6 +2813,48 @@
     });
     
     initializeTheme();
+
+    // Funkcja aktualizacji głównego przycisku
+    function updateCurrentLangBtn(lang) {
+        const currentLangBtn = document.getElementById("currentLangBtn");
+        currentLangBtn.style.backgroundImage = `url('flag-${lang}.png')`;
+    }
+    
+    // Przełączanie widoczności dropdownu
+    const langContainer = document.querySelector(".lang-container");
+    const langDropdown = document.querySelector(".lang-dropdown");
+    const currentLangBtn = document.getElementById("currentLangBtn");
+    
+    currentLangBtn.addEventListener("click", () => {
+        langDropdown.classList.toggle("active");
+    });
+    
+    // Zamykanie dropdownu po kliknięciu poza nim
+    document.addEventListener("click", (e)A => {
+        if (!langContainer.contains(e.target)) {
+            langDropdown.classList.remove("active");
+        }
+    });
+    
+    // Obsługa wyboru języka
+    document.querySelectorAll(".lang-option").forEach(option => {
+        option.addEventListener("click", (e) => {
+            e.stopPropagation(); // Zapobiega zamknięciu dropdownu od razu
+            const lang = option.getAttribute("data-lang");
+            setLanguage(lang);
+            updateCurrentLangBtn(lang);
+            langDropdown.classList.remove("active"); // Zamknij po wyborze
+        });
+    });
+    
+    // Inicjalizacja
+    function initLanguage() {
+        const savedLang = localStorage.getItem("selectedLanguage") || "pl";
+        setLanguage(savedLang);
+        updateCurrentLangBtn(savedLang);
+    }
+    
+    initLanguage();
 </script>
 </body>
 </html>
