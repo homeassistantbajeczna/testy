@@ -119,6 +119,15 @@
         gap: 5px;
         align-items: center;
     }
+
+    .zoom-controls .btn,
+    .zoom-controls .lang-btn {
+        width: 25px;
+        height: 25px;
+        padding: 0; /* Usuwamy padding, aby wszystkie przyciski były równe */
+        font-size: var(--small-font-size);
+        line-height: 25px; /* Centrowanie zawartości */
+    }
     
     .logo,
     #siteLogo {
@@ -987,12 +996,13 @@
     }
 
     .lang-container {
-        position: flex;
+        position: relative; /* Zmieniamy na relative, aby dropdown był pozycjonowany względem tego elementu */
+        display: inline-flex;
         align-items: center;
-        display: inline-block;
     }
     
-    .lang-btn, .lang-option {
+    .lang-btn,
+    .lang-option {
         width: 25px;
         height: 25px;
         border: none;
@@ -1000,27 +1010,31 @@
         cursor: pointer;
         background-size: cover;
         background-position: center;
-        padding: 0; /* Usuń domyślny padding, jeśli jest */
-        display: flex; /* Wyrównaj zawartość */
+        background-color: transparent; /* Zapewniamy brak tła */
+        padding: 0;
+        margin: 0; /* Usuwamy marginesy, aby wyrównać z innymi przyciskami */
+        display: flex;
         align-items: center;
         justify-content: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
-    .lang-btn:hover, .lang-option:hover {
+    .lang-btn:hover,
+    .lang-option:hover {
         transform: scale(1.1);
         box-shadow: 0 2px 4px var(--shadow-color);
     }
     
     .lang-dropdown {
         position: absolute;
-        top: 100%;
-        right: 0;
+        top: 100%; /* Ustawiamy poniżej przycisku języka */
+        left: 0; /* Wyrównujemy do lewej krawędzi .lang-container */
         display: none;
         flex-direction: column;
         gap: 5px;
         padding-top: 5px;
-        z-index: 1000;
-        background-color: var(--secondary-bg);
+        z-index: 1000; /* Wyższy z-index, aby dropdown był nad innymi elementami */
+        background-color: transparent; /* Brak tła */
     }
     
     .lang-dropdown.active {
@@ -1040,7 +1054,8 @@
     }
     
     /* Opcjonalnie: W trybie ciemnym zmień obramowanie */
-    .dark-mode .lang-btn {
+    .dark-mode .lang-btn,
+    .dark-mode .lang-option {
         border-color: var(--border-color);
     }
     
@@ -1384,7 +1399,7 @@
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; align-items: center;">
         <div class="lang-container">
-            <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język" style="background-color: red;"></button>
+            <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
             <div class="lang-dropdown">
                 <button class="lang-option" data-lang="pl" style="background-image: url('flag-pl.png');" aria-label="Język polski"></button>
                 <button class="lang-option" data-lang="en" style="background-image: url('flag-en.png');" aria-label="Język angielski"></button>
