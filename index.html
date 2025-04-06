@@ -1002,36 +1002,40 @@
         justify-content: center;
         border: 2px solid var(--accent-gradient-start); /* Złote obramowanie */
         box-shadow: 0 4px 6px var(--shadow-color); /* Stały cień */
-        background-size: cover;
-        background-position: center;
-        text-indent: -9999px; /* Ukrywa tekst "PL", pozostawiając flagę */
+        background-size: cover !important; /* Flaga zawsze widoczna */
+        background-position: center !important;
+        text-indent: -9999px; /* Ukrywa tekst "PL" */
+        background-color: transparent !important; /* Bez tła */
     }
     
     /* Style dla flag w głównym przycisku */
     .dropdown-btn[data-lang="PL"] {
-        background-image: url('flag-pl.png');
+        background-image: url('flag-pl.png') !important;
     }
     
     .dropdown-btn[data-lang="EN"] {
-        background-image: url('flag-en.png');
+        background-image: url('flag-en.png') !important;
     }
     
     .dropdown-btn[data-lang="UA"] {
-        background-image: url('flag-ua.png');
+        background-image: url('flag-ua.png') !important;
     }
     
     /* Brak efektów przy najechaniu na główny przycisk */
     .dropdown-btn:hover {
-        /* Nic się nie zmienia */
+        background-image: inherit !important; /* Zachowuje flagę */
+        background-color: transparent !important; /* Bez złotego tła */
     }
     
     /* Styl dla menu rozwijanego */
     .dropdown-menu {
         display: none; /* Ukryte domyślnie */
         position: absolute;
-        background: transparent; /* Przezroczyste tło */
+        background: transparent !important; /* Przezroczyste tło */
         min-width: 25px;
         z-index: 1;
+        padding: 5px 0; /* Lekki odstęp */
+        box-shadow: none !important; /* Usuwa cień Bootstrapa */
     }
     
     /* Styl dla elementów w menu rozwijanym */
@@ -1041,30 +1045,31 @@
         height: 25px;
         border-radius: 50%;
         border: 2px solid var(--accent-gradient-start); /* Złote obramowanie */
-        background-size: cover;
-        background-position: center;
+        background-size: cover !important; /* Flaga widoczna */
+        background-position: center !important;
         text-indent: -9999px; /* Ukrywa tekst "EN", "UA" */
         margin: 5px 0; /* Odstęp między elementami */
-        padding: 0; /* Usuwa domyślne paddingi buttona */
-        background-color: transparent; /* Przezroczyste tło */
+        padding: 0; /* Usuwa padding */
+        background-color: transparent !important; /* Przezroczyste tło */
     }
     
     /* Style dla flag w menu rozwijanym */
     .dropdown-item[data-lang="PL"] {
-        background-image: url('flag-pl.png');
+        background-image: url('flag-pl.png') !important;
     }
     
     .dropdown-item[data-lang="EN"] {
-        background-image: url('flag-en.png');
+        background-image: url('flag-en.png') !important;
     }
     
     .dropdown-item[data-lang="UA"] {
-        background-image: url('flag-ua.png');
+        background-image: url('flag-ua.png') !important;
     }
     
     /* Brak efektów przy najechaniu na elementy menu */
     .dropdown-item:hover {
-        /* Nic się nie zmienia */
+        background-image: inherit !important; /* Zachowuje flagę */
+        background-color: transparent !important; /* Bez tła */
     }
     
     /* Pokazanie menu po najechaniu na dropdown */
