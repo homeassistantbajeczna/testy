@@ -11,6 +11,191 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="logo-container">
+        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        <div class="zoom-controls">
+            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
+            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
+            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
+            
+        </div>
+    </div>
+    <div class="container">
+        <div class="form-section" id="formSection">
+            <div class="header-row">
+                <h4>Kalkulator Obligacji Skarbu Państwa</h4>
+            </div>
+            <div class="form-container">
+                <div class="form-wrapper">
+                    <form id="obligacjeForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="typObligacji" class="form-label">Typ obligacji*</label>
+                                <select class="form-control" id="typObligacji">
+                                    <option value="OTS" selected>3-miesięczne (OTS)</option>
+                                    <option value="ROR">12-miesięczne (ROR)</option>
+                                    <option value="DOR">24-miesięczne (DOR)</option>
+                                    <option value="TOS">3-letnie (TOS)</option>
+                                    <option value="COI">4-letnie (COI)</option>
+                                    <option value="EDO">10-letnie (EDO)</option>
+                                    <option value="ROS">6-letnie (ROS)</option>
+                                    <option value="ROD">12-letnie (ROD)</option>
+                                </select>
+                                <div class="sub-info"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="kwota" class="form-label">Kwota inwestycji</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
+                                <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
+                            </div>
+                            <div class="form-group" id="dynamicRateGroup">
+                                <label for="dynamicRate" class="form-label" id="dynamicRateLabel">Stopa Ref. NBP</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="dynamicRate" min="0" max="50" step="0.05" value="4.90">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="dynamicRateRange" min="0" max="50" step="0.05" value="4.90">
+                                <div class="sub-info" id="dynamicRateInfo"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="okres" class="form-label">Okres inwestycji</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="okres" min="3" max="144" step="1" value="3" readonly>
+                                    <span class="input-group-text">mc-y</span>
+                                </div>
+                                <div class="sub-info" id="lata"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="3" readonly>
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="sub-info" id="oprocentowanieInfo"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div id="ikeIkzeContainer">
+                                <label class="checkbox-label" for="ikeIkzeBtn">
+                                    <input type="checkbox" id="ikeIkzeBtn">
+                                    <span class="checkbox-custom"></span>
+                                    <b>Inwestycje w IKE lub IKZE</b>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="variable-rate-container">
+                            <div class="checkbox-row" id="variableCheckboxRow">
+                                <label class="checkbox-label" id="inflacjaZmiennaLabel">
+                                    <input type="checkbox" id="inflacjaZmiennaBtn">
+                                    <span class="checkbox-custom"></span>
+                                    <b>Zmienna Inflacja</b>
+                                </label>
+                                <label class="checkbox-label" id="stopaZmiennaLabel">
+                                    <input type="checkbox" id="stopaZmiennaBtn">
+                                    <span class="checkbox-custom"></span>
+                                    <b>Zmienna Stopa Ref. NBP</b>
+                                </label>
+                            </div>
+                            <div class="variable-inputs" id="variableInputs">
+                                <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="opis-container">
+                <div class="obligacje-opis" id="obligacjeOpis"></div>
+            </div>
+            <div class="data-container">
+                <div class="data-info"><strong>Dane z dnia:</strong> <span class="data-date"><strong>01.04.2025r.</strong></span></div>
+            </div>
+        </div>
+        <div class="result-section" id="resultSection">
+            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
+            <div class="result-header">
+                <h4 id="resultHeader">Podsumowanie wyników</h4>
+            </div>
+            <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
+            <div class="result-container">
+                <div class="result-wrapper-chart">
+                    <div class="chart-container">
+                        <div class="chart">
+                            <canvas id="obligacjeChart" aria-label="Wykres kołowy wyników inwestycji"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item" data-index="0">
+                                <div class="color-box" style="background-color: #28a745;" data-tooltip="" data-color="#28a745">
+                                    <span class="value" id="valueKapital">-</span>
+                                </div>
+                                <span class="legend-text" id="legendKapital">Kapitał</span>
+                            </div>
+                            <div class="legend-item" data-index="1">
+                                <div class="color-box" style="background-color: #007bff;" data-tooltip="" data-color="#007bff">
+                                    <span class="value" id="valueOdsetki">-</span>
+                                </div>
+                                <span class="legend-text" id="legendOdsetki">Odsetki</span>
+                            </div>
+                            <div class="legend-item" data-index="2">
+                                <div class="color-box" style="background-color: #dc3545;" data-tooltip="" data-color="#dc3545">
+                                    <span class="value" id="valuePodatek">-</span>
+                                </div>
+                                <span class="legend-text" id="legendPodatek">Podatek</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="summary-footer">
+                        <span class="highlight yellow" data-hover="3 miesięcy" id="okresInwestycji">-</span>
+                        <span class="highlight green" data-hover="" id="zyskNetto">-</span>
+                    </div>
+                    <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
+                </div>
+            </div>
+            <div class="harmonogram-container">
+                <div class="result-wrapper-harmonogram">
+                    <div class="harmonogram-chart-wrapper">
+                        <div class="harmonogram">
+                            <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
+                            <div id="harmonogramContent">
+                                <table class="table table-striped">
+                                    <thead id="harmonogramNaglowek">
+                                        <tr>
+                                            <th id="pierwszaKolumnaNaglowek">Rok</th>
+                                            <th>Wartość inwestycji</th>
+                                            <th>Oproc.</th>
+                                            <th>Odsetki</th>
+                                            <th>Suma odsetek</th>
+                                            <th>Podatek</th>
+                                            <th id="zyskKolumnaNaglowek">Zysk netto</th>
+                                            <th>Opłata za wykup</th>
+                                            <th id="kolumnaStopaInflacja">Inflacja</th>
+                                            <th>Suma netto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="harmonogramTabela"></tbody>
+                                </table>
+                                <div class="harmonogram-opis" id="harmonogramOpis"></div>
+                            </div>
+                        </div>
+                        <div class="chart-container-line">
+                            <div class="chart-line">
+                                <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 <style>
     /* Zmienne CSS dla kolorów */
     :root {
@@ -1420,199 +1605,6 @@
             margin: 2px 0; 
         }
 </style>
-<div class="logo-container">
-    <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-    <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
-        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
-        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
-        <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
-        <!--
-        <div class="dropdown">
-            <button id="dropdownBtn" class="btn btn-sm dropdown-btn" data-lang="PL" aria-label="Otwórz dodatkowe opcje">PL</button>
-            <div class="dropdown-menu" id="dropdownMenu">
-                <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
-                <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
-            </div>
-        </div>
-        -->
-    </div>
-</div>
-<div class="container">
-    <div class="form-section" id="formSection">
-        <div class="header-row">
-            <h4>Kalkulator Obligacji Skarbu Państwa</h4>
-        </div>
-        <div class="form-container">
-            <div class="form-wrapper">
-                <form id="obligacjeForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="typObligacji" class="form-label">Typ obligacji*</label>
-                            <select class="form-control" id="typObligacji">
-                                <option value="OTS" selected>3-miesięczne (OTS)</option>
-                                <option value="ROR">12-miesięczne (ROR)</option>
-                                <option value="DOR">24-miesięczne (DOR)</option>
-                                <option value="TOS">3-letnie (TOS)</option>
-                                <option value="COI">4-letnie (COI)</option>
-                                <option value="EDO">10-letnie (EDO)</option>
-                                <option value="ROS">6-letnie (ROS)</option>
-                                <option value="ROD">12-letnie (ROD)</option>
-                            </select>
-                            <div class="sub-info"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="kwota" class="form-label">Kwota inwestycji</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
-                                <span class="input-group-text">zł</span>
-                            </div>
-                            <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
-                            <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
-                        </div>
-                        <div class="form-group" id="dynamicRateGroup" style="display: none;">
-                            <label for="dynamicRate" class="form-label" id="dynamicRateLabel">Stopa Ref. NBP</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="dynamicRate" min="0" max="50" step="0.05" value="4.90">
-                                <span class="input-group-text">%</span>
-                            </div>
-                            <input type="range" class="form-range" id="dynamicRateRange" min="0" max="50" step="0.05" value="4.90">
-                            <div class="sub-info" id="dynamicRateInfo"></div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="okres" class="form-label">Okres inwestycji</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="okres" min="3" max="144" step="1" value="3" readonly>
-                                <span class="input-group-text">mc-y</span>
-                            </div>
-                            <div class="sub-info" id="lata"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="3" readonly>
-                                <span class="input-group-text">%</span>
-                            </div>
-                            <div class="sub-info" id="oprocentowanieInfo"></div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div id="ikeIkzeContainer" style="display: none;">
-                            <label class="checkbox-label" for="ikeIkzeBtn">
-                                <input type="checkbox" id="ikeIkzeBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Inwestycje w IKE lub IKZE</b>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="variable-rate-container">
-                        <div class="checkbox-row" id="variableCheckboxRow">
-                            <label class="checkbox-label" id="inflacjaZmiennaLabel" for="inflacjaZmiennaBtn" style="display: none;">
-                                <input type="checkbox" id="inflacjaZmiennaBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Zmienna Inflacja</b>
-                            </label>
-                            <label class="checkbox-label" id="stopaZmiennaLabel" for="stopaZmiennaBtn" style="display: none;">
-                                <input type="checkbox" id="stopaZmiennaBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Zmienna Stopa Ref. NBP</b>
-                            </label>
-                        </div>
-                        <div class="variable-inputs" id="variableInputs" style="display: none;">
-                            <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <button type="button" class="btn btn-primary" id="obliczBtn" style="margin: 25px auto 0;" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="opis-container">
-            <div class="obligacje-opis" id="obligacjeOpis"></div>
-        </div>
-        <div class="data-container">
-            <div class="data-info"><strong>Dane z dnia:</strong> <span class="data-date"><strong>01.03.2025r.</strong></span></div>
-        </div>
-    </div>
-    <div class="result-section" id="resultSection">
-        <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
-        <div class="result-header">
-            <h4 id="resultHeader">Podsumowanie wyników</h4>
-        </div>
-        <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
-        <div class="result-container">
-            <div class="result-wrapper-chart">
-                <div class="chart-container">
-                    <div class="chart">
-                        <canvas id="obligacjeChart" aria-label="Wykres kołowy wyników inwestycji"></canvas>
-                    </div>
-                    <div class="chart-legend">
-                        <div class="legend-item" data-index="0">
-                            <div class="color-box" style="background-color: #28a745;" data-tooltip="" data-color="#28a745">
-                                <span class="value" id="valueKapital">-</span>
-                            </div>
-                            <span class="legend-text" id="legendKapital">Kapitał</span>
-                        </div>
-                        <div class="legend-item" data-index="1">
-                            <div class="color-box" style="background-color: #007bff;" data-tooltip="" data-color="#007bff">
-                                <span class="value" id="valueOdsetki">-</span>
-                            </div>
-                            <span class="legend-text" id="legendOdsetki">Odsetki</span>
-                        </div>
-                        <div class="legend-item" data-index="2">
-                            <div class="color-box" style="background-color: #dc3545;" data-tooltip="" data-color="#dc3545">
-                                <span class="value" id="valuePodatek">-</span>
-                            </div>
-                            <span class="legend-text" id="legendPodatek">Podatek</span>
-                        </div>
-                    </div>
-                </div>
-               <div class="summary-footer">
-                    <span class="highlight yellow" data-hover="3 miesięcy" id="okresInwestycji">-</span>
-                    <span class="highlight green" data-hover="" id="zyskNetto">-</span>
-                </div>
-                <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
-            </div>
-        </div>
-        <div class="harmonogram-container">
-            <div class="result-wrapper-harmonogram">
-                <div class="harmonogram-chart-wrapper">
-                    <div class="harmonogram">
-                        <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
-                        <div id="harmonogramContent">
-                            <table class="table table-striped">
-                                <thead id="harmonogramNaglowek">
-                                    <tr>
-                                        <th id="pierwszaKolumnaNaglowek">Rok</th>
-                                        <th>Wartość inwestycji</th>
-                                        <th>Oproc.</th>
-                                        <th>Odsetki</th>
-                                        <th>Suma odsetek</th>
-                                        <th>Podatek</th>
-                                        <th id="zyskKolumnaNaglowek">Zysk netto</th>
-                                        <th>Opłata za wykup</th>
-                                        <th id="kolumnaStopaInflacja">Inflacja</th>
-                                        <th>Suma netto</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="harmonogramTabela"></tbody>
-                            </table>
-                            <div class="harmonogram-opis" id="harmonogramOpis"></div>
-                        </div>
-                    </div>
-                    <div class="chart-container-line">
-                        <div class="chart-line">
-                            <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const elements = {
