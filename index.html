@@ -20,7 +20,7 @@
         --accent-color: #c2b280;
         --accent-gradient-start: #c2b280;
         --accent-gradient-end: #b0a070;
-        --border-color: #e0e0e0;
+        --border-color: red; /*#e0e0e0;*/
         --border-color-rgb: 102, 102, 102;
         --highlight-yellow: #17a2b8;
         --highlight-green: #28a745;
@@ -118,26 +118,30 @@
         display: flex;
         gap: 5px;
         align-items: center;
-        height: 24px; /* Wymuszamy wysokość kontenera */
+        justify-content: center;
     }
 
     .zoom-controls .btn,
     .zoom-controls .lang-btn {
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--border-color); /* Dodajemy ramkę do wszystkich przycisków */
+        box-sizing: border-box;
+        width: 25px;
+        height: 25px;
         padding: 0;
-        font-size: var(--small-font-size);
-        line-height: 20px;
+        margin: 0;
+        border: 2px solid var(--border-color); /* Ujednolicamy ramkę */
+        border-radius: 50%;
+        background-size: 80%;
+        background-position: center;
+        background-repeat: no-repeat;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        color: var(--primary-text);
+        font-size: 0; /* Usuwamy wpływ tekstu */
+        line-height: 1;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        margin: 0;
-        vertical-align: middle;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        top: 2px;
+        position: relative;
     }
     
     .logo,
@@ -1013,12 +1017,13 @@
     
     .lang-btn,
     .lang-option {
-        width: 20px; /* 24px - 2px (lewa ramka) - 2px (prawa ramka) */
-        height: 20px; /* 24px - 2px (górna ramka) - 2px (dolna ramka) */
+        box-sizing: border-box;
+        width: 25px;
+        height: 25px;
         border: 2px solid var(--border-color);
         border-radius: 50%;
         background-size: 80%;
-        background-position: center center;
+        background-position: center;
         background-repeat: no-repeat;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -1418,12 +1423,15 @@
 </style>
 <div class="logo-container">
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-    <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; align-items: center;">
-        <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
-        <div class="lang-dropdown" id="langDropdown"></div>
-        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
-        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
-        <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
+    <div class="zoom-controls">
+        <button class="lang-btn"></button>
+        <div class="lang-menu" style="display: none;">
+            <button class="lang-option" style="background-image: url('pl.png');"></button>
+            <button class="lang-option" style="background-image: url('en.png');"></button>
+        </div>
+        <button class="btn">+</button>
+        <button class="btn">-</button>
+        <button class="btn">🌙</button>
     </div>
 </div>
 <div class="container">
