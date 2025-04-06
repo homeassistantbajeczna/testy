@@ -987,18 +987,23 @@
     }
 
     .lang-container {
-        position: relative;
+        position: flex;
+        align-items: center;
         display: inline-block;
     }
     
     .lang-btn, .lang-option {
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
         border: none;
         border-radius: 4px;
         cursor: pointer;
         background-size: cover;
         background-position: center;
+        padding: 0; /* Usuń domyślny padding, jeśli jest */
+        display: flex; /* Wyrównaj zawartość */
+        align-items: center;
+        justify-content: center;
     }
     
     .lang-btn:hover, .lang-option:hover {
@@ -1378,8 +1383,6 @@
 <div class="logo-container">
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; align-items: center;">
-        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
-        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
         <div class="lang-container">
             <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język" style="background-color: red;"></button>
             <div class="lang-dropdown">
@@ -1388,6 +1391,8 @@
                 <button class="lang-option" data-lang="ua" style="background-image: url('flag-ua.png');" aria-label="Język ukraiński"></button>
             </div>
         </div>
+        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
+        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
         <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
     </div>
 </div>
@@ -2917,6 +2922,11 @@
         const currentLangBtn = document.getElementById("currentLangBtn");
         currentLangBtn.style.backgroundImage = `url('flag-${lang}.png')`; // Popraw ścieżkę, jeśli potrzeba
     }
+
+    // Przykładowe wywołanie przy starcie (np. domyślny język "pl")
+    document.addEventListener("DOMContentLoaded", () => {
+        updateCurrentLangBtn("pl"); // Ustaw domyślny język, np. polski
+    });
     
     // Przełączanie widoczności dropdownu
     const langContainer = document.querySelector(".lang-container");
@@ -2934,14 +2944,11 @@
         }
     });
     
-    // Obsługa wyboru języka
+    // Obsługa zmiany języka w dropdownie
     document.querySelectorAll(".lang-option").forEach(option => {
-        option.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const lang = option.getAttribute("data-lang");
-            setLanguage(lang);
-            updateCurrentLangBtn(lang);
-            langDropdown.classList.remove("active");
+        option.addEventListener("click", () => {
+            const selectedLang = option.getAttribute("data-lang");
+            updateCurrentLangBtn(selectedLang);
         });
     });
     
