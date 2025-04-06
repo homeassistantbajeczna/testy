@@ -1010,19 +1010,16 @@
     
     .lang-btn,
     .lang-option {
-        width: 25px;
-        height: 25px;
-        border: none;
+        width: 24px;
+        height: 24px;
+        border: 1px solid var(--border-color); /* Obramowanie dla opcji */
         border-radius: 4px;
         cursor: pointer;
         background-size: cover;
         background-position: center;
-        background-color: transparent; /* Zapewniamy brak tła */
+        background-color: transparent;
         padding: 0;
-        margin: 0; /* Usuwamy marginesy, aby wyrównać z innymi przyciskami */
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        margin: 0;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
@@ -1043,14 +1040,17 @@
     
     .lang-dropdown {
         position: absolute;
-        top: 100%; /* Ustawiamy poniżej przycisku języka */
-        left: 0; /* Wyrównujemy do lewej krawędzi .lang-container */
+        top: 100%; /* Poniżej głównego przycisku */
+        left: 0;
         display: none;
         flex-direction: column;
         gap: 5px;
         padding-top: 5px;
-        z-index: 1000; /* Wyższy z-index, aby dropdown był nad innymi elementami */
-        background-color: transparent; /* Brak tła */
+        z-index: 1000;
+        background-color: var(--secondary-bg); /* Tło zgodne z trybem */
+        border: 1px solid var(--border-color); /* Szare obramowanie */
+        border-radius: 4px;
+        box-shadow: 0 2px 4px var(--shadow-color);
     }
     
     .lang-dropdown.active {
