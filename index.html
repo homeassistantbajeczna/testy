@@ -1003,9 +1003,9 @@
         font-size: 0.9em;
         box-shadow: 0 4px 6px var(--shadow-color);
         transition: transform 0.2s ease, box-shadow 0.3s ease;
-        background-size: cover;
+        background-size: cover; /* Dopasowanie obrazka do rozmiaru przycisku */
         background-position: center;
-        text-indent: -9999px;
+        text-indent: -9999px; /* Ukrycie tekstu, aby widoczne było tylko tło */
     }
     
     /* Style dla różnych języków w głównym przycisku */
@@ -1022,9 +1022,9 @@
     }
     
     .dropdown-btn:hover {
-        .dropdown-btn:hover {
-        transform: scale(1.1);
+        transform: translateY(-2px);
         box-shadow: 0 6px 12px var(--shadow-color);
+        background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
     }
     
     .dropdown-menu {
