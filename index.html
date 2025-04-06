@@ -2875,13 +2875,14 @@
     const languages = ['PL', 'EN', 'UA'];
     let currentLanguage = 'PL'; // Domyślny język
     
-    // Funkcja aktualizująca listę rozwijaną i główny przycisk
+    // Funkcja aktualizująca UI
     function updateLanguageUI(selectedLang) {
         const dropdownBtn = document.getElementById('dropdownBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
     
-        // Aktualizacja głównego przycisku - zmiana na atrybut data-lang zamiast tekstu
+        // Aktualizacja głównego przycisku
         dropdownBtn.setAttribute('data-lang', selectedLang);
+        dropdownBtn.style.backgroundImage = `url('flag-${selectedLang.toLowerCase()}.png')`;
         currentLanguage = selectedLang;
     
         // Filtrowanie pozostałych języków do listy rozwijanej
@@ -2902,42 +2903,40 @@
     // Funkcja zmiany języka na stronie (bez zmian)
     function changeLanguage(lang) {
         console.log(`Zmieniono język na: ${lang}`);
-        // Tutaj dodaj logikę zmiany języka na stronie, np.:
-        // - Zmiana tekstów w elementach HTML na podstawie słownika
-        // - Przeładowanie strony z nowym językiem
-        // Przykład:
-        // document.querySelectorAll('[data-lang-text]').forEach(el => {
-        //     el.textContent = translations[lang][el.getAttribute('data-lang-text')];
-        // });
+        // Tutaj dodaj logikę zmiany języka na stronie
     }
     
-    // Przełączanie listy rozwijanej (bez zmian)
-    document.getElementById('dropdownBtn').addEventListener('click', function(e) {
-        e.preventDefault();
+    // Inicjalizacja przy starcie
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownBtn = document.getElementById('dropdownBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
-        dropdownMenu.classList.toggle('show');
-    });
     
-    // Zamykanie listy rozwijanej po kliknięciu poza nią (bez zmian)
-    document.addEventListener('click', function(e) {
-        const dropdown = document.querySelector('.dropdown');
-        const dropdownMenu = document.getElementById('dropdownMenu');
-        if (!dropdown.contains(e.target)) {
-            dropdownMenu.classList.remove('show');
-        }
-    });
+        // Przełączanie listy rozwijanej przy kliknięciu w główny przycisk
+        dropdownBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            dropdownMenu.classList.toggle('show');
+        });
     
-    // Obsługa kliknięć w elementy listy rozwijanej (bez zmian)
-    document.getElementById('dropdownMenu').addEventListener('click', function(e) {
-        const target = e.target.closest('.dropdown-item');
-        if (target) {
-            const selectedLang = target.getAttribute('data-lang');
-            updateLanguageUI(selectedLang);
-        }
-    });
+        // Zamykanie listy rozwijanej po kliknięciu poza nią
+        document.addEventListener('click', function(e) {
+            const dropdown = document.querySelector('.dropdown');
+            if (!dropdown.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
     
-    // Inicjalizacja UI przy starcie
-    updateLanguageUI(currentLanguage);
+        // Obsługa kliknięć w elementy listy rozwijanej
+        dropdownMenu.addEventListener('click', function(e) {
+            const target = e.target.closest('.dropdown-item');
+            if (target) {
+                const selectedLang = target.getAttribute('data-lang');
+                updateLanguageUI(selectedLang);
+            }
+        });
+    
+        // Inicjalizacja UI przy starcie
+        updateLanguageUI(currentLanguage);
+    });
     
 </script>
 </body>
