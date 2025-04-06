@@ -992,7 +992,7 @@
     }
     
     .lang-btn, .lang-option {
-        idth: 30px;
+        width: 30px;
         height: 30px;
         border: none;
         border-radius: 4px;
@@ -1354,11 +1354,11 @@
             max-width: 150px;
         }
     
-        .zoom-controls {
+        /*.zoom-controls {
             position: static;
             transform: none;
             margin-left: auto;
-        }
+        }*/
     
         .summary-footer {
             display: flex;
@@ -1381,7 +1381,7 @@
         <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
         <div class="lang-container">
-            <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
+            <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język" style="background-color: red;"></button>
             <div class="lang-dropdown">
                 <button class="lang-option" data-lang="pl" style="background-image: url('flag-pl.png');" aria-label="Język polski"></button>
                 <button class="lang-option" data-lang="en" style="background-image: url('flag-en.png');" aria-label="Język angielski"></button>
@@ -2915,7 +2915,7 @@
     // Aktualizacja głównego przycisku
     function updateCurrentLangBtn(lang) {
         const currentLangBtn = document.getElementById("currentLangBtn");
-        currentLangBtn.style.backgroundImage = `url('/path/to/flags/flag-${lang}.png')`;
+        currentLangBtn.style.backgroundImage = `url('flag-${lang}.png')`; // Popraw ścieżkę, jeśli potrzeba
     }
     
     // Przełączanie widoczności dropdownu
