@@ -20,7 +20,7 @@
         --accent-color: #c2b280;
         --accent-gradient-start: #c2b280;
         --accent-gradient-end: #b0a070;
-        --border-color: red; /*#e0e0e0;*/
+        --border-color: #e0e0e0;
         --border-color-rgb: 102, 102, 102;
         --highlight-yellow: #17a2b8;
         --highlight-green: #28a745;
@@ -1009,86 +1009,20 @@
         box-sizing: border-box;
     }
 
-    .lang-container {
-        position: relative; /* Zmieniamy na relative, aby dropdown był pozycjonowany względem tego elementu */
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    .lang-btn,
-    .lang-option {
-        box-sizing: border-box;
+    .zoom-controls .btn {
         width: 25px;
         height: 25px;
         border: 2px solid var(--border-color);
         border-radius: 50%;
-        background-size: 80%;
-        background-position: center;
-        background-repeat: no-repeat;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-
-    .lang-option::before {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        right: 2px;
-        bottom: 2px;
-        background-size: cover;
-        background-position: center;
-        border-radius: 50%;
-    }
-
-
-    .lang-btn {
-        border: 2px solid var(--border-color);
-        background-image: url('flag-pl.png'); /* Domyślna flaga */
-        background-size: 80%;
-        background-position: center;
-        background-repeat: no-repeat;
-        cursor: pointer;
-    }
     
-    .lang-btn:hover,
-    .lang-option:hover {
+    .zoom-controls .btn:hover {
         transform: translateY(-5px);
         box-shadow: 0 2px 4px var(--shadow-color);
-    }
-    
-    .lang-dropdown {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        display: none;
-        flex-direction: column;
-        gap: 5px;
-        padding-top: 5px;
-        z-index: 1000;
-        background-color: transparent;
-    }
-    
-    .lang-dropdown.active {
-        display: flex;
-    }
-    
-    #langPlBtn {
-        background-image: url('flag-pl.png'); /* Ścieżka do flagi Polski */
-    }
-    
-    #langEnBtn {
-        background-image: url('flag-en.png'); /* Ścieżka do flagi Wielkiej Brytanii */
-    }
-    
-    #langUaBtn {
-        background-image: url('flag-ua.png'); /* Ścieżka do flagi Ukrainy */
-    }
-    
-    /* Opcjonalnie: W trybie ciemnym zmień obramowanie */
-    .dark-mode .lang-btn,
-    .dark-mode .lang-option {
-        border-color: var(--border-color);
     }
     
     /* R E S P O N S Y W N O Ś Ć */
@@ -1427,11 +1361,7 @@
         <button class="btn">+</button>
         <button class="btn">-</button>
         <button class="btn">🌙</button>
-        <button class="lang-btn"></button>
-        <div class="lang-menu" style="display: none;">
-            <button class="lang-option" style="background-image: url('pl.png');"></button>
-            <button class="lang-option" style="background-image: url('en.png');"></button>
-        </div>
+        <button class="btn" id="languageBtn">PL</button>
     </div>
 </div>
 <div class="container">
@@ -2870,165 +2800,6 @@
     
     initializeTheme();
 
-    // Obiekt z tłumaczeniami (rozszerzony o więcej elementów)
-    const translations = {
-        pl: {
-            title: "Kalkulator Obligacji Skarbu Państwa",
-            resultHeader: "Podsumowanie wyników",
-            buttonCalculate: "Oblicz",
-            buttonGeneratePdf: "Generuj PDF",
-            buttonBack: "Powrót do edycji",
-            harmonogramToggle: "Harmonogram odsetek ▼",
-            harmonogramToggleClosed: "Harmonogram odsetek ►",
-            capital: "Kapitał",
-            interest: "Odsetki",
-            tax: "Podatek",
-            investmentPeriod: "Okres inwestycji",
-            netProfit: "Zysk netto"
-        },
-        en: {
-            title: "Treasury Bond Calculator",
-            resultHeader: "Summary of Results",
-            buttonCalculate: "Calculate",
-            buttonGeneratePdf: "Generate PDF",
-            buttonBack: "Back to Edit",
-            harmonogramToggle: "Interest Schedule ▼",
-            harmonogramToggleClosed: "Interest Schedule ►",
-            capital: "Capital",
-            interest: "Interest",
-            tax: "Tax",
-            investmentPeriod: "Investment Period",
-            netProfit: "Net Profit"
-        },
-        ua: {
-            title: "Калькулятор державних облігацій",
-            resultHeader: "Підсумок результатів",
-            buttonCalculate: "Розрахувати",
-            buttonGeneratePdf: "Згенерувати PDF",
-            buttonBack: "Повернутися до редагування",
-            harmonogramToggle: "Графік відсотків ▼",
-            harmonogramToggleClosed: "Графік відсотків ►",
-            capital: "Капітал",
-            interest: "Відсотки",
-            tax: "Податок",
-            investmentPeriod: "Період інвестування",
-            netProfit: "Чистий прибуток"
-        }
-    };
-    
-    // Funkcja zmiany języka
-    function setLanguage(lang) {
-        document.documentElement.lang = lang;
-        const t = translations[lang];
-    
-        // Aktualizacja tekstów na stronie
-        document.querySelector("title").textContent = t.title;
-        document.querySelector(".header-row h4").textContent = t.title;
-        document.querySelector("#resultHeader").textContent = t.resultHeader;
-        document.querySelector("#obliczBtn").textContent = t.buttonCalculate;
-        document.querySelector("#generatePdfBtn").textContent = t.buttonGeneratePdf;
-        document.querySelector(".result-section .btn-secondary").textContent = t.buttonBack;
-    
-        // Aktualizacja legendy wykresu
-        document.querySelector("#legendKapital").textContent = t.capital;
-        document.querySelector("#legendOdsetki").textContent = t.interest;
-        document.querySelector("#legendPodatek").textContent = t.tax;
-    
-        // Aktualizacja podsumowania
-        const okresSpan = document.querySelector(".highlight.yellow");
-        const zyskSpan = document.querySelector(".highlight.green");
-        if (okresSpan) okresSpan.textContent = `${t.investmentPeriod}: ${okresSpan.textContent.split(":")[1] || ""}`;
-        if (zyskSpan) zyskSpan.textContent = `${t.netProfit}: ${zyskSpan.textContent.split(":")[1] || ""}`;
-    
-        // Aktualizacja harmonogramu
-        const harmonogramBtn = document.querySelector(".harmonogram h5.btn-toggle");
-        const harmonogramContent = document.getElementById("harmonogramContent");
-        harmonogramBtn.textContent = harmonogramContent.style.display === "none" ? t.harmonogramToggleClosed : t.harmonogramToggle;
-    
-        localStorage.setItem("selectedLanguage", lang);
-    }
-    
-    // Inicjalizacja języka
-    function initLanguage() {
-        const savedLang = localStorage.getItem("selectedLanguage") || "pl";
-        setLanguage(savedLang);
-        updateCurrentLangBtn(savedLang);
-        updateLangDropdown(savedLang); // Inicjalizuj dropdown
-    }
-    
-    // Aktualizacja głównego przycisku
-    function updateCurrentLangBtn(lang) {
-        const currentLangBtn = document.getElementById("currentLangBtn");
-        const selectedLangObj = availableLanguages.find(langObj => langObj.lang === lang);
-        currentLangBtn.style.backgroundImage = `url('${selectedLangObj.flag}')`;
-        updateLangDropdown(lang); // Aktualizuj dropdown
-    }
-
-    // Przykładowe wywołanie przy starcie (np. domyślny język "pl")
-    document.addEventListener("DOMContentLoaded", () => {
-        initLanguage(); // Zainicjuj język przy ładowaniu strony
-    });
-    
-    // Przełączanie widoczności dropdownu
-    const langContainer = document.querySelector(".lang-container");
-    const langDropdown = document.querySelector(".lang-dropdown");
-    const currentLangBtn = document.getElementById("currentLangBtn");
-    
-    currentLangBtn.addEventListener("click", () => {
-        langDropdown.classList.toggle("active");
-    });
-    
-    // Zamykanie dropdownu po kliknięciu poza nim
-    document.addEventListener("click", (e) => {  // Poprawiona literówka
-        if (!langContainer.contains(e.target)) {
-            langDropdown.classList.remove("active");
-        }
-    });
-
-    const availableLanguages = [
-        { lang: "pl", flag: "flag-pl.png" },
-        { lang: "en", flag: "flag-en.png" },
-        { lang: "ua", flag: "flag-ua.png" }
-    ];
-
-    // Funkcja aktualizująca dropdown na podstawie wybranego języka
-    function updateLangDropdown(currentLang) {
-        const langDropdown = document.getElementById("langDropdown");
-        langDropdown.innerHTML = ""; // Wyczyść dropdown
-    
-        // Filtruj języki, wykluczając aktualnie wybrany
-        const filteredLanguages = availableLanguages.filter(langObj => langObj.lang !== currentLang);
-    
-        filteredLanguages.forEach(langObj => {
-            const btn = document.createElement("button");
-            btn.className = "lang-option";
-            btn.setAttribute("data-lang", langObj.lang);
-            btn.style.backgroundImage = `url('${langObj.flag}')`;
-            btn.setAttribute("aria-label", `Język ${langObj.lang === "pl" ? "polski" : langObj.lang === "en" ? "angielski" : "ukraiński"}`);
-            langDropdown.appendChild(btn);
-    
-            // Obsługa kliknięcia w opcję
-            btn.addEventListener("click", () => {
-                setLanguage(langObj.lang);
-                updateCurrentLangBtn(langObj.lang);
-                updateLangDropdown(langObj.lang); // Aktualizuj dropdown po zmianie
-                langDropdown.classList.remove("active");
-            });
-        });
-    }
-    
-    // Obsługa zmiany języka w dropdownie
-    document.querySelectorAll(".lang-option").forEach(option => {
-        option.addEventListener("click", () => {
-            const selectedLang = option.getAttribute("data-lang");
-            setLanguage(selectedLang); // Wywołaj zmianę języka
-            updateCurrentLangBtn(selectedLang);
-            langDropdown.classList.remove("active"); // Zamknij dropdown po wyborze
-        });
-    });
-    
-    // Inicjalizacja przy ładowaniu strony
-    initLanguage();
 </script>
 </body>
 </html>
