@@ -2893,7 +2893,7 @@
             <button class="dropdown-item" data-lang="${lang}" aria-label="Język ${lang === 'PL' ? 'polski' : lang === 'EN' ? 'angielski' : 'ukraiński'}">${lang}</button>
         `).join('');
     
-        // Zamknij listę po wyborze
+        // Natychmiastowe zamknięcie listy po wyborze
         dropdownMenu.classList.remove('show');
     
         // Zmiana języka na stronie
@@ -2931,6 +2931,8 @@
             if (target) {
                 const selectedLang = target.getAttribute('data-lang');
                 updateLanguageUI(selectedLang);
+                // Zapobieganie dalszemu rozprzestrzenianiu się zdarzenia
+                e.stopPropagation();
             }
         });
     
