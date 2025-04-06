@@ -1035,27 +1035,17 @@
 
 
     .lang-btn {
+        width: 25px;
+        height: 25px;
+        border: 2px solid var(--border-color);
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         background-image: url('flag-pl.png'); /* Domyślna flaga */
-        background-size: 80%; /* Zmniejsz rozmiar flagi, aby nie zakrywała obramowania */
+        background-size: 80%;
         background-position: center;
         background-repeat: no-repeat;
-        background-color: transparent; /* Zachowaj przezroczystość tła dla flagi */
+        cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: 2px solid #f5f5f5; /* Zwiększ grubość obramowania */
-        border-radius: 50%; /* Upewnij się, że przycisk jest okrągły */
-    }
-
-    .lang-btn::before {
-        content: '';
-        position: absolute;
-        top: 2px; /* Odstęp od krawędzi, aby pokazać obramowanie */
-        left: 2px;
-        right: 2px;
-        bottom: 2px;
-        background-image: url('flag-pl.png');
-        background-size: cover;
-        background-position: center;
-        border-radius: 50%;
     }
     
     .lang-btn:hover,
@@ -1067,7 +1057,7 @@
     .lang-dropdown {
         position: absolute;
         top: 100%;
-        right: 0; /* Wyrównaj do prawej krawędzi .lang-container */
+        right: 0;
         display: none;
         flex-direction: column;
         gap: 5px;
@@ -1437,10 +1427,8 @@
 <div class="logo-container">
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; align-items: center;">
-        <div class="lang-container">
-            <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
-            <div class="lang-dropdown" id="langDropdown"></div> <!-- Pusty dropdown -->
-        </div>
+        <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
+        <div class="lang-dropdown" id="langDropdown"></div>
         <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
         <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
