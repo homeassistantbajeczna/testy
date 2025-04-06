@@ -1038,7 +1038,7 @@
         width: 25px; /* Rozmiar 25px */
         height: 25px; /* Rozmiar 25px */
         border-radius: 50%; /* Okrągły kształt */
-        background: none; /* Bez tła gradientowego */
+        background: none; /* Bez tła */
         border: 2px solid var(--accent-gradient-start); /* Ramka 2px w kolorze przycisków +/- */
         color: var(--primary-text);
         font-size: 0.9em;
@@ -1046,8 +1046,8 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform 0.2s ease, border-color 0.3s ease; /* Zmiana koloru ramki przy hover */
-        padding: 0; /* Usunięcie paddingu, aby uniknąć "jajka" */
+        transition: transform 0.2s ease, border-color 0.3s ease;
+        padding: 0; /* Usunięcie paddingu dla idealnego koła */
     }
     
     .dropdown-item:hover {
@@ -1398,10 +1398,10 @@
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
         <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
         <div class="dropdown">
-            <button id="dropdownBtn" class="btn btn-sm dropdown-btn" aria-label="Otwórz dodatkowe opcje">⚙️</button>
+            <button id="dropdownBtn" class="btn btn-sm dropdown-btn" aria-label="Otwórz dodatkowe opcje">PL</button>
             <div class="dropdown-menu" id="dropdownMenu">
-                <button class="dropdown-item" aria-label="Opcja 1">1</button>
-                <button class="dropdown-item" aria-label="Opcja 2">2</button>
+                <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
+                <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
             </div>
         </div>
     </div>
@@ -2842,13 +2842,13 @@
     
     initializeTheme();
 
-        // Przełączanie listy rozwijanej
+     // Przełączanie listy rozwijanej
     document.getElementById('dropdownBtn').addEventListener('click', function(e) {
         e.preventDefault();
         const dropdownMenu = document.getElementById('dropdownMenu');
         dropdownMenu.classList.toggle('show');
     });
-
+    
     // Zamykanie listy rozwijanej po kliknięciu poza nią
     document.addEventListener('click', function(e) {
         const dropdown = document.querySelector('.dropdown');
@@ -2857,16 +2857,69 @@
             dropdownMenu.classList.remove('show');
         }
     });
-
-    // Przykładowe funkcje dla przycisków w liście rozwijanej (możesz je dostosować)
-    document.querySelectorAll('.dropdown-item').forEach((item, index) => {
+    
+    // Logika zmiany języka
+    document.querySelectorAll('.dropdown-item').forEach(item => {
         item.addEventListener('click', function() {
-            console.log(`Kliknięto przycisk ${index + 1}`);
-            // Tutaj możesz dodać własną logikę, np.:
-            // if (index === 0) { funkcjaPierwsza(); }
-            // if (index === 1) { funkcjaDruga(); }
+            const selectedLang = this.getAttribute('data-lang'); // Pobierz wybrany język (EN lub UA)
+            const dropdownBtn = document.getElementById('dropdownBtn');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+    
+            // Aktualizacja tekstu głównego przycisku
+            dropdownBtn.textContent = selectedLang;
+    
+            // Aktualizacja listy rozwijanej w zależności od wybranego języka
+            if (selectedLang === 'PL') {
+                dropdownMenu.innerHTML = `
+                    <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
+                    <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
+                `;
+            } else if (selectedLang === 'EN') {
+                dropdownMenu.innerHTML = `
+                    <button class="dropdown-item" data-lang="PL" aria-label="Język polski">PL</button>
+                    <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
+                `;
+            } else if (selectedLang === 'UA') {
+                dropdownMenu.innerHTML = `
+                    <button class="dropdown-item" data-lang="PL" aria-label="Język polski">PL</button>
+                    <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
+                `;
+            }
+    
+            // Ponowne przypisanie listenerów do nowych elementów
+            document.querySelectorAll('.dropdown-item').forEach(newItem => {
+                newItem.addEventListener('click', function() {
+                    const newLang = this.getAttribute('data-lang');
+                    dropdownBtn.textContent = newLang;
+                    updateDropdownMenu(newLang);
+                });
+            });
+    
+            // Zamknij listę po wyborze
+            dropdownMenu.classList.remove('show');
         });
     });
+    
+    // Funkcja aktualizująca listę rozwijaną
+    function updateDropdownMenu(currentLang) {
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        if (currentLang === 'PL') {
+            dropdownMenu.innerHTML = `
+                <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
+                <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
+            `;
+        } else if (currentLang === 'EN') {
+            dropdownMenu.innerHTML = `
+                <button class="dropdown-item" data-lang="PL" aria-label="Język polski">PL</button>
+                <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
+            `;
+        } else if (currentLang === 'UA') {
+            dropdownMenu.innerHTML = `
+                <button class="dropdown-item" data-lang="PL" aria-label="Język polski">PL</button>
+                <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
+            `;
+        }
+    }
 </script>
 </body>
 </html>
