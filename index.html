@@ -117,6 +117,7 @@
         transform: translateY(-50%);
         display: flex;
         gap: 5px;
+        align-items: center;
     }
     
     .logo,
@@ -991,14 +992,13 @@
     }
     
     .lang-btn, .lang-option {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        border: 1px solid var(--border-color);
+        idth: 30px;
+        height: 30px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
         background-size: cover;
         background-position: center;
-        cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
     
     .lang-btn:hover, .lang-option:hover {
@@ -1019,7 +1019,7 @@
     }
     
     .lang-dropdown.active {
-        display: flex; /* Pokazane po kliknięciu */
+        display: flex;
     }
     
     #langPlBtn {
@@ -1377,18 +1377,17 @@
 </style>
 <div class="logo-container">
     <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-    <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px;">
-        <!-- Kontener językowy na początku -->
+    <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; align-items: center;">
+        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
+        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
         <div class="lang-container">
-            <button id="currentLangBtn" class="lang-btn" style="background-image: url('flag-pl.png');" aria-label="Aktualny język"></button>
+            <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
             <div class="lang-dropdown">
                 <button class="lang-option" data-lang="pl" style="background-image: url('flag-pl.png');" aria-label="Język polski"></button>
                 <button class="lang-option" data-lang="en" style="background-image: url('flag-en.png');" aria-label="Język angielski"></button>
                 <button class="lang-option" data-lang="ua" style="background-image: url('flag-ua.png');" aria-label="Język ukraiński"></button>
             </div>
         </div>
-        <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ"> + </button>
-        <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz"> - </button>
         <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
     </div>
 </div>
@@ -2916,7 +2915,7 @@
     // Aktualizacja głównego przycisku
     function updateCurrentLangBtn(lang) {
         const currentLangBtn = document.getElementById("currentLangBtn");
-        currentLangBtn.style.backgroundImage = `url('flag-${lang}.png')`;
+        currentLangBtn.style.backgroundImage = `url('/path/to/flags/flag-${lang}.png')`;
     }
     
     // Przełączanie widoczności dropdownu
