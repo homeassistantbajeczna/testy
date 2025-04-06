@@ -1012,24 +1012,50 @@
     .lang-option {
         width: 24px;
         height: 24px;
-        border: 1px solid var(--border-color); /* Obramowanie dla opcji */
-        border-radius: 4px;
-        cursor: pointer;
+        border: 2px solid var(--border-color);
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         background-size: cover;
         background-position: center;
-        background-color: transparent;
-        padding: 0;
-        margin: 0;
+        cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .lang-btn {
-        background-image: url('flag-pl.png'); /* Domyślna flaga */
+    .lang-option::before {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
         background-size: cover;
         background-position: center;
+        border-radius: 50%;
+    }
+
+
+    .lang-btn {
+        background-image: url('flag-pl.png'); /* Domyślna flaga */
+        background-size: 80%; /* Zmniejsz rozmiar flagi, aby nie zakrywała obramowania */
+        background-position: center;
+        background-repeat: no-repeat;
         background-color: transparent; /* Zachowaj przezroczystość tła dla flagi */
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: 1px solid var(--border-color); /* Szare obramowanie */
+        border: 2px solid #d0d0d0; /* Zwiększ grubość obramowania */
+        border-radius: 50%; /* Upewnij się, że przycisk jest okrągły */
+    }
+
+    .lang-btn::before {
+        content: '';
+        position: absolute;
+        top: 2px; /* Odstęp od krawędzi, aby pokazać obramowanie */
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
+        background-image: url('flag-pl.png');
+        background-size: cover;
+        background-position: center;
+        border-radius: 50%;
     }
     
     .lang-btn:hover,
@@ -1040,17 +1066,14 @@
     
     .lang-dropdown {
         position: absolute;
-        top: 100%; /* Poniżej głównego przycisku */
-        left: 0;
+        top: 100%;
+        right: 0; /* Wyrównaj do prawej krawędzi .lang-container */
         display: none;
         flex-direction: column;
         gap: 5px;
         padding-top: 5px;
         z-index: 1000;
-        background-color: var(--secondary-bg); /* Tło zgodne z trybem */
-        border: 1px solid var(--border-color); /* Szare obramowanie */
-        border-radius: 4px;
-        box-shadow: 0 2px 4px var(--shadow-color);
+        background-color: transparent;
     }
     
     .lang-dropdown.active {
