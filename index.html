@@ -123,20 +123,20 @@
 
     .zoom-controls .btn,
     .zoom-controls .lang-btn {
-        width: 24px; /* Ujednolicamy szerokość */
-        height: 24px; /* Ujednolicamy wysokość */
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--border-color); /* Dodajemy ramkę do wszystkich przycisków */
         padding: 0;
         font-size: var(--small-font-size);
-        line-height: 24px; /* Dopasowujemy line-height do wysokości */
+        line-height: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 50%;
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--primary-text);
-        border: none;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        margin: 0; /* Usuwamy potencjalne marginesy */
+        margin: 0;
         vertical-align: middle;
     }
     
@@ -1013,12 +1013,12 @@
     
     .lang-btn,
     .lang-option {
-        width: 24px;
-        height: 24px;
+        width: 20px; /* 24px - 2px (lewa ramka) - 2px (prawa ramka) */
+        height: 20px; /* 24px - 2px (górna ramka) - 2px (dolna ramka) */
         border: 2px solid var(--border-color);
         border-radius: 50%;
         background-size: 80%;
-        background-position: center;
+        background-position: center center;
         background-repeat: no-repeat;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -1400,12 +1400,6 @@
             padding: 10px 0;
             max-width: 150px;
         }
-    
-        /*.zoom-controls {
-            position: static;
-            transform: none;
-            margin-left: auto;
-        }*/
     
         .summary-footer {
             display: flex;
