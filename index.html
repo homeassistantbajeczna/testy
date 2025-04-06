@@ -111,30 +111,33 @@
     }
 
     .zoom-controls {
-        position: absolute;
+        pposition: absolute;
         right: 10px;
         top: 50%;
         transform: translateY(-50%);
         display: flex;
         gap: 5px;
         align-items: center;
+        height: 24px; /* Wymuszamy wysokość kontenera */
     }
 
     .zoom-controls .btn,
     .zoom-controls .lang-btn {
-        width: 24px;
-        height: 24px;
+        width: 24px; /* Ujednolicamy szerokość */
+        height: 24px; /* Ujednolicamy wysokość */
         padding: 0;
         font-size: var(--small-font-size);
-        line-height: 25px;
+        line-height: 24px; /* Dopasowujemy line-height do wysokości */
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%; /* Okrągłe przyciski */
+        border-radius: 50%;
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--primary-text);
         border: none;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        margin: 0; /* Usuwamy potencjalne marginesy */
+        vertical-align: middle;
     }
     
     .logo,
@@ -1014,9 +1017,9 @@
         height: 24px;
         border: 2px solid var(--border-color);
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        background-size: cover;
+        background-size: 80%;
         background-position: center;
+        background-repeat: no-repeat;
         cursor: pointer;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -1035,22 +1038,17 @@
 
 
     .lang-btn {
-        width: 25px;
-        height: 25px;
         border: 2px solid var(--border-color);
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         background-image: url('flag-pl.png'); /* Domyślna flaga */
         background-size: 80%;
         background-position: center;
         background-repeat: no-repeat;
         cursor: pointer;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
     .lang-btn:hover,
     .lang-option:hover {
-        transform: scale(1.1);
+        transform: translateY(-5px);
         box-shadow: 0 2px 4px var(--shadow-color);
     }
     
