@@ -1000,12 +1000,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 2px solid var(--accent-gradient-start); /* Złote obramowanie */
+        border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie */
         box-shadow: 0 4px 6px var(--shadow-color); /* Stały cień */
-        background-size: cover !important; /* Flaga zawsze widoczna */
+        background-size: cover !important;
         background-position: center !important;
         text-indent: -9999px; /* Ukrywa tekst "PL" */
-        background-color: transparent !important; /* Bez tła */
+        background-color: transparent !important;
     }
     
     /* Style dla flag w głównym przycisku */
@@ -1021,10 +1021,13 @@
         background-image: url('flag-ua.png') !important;
     }
     
-    /* Brak efektów przy najechaniu na główny przycisk */
+    /* Zachowanie wszystkich właściwości przy najechaniu */
     .dropdown-btn:hover {
-        background-image: inherit !important; /* Zachowuje flagę */
-        background-color: transparent !important; /* Bez złotego tła */
+        border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie zostaje */
+        background-image: inherit !important; /* Flaga zostaje */
+        background-size: cover !important;
+        background-position: center !important;
+        background-color: transparent !important; /* Bez zmian tła */
     }
     
     /* Styl dla menu rozwijanego */
@@ -1044,13 +1047,13 @@
         width: 25px;
         height: 25px;
         border-radius: 50%;
-        border: 2px solid var(--accent-gradient-start); /* Złote obramowanie */
-        background-size: cover !important; /* Flaga widoczna */
+        border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie */
+        background-size: cover !important;
         background-position: center !important;
         text-indent: -9999px; /* Ukrywa tekst "EN", "UA" */
         margin: 5px 0; /* Odstęp między elementami */
         padding: 0; /* Usuwa padding */
-        background-color: transparent !important; /* Przezroczyste tło */
+        background-color: transparent !important;
     }
     
     /* Style dla flag w menu rozwijanym */
@@ -1066,10 +1069,13 @@
         background-image: url('flag-ua.png') !important;
     }
     
-    /* Brak efektów przy najechaniu na elementy menu */
+    /* Zachowanie wszystkich właściwości przy najechaniu na elementy menu */
     .dropdown-item:hover {
-        background-image: inherit !important; /* Zachowuje flagę */
-        background-color: transparent !important; /* Bez tła */
+        border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie zostaje */
+        background-image: inherit !important; /* Flaga zostaje */
+        background-size: cover !important;
+        background-position: center !important;
+        background-color: transparent !important; /* Bez zmian tła */
     }
     
     /* Pokazanie menu po najechaniu na dropdown */
