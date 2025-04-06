@@ -1016,8 +1016,7 @@
         display: none;
         position: absolute;
         top: 100%;
-        left: 50%; /* Ustawiamy lewą krawędź na środku głównego przycisku */
-        transform: translateX(-50%); /* Przesuwamy listę o połowę jej szerokości w lewo, aby wyśrodkować */
+        right: 0; /* Wyrównanie do prawej krawędzi głównego przycisku */
         padding: 5px;
         z-index: 1000;
         min-width: 50px;
@@ -1032,6 +1031,7 @@
         display: flex;
     }
     
+    /* Upewniamy się, że przyciski w liście są wyrównane do prawej */
     .dropdown-item {
         width: 25px;
         height: 25px;
@@ -1046,6 +1046,7 @@
         cursor: pointer;
         transition: transform 0.2s ease, border-color 0.3s ease;
         padding: 0;
+        margin-left: auto; /* Wyrównanie do prawej strony w flexbox */
     }
     
     .dropdown-item:hover {
