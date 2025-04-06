@@ -122,18 +122,19 @@
 
     .zoom-controls .btn,
     .zoom-controls .lang-btn {
-        width: 25px;
-        height: 25px;
+        width: 24px;
+        height: 24px;
         padding: 0;
         font-size: var(--small-font-size);
         line-height: 25px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 50%; /* Dla spójności z innymi przyciskami */
+        border-radius: 50%; /* Okrągłe przyciski */
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--primary-text);
         border: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     
     .logo,
@@ -1031,6 +1032,7 @@
         background-position: center;
         background-color: transparent; /* Zachowaj przezroczystość tła dla flagi */
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid var(--border-color); /* Szare obramowanie */
     }
     
     .lang-btn:hover,
@@ -1414,11 +1416,7 @@
     <div class="zoom-controls" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; gap: 5px; align-items: center;">
         <div class="lang-container">
             <button id="currentLangBtn" class="lang-btn" aria-label="Aktualny język"></button>
-            <div class="lang-dropdown">
-                <button class="lang-option" data-lang="pl" style="background-image: url('flag-pl.png');" aria-label="Język polski"></button>
-                <button class="lang-option" data-lang="en" style="background-image: url('flag-en.png');" aria-label="Język angielski"></button>
-                <button class="lang-option" data-lang="ua" style="background-image: url('flag-ua.png');" aria-label="Język ukraiński"></button>
-            </div>
+            <div class="lang-dropdown" id="langDropdown"></div> <!-- Pusty dropdown -->
         </div>
         <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
         <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
@@ -2944,12 +2942,15 @@
         const savedLang = localStorage.getItem("selectedLanguage") || "pl";
         setLanguage(savedLang);
         updateCurrentLangBtn(savedLang);
+        updateLangDropdown(savedLang); // Inicjalizuj dropdown
     }
     
     // Aktualizacja głównego przycisku
     function updateCurrentLangBtn(lang) {
         const currentLangBtn = document.getElementById("currentLangBtn");
-        currentLangBtn.style.backgroundImage = `url('flag-${lang}.png')`;
+        const selectedLangObj = availableLanguages.find(langObj => langObj.lang === lang);
+        currentLangBtn.style.backgroundImage = `url('${selectedLangObj.flag}')`;
+        updateLangDropdown(lang); // Aktualizuj dropdown
     }
 
     // Przykładowe wywołanie przy starcie (np. domyślny język "pl")
@@ -2972,6 +2973,38 @@
             langDropdown.classList.remove("active");
         }
     });
+
+    const availableLanguages = [
+        { lang: "pl", flag: "flag-pl.png" },
+        { lang: "en", flag: "flag-en.png" },
+        { lang: "ua", flag: "flag-ua.png" }
+    ];
+
+    // Funkcja aktualizująca dropdown na podstawie wybranego języka
+    function updateLangDropdown(currentLang) {
+        const langDropdown = document.getElementById("langDropdown");
+        langDropdown.innerHTML = ""; // Wyczyść dropdown
+    
+        // Filtruj języki, wykluczając aktualnie wybrany
+        const filteredLanguages = availableLanguages.filter(langObj => langObj.lang !== currentLang);
+    
+        filteredLanguages.forEach(langObj => {
+            const btn = document.createElement("button");
+            btn.className = "lang-option";
+            btn.setAttribute("data-lang", langObj.lang);
+            btn.style.backgroundImage = `url('${langObj.flag}')`;
+            btn.setAttribute("aria-label", `Język ${langObj.lang === "pl" ? "polski" : langObj.lang === "en" ? "angielski" : "ukraiński"}`);
+            langDropdown.appendChild(btn);
+    
+            // Obsługa kliknięcia w opcję
+            btn.addEventListener("click", () => {
+                setLanguage(langObj.lang);
+                updateCurrentLangBtn(langObj.lang);
+                updateLangDropdown(langObj.lang); // Aktualizuj dropdown po zmianie
+                langDropdown.classList.remove("active");
+            });
+        });
+    }
     
     // Obsługa zmiany języka w dropdownie
     document.querySelectorAll(".lang-option").forEach(option => {
