@@ -1021,25 +1021,26 @@
         background-image: url('flag-ua.png') !important;
     }
     
-    /* Pełne zablokowanie zmian przy najechaniu na główny przycisk */
+    /* Zachowanie wszystkich właściwości przy najechaniu na główny przycisk */
     .dropdown-btn:hover {
-        border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie zostaje */
+        border: 2px solid var(--accent-gradient-start) !important;
         background-size: cover !important;
         background-position: center !important;
         background-color: transparent !important;
         background-image: url('flag-pl.png') !important; /* Domyślna flaga dla PL */
     }
     
-    /* Styl dla menu rozwijanego */
-    .dropdown-menu {
+    /* Styl dla menu rozwijanego - zwiększona specyficzność */
+    .dropdown .dropdown-menu {
         display: none; /* Ukryte domyślnie */
         position: absolute;
-        background: transparent !important; /* Przezroczyste tło */
-        background-color: transparent !important; /* Dodatkowe wymuszenie */
+        background: transparent !important;
+        background-color: transparent !important; /* Nadpisuje Bootstrap */
         min-width: 25px;
         z-index: 1;
         padding: 5px 0; /* Lekki odstęp */
-        box-shadow: none !important; /* Usuwa cień Bootstrapa */
+        box-shadow: none !important; /* Usuwa cień */
+        border: none !important; /* Usuwa ewentualną ramkę */
     }
     
     /* Styl dla elementów w menu rozwijanym */
@@ -1070,9 +1071,9 @@
         background-image: url('flag-ua.png') !important;
     }
     
-    /* Pełne zablokowanie zmian przy najechaniu na elementy menu */
+    /* Zachowanie wszystkich właściwości przy najechaniu na elementy menu */
     .dropdown-item:hover {
-        border: 2px solid var(--accent-gradient-start) !important; /* Złote obramowanie zostaje */
+        border: 2px solid var(--accent-gradient-start) !important;
         background-size: cover !important;
         background-position: center !important;
         background-color: transparent !important;
