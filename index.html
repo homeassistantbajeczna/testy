@@ -1500,6 +1500,9 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+    // D E F I N I C J E   Z M I E N N Y C H
+    
     const elements = {
         formSection: document.getElementById("formSection"),
         resultSection: document.getElementById("resultSection"),
@@ -1583,8 +1586,9 @@
         "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
         "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
     };
-</script>
-<script>
+
+    // O B S Ł U G A   Z D A R Z E Ń
+    
     elements.dynamicRateRange.addEventListener("input", () => { 
         elements.dynamicRate.value = elements.dynamicRateRange.value; 
         const typ = elements.typObligacji.value;
@@ -1734,6 +1738,8 @@
     
         updateVariableInputs();
     }
+
+    // F U N K C J E   P O M O C N I C Z E
     
     function updateIloscObligacji() {
         const kwota = parseFloat(elements.kwota.value) || 0;
@@ -2082,6 +2088,8 @@
             }
         };
     }
+
+    // L O G I K A   O B L I C Z E Ń
     
     function obliczObligacje() {
         console.log("Starting obliczObligacje");
@@ -2243,7 +2251,6 @@
         const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
         if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
 
-        // Ustawianie data-tooltip dla etykiet tekstowych w legendzie
         document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
         document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
         document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
@@ -2458,9 +2465,6 @@
         console.log("ObliczObligacje completed");
     }
 
-    
-    
-    // Dodajemy plugin do ustawiania tła, ale nie rejestrujemy go globalnie
     const backgroundPlugin = {
         id: 'customBackground',
         beforeDraw: (chart, args, options) => {
@@ -2471,7 +2475,9 @@
             ctx.restore();
         }
     };
-        
+
+    // G E N E R O W A N I E   P L I K U   P D F
+    
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
@@ -2682,10 +2688,12 @@
         });
     }
 
+// F U N K C J A      Z O O M
+    
     document.getElementById('siteLogo').addEventListener('click', () => {
         window.open('https://finance-brothers.pl', '_blank');
     });
-    // Zoomowanie
+
     let currentZoom = 1;
     const zoomStep = 0.1;
     const minZoom = 0.5;
@@ -2710,6 +2718,8 @@
             updateZoom();
         }
     });
+
+    // D A R K     M O D E
     
     function toggleDarkMode() {
         const body = document.body;
@@ -2757,238 +2767,6 @@
     });
     
     initializeTheme();
-
-    // Dostępne języki
-    const languages = ['PL', 'EN', 'UA'];
-    let currentLanguage = 'PL'; // Domyślny język
-
-    const translations = {
-        PL: {
-            title: "Kalkulator Obligacji Skarbu Państwa",
-            calculateBtn: "Oblicz",
-            generatePdfBtn: "Generuj PDF",
-            returnBtn: "Powrót do edycji",
-            bondTypeLabel: "Typ obligacji*",
-            investmentAmountLabel: "Kwota inwestycji",
-            periodLabel: "Okres inwestycji",
-            interestRateLabel: "Oprocentowanie",
-            dynamicRateLabel: "Stopa Ref. NBP",
-            inflationLabel: "Inflacja",
-            variableInflationCheckbox: "Zmienna Inflacja",
-            variableRateCheckbox: "Zmienna Stopa Ref. NBP",
-            addVariableBtn: "Dodaj kolejną zmianę",
-            bondsCount: "Ilość obligacji",
-            summaryHeader: "Podsumowanie wyników",
-            capitalLegend: "Kapitał",
-            interestLegend: "Odsetki",
-            taxLegend: "Podatek",
-            investmentPeriod: "Okres inwestycji",
-            netProfit: "Zysk netto",
-            scheduleToggle: "Harmonogram odsetek ▼",
-            scheduleHeaderYear: "Rok",
-            scheduleHeaderMonth: "Miesiąc",
-            scheduleValue: "Wartość inwestycji",
-            scheduleInterest: "Oproc.",
-            scheduleEarnings: "Odsetki",
-            scheduleTotalEarnings: "Suma odsetek",
-            scheduleTax: "Podatek",
-            scheduleNetProfit: "Zysk netto",
-            scheduleRedemptionFee: "Opłata za wykup",
-            scheduleInflation: "Inflacja",
-            scheduleReferenceRate: "Stopa Ref. NBP",
-            scheduleTotalNet: "Suma netto",
-            dataInfo: "Dane z dnia:",
-            bondsDescriptions: {
-                OTS: "* <b>OTS (3-miesięczne) </b>: stałe oprocentowanie <b>3,00%</b> na okres <b>3-miesięcy</b>, wypłata odsetek nastąpi <b>przy wykupie</b> obligacji. Wcześniejszy odkup powoduje nienaliczenie odsetek, natomiast <b>nie ma opłat za wcześniejszy odkup</b>. Obligacje <b>OTS</b> są idealne dla <b>krótkoterminowych inwestycji</b>.",
-                ROR: "* <b>ROR (12-miesięczne) </b>: <b>oprocentowanie zmienne</b>, w pierwszym miesiącu <b>5,75%</b>, w pozostałych <b>11 miesiącach</b> oprocentowanie oparte na <b>stopie referencyjnej NBP + 0%</b>. Wypłata odsetek następuje <b>co miesiąc</b>, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>0,5%</b> wartości obligacji (<b>0,5 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>ROR</b> przeznaczone są dla <b>krótko i średnioterminowych inwestorów</b>.",
-                // Dodaj resztę opisów z `opisyObligacji`...
-            }
-        },
-        EN: {
-            title: "State Treasury Bonds Calculator",
-            calculateBtn: "Calculate",
-            generatePdfBtn: "Generate PDF",
-            returnBtn: "Back to Edit",
-            bondTypeLabel: "Bond Type*",
-            investmentAmountLabel: "Investment Amount",
-            periodLabel: "Investment Period",
-            interestRateLabel: "Interest Rate",
-            dynamicRateLabel: "NBP Reference Rate",
-            inflationLabel: "Inflation",
-            variableInflationCheckbox: "Variable Inflation",
-            variableRateCheckbox: "Variable NBP Reference Rate",
-            addVariableBtn: "Add Another Change",
-            bondsCount: "Number of Bonds",
-            summaryHeader: "Summary of Results",
-            capitalLegend: "Capital",
-            interestLegend: "Interest",
-            taxLegend: "Tax",
-            investmentPeriod: "Investment Period",
-            netProfit: "Net Profit",
-            scheduleToggle: "Interest Schedule ▼",
-            scheduleHeaderYear: "Year",
-            scheduleHeaderMonth: "Month",
-            scheduleValue: "Investment Value",
-            scheduleInterest: "Interest",
-            scheduleEarnings: "Earnings",
-            scheduleTotalEarnings: "Total Earnings",
-            scheduleTax: "Tax",
-            scheduleNetProfit: "Net Profit",
-            scheduleRedemptionFee: "Redemption Fee",
-            scheduleInflation: "Inflation",
-            scheduleReferenceRate: "NBP Reference Rate",
-            scheduleTotalNet: "Total Net",
-            dataInfo: "Data as of:",
-            bondsDescriptions: {
-                OTS: "* <b>OTS (3-month) </b>: fixed interest rate of <b>3.00%</b> for a <b>3-month</b> period, interest paid <b>upon redemption</b>. Early redemption results in no interest accrual, but <b>there are no fees for early redemption</b>. <b>OTS</b> bonds are ideal for <b>short-term investments</b>.",
-                ROR: "* <b>ROR (12-month) </b>: <b>variable interest rate</b>, <b>5.75%</b> in the first month, in the remaining <b>11 months</b> based on the <b>NBP reference rate + 0%</b>. Interest is paid <b>monthly</b>, early redemption is possible but incurs a fee of <b>0.5%</b> of the bond value (<b>0.5 PLN</b> per bond) or up to accrued interest if lower, without loss of accrued interest. <b>ROR</b> bonds are suited for <b>short- and medium-term investors</b>.",
-                // Dodaj resztę tłumaczeń...
-            }
-        },
-        UA: {
-            title: "Калькулятор державних облігацій",
-            calculateBtn: "Розрахувати",
-            generatePdfBtn: "Згенерувати PDF",
-            returnBtn: "Повернутися до редагування",
-            bondTypeLabel: "Тип облігацій*",
-            investmentAmountLabel: "Сума інвестиції",
-            periodLabel: "Період інвестування",
-            interestRateLabel: "Відсоткова ставка",
-            dynamicRateLabel: "Референтна ставка НБП",
-            inflationLabel: "Інфляція",
-            variableInflationCheckbox: "Змінна інфляція",
-            variableRateCheckbox: "Змінна референтна ставка НБП",
-            addVariableBtn: "Додати ще одну зміну",
-            bondsCount: "Кількість облігацій",
-            summaryHeader: "Підсумок результатів",
-            capitalLegend: "Капітал",
-            interestLegend: "Відсотки",
-            taxLegend: "Податок",
-            investmentPeriod: "Період інвестування",
-            netProfit: "Чистий прибуток",
-            scheduleToggle: "Графік відсотків ▼",
-            scheduleHeaderYear: "Рік",
-            scheduleHeaderMonth: "Місяць",
-            scheduleValue: "Вартість інвестиції",
-            scheduleInterest: "Відсотки",
-            scheduleEarnings: "Заробіток",
-            scheduleTotalEarnings: "Загальний заробіток",
-            scheduleTax: "Податок",
-            scheduleNetProfit: "Чистий прибуток",
-            scheduleRedemptionFee: "Комісія за викуп",
-            scheduleInflation: "Інфляція",
-            scheduleReferenceRate: "Референтна ставка НБП",
-            scheduleTotalNet: "Загальна чиста сума",
-            dataInfo: "Дані станом на:",
-            bondsDescriptions: {
-                OTS: "* <b>OTS (3-місячні) </b>: фіксована відсоткова ставка <b>3,00%</b> на період <b>3 місяці</b>, виплата відсотків відбувається <b>при викупі</b>. Достроковий викуп призводить до ненарахування відсотків, але <b>немає комісії за достроковий викуп</b>. Облігації <b>OTS</b> ідеальні для <b>короткострокових інвестицій</b>.",
-                ROR: "* <b>ROR (12-місячні) </b>: <b>змінна відсоткова ставка</b>, у першому місяці <b>5,75%</b>, у решті <b>11 місяців</b> ставка базується на <b>референтній ставці НБП + 0%</b>. Виплата відсотків щомісяця, можливий достроковий викуп із комісією <b>0,5%</b> вартості облігації (<b>0,5 зл</b> за облігацію) або до нарахованих відсотків, якщо вони менші, без втрати нарахованих відсотків. Облігації <b>ROR</b> підходять для <b>коротко- та середньострокових інвесторів</b>.",
-                // Dodaj resztę tłumaczeń...
-            }
-        }
-    };
-    
-    // Funkcja aktualizująca UI
-    function updateLanguageUI(selectedLang) {
-        const dropdownBtn = document.getElementById('dropdownBtn');
-        const dropdownMenu = document.getElementById('dropdownMenu');
-    
-        dropdownBtn.setAttribute('data-lang', selectedLang);
-        currentLanguage = selectedLang;
-    
-        const otherLanguages = languages.filter(lang => lang !== selectedLang);
-        dropdownMenu.innerHTML = otherLanguages.map(lang => `
-            <button class="dropdown-item" data-lang="${lang}" aria-label="Język ${lang === 'PL' ? 'polski' : lang === 'EN' ? 'angielski' : 'ukraiński'}">${lang}</button>
-        `).join('');
-    
-        dropdownMenu.classList.remove('show');
-        changeLanguage(selectedLang); // Wywołanie nowej funkcji
-    }
-    
-    // Funkcja zmiany języka na stronie
-    function changeLanguage(lang) {
-        const t = translations[lang];
-
-        document.querySelector('.header-row h4').textContent = t.title;
-        document.querySelector('.result-header h4').textContent = t.summaryHeader;
-        document.querySelector('label[for="typObligacji"]').textContent = t.bondTypeLabel;
-        document.querySelector('label[for="kwota"]').textContent = t.investmentAmountLabel;
-        document.querySelector('label[for="okres"]').textContent = t.periodLabel;
-        document.querySelector('label[for="oprocentowanie"]').textContent = t.interestRateLabel;
-        document.querySelector('#dynamicRateLabel').textContent = ["ROR", "DOR"].includes(elements.typObligacji.value) ? t.dynamicRateLabel : t.inflationLabel;
-        
-        document.querySelector('#inflacjaZmiennaLabel b').textContent = t.variableInflationCheckbox;
-        document.querySelector('#stopaZmiennaLabel b').textContent = t.variableRateCheckbox;
-
-        elements.obliczBtn.textContent = t.calculateBtn;
-        elements.addVariableBtn.textContent = t.addVariableBtn;
-        elements.generatePdfBtn.textContent = t.generatePdfBtn;
-        document.querySelector('.result-section .btn-secondary').textContent = t.returnBtn;
-
-        document.getElementById('legendKapital').textContent = t.capitalLegend;
-        document.getElementById('legendOdsetki').textContent = t.interestLegend;
-        document.getElementById('legendPodatek').textContent = t.taxLegend;
-
-        const okresSpan = document.querySelector('.summary-footer .highlight.yellow');
-        const zyskSpan = document.querySelector('.summary-footer .highlight.green');
-        if (okresSpan) okresSpan.textContent = `${t.investmentPeriod}: ${state.lastFormData.okres || ''} ${["OTS", "DOR", "ROS", "ROD"].includes(elements.typObligacji.value) ? (lang === 'UA' ? 'місяці' : 'miesiące') : (lang === 'UA' ? 'місяців' : 'miesięcy')}`;
-        if (zyskSpan) zyskSpan.textContent = `${t.netProfit}: ${zyskSpan.textContent.split(': ')[1] || '-'}`;
-
-        const toggleBtn = document.querySelector('.harmonogram h5');
-        toggleBtn.textContent = toggleBtn.textContent.includes('▼') ? `${t.scheduleToggle}` : `${t.scheduleToggle.replace('▼', '►')}`;
-        const headers = document.querySelectorAll('#harmonogramNaglowek th');
-        headers[0].textContent = ["OTS", "ROR", "DOR"].includes(elements.typObligacji.value) ? t.scheduleHeaderMonth : t.scheduleHeaderYear;
-        headers[1].textContent = t.scheduleValue;
-        headers[2].textContent = t.scheduleInterest;
-        headers[3].textContent = t.scheduleEarnings;
-        headers[4].textContent = t.scheduleTotalEarnings;
-        headers[5].textContent = t.scheduleTax;
-        headers[6].textContent = state.isIkeIkzeMode ? t.scheduleNetProfit.replace("netto", "") : t.scheduleNetProfit;
-        headers[7].textContent = t.scheduleRedemptionFee;
-        if (headers[8]) headers[8].textContent = ["ROR", "DOR"].includes(elements.typObligacji.value) ? t.scheduleReferenceRate : t.scheduleInflation;
-        if (headers[9]) headers[9].textContent = t.scheduleTotalNet;
-
-        const typ = elements.typObligacji.value;
-        document.getElementById('obligacjeOpis').innerHTML = t.bondsDescriptions[typ] || '';
-        document.getElementById('obligacjeOpisPodsumowanie').innerHTML = t.bondsDescriptions[typ] || '';
-
-        document.querySelector('.data-info').innerHTML = `<strong>${t.dataInfo}</strong> <span class="data-date"><strong>01.03.2025</strong></span>`;
-
-        console.log(`Zmieniono język na: ${lang}`);
-    }
-    
-    // Inicjalizacja przy starcie
-    document.addEventListener('DOMContentLoaded', function() {
-        const dropdownBtn = document.getElementById('dropdownBtn');
-        const dropdownMenu = document.getElementById('dropdownMenu');
-    
-        // Przełączanie listy rozwijanej przy kliknięciu w główny przycisk
-        dropdownBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            dropdownMenu.classList.toggle('show');
-        });
-    
-        // Zamykanie listy rozwijanej po kliknięciu poza nią
-        document.addEventListener('click', function(e) {
-            const dropdown = document.querySelector('.dropdown');
-            if (!dropdown.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
-            }
-        });
-    
-        // Obsługa kliknięć w elementy listy rozwijanej
-        dropdownMenu.addEventListener('click', function(e) {
-            const target = e.target.closest('.dropdown-item');
-            if (target) {
-                const selectedLang = target.getAttribute('data-lang');
-                updateLanguageUI(selectedLang);
-                e.stopPropagation();
-            }
-        });
-    
-        // Inicjalizacja UI przy starcie
-        updateLanguageUI(currentLanguage);
-    });
     
 </script>
 </body>
