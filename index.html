@@ -212,7 +212,7 @@
         --logo-bg: #e9ecef;
         --input-bg: #fff;
         --input-group-bg: #f5f5f5;
-        --range-track: #b0b0b0; /* Ciemniejszy szary w trybie jasnym */
+        --range-track: #808080; /* Ciemniejszy szary w trybie jasnym */
         --harmonogram-bg: #f9f9f9;
         --small-font-size: 0.7em;
         --border-radius: 5px;
@@ -233,7 +233,7 @@
         --logo-bg: #3a3a3a;
         --input-bg: #3a3a3a;
         --input-group-bg: #666666;
-        --range-track: #444444; /* Jeszcze ciemniejszy szary w trybie ciemnym */
+        --range-track: #333333; /* Prawie czarny w trybie ciemnym */
         --harmonogram-bg: #404040;
         --slider-thumb-color: #DAA520; /* Taki sam ciemniejszy złoty */
         --range-bg: #333333;
@@ -465,12 +465,14 @@
         border-radius: var(--border-radius);
     }
     
-    input[type="range"].form-range::-webkit-slider-thumb,
+    input 
+       
+    [type="range"].form-range::-webkit-slider-thumb,
     input[type="range"].form-range::-moz-range-thumb,
     input[type="range"].form-range::-ms-thumb {
         background: var(--slider-thumb-color);
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
@@ -487,8 +489,8 @@
     .dark-mode input[type="range"].form-range::-moz-range-thumb,
     .dark-mode input[type="range"].form-range::-ms-thumb {
         background: var(--slider-thumb-color);
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
@@ -551,7 +553,7 @@
         margin-top: 20px;
         padding: clamp(2px, 2vw, 20px);
         width: 100%;
-        max-width: clamp(98%, 100vw, 1100px);
+        max-width: 100%; /* Skaluje się z rozdzielczością */
         margin-left: auto;
         margin-right: auto;
     }
@@ -561,13 +563,13 @@
         padding: clamp(2px, 2vw, 20px);
         border-radius: 10px;
         width: 100%;
-        max-width: clamp(98%, 100vw, 1100px);
+        max-width: 100%; /* Skaluje się z rozdzielczością */
         margin: 0 auto;
     }
     
     .result-wrapper-chart {
         width: 100%;
-        max-width: 600px;
+        max-width: 100%; /* Skaluje się z rozdzielczością */
         margin: 0 auto;
     }
     
@@ -885,10 +887,17 @@
             margin: 10px auto;
         }
     
-        .form-control, .form-select {
+        .form-control {
             height: 28px;
-            width: 200px; /* Spójna szerokość dla wszystkich, w tym TYP OBLIGACJI */
+            width: 200px;
             padding: 4px 8px;
+            line-height: 20px;
+        }
+    
+        .form-select {
+            height: 28px;
+            width: 200px;
+            padding: 4px 20px 4px 8px; /* Wyśrodkowanie tekstu */
             line-height: 20px;
         }
     
@@ -933,7 +942,7 @@
         }
     
         .highlight {
-            width: 200px; /* Dopasowana szerokość w kolumnie */
+            width: 240px; /* Troszeczkę szersze */
         }
     
         .logo-container {
