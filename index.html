@@ -2458,18 +2458,7 @@
             return;
         }
     
-        const valueKapital = document.getElementById("valueKapital");
-        const valueOdsetki = document.getElementById("valueOdsetki");
-        const valuePodatek = document.getElementById("valuePodatek");
-        const zyskNetto = document.getElementById("zyskNetto");
-    
         const typ = state.lastFormData.typObligacji;
-        if (!typ) {
-            console.error("Brak typu obligacji w state.lastFormData.typObligacji");
-            alert("Błąd: Brak typu obligacji.");
-            return;
-        }
-    
         const nazwaObligacji = nazwyObligacji[typ];
         const headerText = `Wynik inwestycji dla obligacji ${nazwaObligacji}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
         const opis = opisyObligacji[typ] || "";
@@ -2478,15 +2467,18 @@
     
         const parseNumber = (text) => {
             const cleaned = text.replace(/[^\d,.]/g, "").replace(",", ".");
-            const number = parseFloat(cleaned);
-            return isNaN(number) ? 0 : number;
+            return isNaN(parseFloat(cleaned)) ? 0 : parseFloat(cleaned);
         };
     
+        const valueKapital = document.getElementById("valueKapital").textContent;
+        const valueOdsetki = document.getElementById("valueOdsetki").textContent;
+        const valuePodatek = document.getElementById("valuePodatek").textContent;
+    
         const summary = [
-            `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Odsetki: ${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Zysk netto: ${state.harmonogramData[state.harmonogramData.length - 1].kwotaPoZakonczeniuCyklu.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
+            { text: `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, bold: true },
+            { text: `Odsetki: ${parseNumber(valueOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, bold: true },
+            { text: `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, bold: true },
+            { text: `Zysk netto: ${parseFloat(state.harmonogramData[state.harmonogramData.length - 1].kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, bold: true }
         ];
     
         const tableHeaders = [
@@ -2499,10 +2491,7 @@
             "Zysk netto",
             "Opłata za wykup"
         ];
-    
-        if (!["OTS", "TOS"].includes(typ)) {
-            tableHeaders.push(["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja");
-        }
+        if (!["OTS", "TOS"].includes(typ)) tableHeaders.push(["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja");
         tableHeaders.push("Kwota po cyklu");
     
         const tableBody = state.harmonogramData.map(wiersz => {
@@ -2516,33 +2505,32 @@
                 `${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
                 `${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
             ];
-            if (!["OTS", "TOS"].includes(typ)) {
-                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`);
-            }
+            if (!["OTS", "TOS"].includes(typ)) row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`);
             row.push(`${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
             return row;
         });
     
         const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-        const starText = hasStar ? '★ Zmiana oprocentowania.\n' : "";
-        const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
-        const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
-        const harmonogramOpisText = `${starText}${baseText}${ikeIkzeText}`;
+        const footerText = [
+            hasStar ? { text: '★ Zmiana oprocentowania.', italics: true } : '',
+            { text: "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.", italics: true },
+            state.isIkeIkzeMode ? { text: "*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE.", italics: true } : ''
+        ].filter(Boolean);
     
         const docDefinition = {
+            pageSize: 'A4',
+            pageMargins: [40, 60, 40, 60],
             content: [
                 { text: headerText, style: 'header' },
-                { text: `Data wygenerowania: ${today}`, style: 'subheader' },
-                { text: opis, style: 'description', margin: [0, 10, 0, 10] },
-                {
-                    style: 'summary',
-                    ul: summary.map(item => ({ text: item, margin: [0, 2] }))
-                },
-                { text: 'Harmonogram odsetek', style: 'subheader', margin: [0, 10, 0, 5] },
+                { text: `Data wygenerowania: ${today}`, style: 'subheader', margin: [0, 5, 0, 15] },
+                { text: opis, style: 'description' },
+                { text: 'Podsumowanie', style: 'subheader', margin: [0, 15, 0, 5] },
+                { ul: summary, style: 'summary' },
+                { text: 'Harmonogram odsetek', style: 'subheader', margin: [0, 15, 0, 5], pageBreak: 'before' },
                 {
                     table: {
                         headerRows: 1,
-                        widths: tableHeaders.map(() => 'auto'),
+                        widths: tableHeaders.map(() => '*'), // Równomierne szerokości kolumn
                         body: [
                             tableHeaders.map(header => ({ text: header, style: 'tableHeader' })),
                             ...tableBody
@@ -2550,15 +2538,15 @@
                     },
                     layout: 'lightHorizontalLines'
                 },
-                { text: harmonogramOpisText, style: 'footerText', margin: [0, 10, 0, 0] }
+                { text: footerText, style: 'footerText', margin: [0, 10, 0, 0] }
             ],
             styles: {
-                header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
+                header: { fontSize: 18, bold: true, alignment: 'center' },
                 subheader: { fontSize: 14, bold: true },
-                description: { fontSize: 12 },
-                summary: { fontSize: 12, margin: [0, 10, 0, 10] },
-                tableHeader: { bold: true, fontSize: 11, fillColor: '#f2f2f2' },
-                footerText: { fontSize: 10, italics: true }
+                description: { fontSize: 10, margin: [0, 0, 0, 10] },
+                summary: { fontSize: 12, margin: [0, 0, 0, 10] },
+                tableHeader: { bold: true, fontSize: 10, fillColor: '#f2f2f2', alignment: 'center' },
+                footerText: { fontSize: 8, italics: true }
             },
             defaultStyle: { font: 'Roboto' }
         };
@@ -2569,6 +2557,57 @@
     }
     
     document.addEventListener('DOMContentLoaded', () => {
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        let currentZoom = 1;
+    
+        // Tryb jasny/ciemny
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkMode', isDarkMode);
+                updateChartColors(isDarkMode);
+            });
+    
+            // Wczytaj zapisany tryb
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                document.body.classList.add('dark-mode');
+                updateChartColors(true);
+            }
+        }
+    
+        // Zoom
+        if (zoomInBtn) {
+            zoomInBtn.addEventListener('click', () => {
+                currentZoom += 0.1;
+                if (currentZoom > 2) currentZoom = 2; // Maksymalny zoom
+                document.body.style.zoom = currentZoom;
+            });
+        }
+    
+        if (zoomOutBtn) {
+            zoomOutBtn.addEventListener('click', () => {
+                currentZoom -= 0.1;
+                if (currentZoom < 0.5) currentZoom = 0.5; // Minimalny zoom
+                document.body.style.zoom = currentZoom;
+            });
+        }
+    
+        // Funkcja aktualizacji kolorów wykresów
+        function updateChartColors(isDarkMode) {
+            if (state.chartLine) {
+                state.chartLine.options.scales.x.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
+                state.chartLine.options.scales.y.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
+                state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.update();
+            }
+        }
+    
         updateDynamicRateField();
         updateIloscObligacji();
         console.log("DOM fully loaded and parsed");
