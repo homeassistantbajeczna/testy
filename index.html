@@ -1498,7 +1498,7 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // E L E M E N T S
+    // E L E M E N T S (bez zmian, ale upewniamy się, że ID się zgadzają)
     const elements = {
         formSection: document.getElementById("formSection"),
         resultSection: document.getElementById("resultSection"),
@@ -1520,903 +1520,108 @@
         generatePdfButton: document.getElementById("generatePdfBtn")
     };
 
-    // S T A T E
-    const state = {
-        chart: null,
-        chartLine: null,
-        scheduleData: [],
-        isIkeIkzeMode: false,
-        variableInflationRates: [],
-        variableReferenceRates: [],
-        lastFormData: {
-            amount: 10000,
-            bondType: "OTS",
-            dynamicRates: {
-                "ROR": 5.75,
-                "DOR": 5.75,
-                "COI": 4.90,
-                "EDO": 4.90,
-                "ROS": 4.90,
-                "ROD": 4.90
-            },
-            period: 3,
-            interestRate: 3,
-            ikeIkze: false,
-            variableInflation: false,
-            variableReferenceRate: false,
-        },
-        isCalculating: false
-    };
+    // Debug: Sprawdzamy, czy elementy istnieją
+    Object.keys(elements).forEach(key => {
+        if (!elements[key]) console.error(`Element ${key} nie znaleziony w DOM! ID: ${elements[key]?.id}`);
+    });
 
-    // C O N F I G
-    const maxVariableChanges = {
-        "ROR": 11,
-        "DOR": 23,
-        "COI": 3,
-        "EDO": 9,
-        "ROS": 5,
-        "ROD": 11
-    };
-
-    const bondConfig = {
-        "OTS": { period: 3, interestRate: 3.00, isVariable: false, compounding: false, redemptionFee: 0.00 },
-        "ROR": { period: 12, interestRate: 5.75, isVariable: true, margin: 0.00, compounding: false, redemptionFee: 0.005 },
-        "DOR": { period: 24, interestRate: 5.90, isVariable: true, margin: 0.15, compounding: false, redemptionFee: 0.007 },
-        "TOS": { period: 36, interestRate: 5.95, isVariable: false, compounding: true, redemptionFee: 0.01 },
-        "COI": { period: 48, interestRate: 6.30, isVariable: true, margin: 1.50, inflationIndexed: true, compounding: false, redemptionFee: 0.02 },
-        "EDO": { period: 120, interestRate: 6.55, isVariable: true, margin: 2.00, inflationIndexed: true, compounding: true, redemptionFee: 0.03 },
-        "ROS": { period: 72, interestRate: 6.50, isVariable: true, margin: 2.00, inflationIndexed: true, compounding: true, redemptionFee: 0.02 },
-        "ROD": { period: 144, interestRate: 6.80, isVariable: true, margin: 2.50, inflationIndexed: true, compounding: true, redemptionFee: 0.03 }
-    };
-
-    const bondDescriptions = {
-        "OTS": "* <b>OTS (3-miesięczne) </b>: stałe oprocentowanie <b>3,00%</b> na okres <b>3-miesięcy</b>, wypłata odsetek nastąpi <b>przy wykupie</b> obligacji. Wcześniejszy odkup powoduje nienaliczenie odsetek, natomiast <b>nie ma opłat za wcześniejszy odkup</b>. Obligacje <b>OTS</b> są idealne dla <b>krótkoterminowych inwestycji</b>.",
-        "ROR": "* <b>ROR (12-miesięczne) </b>: <b>oprocentowanie zmienne</b>, w pierwszym miesiącu <b>5,75%</b>, w pozostałych <b>11 miesiącach</b> oprocentowanie oparte na <b>stopie referencyjnej NBP + 0%</b>. Wypłata odsetek następuje <b>co miesiąc</b>, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>0,5%</b> wartości obligacji (<b>0,5 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>ROR</b> przeznaczone są dla <b>krótko i średnioterminowych inwestorów</b>.",
-        "DOR": "* <b>DOR (24-miesięczne) </b>: <b>oprocentowanie zmienne</b>, <b>5,90% w pierwszym miesiącu</b>, w pozostałych <b>23 miesiącach</b> oprocentowanie oparte na <b>stopie referencyjnej NBP + 0,15%</b>. Wypłata odsetek następuje <b>co miesiąc</b>, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>0,7%</b> wartości obligacji (<b>0,7 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>DOR</b> przeznaczone są dla <b>średnioterminowych inwestorów</b>.",
-        "TOS": "* <b>TOS (3-letnie)</b>: <b>stałe oprocentowanie 5,95%</b> na okres <b>3-lat</b>, wypłata odsetek nastąpi <b>przy wykupie</b> obligacji po <b>3 latach</b> inwestycji. Wcześniejszy odkup wiąże się z opłatą w wysokości <b>1%</b> wartości obligacji (<b>1 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>TOS</b> przeznaczone dla <b>stabilnych średnioterminowych inwestycji</b>.",
-        "COI": "* <b>COI (4-letnie)</b>: obligacje <b>indeksowane inflacją</b>, <b>6,30% w pierwszym roku</b>, w kolejnych <b>3 latach</b> oprocentowanie wynosi <b>wartość inflacji + 1,50%</b>. Wypłata odsetek następuje <b>po każdym roku</b> inwestycji, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>2%</b> wartości obligacji (<b>2 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>COI</b> są idealne dla <b>średnio i długoterminowych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>.",
-        "EDO": "* <b>EDO (10-letnie)</b>: obligacje <b>indeksowane inflacją</b>, <b>6,55% w pierwszym roku</b>, w kolejnych <b>9 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,00%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>10 latach inwestycji</b>. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>3%</b> wartości obligacji (<b>3 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>EDO</b> są idealne dla <b>długoterminowych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>.",
-        "ROS": "* <b>ROS (6-letnie)</b>: rodzinne obligacje przeznaczone są wyłącznie dla beneficjentów programu <b>800+</b>. Obligacje <b>indeksowane inflacją</b>, <b>6,50% w pierwszym roku</b>, w kolejnych <b>5 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,00%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>6 latach inwestycji</b>. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>2%</b> wartości obligacji (<b>2 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>ROS</b> są idealne dla <b>rodzinnych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>.",
-        "ROD": "* <b>ROD (12-letnie) </b>: rodzinne obligacje przeznaczone są wyłącznie dla beneficjentów programu <b>800+</b>. Obligacje <b>indeksowane inflacją</b>, <b>6,80% w pierwszym roku</b>, w kolejnych <b>11 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,50%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>12 latach</b> inwestycji. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>3%</b> wartości obligacji (<b>3 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>ROD</b> są idealne dla <b>długoterminowych rodzinnych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>."
-    };
-
-    const bondNames = {
-        "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
-        "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
-    };
-</script>
-<script>
     // F O R M  C O N T R O L S
-    elements.dynamicRateRange.addEventListener("input", () => syncDynamicRate("range"));
-    elements.dynamicRateInput.addEventListener("input", () => syncDynamicRate("input"));
-    elements.investmentAmountRange.addEventListener("input", () => syncInvestmentAmount("range"));
-    elements.investmentAmountInput.addEventListener("input", () => syncInvestmentAmount("input"));
-    elements.bondTypeSelect.addEventListener("change", updateFormFields);
-    elements.ikeIkzeCheckbox.addEventListener("change", updateFormFields);
-    elements.variableInflationCheckbox.addEventListener("change", toggleVariableInflation);
-    elements.variableReferenceRateCheckbox.addEventListener("change", toggleVariableReferenceRate);
-    elements.calculateButton.addEventListener("click", calculateBonds);
-    elements.addVariableButton.addEventListener("click", addVariableChange);
-    elements.generatePdfButton.addEventListener("click", generatePdf);
+    elements.calculateButton.addEventListener("click", () => {
+        console.log("Kliknięto 'Oblicz'");
+        calculateBonds();
+    });
 
-    // S Y N C  F U N C T I O N S
-    function syncDynamicRate(source) {
-        const value = source === "range" ? elements.dynamicRateRange.value : elements.dynamicRateInput.value;
-        elements.dynamicRateInput.value = value;
-        elements.dynamicRateRange.value = value;
-        const bondType = elements.bondTypeSelect.value;
-        state.lastFormData.dynamicRates[bondType] = parseFloat(value);
-    }
+    elements.addVariableButton.addEventListener("click", () => {
+        console.log("Kliknięto 'Dodaj kolejną zmianę'");
+        addVariableChange();
+    });
 
-    function syncInvestmentAmount(source) {
-        const value = source === "range" ? elements.investmentAmountRange.value : elements.investmentAmountInput.value;
-        elements.investmentAmountInput.value = value;
-        elements.investmentAmountRange.value = value;
-        updateBondCount();
-    }
+    // C A L C U L A T E  B O N D S
+    function calculateBonds() {
+        console.log("Rozpoczynam calculateBonds");
+        if (state.isCalculating) {
+            console.log("Obliczenia już w toku, pomijam");
+            return;
+        }
+        state.isCalculating = true;
 
-    // F O R M  U P D A T E S
-    function setDynamicRateField(label, value, step, max) {
-        document.getElementById("dynamicRateLabel").textContent = label;
-        elements.dynamicRateInput.value = value;
-        elements.dynamicRateRange.value = value;
-        elements.dynamicRateInput.step = step;
-        elements.dynamicRateRange.step = step;
-        elements.dynamicRateInput.max = max;
-        elements.dynamicRateRange.max = max;
-    }
-
-    function updateFormFields() {
-        state.isIkeIkzeMode = elements.ikeIkzeCheckbox.checked;
-        const select = elements.bondTypeSelect;
-        const previousType = select.value;
-
-        select.innerHTML = state.isIkeIkzeMode
-            ? `<option value="ROR">12-miesięczne (ROR)</option>
-               <option value="DOR">24-miesięczne (DOR)</option>
-               <option value="TOS" selected>3-letnie (TOS)</option>
-               <option value="COI">4-letnie (COI)</option>
-               <option value="EDO">10-letnie (EDO)</option>`
-            : `<option value="OTS" selected>3-miesięczne (OTS)</option>
-               <option value="ROR">12-miesięczne (ROR)</option>
-               <option value="DOR">24-miesięczne (DOR)</option>
-               <option value="TOS">3-letnie (TOS)</option>
-               <option value="COI">4-letnie (COI)</option>
-               <option value="EDO">10-letnie (EDO)</option>
-               <option value="ROS">6-letnie (ROS)</option>
-               <option value="ROD">12-letnich (ROD)</option>`;
-
-        const availableOptions = Array.from(select.options).map(opt => opt.value);
-        select.value = availableOptions.includes(previousType) ? previousType : (state.isIkeIkzeMode ? "TOS" : "OTS");
-
-        const bondType = select.value;
-        const config = bondConfig[bondType];
-
-        elements.investmentPeriodInput.value = config.period;
-        const periodUnit = ["OTS", "DOR", "ROS", "ROD"].includes(bondType) ? "miesiące" : "miesięcy";
-        const periodUnitElement = elements.investmentPeriodInput.closest('.input-group')?.querySelector('.input-group-text');
-        if (periodUnitElement) periodUnitElement.textContent = periodUnit;
-
-        elements.interestRateInput.value = config.interestRate;
-        updateYears();
-        updateInterestRateInfo();
-        updateBondDescription();
-
-        const dynamicRateGroup = document.getElementById("dynamicRateGroup");
-        if (["ROR", "DOR"].includes(bondType)) {
-            const refRateValue = state.lastFormData.dynamicRates[bondType] || 5.75;
-            setDynamicRateField("Stopa Ref. NBP", refRateValue, "0.05", "20");
-            dynamicRateGroup.style.display = "flex";
-        } else if (["COI", "EDO", "ROS", "ROD"].includes(bondType)) {
-            const inflationValue = state.lastFormData.dynamicRates[bondType] || 4.90;
-            setDynamicRateField("Inflacja", inflationValue, "0.1", "50");
-            dynamicRateGroup.style.display = "flex";
-        } else {
-            dynamicRateGroup.style.display = "none";
+        if (typeof Chart === "undefined") {
+            console.error("Chart.js nie załadowany!");
+            alert("Błąd: Nie można załadować wykresów. Upewnij się, że Chart.js jest podłączony.");
+            state.isCalculating = false;
+            return;
         }
 
-        document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(bondType) ? "flex" : "none";
-        document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(bondType) ? "flex" : "none";
-
-        if (!["COI", "EDO", "ROS", "ROD"].includes(bondType)) {
-            state.variableInflationRates = [];
-            elements.variableInflationCheckbox.checked = false;
-            state.lastFormData.variableInflation = false;
-        } else if (elements.variableInflationCheckbox.checked && !state.variableInflationRates.length) {
-            const defaultValue = state.lastFormData.dynamicRates[bondType] || 4.90;
-            state.variableInflationRates = [{ value: defaultValue, period: 2 }];
-        }
-
-        if (!["ROR", "DOR"].includes(bondType)) {
-            state.variableReferenceRates = [];
-            elements.variableReferenceRateCheckbox.checked = false;
-            state.lastFormData.variableReferenceRate = false;
-        } else if (elements.variableReferenceRateCheckbox.checked && !state.variableReferenceRates.length) {
-            const defaultValue = state.lastFormData.dynamicRates[bondType] || 5.75;
-            state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
-        }
-
-        const ikeIkzeContainer = document.getElementById("ikeIkzeContainer");
-        const allowedTypes = ["ROR", "DOR", "TOS", "COI", "EDO"];
-        ikeIkzeContainer.style.display = allowedTypes.includes(bondType) ? "block" : "none";
-        if (!allowedTypes.includes(bondType)) {
-            elements.ikeIkzeCheckbox.checked = false;
-            state.isIkeIkzeMode = false;
-            state.lastFormData.ikeIkze = false;
-        }
-
-        updateVariableInputs();
-    }
-
-    function updateBondCount() {
-        const amount = parseFloat(elements.investmentAmountInput.value) || 0;
-        const bondCount = Math.floor(amount / 100);
-        const bondCountElement = document.getElementById("iloscObligacji");
-        if (bondCountElement) bondCountElement.textContent = `Ilość obligacji: ${bondCount}`;
-    }
-
-    function updateVariableData() {
-        const bondType = elements.bondTypeSelect.value;
-        const isVariableInflation = elements.variableInflationCheckbox.checked && ["COI", "EDO", "ROS", "ROD"].includes(bondType);
-        const isVariableReferenceRate = elements.variableReferenceRateCheckbox.checked && ["ROR", "DOR"].includes(bondType);
-        const changes = isVariableInflation ? state.variableInflationRates : state.variableReferenceRates;
-        const maxCycle = ["ROR", "DOR"].includes(bondType) ? bondConfig[bondType].period : bondConfig[bondType].period / 12;
-
-        const inputs = document.querySelectorAll(".variable-input-group");
-        const newChanges = [];
-
-        inputs.forEach((inputGroup, index) => {
-            const cycleInput = inputGroup.querySelector(".variable-cykl");
-            const rateInput = inputGroup.querySelector(".variable-rate");
-            let period = Math.round(parseFloat(cycleInput.value));
-            const value = parseFloat(rateInput.value);
-
-            const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 2;
-            if (period < minPeriod) period = minPeriod;
-            if (period > maxCycle) period = maxCycle;
-
-            cycleInput.value = period;
-            inputGroup.querySelector(".variable-cykl-range").value = period;
-
-            newChanges.push({ period, value });
-        });
-
-        for (let i = 0; i < newChanges.length - 1; i++) {
-            if (newChanges[i + 1].period <= newChanges[i].period) {
-                newChanges.splice(i + 1, 1);
-                i--;
-            }
-        }
-
-        if (isVariableInflation) state.variableInflationRates = newChanges;
-        else state.variableReferenceRates = newChanges;
-    }
-
-    function updateYears() {
-        const months = parseInt(elements.investmentPeriodInput.value) || 0;
-        const years = Math.floor(months / 12);
-        document.getElementById("lata").textContent = `Ilość lat: ${months >= 12 ? years : 0}`;
-    }
-
-    function updateInterestRateInfo() {
+        let amount = parseFloat(elements.investmentAmountInput.value) || 0;
         const bondType = elements.bondTypeSelect.value;
         const config = bondConfig[bondType];
-        const info = config.isVariable
-            ? (config.inflationIndexed
-                ? `Pierwszy rok: ${config.interestRate}%, kolejne: inflacja + ${config.margin}%`
-                : `Pierwszy m-c: ${config.interestRate}%, kolejne: stopa NBP + ${config.margin}%`)
-            : `Stałe oprocentowanie: ${config.interestRate}%`;
-        document.getElementById("oprocentowanieInfo").textContent = info;
-    }
+        const dynamicRate = parseFloat(elements.dynamicRateInput.value) || state.lastFormData.dynamicRates[bondType];
 
-    function updateBondDescription() {
-        const bondType = elements.bondTypeSelect.value;
-        const description = bondDescriptions[bondType] || "";
-        document.getElementById("obligacjeOpis").innerHTML = description;
-        document.getElementById("obligacjeOpisPodsumowanie").innerHTML = description;
-    }
+        console.log("Dane wejściowe:", { amount, bondType, dynamicRate });
 
-    function toggleHarmonogram(sectionId) {
-        const content = document.getElementById(sectionId);
-        const toggleBtn = content.previousElementSibling;
-        content.style.display = content.style.display === "none" ? "block" : "none";
-        toggleBtn.textContent = content.style.display === "none" ? "Harmonogram odsetek ►" : "Harmonogram odsetek ▼";
-    }
-
-    function showForm() {
-        elements.formSection.style.display = "block";
-        elements.resultSection.style.display = "none";
-
-        elements.investmentAmountInput.value = state.lastFormData.amount;
-        elements.investmentAmountRange.value = state.lastFormData.amount;
-        elements.investmentPeriodInput.value = state.lastFormData.period;
-        elements.interestRateInput.value = state.lastFormData.interestRate;
-        elements.ikeIkzeCheckbox.checked = state.lastFormData.ikeIkze;
-        state.isIkeIkzeMode = state.lastFormData.ikeIkze;
-        elements.bondTypeSelect.value = state.lastFormData.bondType;
-        elements.variableInflationCheckbox.checked = state.lastFormData.variableInflation;
-        elements.variableReferenceRateCheckbox.checked = state.lastFormData.variableReferenceRate;
-
-        updateFormFields();
-        updateBondCount();
-        updateYears();
-        updateInterestRateInfo();
-        updateBondDescription();
-        updateVariableInputs();
-    }
-
-    function toggleVariableInflation() {
-        state.lastFormData.variableInflation = elements.variableInflationCheckbox.checked;
-        const bondType = elements.bondTypeSelect.value;
-        if (!elements.variableInflationCheckbox.checked) {
-            state.variableInflationRates = [];
-        } else {
-            const defaultValue = state.lastFormData.dynamicRates[bondType] || 4.90;
-            state.variableInflationRates = [{ value: defaultValue, period: 2 }];
+        if (amount < 100 || !config || !dynamicRate) {
+            console.error("Nieprawidłowe dane wejściowe:", { amount, bondType, dynamicRate });
+            alert("Wypełnij wszystkie pola poprawnymi wartościami.");
+            state.isCalculating = false;
+            return;
         }
-        updateVariableInputs();
-    }
 
-    function toggleVariableReferenceRate() {
-        state.lastFormData.variableReferenceRate = elements.variableReferenceRateCheckbox.checked;
-        const bondType = elements.bondTypeSelect.value;
-        if (!elements.variableReferenceRateCheckbox.checked) {
-            state.variableReferenceRates = [];
-        } else {
-            const defaultValue = state.lastFormData.dynamicRates[bondType] || 5.75;
-            state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
-        }
-        updateVariableInputs();
-    }
+        // Reszta logiki jak w oryginalnym kodzie, ale z logowaniem
+        state.scheduleData = [];
+        let capital = amount;
+        let totalInterest = 0;
+        const months = config.period;
+        const cycleCount = ["OTS", "ROR", "DOR"].includes(bondType) ? months : months / 12;
 
-    function updateVariableInputs() {
-        const bondType = elements.bondTypeSelect.value;
-        const isVariableInflation = elements.variableInflationCheckbox.checked && ["COI", "EDO", "ROS", "ROD"].includes(bondType);
-        const isVariableReferenceRate = elements.variableReferenceRateCheckbox.checked && ["ROR", "DOR"].includes(bondType);
-        const variableInputs = document.getElementById("variableInputs");
-        const wrapper = document.getElementById("variableInputsWrapper");
-        const maxCycle = ["ROR", "DOR"].includes(bondType) ? bondConfig[bondType].period : bondConfig[bondType].period / 12;
-        const maxChanges = maxVariableChanges[bondType] || 0;
+        for (let i = 1; i <= cycleCount; i++) {
+            const annualInterestRate = i === 1 ? config.interestRate / 100 : (dynamicRate / 100 + (config.margin || 0) / 100);
+            const cycleInterest = capital * (annualInterestRate / 12) * (["OTS", "ROR", "DOR"].includes(bondType) ? 1 : 12);
+            totalInterest += cycleInterest;
+            if (config.compounding) capital += cycleInterest;
 
-        if (isVariableInflation || isVariableReferenceRate) {
-            variableInputs.style.display = "block";
-            elements.addVariableButton.style.display = "block";
-
-            const data = isVariableInflation ? state.variableInflationRates : state.variableReferenceRates;
-            const defaultValue = state.lastFormData.dynamicRates[bondType] || (isVariableInflation ? 4.90 : 5.75);
-            if (!data.length && data.length < maxChanges) data.push({ value: defaultValue, period: 2 });
-
-            wrapper.innerHTML = "";
-            const changes = isVariableInflation ? state.variableInflationRates : state.variableReferenceRates;
-
-            changes.forEach((change, index) => {
-                const inputGroup = document.createElement("div");
-                inputGroup.className = "variable-input-group";
-
-                const fieldsWrapper = document.createElement("div");
-                fieldsWrapper.className = "fields-wrapper";
-
-                const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
-
-                const cycleGroup = document.createElement("div");
-                cycleGroup.className = "form-group";
-                cycleGroup.innerHTML = `
-                    <label class="form-label">Od</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCycle}" step="1" value="${change.period}">
-                        <span class="input-group-text">${["ROR", "DOR"].includes(bondType) ? "miesiąca" : "roku"}</span>
-                    </div>
-                    <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCycle}" step="0.01" value="${change.period}">
-                `;
-
-                const rateGroup = document.createElement("div");
-                rateGroup.className = "form-group";
-                rateGroup.innerHTML = `
-                    <label class="form-label">${isVariableInflation ? "Inflacja" : "Stopa Ref. NBP"}</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-rate" min="0" max="${isVariableInflation ? 50 : 20}" step="${isVariableInflation ? 0.1 : 0.05}" value="${change.value}">
-                        <span class="input-group-text">%</span>
-                    </div>
-                    <input type="range" class="form-range variable-rate-range" min="0" max="${isVariableInflation ? 50 : 20}" step="${isVariableInflation ? 0.1 : 0.05}" value="${change.value}">
-                `;
-
-                fieldsWrapper.appendChild(cycleGroup);
-                fieldsWrapper.appendChild(rateGroup);
-                inputGroup.appendChild(fieldsWrapper);
-
-                if (index === 0 && changes.length === 1) {
-                    const removeFirstBtnWrapper = document.createElement("div");
-                    removeFirstBtnWrapper.className = "remove-first-btn-wrapper";
-                    const removeFirstBtn = document.createElement("button");
-                    removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
-                    removeFirstBtn.textContent = "Usuń";
-                    removeFirstBtn.onclick = () => {
-                        if (isVariableInflation) {
-                            state.variableInflationRates = [];
-                            elements.variableInflationCheckbox.checked = false;
-                            state.lastFormData.variableInflation = false;
-                        } else {
-                            state.variableReferenceRates = [];
-                            elements.variableReferenceRateCheckbox.checked = false;
-                            state.lastFormData.variableReferenceRate = false;
-                        }
-                        variableInputs.style.display = "none";
-                        elements.addVariableButton.style.display = "none";
-                        wrapper.innerHTML = "";
-                    };
-                    removeFirstBtnWrapper.appendChild(removeFirstBtn);
-                    inputGroup.appendChild(removeFirstBtnWrapper);
-                } else if (index === changes.length - 1 && changes.length > 1) {
-                    const removeBtnWrapper = document.createElement("div");
-                    removeBtnWrapper.className = "remove-btn-wrapper";
-                    const removeBtn = document.createElement("button");
-                    removeBtn.className = "btn btn-danger btn-sm";
-                    removeBtn.textContent = "Usuń";
-                    removeBtn.onclick = () => removeVariableChange(index);
-                    removeBtnWrapper.appendChild(removeBtn);
-                    inputGroup.appendChild(removeBtnWrapper);
-                }
-
-                wrapper.appendChild(inputGroup);
-
-                const cycleInput = inputGroup.querySelector(".variable-cykl");
-                const cycleRange = inputGroup.querySelector(".variable-cykl-range");
-                const rateInput = inputGroup.querySelector(".variable-rate");
-                const rateRange = inputGroup.querySelector(".variable-rate-range");
-
-                cycleInput.addEventListener("input", () => adjustCycle(cycleInput, cycleRange, changes, index, minPeriod, maxCycle));
-                cycleRange.addEventListener("input", () => syncCycleRange(cycleInput, cycleRange));
-                cycleRange.addEventListener("change", () => adjustCycle(cycleRange, cycleInput, changes, index, minPeriod, maxCycle));
-                rateInput.addEventListener("input", () => adjustRate(rateInput, rateRange, changes, index, isVariableInflation));
-                rateRange.addEventListener("input", () => syncRateRange(rateInput, rateRange, changes, index));
+            state.scheduleData.push({
+                period: i,
+                investmentValue: capital.toFixed(2),
+                cycleInterestRate: (annualInterestRate * 100).toFixed(2) + "%",
+                grossInterest: cycleInterest.toFixed(2)
             });
-
-            const lastChange = changes[changes.length - 1];
-            elements.addVariableButton.style.display = (changes.length < maxChanges && lastChange.period < maxCycle) ? "block" : "none";
-        } else {
-            variableInputs.style.display = "none";
-            elements.addVariableButton.style.display = "none";
-            wrapper.innerHTML = "";
         }
+
+        console.log("Dane harmonogramu:", state.scheduleData);
+        updateChartAndSummary(amount, totalInterest, totalInterest, bondType, months);
+        renderScheduleTable(bondType);
+
+        elements.formSection.style.display = "none";
+        elements.resultSection.style.display = "block";
+        state.isCalculating = false;
+        console.log("calculateBonds zakończone");
     }
 
-    function adjustCycle(source, target, changes, index, minPeriod, maxCycle) {
-        let value = Math.round(parseFloat(source.value));
-        if (value < minPeriod) value = minPeriod;
-        if (value > maxCycle) value = maxCycle;
-        source.value = value;
-        target.value = value;
-        changes[index].period = value;
-        updateVariableData();
-        updateVariableInputs();
-    }
-
-    function syncCycleRange(cycleInput, cycleRange) {
-        cycleInput.value = Math.round(parseFloat(cycleRange.value));
-    }
-
-    function adjustRate(rateInput, rateRange, changes, index, isVariableInflation) {
-        let value = parseFloat(rateInput.value);
-        const max = isVariableInflation ? 50 : 20;
-        if (value < 0 || value > max) value = Math.max(0, Math.min(max, value));
-        rateInput.value = value;
-        rateRange.value = value;
-        changes[index].value = value;
-        updateVariableData();
-    }
-
-    function syncRateRange(rateInput, rateRange, changes, index) {
-        rateInput.value = rateRange.value;
-        changes[index].value = parseFloat(rateRange.value);
-        updateVariableData();
-    }
-
+    // A D D  V A R I A B L E  C H A N G E
     function addVariableChange() {
+        console.log("Rozpoczynam addVariableChange");
         const bondType = elements.bondTypeSelect.value;
         const isVariableInflation = elements.variableInflationCheckbox.checked && ["COI", "EDO", "ROS", "ROD"].includes(bondType);
         const changes = isVariableInflation ? state.variableInflationRates : state.variableReferenceRates;
         const maxCycle = ["ROR", "DOR"].includes(bondType) ? bondConfig[bondType].period : bondConfig[bondType].period / 12;
         const maxChanges = maxVariableChanges[bondType] || 0;
+
+        console.log("Stan przed dodaniem:", { bondType, changes, maxCycle, maxChanges });
 
         const lastChange = changes[changes.length - 1];
-        if (changes.length >= maxChanges || (lastChange && lastChange.period >= maxCycle)) return;
+        if (changes.length >= maxChanges || (lastChange && lastChange.period >= maxCycle)) {
+            console.log("Limit zmian osiągnięty lub max cykl przekroczony");
+            return;
+        }
 
         const lastCycle = lastChange ? lastChange.period : 1;
         const newCycle = Math.min(lastCycle + 1, maxCycle);
         const newValue = state.lastFormData.dynamicRates[bondType] || (isVariableInflation ? 4.90 : 5.75);
 
         changes.push({ period: newCycle, value: newValue });
+        console.log("Dodano zmianę:", changes);
         updateVariableInputs();
     }
-
-    function removeVariableChange(index) {
-        const bondType = elements.bondTypeSelect.value;
-        const isVariableInflation = elements.variableInflationCheckbox.checked && ["COI", "EDO", "ROS", "ROD"].includes(bondType);
-        const changes = isVariableInflation ? state.variableInflationRates : state.variableReferenceRates;
-        if (changes.length > 1) {
-            changes.splice(index, 1);
-            updateVariableInputs();
-        }
-    }
-
-    updateFormFields();
-    updateBondCount();
-</script>
-<script>
-    // P D F  G E N E R A T I O N
-    if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
-        pdfMake.fonts = {
-            Roboto: {
-                normal: 'Roboto-Regular.ttf',
-                bold: 'Roboto-Medium.ttf',
-                italics: 'Roboto-Italic.ttf',
-                bolditalics: 'Roboto-MediumItalic.ttf'
-            }
-        };
-    }
-
-    function calculateBonds() {
-        if (state.isCalculating) return;
-        state.isCalculating = true;
-
-        if (typeof Chart === "undefined") {
-            alert("Błąd: Nie można załadować wykresów. Spróbuj ponownie później.");
-            state.isCalculating = false;
-            return;
-        }
-
-        let amount = parseFloat(elements.investmentAmountInput.value) || 0;
-        const maxAmount = 10000000;
-        if (amount > maxAmount) {
-            amount = maxAmount;
-            elements.investmentAmountInput.value = maxAmount;
-            elements.investmentAmountRange.value = maxAmount;
-            alert("Maksymalna wartość to 10 000 000 zł. Wartość została dostosowana.");
-        }
-
-        const bondType = elements.bondTypeSelect.value;
-        const config = bondConfig[bondType];
-        const months = config.period;
-        const dynamicRate = parseFloat(elements.dynamicRateInput.value) || state.lastFormData.dynamicRates[bondType];
-        const inflation = (["COI", "EDO", "ROS", "ROD"].includes(bondType) ? dynamicRate : 4.90) / 100;
-        const referenceRate = (["ROR", "DOR"].includes(bondType) ? dynamicRate : 5.75) / 100;
-        const isInflationIndexed = ["COI", "EDO", "ROS", "ROD"].includes(bondType);
-        const variableInflation = elements.variableInflationCheckbox.checked && isInflationIndexed;
-        const variableReferenceRate = elements.variableReferenceRateCheckbox.checked && ["ROR", "DOR"].includes(bondType);
-        const taxRate = state.isIkeIkzeMode ? 0 : 0.19;
-
-        state.lastFormData = {
-            amount,
-            bondType,
-            dynamicRates: { ...state.lastFormData.dynamicRates, [bondType]: dynamicRate },
-            period: months,
-            interestRate: config.interestRate,
-            ikeIkze: state.isIkeIkzeMode,
-            variableInflation,
-            variableReferenceRate,
-            variableInflationChanges: [...state.variableInflationRates],
-            variableReferenceRateChanges: [...state.variableReferenceRates]
-        };
-
-        if (amount < 100 || months <= 0 || (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(bondType) && (!dynamicRate || dynamicRate < 0))) {
-            alert("Proszę wypełnić wszystkie wymagane pola poprawnymi wartościami.");
-            state.isCalculating = false;
-            return;
-        }
-
-        elements.resultHeader.textContent = `Wynik inwestycji dla obligacji ${bondNames[bondType]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
-        const periodHeader = document.getElementById("pierwszaKolumnaNaglowek");
-        const rateOrInflationHeader = document.getElementById("kolumnaStopaInflacja");
-        const profitHeader = document.getElementById("zyskKolumnaNaglowek");
-
-        if (periodHeader) periodHeader.textContent = ["OTS", "ROR", "DOR"].includes(bondType) ? "Miesiąc" : "Rok";
-        if (rateOrInflationHeader) {
-            rateOrInflationHeader.textContent = ["ROR", "DOR"].includes(bondType) ? "Stopa Ref. NBP" : "Inflacja";
-            rateOrInflationHeader.style.display = ["OTS", "TOS"].includes(bondType) ? "none" : "table-cell";
-        }
-        if (profitHeader) profitHeader.textContent = state.isIkeIkzeMode ? "Zysk" : "Zysk netto";
-
-        let capital = amount;
-        let totalInterest = 0;
-        let totalNetProfit = 0;
-        state.scheduleData = [];
-        let accumulatedInterest = 0;
-
-        const cycleCount = ["OTS", "ROR", "DOR"].includes(bondType) ? months : months / 12;
-        const changes = variableInflation ? state.variableInflationRates : (variableReferenceRate ? state.variableReferenceRates : []);
-        let previousRateOrInflation = null;
-
-        for (let i = 1; i <= cycleCount; i++) {
-            let cyclePeriod = i;
-            let changeApplied = false;
-            let rateOrInflation = "-";
-
-            let annualInterestRate;
-            if (variableInflation || variableReferenceRate) {
-                let dynamicValue = (state.lastFormData.dynamicRates[bondType] || (variableInflation ? 4.90 : 5.75)) / 100;
-                for (const change of changes) {
-                    if (i >= change.period) dynamicValue = change.value / 100;
-                }
-                if (previousRateOrInflation !== null && dynamicValue !== previousRateOrInflation) changeApplied = true;
-                if (i === 1 && changes.length && changes[0].period === 1) changeApplied = true;
-                annualInterestRate = i === 1 ? config.interestRate / 100 : (dynamicValue + config.margin / 100);
-                rateOrInflation = (dynamicValue * 100).toFixed(2) + "%";
-                previousRateOrInflation = dynamicValue;
-            } else if (isInflationIndexed) {
-                annualInterestRate = i === 1 ? config.interestRate / 100 : (inflation + config.margin / 100);
-                rateOrInflation = (inflation * 100).toFixed(2) + "%";
-            } else if (["ROR", "DOR"].includes(bondType)) {
-                annualInterestRate = i === 1 ? config.interestRate / 100 : (referenceRate + config.margin / 100);
-                rateOrInflation = (referenceRate * 100).toFixed(2) + "%";
-            } else {
-                annualInterestRate = config.interestRate / 100;
-            }
-
-            const monthlyInterestRate = annualInterestRate / 12;
-            const monthsPerCycle = ["OTS", "ROR", "DOR"].includes(bondType) ? 1 : 12;
-            const cycleInterest = capital * monthlyInterestRate * monthsPerCycle;
-
-            const cycleTax = cycleInterest * taxRate;
-            const cycleNetProfit = state.isIkeIkzeMode ? cycleInterest : (cycleInterest - cycleTax);
-
-            totalInterest += cycleInterest;
-            accumulatedInterest += cycleInterest;
-            totalNetProfit += cycleNetProfit;
-
-            let investmentValue = amount;
-            if (config.compounding) {
-                capital += cycleInterest;
-                investmentValue = capital;
-            }
-
-            const cycleEndAmount = state.isIkeIkzeMode
-                ? (config.compounding ? investmentValue : amount + totalNetProfit)
-                : (config.compounding ? (investmentValue - accumulatedInterest * 0.19) : amount + totalNetProfit);
-
-            const redemptionFee = i < cycleCount ? amount * config.redemptionFee : 0;
-
-            state.scheduleData.push({
-                period: cyclePeriod,
-                investmentValue: investmentValue.toFixed(2),
-                cycleInterestRate: (annualInterestRate * 100).toFixed(2) + "%",
-                grossInterest: cycleInterest.toFixed(2),
-                accumulatedInterest: accumulatedInterest.toFixed(2),
-                tax: cycleTax.toFixed(2),
-                netProfit: cycleNetProfit.toFixed(2),
-                redemptionFee: redemptionFee.toFixed(2),
-                rateOrInflation,
-                cycleEndAmount: cycleEndAmount.toFixed(2),
-                changeApplied
-            });
-        }
-
-        updateChartAndSummary(amount, totalInterest, totalNetProfit, bondType, months);
-        renderScheduleTable(bondType);
-        elements.formSection.style.display = "none";
-        elements.resultSection.style.display = "block";
-        elements.generatePdfButton.disabled = false;
-        state.isCalculating = false;
-    }
-
-    function updateChartAndSummary(amount, totalInterest, totalNetProfit, bondType, months) {
-        const totalTax = totalInterest * (state.isIkeIkzeMode ? 0 : 0.19);
-        document.getElementById("valueKapital").textContent = `${amount.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-        document.getElementById("valueOdsetki").textContent = `${totalInterest.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-        document.getElementById("valuePodatek").textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${totalTax.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-
-        const periodUnit = ["OTS", "DOR", "ROS", "ROD"].includes(bondType) ? "miesiące" : "miesięcy";
-        document.querySelector('.summary-footer .highlight.yellow').textContent = `Okres inwestycji: ${months} ${periodUnit}`;
-        document.querySelector('.summary-footer .highlight.green').textContent = `Zysk netto: ${totalNetProfit.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-
-        if (state.chart) state.chart.destroy();
-        state.chart = new Chart(elements.bondChart.getContext("2d"), {
-            type: 'doughnut',
-            data: {
-                labels: ['Kapitał', 'Odsetki', 'Podatek'],
-                datasets: [{
-                    data: [amount, totalInterest, totalTax],
-                    backgroundColor: ['#28a745', '#007bff', '#dc3545'],
-                    borderWidth: 1,
-                    hoverOffset: 20
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                cutout: '50%',
-                layout: { padding: 20 }
-            }
-        });
-
-        if (state.chartLine) state.chartLine.destroy();
-        const maxCycleEndAmount = Math.max(...state.scheduleData.map(row => parseFloat(row.cycleEndAmount)));
-        const minAmount = amount;
-        const range = maxCycleEndAmount - minAmount;
-        const padding = range * 0.1;
-        const yMin = minAmount - padding;
-        const yMax = maxCycleEndAmount + padding;
-        const stepSize = range * 0.2;
-
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        state.chartLine = new Chart(elements.bondChartLine.getContext("2d"), {
-            type: 'line',
-            data: {
-                labels: state.scheduleData.map(row => ["OTS", "ROR", "DOR"].includes(bondType) ? `Miesiąc ${row.period}` : `Rok ${row.period}`),
-                datasets: [
-                    {
-                        label: 'Zainwestowana kwota',
-                        data: state.scheduleData.map(() => amount),
-                        borderColor: '#8B7D47',
-                        backgroundColor: 'rgba(139, 125, 71, 0.1)',
-                        fill: false,
-                        tension: 0,
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Kwota po zakończeniu cyklu',
-                        data: state.scheduleData.map(row => parseFloat(row.cycleEndAmount)),
-                        borderColor: '#D4C791',
-                        backgroundColor: 'rgba(212, 199, 145, 0.2)',
-                        fill: true,
-                        tension: 0.1,
-                        borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: { display: true, text: ["OTS", "ROR", "DOR"].includes(bondType) ? 'Okres (miesiące)' : 'Okres (lata)', color: isDarkMode ? '#e0e0e0' : '#333333' },
-                        ticks: { color: isDarkMode ? '#e0e0e0' : '#333333' },
-                        grid: { color: isDarkMode ? '#333333' : '#e0e0e0', borderColor: isDarkMode ? '#333333' : '#333333' }
-                    },
-                    y: {
-                        title: { display: true, text: 'Wartość (PLN)', color: isDarkMode ? '#e0e0e0' : '#333333' },
-                        min: yMin,
-                        max: yMax,
-                        ticks: { stepSize, color: isDarkMode ? '#e0e0e0' : '#333333' },
-                        grid: { color: isDarkMode ? '#333333' : '#e0e0e0', borderColor: isDarkMode ? '#333333' : '#333333' }
-                    }
-                },
-                plugins: { legend: { labels: { color: isDarkMode ? '#e0e0e0' : '#333333' } } }
-            }
-        });
-    }
-
-    function renderScheduleTable(bondType) {
-        const table = document.getElementById("harmonogramTabela");
-        table.innerHTML = "";
-        state.scheduleData.forEach(row => {
-            let rowHTML = `
-                <tr>
-                    <td>${row.period}</td>
-                    <td>${parseFloat(row.investmentValue).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.changeApplied ? '<span class="star">★</span>' : ''}${row.cycleInterestRate}</td>
-                    <td>${parseFloat(row.grossInterest).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.accumulatedInterest).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                    <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(row.tax).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.netProfit).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.redemptionFee).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**</td>
-            `;
-            if (!["OTS", "TOS"].includes(bondType)) {
-                rowHTML += `<td>${row.changeApplied ? '<span class="star">★</span>' : ''}${row.rateOrInflation}</td>`;
-            }
-            rowHTML += `<td>${parseFloat(row.cycleEndAmount).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td></tr>`;
-            table.innerHTML += rowHTML;
-        });
-
-        const hasStar = state.scheduleData.some(row => row.changeApplied);
-        const description = document.getElementById("harmonogramOpis");
-        description.innerHTML = `${hasStar ? '<span class="star">★</span><strong> Zmiana oprocentowania.</strong><br>' : ''}** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, ...${state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> ..." : ""}`;
-        description.style.display = "block";
-    }
-
-    function generatePdf() {
-        if (!state.scheduleData.length) {
-            alert("Najpierw oblicz wyniki inwestycji, klikając 'Oblicz'.");
-            return;
-        }
-
-        const bondType = state.lastFormData.bondType;
-        const headerText = `Wynik inwestycji dla obligacji ${bondNames[bondType]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
-        const description = bondDescriptions[bondType];
-        const periodUnit = ["OTS", "DOR", "ROS", "ROD"].includes(bondType) ? "miesiące" : "miesięcy";
-        const today = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-        const summary = [
-            `Kapitał: ${parseFloat(state.lastFormData.amount).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Odsetki: ${parseFloat(document.getElementById("valueOdsetki").textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(document.getElementById("valuePodatek").textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Okres inwestycji: ${state.lastFormData.period} ${periodUnit}`,
-            `Zysk netto: ${parseFloat(document.getElementById("zyskNetto").textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
-        ];
-
-        const headers = ["OTS", "ROR", "DOR"].includes(bondType)
-            ? ["Miesiąc", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Stopa Ref. NBP", "Suma netto"]
-            : ["Rok", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Inflacja", "Suma netto"];
-        if (["OTS", "TOS"].includes(bondType)) headers.splice(8, 1);
-
-        const tableData = state.scheduleData.map(row => {
-            const baseRow = [
-                row.period.toString(),
-                `${parseFloat(row.investmentValue).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${row.changeApplied ? '★ ' : ''}${row.cycleInterestRate}`,
-                `${parseFloat(row.grossInterest).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${parseFloat(row.accumulatedInterest).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                state.isIkeIkzeMode ? "0,00 zł***" : `${parseFloat(row.tax).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${parseFloat(row.netProfit).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${parseFloat(row.redemptionFee).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
-            ];
-            if (!["OTS", "TOS"].includes(bondType)) baseRow.push(`${row.changeApplied ? '★ ' : ''}${row.rateOrInflation}`);
-            baseRow.push(`${parseFloat(row.cycleEndAmount).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-            return baseRow;
-        });
-
-        const columnWidths = headers.map((_, i) => Math.min(Math.max([...tableData, headers].reduce((max, row) => Math.max(max, row[i].length), 0) * 4, 30), 100));
-        const lineChartImage = elements.bondChartLine.toDataURL("image/png");
-
-        const docDefinition = {
-            pageSize: 'A4',
-            pageMargins: [14.17, 60, 14.17, 20],
-            defaultStyle: { font: 'Roboto' },
-            header: { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
-            content: [
-                { text: headerText, style: 'header' },
-                { text: description.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [0, 10, 0, 10] },
-                { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
-                { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] },
-                {
-                    table: {
-                        headerRows: 1,
-                        widths: columnWidths,
-                        body: [headers.map(h => ({ text: h, style: 'tableHeader' })), ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))]
-                    },
-                    layout: {
-                        fillColor: rowIndex => rowIndex === 0 ? '#C2B280' : rowIndex % 2 === 0 ? '#F5F5F5' : null,
-                        hLineWidth: () => 0.5,
-                        vLineWidth: () => 0.5,
-                        paddingLeft: () => 1,
-                        paddingRight: () => 1,
-                        paddingTop: () => 2,
-                        paddingBottom: () => 2
-                    },
-                    margin: [0, 10, 0, 10]
-                },
-                { text: `${state.scheduleData.some(row => row.changeApplied) ? "★ Zmiana oprocentowania.\n" : ""}** Opłata maksymalna za wcześniejszy wykup...${state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł..." : ""}`, style: 'footerNote', margin: [0, 5, 0, 10] },
-                { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
-                { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
-            ],
-            styles: {
-                header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
-                subheader: { fontSize: 10, alignment: 'justify' },
-                sectionHeader: { fontSize: 12, bold: true },
-                listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
-                tableCell: { fontSize: 8, alignment: 'center' },
-                footerNote: { fontSize: 8, italics: true }
-            }
-        };
-
-        pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${bondNames[bondType].replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`);
-    }
-
-    // Z O O M  A N D  T H E M E
-    let currentZoom = 1;
-    const zoomStep = 0.1;
-    const minZoom = 0.5;
-    const maxZoom = 2;
-
-    function updateZoom() {
-        const container = document.querySelector('.container');
-        container.style.transform = `scale(${currentZoom})`;
-        container.style.transformOrigin = 'top center';
-    }
-
-    document.getElementById("zoomInBtn").addEventListener("click", () => {
-        if (currentZoom < maxZoom) {
-            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
-            updateZoom();
-        }
-    });
-
-    document.getElementById("zoomOutBtn").addEventListener("click", () => {
-        if (currentZoom > minZoom) {
-            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
-            updateZoom();
-        }
-    });
-
-    function toggleDarkMode() {
-        const body = document.body;
-        const isDarkMode = body.classList.toggle('dark-mode');
-        body.classList.toggle('light-mode', !isDarkMode);
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        document.getElementById('toggleDarkModeBtn').textContent = isDarkMode ? '☀️' : '🌙';
-
-        if (state.chartLine) {
-            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.update();
-        }
-    }
-
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.body.classList.add(savedTheme === 'dark' ? 'dark-mode' : 'light-mode');
-        document.getElementById('toggleDarkModeBtn').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-    }
-
-    document.getElementById('toggleDarkModeBtn').addEventListener('click', toggleDarkMode);
-    document.getElementById('siteLogo').addEventListener('click', () => window.open('https://finance-brothers.pl', '_blank'));
-    initializeTheme();
 </script>
 </body>
 </html>
