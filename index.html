@@ -645,7 +645,6 @@
     .dark-mode .zoom-controls button.dropdown-btn {
         background: transparent !important;
         border: 2px solid var(--accent-gradient-start) !important;
-        background-image: inherit;
         background-clip: padding-box;
     }
     
@@ -666,8 +665,19 @@
         background: transparent !important;
         background-size: cover;
         background-position: center;
-        background-image: inherit !important;
         background-clip: padding-box;
+    }
+
+    .dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"]:hover {
+        background-image: url('flag-pl.png') !important;
+    }
+    
+    .dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"]:hover {
+        background-image: url('flag-en.png') !important;
+    }
+    
+    .dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"]:hover {
+        background-image: url('flag-ua.png') !important;
     }
 
     /* O P I S Y   I   D A N E */
@@ -1194,7 +1204,6 @@
     .zoom-controls .btn.dropdown-btn {
         background: transparent !important;
         border: 2px solid var(--accent-gradient-start) !important;
-        background-image: inherit;
         background-clip: padding-box;
     }
 
@@ -1204,18 +1213,18 @@
         padding: 0;
     }
 
-    .zoom-controls button.dropdown-btn[data-lang="PL"],
-    .dropdown-item[data-lang="PL"] {
+    .zoom-controls button.dropdown-btn[data-lang="PL"]:hover,
+    .dropdown-item[data-lang="PL"]:hover {
         background-image: url('flag-pl.png') !important;
     }
     
-    .zoom-controls button.dropdown-btn[data-lang="EN"],
-    .dropdown-item[data-lang="EN"] {
+    .zoom-controls button.dropdown-btn[data-lang="EN"]:hover,
+    .dropdown-item[data-lang="EN"]:hover {
         background-image: url('flag-en.png') !important;
     }
     
-    .zoom-controls button.dropdown-btn[data-lang="UA"],
-    .dropdown-item[data-lang="UA"] {
+    .zoom-controls button.dropdown-btn[data-lang="UA"]:hover,
+    .dropdown-item[data-lang="UA"]:hover {
         background-image: url('flag-ua.png') !important;
     }
 
@@ -1225,7 +1234,6 @@
         background: transparent !important;
         background-size: cover;
         background-position: center;
-        background-image: inherit !important;
         background-clip: padding-box;
     }
     
