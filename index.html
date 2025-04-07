@@ -639,11 +639,13 @@
         background-position: center;
         background-color: transparent;
         padding: 2px;
+        background-clip: padding-box;
     }
     
     .dark-mode .zoom-controls button.dropdown-btn {
         background: transparent !important;
         background-image: inherit;
+        background-clip: padding-box;
     }
     
     .dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"] {
@@ -1170,12 +1172,13 @@
         width: 25px;
         height: 25px;
         border-radius: 50%;
-        border: 2px solid #c2b280;
+        border: 2px solid var(--accent-gradient-start);
         background-size: cover;
         background-position: center;
         text-indent: -9999px;
         background-color: transparent;
         box-sizing: border-box;
+        background-clip: padding-box;
     }
 
     .dropdown-btn {
@@ -1189,21 +1192,13 @@
     .zoom-controls .btn.dropdown-btn {
         background: transparent !important;
         background-image: inherit;
+        background-clip: padding-box;
     }
 
     .dropdown-item {
         display: block;
         margin: 5px 0;
         padding: 0;
-    }
-
-    .zoom-controls button.dropdown-btn:hover,
-    .dropdown-item:hover {
-        border: 2px solid var(--accent-gradient-start);
-        background: transparent !important;
-        background-size: cover;
-        background-position: center;
-        background-image: inherit !important;
     }
 
     .zoom-controls button.dropdown-btn[data-lang="PL"],
@@ -1219,6 +1214,16 @@
     .zoom-controls button.dropdown-btn[data-lang="UA"],
     .dropdown-item[data-lang="UA"] {
         background-image: url('flag-ua.png') !important;
+    }
+
+    .zoom-controls button.dropdown-btn:hover,
+    .dropdown-item:hover {
+        border: 2px solid var(--accent-gradient-start);
+        background: transparent !important;
+        background-size: cover;
+        background-position: center;
+        background-image: inherit !important;
+        background-clip: padding-box;
     }
     
     .dropdown .dropdown-menu {
