@@ -212,11 +212,11 @@
         --logo-bg: #e9ecef;
         --input-bg: #fff;
         --input-group-bg: #f5f5f5;
-        --range-track: #d3d3d3;
+        --range-track: #b0b0b0; /* Ciemniejszy szary w trybie jasnym */
         --harmonogram-bg: #f9f9f9;
         --small-font-size: 0.7em;
         --border-radius: 5px;
-        --slider-thumb-color: #FFD700;
+        --slider-thumb-color: #DAA520; /* Ciemniejszy złoty */
         --range-bg: #e5e5e5;
     }
     
@@ -233,9 +233,9 @@
         --logo-bg: #3a3a3a;
         --input-bg: #3a3a3a;
         --input-group-bg: #666666;
-        --range-track: #666666;
+        --range-track: #444444; /* Jeszcze ciemniejszy szary w trybie ciemnym */
         --harmonogram-bg: #404040;
-        --slider-thumb-color: #FFD700;
+        --slider-thumb-color: #DAA520; /* Taki sam ciemniejszy złoty */
         --range-bg: #333333;
         --accent-gradient-start-black: #a3945c;
     }
@@ -469,8 +469,8 @@
     input[type="range"].form-range::-moz-range-thumb,
     input[type="range"].form-range::-ms-thumb {
         background: var(--slider-thumb-color);
-        width: 11px;
-        height: 11px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
@@ -487,8 +487,8 @@
     .dark-mode input[type="range"].form-range::-moz-range-thumb,
     .dark-mode input[type="range"].form-range::-ms-thumb {
         background: var(--slider-thumb-color);
-        width: 11px;
-        height: 11px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         border: none;
         cursor: pointer;
@@ -520,7 +520,7 @@
         font-size: clamp(0.2625em, 0.6125vw, 0.4125em);
         text-align: left;
         max-width: clamp(98%, 100vw, 1000px);
-        margin: 10px auto 0;
+        margin: 0 auto; /* Bez odstępu nad tabelką */
         line-height: 1.4;
         padding-left: clamp(0.5em, 1vw, 8em);
     }
@@ -836,7 +836,7 @@
     
         .form-control, .form-select {
             height: 26px;
-            width: 130px;
+            width: 200px; /* Spójna szerokość dla wszystkich, w tym TYP OBLIGACJI */
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -887,7 +887,7 @@
     
         .form-control, .form-select {
             height: 28px;
-            width: 130px;
+            width: 200px; /* Spójna szerokość dla wszystkich, w tym TYP OBLIGACJI */
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -924,6 +924,16 @@
             height: 28px;
             padding: 4px 8px;
             line-height: 20px;
+        }
+    
+        .summary-footer {
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+    
+        .highlight {
+            width: 200px; /* Dopasowana szerokość w kolumnie */
         }
     
         .logo-container {
