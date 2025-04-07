@@ -584,6 +584,11 @@
         cursor: pointer;
     }
 
+    input[type="range"].form-range:focus {
+        outline: 2px solid var(--accent-gradient-start);
+        outline-offset: 2px;
+    }
+
     /* D A R K   M O D E   -   S P E C Y F I C Z N E */
     .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
         background: var(--input-group-bg);
