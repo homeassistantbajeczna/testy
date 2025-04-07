@@ -633,6 +633,25 @@
         color: #c2b280;
     }
 
+    .dark-mode .dropdown-btn {
+        background-size: cover !important;
+        background-position: center !important;
+        background-clip: content-box;
+        border: 2px solid var(--accent-gradient-start) !important;
+    }
+    
+    .dark-mode .dropdown-btn[data-lang="PL"] {
+        background-image: url('flag-pl.png') !important;
+    }
+    
+    .dark-mode .dropdown-btn[data-lang="EN"] {
+        background-image: url('flag-en.png') !important;
+    }
+    
+    .dark-mode .dropdown-btn[data-lang="UA"] {
+        background-image: url('flag-ua.png') !important;
+    }
+
     /* O P I S Y   I   D A N E */
     .sub-info {
         font-size: 0.4em;
@@ -1150,6 +1169,7 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 6px var(--shadow-color);
+        background-clip: content-box;
     }
 
     .dropdown-item {
