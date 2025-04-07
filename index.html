@@ -18,6 +18,14 @@
             <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
             <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
             
+            <div class="dropdown">
+                <button id="dropdownBtn" class="btn btn-sm dropdown-btn" data-lang="PL" aria-label="Otwórz dodatkowe opcje">PL</button>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <button class="dropdown-item" data-lang="EN" aria-label="Język angielski">EN</button>
+                    <button class="dropdown-item" data-lang="UA" aria-label="Język ukraiński">UA</button>
+                </div>
+            </div>
+            
         </div>
     </div>
     <div class="container">
@@ -537,19 +545,19 @@
     }
 
     input[type="range"].form-range::-webkit-slider-runnable-track {
-        background: #e0e0e0;
+        background: var(--input-group-bg);
         height: 6px;
         border-radius: var(--border-radius);
     }
     
     input[type="range"].form-range::-moz-range-track {
-        background: #e0e0e0;
+        background: var(--input-group-bg);
         height: 6px;
         border-radius: var(--border-radius);
     }
     
     input[type="range"].form-range::-ms-track {
-        background: #e0e0e0;
+        background: var(--input-group-bg);
         height: 6px;
         border-radius: var(--border-radius);
     }
@@ -585,15 +593,15 @@
 
     /* D A R K   M O D E   -   S P E C Y F I C Z N E */
     .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
-        background: #333333;
+        background: var(--input-group-bg);
     }
     
     .dark-mode input[type="range"].form-range::-moz-range-track {
-        background: #333333;
+        background: var(--input-group-bg);
     }
     
     .dark-mode input[type="range"].form-range::-ms-track {
-        background: #333333;
+        background: var(--input-group-bg);
     }
     
     .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
