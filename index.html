@@ -1498,9 +1498,9 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    
-    // I N I C J A L I Z A C J A         D O M         I         S T A N U
-    
+
+    // D E F I N I C J E     I       I N I C J A L I Z A C J A
+        
     const elements = {
         formSection: document.getElementById("formSection"),
         resultSection: document.getElementById("resultSection"),
@@ -1584,12 +1584,12 @@
         "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
         "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
     };
+</script>
     
 
+<script>    
+    // O B S Ł U G A    Z D A R Z E Ń     I      F U N K C J E      P O M O C N I C Z E
 
-    
-    // Z A R Z Ą D Z A N I E         W Y D A R Z E N I A M I
-    
     elements.dynamicRateRange.addEventListener("input", () => { 
         elements.dynamicRate.value = elements.dynamicRateRange.value; 
         const typ = elements.typObligacji.value;
@@ -1687,7 +1687,7 @@
         updateLata();
         updateOprocentowanieInfo();
         updateOpisObligacji();
-    
+
         const dynamicRateGroup = document.getElementById("dynamicRateGroup");
         if (["ROR", "DOR"].includes(typ)) {
             const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
@@ -1779,6 +1779,7 @@
     
         for (let i = 0; i < newChanges.length; i++) {
             const currentPeriod = newChanges[i].period;
+            // Sprawdzamy wszystkie kolejne wiersze
             for (let j = newChanges.length - 1; j > i; j--) {
                 if (newChanges[j].period <= currentPeriod) {
                     newChanges.splice(j, 1);
@@ -2001,7 +2002,7 @@
                     updateVariableData();
                 });
             });
-    
+   
             addVariableBtn.textContent = "Dodaj kolejną zmianę";
     
             const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
@@ -2032,7 +2033,7 @@
             if (changes.length >= maxChanges) {
                 alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
             }
-            elements.addVariableBtn.style.display = "none";
+            elements.addVariableBtn.style.display = "none"; // Ukryj przycisk
             return;
         }
     
@@ -2056,11 +2057,13 @@
 
     updateDynamicRateField();
     updateIloscObligacji();
+</script>
 
-    
-    
-    // O B L I C Z A N I E         I         W Y Ś W I E T L A N I E         W Y N I K Ó W
 
+<script>
+    
+    // O B L I C Z E N I A     I      G E N E R O W A N I E      P D F 
+        
     if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
         pdfMake.fonts = {
             Roboto: {
@@ -2153,6 +2156,7 @@
         
             let oprocentowanieRoczne;
             if (inflacjaZmienna || stopaZmienna) {
+                // Pobieramy wartość z górnego panelu jako domyślną
                 let dynamicValue = (state.lastFormData.dynamicRates[typ] || (inflacjaZmienna ? 4.90 : 5.75)) / 100;
                 for (const change of changes) {
                     if (i >= change.period) {
@@ -2178,538 +2182,167 @@
                 oprocentowanieRoczne = config.oprocentowanie / 100;
             }
         
-            let oprocentowanieMiesieczne = oprocentowanieRoczne / 12;
-            let miesiecyWCyklu = ["OTS", "ROR", "DOR"].includes(typ) ? 1 : 12;
-            let odsetkiCykl = kapital * oprocentowanieMiesieczne * miesiecyWCyklu;
-        
-            let podatekCykl = odsetkiCykl * podatekBelki;
-            let odsetkiNettoCykl = state.isIkeIkzeMode ? odsetkiCykl : (odsetkiCykl - podatekCykl);
-        
-            odsetkiCalkowite += odsetkiCykl;
-            skumulowaneOdsetki += odsetkiCykl;
-            zyskNettoCalkowity += odsetkiNettoCykl;
-        
-            let wartoscInwestycji = kwota;
-            if (config.kapitalizacja) {
-                kapital += odsetkiCykl;
-                wartoscInwestycji = kapital;
+            let odsetki;
+            if (["OTS", "ROR", "DOR"].includes(typ)) {
+                odsetki = kapital * (oprocentowanieRoczne / 12);
+            } else {
+                odsetki = kapital * oprocentowanieRoczne;
             }
         
-            let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) : 
-                (config.kapitalizacja ? (wartoscInwestycji - skumulowaneOdsetki * 0.19) : kwota + zyskNettoCalkowity);
+            if (config.kapitalizacja && i < liczbaCykli) {
+                kapital += odsetki;
+                skumulowaneOdsetki += odsetki;
+                odsetki = 0;
+            } else {
+                skumulowaneOdsetki += odsetki;
+            }
         
-            let oplataZaWykup = i < liczbaCykli ? kwota * config.oplataWykup : 0;
+            odsetkiCalkowite += odsetki;
+            const podatek = odsetki * podatekBelki;
+            const zyskNetto = odsetki - podatek;
+            zyskNettoCalkowity += zyskNetto;
         
             state.harmonogramData.push({
                 okres: okresWiersz,
-                wartoscInwestycji: wartoscInwestycji.toFixed(2),
-                oprocentowanieNaCykl: (oprocentowanieRoczne * 100).toFixed(2) + "%",
-                odsetkiBrutto: odsetkiCykl.toFixed(2),
-                skumulowaneOdsetki: skumulowaneOdsetki.toFixed(2),
-                podatek: podatekCykl.toFixed(2),
-                zyskNetto: odsetkiNettoCykl.toFixed(2),
-                oplataZaWykup: oplataZaWykup.toFixed(2),
+                kapital: kapital.toFixed(2),
+                odsetki: odsetki.toFixed(2),
+                zyskNetto: zyskNetto.toFixed(2),
                 stopaRefLubInflacja: stopaRefLubInflacja,
-                kwotaPoZakonczeniuCyklu: kwotaPoCyklu.toFixed(2),
                 changeApplied: changeApplied
             });
         }
     
-        const valueKapital = document.getElementById("valueKapital");
-        if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-        const legendKapital = document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box');
-        if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+        const harmonogramBody = document.getElementById("harmonogramBody");
+        harmonogramBody.innerHTML = "";
+        state.harmonogramData.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="text-center">${row.okres}</td>
+                <td class="text-end">${row.kapital} zł</td>
+                <td class="text-end" style="display: ${["OTS", "TOS"].includes(typ) ? "none" : "table-cell"}">${row.stopaRefLubInflacja}${row.changeApplied ? "*" : ""}</td>
+                <td class="text-end">${row.odsetki} zł</td>
+                <td class="text-end">${row.zyskNetto} zł</td>
+            `;
+            harmonogramBody.appendChild(tr);
+        });
     
-        const valueOdsetki = document.getElementById("valueOdsetki");
-        if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const legendOdsetki = document.querySelector('.result-wrapper-chart .legend-item[data-index="1"] .color-box');
-        if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+        document.getElementById("odsetkiCalkowite").textContent = odsetkiCalkowite.toFixed(2);
+        document.getElementById("zyskNettoCalkowity").textContent = zyskNettoCalkowity.toFixed(2);
+        document.getElementById("wartoscWykupu").textContent = (kwota + odsetkiCalkowite).toFixed(2);
     
-        const podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
-        const valuePodatek = document.getElementById("valuePodatek");
-        if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
-        if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
-
-        document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
-        document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
-        document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
-    
-        const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-        const okresInwestycjiSpan = document.querySelector('.summary-footer .highlight.yellow');
-        if (okresInwestycjiSpan) okresInwestycjiSpan.textContent = `Okres inwestycji: ${miesiace} ${jednostkaOkresu}`;
-        const highlightYellow = document.querySelector('.result-wrapper-chart .highlight.yellow');
-        if (highlightYellow) highlightYellow.setAttribute('data-hover', `${miesiace} ${jednostkaOkresu}`);
-    
-        const zyskNettoSpan = document.querySelector('.summary-footer .highlight.green');
-        if (zyskNettoSpan) zyskNettoSpan.textContent = `Zysk netto: ${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const highlightGreen = document.querySelector('.result-wrapper-chart .highlight.green');
-        if (highlightGreen) highlightGreen.setAttribute('data-hover', `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+        const labels = state.harmonogramData.map(row => row.okres);
+        const kapitalData = state.harmonogramData.map(row => parseFloat(row.kapital));
+        const zyskData = state.harmonogramData.map(row => parseFloat(row.zyskNetto));
+        const skumulowanyZysk = [];
+        let sumaZysku = 0;
+        zyskData.forEach(zysk => {
+            sumaZysku += zysk;
+            skumulowanyZysk.push(sumaZysku);
+        });
     
         if (state.chart) state.chart.destroy();
-        if (state.chartLine) state.chartLine.destroy();
-    
-        const ctx = elements.obligacjeChart.getContext("2d");
-        if (!ctx) {
-            console.error("Nie można uzyskać kontekstu 2D dla wykresu kołowego.");
-            state.isCalculating = false;
-            return;
-        }
-        state.chart = new Chart(ctx, {
-            type: 'doughnut',
+        state.chart = new Chart(elements.obligacjeChart, {
+            type: 'bar',
             data: {
-                labels: ['Kapitał', 'Odsetki', 'Podatek'],
+                labels: labels,
                 datasets: [{
-                    data: [kwota, odsetkiCalkowite, podatekCalkowity],
-                    backgroundColor: ['#28a745', '#007bff', '#dc3545'],
-                    borderWidth: 1,
-                    hoverOffset: 20
+                    label: 'Kapitał (zł)',
+                    data: kapitalData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                cutout: '50%',
-                layout: { padding: 20 }
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Kwota (zł)' } },
+                    x: { title: { display: true, text: ['OTS', 'ROR', 'DOR'].includes(typ) ? 'Miesiąc' : 'Rok' } }
+                },
+                plugins: { legend: { display: true } }
             }
         });
     
-        document.querySelectorAll('.result-wrapper-chart .legend-item').forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                state.chart.setActiveElements([{ datasetIndex: 0, index: index }]);
-                state.chart.update();
-                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][index]}`);
-                if (currentLegend) currentLegend.style.opacity = 0;
-                const valueElements = document.querySelectorAll('#valueKapital, #valueOdsetki, #valuePodatek');
-                valueElements.forEach((value, idx) => {
-                    if (idx === index) {
-                        if (idx === 0) value.textContent = `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                        if (idx === 1) value.textContent = `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-                        if (idx === 2) value.textContent = `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`;
-                    }
-                });
-            });
-    
-            item.addEventListener('mouseleave', function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                state.chart.setActiveElements([]);
-                state.chart.update();
-                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][index]}`);
-                if (currentLegend) currentLegend.style.opacity = 1;
-                if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-                if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-            });
-        });
-    
-        let tabela = document.getElementById("harmonogramTabela");
-        if (tabela) {
-            tabela.innerHTML = "";
-            state.harmonogramData.forEach(wiersz => {
-                let rowHTML = `
-                    <tr>
-                        <td>${wiersz.okres}</td>
-                        <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
-                        <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}</td>
-                        <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**</td>
-                `;
-                if (!["OTS", "TOS"].includes(typ)) {
-                    rowHTML += `<td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.stopaRefLubInflacja}</td>`;
-                }
-                rowHTML += `
-                        <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                    </tr>
-                `;
-                tabela.innerHTML += rowHTML;
-            });
-        }
-    
-        const harmonogramOpis = document.getElementById("harmonogramOpis");
-        if (harmonogramOpis) {
-            const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? '<span class="star">★</span><strong> Zmiana oprocentowania.</strong><br>' : "";
-            const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
-            const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
-            harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
-            harmonogramOpis.style.display = "block";
-        }
-    
-        const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
-        const minKwota = kwota;
-        const range = maxKwotaPoCyklu - minKwota;
-        const padding = range * 0.1;
-        const yMin = minKwota - padding;
-        const yMax = maxKwotaPoCyklu + padding;
-        const stepSize = range * 0.2;
-    
-        const ctxLine = elements.obligacjeChartLine.getContext("2d");
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        
-        const screenWidth = window.innerWidth;
-        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14;
-        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
-        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
-        
-        state.chartLine = new Chart(ctxLine, {
+        if (state.chartLine) state.chartLine.destroy();
+        state.chartLine = new Chart(elements.obligacjeChartLine, {
             type: 'line',
             data: {
-                labels: state.harmonogramData.map(wiersz => ["OTS", "ROR", "DOR"].includes(typ) ? `Miesiąc ${wiersz.okres}` : `Rok ${wiersz.okres}`),
-                datasets: [
-                    {
-                        label: 'Zainwestowana kwota',
-                        data: state.harmonogramData.map(() => kwota),
-                        borderColor: '#8B7D47',
-                        backgroundColor: 'rgba(139, 125, 71, 0.1)',
-                        fill: false,
-                        tension: 0,
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Kwota po zakończeniu cyklu',
-                        data: state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)),
-                        borderColor: '#D4C791',
-                        backgroundColor: 'rgba(212, 199, 145, 0.2)',
-                        fill: true,
-                        tension: 0.1,
-                        borderWidth: 2
-                    }
-                ]
+                labels: labels,
+                datasets: [{
+                    label: state.isIkeIkzeMode ? 'Zysk skumulowany (zł)' : 'Zysk netto skumulowany (zł)',
+                    data: skumulowanyZysk,
+                    fill: false,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
                 scales: {
-                    x: { 
-                        title: { 
-                            display: true, 
-                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
-                            font: { size: titleFontSize },
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }, 
-                        ticks: { 
-                            font: { size: tickFontSize },
-                            color: isDarkMode ? '#e0e0e0' : '#333333',
-                            maxRotation: 45,
-                            minRotation: 0,
-                            autoSkip: true,
-                            maxTicksLimit: 10
-                        },
-                        grid: {
-                            color: isDarkMode ? '#333333' : '#e0e0e0',
-                            borderColor: isDarkMode ? '#333333' : '#333333'
-                        }
-                    },
-                    y: { 
-                        title: { 
-                            display: true, 
-                            text: 'Wartość (PLN)', 
-                            font: { size: titleFontSize },
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }, 
-                        min: yMin, 
-                        max: yMax, 
-                        ticks: { 
-                            stepSize: stepSize, 
-                            font: { size: tickFontSize },
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        },
-                        grid: {
-                            color: isDarkMode ? '#333333' : '#e0e0e0',
-                            borderColor: isDarkMode ? '#333333' : '#333333'
-                        }
-                    }
+                    y: { beginAtZero: true, title: { display: true, text: 'Zysk (zł)' } },
+                    x: { title: { display: true, text: ['OTS', 'ROR', 'DOR'].includes(typ) ? 'Miesiąc' : 'Rok' } }
                 },
-                plugins: { 
-                    legend: { 
-                        labels: { 
-                            font: { size: legendFontSize },
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        } 
-                    } 
-                }
+                plugins: { legend: { display: true } }
             }
         });
     
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
-        elements.generatePdfBtn.disabled = false;
-        console.log("GeneratePdfBtn enabled:", !elements.generatePdfBtn.disabled);
         state.isCalculating = false;
-        console.log("ObliczObligacje completed");
     }
-
     
-    // G E N E R O W A N I E   P L I K U   P D F
-    
-    const backgroundPlugin = {
-        id: 'customBackground',
-        beforeDraw: (chart, args, options) => {
-            const ctx = chart.ctx;
-            ctx.save();
-            ctx.fillStyle = options.color || '#ffffff';
-            ctx.fillRect(0, 0, chart.width, chart.height);
-            ctx.restore();
-        }
-    };
-
     function generatePdf() {
-        console.log("Starting generatePdf");
-        if (typeof pdfMake === "undefined") {
-            console.error("Biblioteka PDFMake nie została załadowana.");
-            alert("Błąd: Biblioteka PDFMake nie jest załadowana.");
-            return;
-        }
-
         if (!state.harmonogramData.length) {
-            alert("Najpierw oblicz wyniki inwestycji, klikając 'Oblicz'.");
+            alert("Najpierw oblicz wyniki inwestycji!");
             return;
         }
-
-        const valueKapital = document.getElementById("valueKapital");
-        const valueOdsetki = document.getElementById("valueOdsetki");
-        const valuePodatek = document.getElementById("valuePodatek");
-        const zyskNetto = document.getElementById("zyskNetto");
-
-        const typ = state.lastFormData.typObligacji;
-        if (!typ) {
-            console.error("Brak typu obligacji w state.lastFormData.typObligacji");
-            alert("Błąd: Brak typu obligacji.");
-            return;
-        }
-
-        const nazwaObligacji = nazwyObligacji[typ];
-        const headerText = `Wynik inwestycji dla obligacji ${nazwaObligacji}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
-        const opis = opisyObligacji[typ] || "";
-        const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-        const today = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-
-        const parseNumber = (text) => {
-            const cleaned = text.replace(/[^\d,.]/g, "").replace(",", ".");
-            const number = parseFloat(cleaned);
-            return isNaN(number) ? 0 : number;
-        };
-
-        const summary = [
-            `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Odsetki: ${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`,
-            `Okres inwestycji: ${state.lastFormData.okres} ${jednostkaOkresu}`,
-            `Zysk netto: ${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
+    
+        const typ = elements.typObligacji.value;
+        const config = obligacjeConfig[typ];
+        const jednostkaCzasu = ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok";
+        const naglowekInflacjaStopa = ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja";
+        const naglowekZysk = state.isIkeIkzeMode ? "Zysk" : "Zysk netto";
+    
+        const tableBody = [
+            [
+                { text: jednostkaCzasu, bold: true },
+                { text: "Kapitał", bold: true },
+                { text: naglowekInflacjaStopa, bold: true, style: { hidden: ["OTS", "TOS"].includes(typ) } },
+                { text: "Odsetki", bold: true },
+                { text: naglowekZysk, bold: true }
+            ],
+            ...state.harmonogramData.map(row => [
+                row.okres,
+                row.kapital + " zł",
+                { text: row.stopaRefLubInflacja + (row.changeApplied ? "*" : ""), style: { hidden: ["OTS", "TOS"].includes(typ) } },
+                row.odsetki + " zł",
+                row.zyskNetto + " zł"
+            ])
         ];
-
-        const headers = ["OTS", "ROR", "DOR"].includes(typ)
-            ? ["Miesiąc", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Stopa Ref. NBP", "Suma netto"]
-            : ["Rok", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Inflacja", "Suma netto"];
-        if (["OTS", "TOS"].includes(typ)) headers.splice(8, 1);
-
-        const safeParseFloat = (value) => isNaN(parseFloat(value)) ? 0 : parseFloat(value);
-
-        const tableData = state.harmonogramData.map(wiersz => {
-            const row = [
-                (wiersz.okres || 0).toString(),
-                `${safeParseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl || '0%'}`,
-                `${safeParseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                state.isIkeIkzeMode ? "0,00 zł***" : `${safeParseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
-            ];
-            if (!["OTS", "TOS"].includes(typ)) {
-                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja || '0%'}`);
-            }
-            row.push(`${safeParseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-            return row;
-        });
-
-        const calculateColumnWidths = () => {
-            const allRows = [headers, ...tableData];
-            const columnWidths = headers.map((_, colIndex) => {
-                const maxLength = Math.max(
-                    ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
-                );
-                const baseWidth = maxLength * 4;
-                return Math.min(Math.max(baseWidth, 30), 100);
-            });
-            return columnWidths;
-        };
-
-        const columnWidths = calculateColumnWidths();
-        const lineChartCanvas = document.getElementById("obligacjeChartLine");
-
-        const originalColors = {
-            xGridColor: state.chartLine.options.scales.x.grid.color,
-            yGridColor: state.chartLine.options.scales.y.grid.color,
-            xGridBorderColor: state.chartLine.options.scales.x.grid.borderColor,
-            yGridBorderColor: state.chartLine.options.scales.y.grid.borderColor,
-            xTitleColor: state.chartLine.options.scales.x.title.color,
-            yTitleColor: state.chartLine.options.scales.y.title.color,
-            xTicksColor: state.chartLine.options.scales.x.ticks.color,
-            yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color
-        };
-
-        state.chartLine.options.scales.x.grid.color = '#e0e0e0';
-        state.chartLine.options.scales.y.grid.color = '#e0e0e0';
-        state.chartLine.options.scales.x.grid.borderColor = '#333333';
-        state.chartLine.options.scales.y.grid.borderColor = '#333333';
-        state.chartLine.options.scales.x.title.color = '#333333';
-        state.chartLine.options.scales.y.title.color = '#333333';
-        state.chartLine.options.scales.x.ticks.color = '#333333';
-        state.chartLine.options.scales.y.ticks.color = '#333333';
-        state.chartLine.options.plugins.legend.labels.color = '#333333';
-        state.chartLine.update();
-
-        requestAnimationFrame(() => {
-            const lineChartImage = lineChartCanvas.toDataURL("image/png");
-
-            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
-            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
-            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
-            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
-            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
-            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
-            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
-            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
-            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.update();
-
-            function getBase64ImageFromUrl(url) {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = this.width;
-                        canvas.height = this.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(this, 0, 0);
-                        const dataURL = canvas.toDataURL('image/png');
-                        resolve(dataURL);
-                    };
-                    img.onerror = reject;
-                    img.src = url;
-                });
-            }
-
-            const generateDoc = (logoBase64) => {
-                const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-                const starText = hasStar ? "★ Zmiana oprocentowania.\n" : "";
-                const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym razie opłata będzie do wartości narosłych odsetek.";
-                const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
-                const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
-
-                const docDefinition = {
-                    pageSize: 'A4',
-                    pageMargins: [14.17, 60, 14.17, 20],
-                    defaultStyle: { font: 'Roboto' },
-                    header: logoBase64 ? {
-                        columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 10, 0, 0] },
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] }
-                        ]
-                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
-                    content: [
-                        { text: headerText, style: 'header' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [0, 10, 0, 10] },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
-                        { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] },
-                        {
-                            table: {
-                                headerRows: 1,
-                                widths: columnWidths,
-                                body: [
-                                    headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
-                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
-                                ]
-                            },
-                            layout: {
-                                fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                                hLineWidth: function () { return 0.5; },
-                                vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 1; },
-                                paddingRight: function () { return 1; },
-                                paddingTop: function () { return 2; },
-                                paddingBottom: function () { return 2; }
-                            },
-                            margin: [0, 10, 0, 10]
-                        },
-                        { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
-                        { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
-                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
-                    ],
-                    styles: {
-                        header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
-                        subheader: { fontSize: 10, alignment: 'justify' },
-                        sectionHeader: { fontSize: 12, bold: true },
-                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                        tableHeader: { fontSize: 8, bold: true, fillColor: '#C2B280', alignment: 'center' },
-                        tableCell: { fontSize: 8, alignment: 'center' },
-                        footerNote: { fontSize: 8, italics: true }
+    
+        const docDefinition = {
+            content: [
+                { text: `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}`, style: 'header' },
+                { text: opisyObligacji[typ], style: 'subheader' },
+                {
+                    table: {
+                        headerRows: 1,
+                        widths: ["OTS", "TOS"].includes(typ) ? ['auto', 'auto', 'auto', 'auto'] : ['auto', 'auto', 'auto', 'auto', 'auto'],
+                        body: tableBody.map(row => row.map(cell => typeof cell === 'object' && cell.style && cell.style.hidden ? '' : cell))
                     }
-                };
-
-                pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${typ}_${today.replace(/\//g, '-')}.pdf`);
-                console.log("PDF generated successfully");
-            }).catch(err => {
-                console.error("Błąd podczas ładowania logo:", err);
-                // Generowanie PDF bez logo w przypadku błędu
-                const docDefinition = {
-                    pageSize: 'A4',
-                    pageMargins: [14.17, 60, 14.17, 20],
-                    defaultStyle: { font: 'Roboto' },
-                    header: { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
-                    content: [
-                        { text: headerText, style: 'header' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [0, 10, 0, 10] },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
-                        { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] },
-                        {
-                            table: {
-                                headerRows: 1,
-                                widths: columnWidths,
-                                body: [
-                                    headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
-                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
-                                ]
-                            },
-                            layout: {
-                                fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                                hLineWidth: function () { return 0.5; },
-                                vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 1; },
-                                paddingRight: function () { return 1; },
-                                paddingTop: function () { return 2; },
-                                paddingBottom: function () { return 2; }
-                            },
-                            margin: [0, 10, 0, 10]
-                        },
-                        { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
-                        { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
-                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
-                    ],
-                    styles: {
-                        header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
-                        subheader: { fontSize: 10, alignment: 'justify' },
-                        sectionHeader: { fontSize: 12, bold: true },
-                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                        tableHeader: { fontSize: 8, bold: true, fillColor: '#C2B280', alignment: 'center' },
-                        tableCell: { fontSize: 8, alignment: 'center' },
-                        footerNote: { fontSize: 8, italics: true }
-                    }
-                };
-
-                pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${typ}_${today.replace(/\//g, '-')}.pdf`);
-                console.log("PDF generated without logo due to error");
-            });
-        });
+                },
+                { text: `Odsetki całkowite: ${document.getElementById("odsetkiCalkowite").textContent} zł`, style: 'summary' },
+                { text: `${naglowekZysk} całkowity: ${document.getElementById("zyskNettoCalkowity").textContent} zł`, style: 'summary' },
+                { text: `Wartość wykupu: ${document.getElementById("wartoscWykupu").textContent} zł`, style: 'summary' }
+            ],
+            styles: {
+                header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
+                subheader: { fontSize: 12, margin: [0, 0, 0, 10] },
+                summary: { fontSize: 12, margin: [0, 5, 0, 0] }
+            },
+            defaultStyle: { font: 'Roboto' }
+        };
+    
+        pdfMake.createPdf(docDefinition).download(`Obligacje_${typ}_${new Date().toISOString().slice(0,10)}.pdf`);
     }
-</script>
+</script>  
 </body>
 </html>
