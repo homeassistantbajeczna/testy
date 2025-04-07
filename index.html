@@ -212,11 +212,11 @@
         --logo-bg: #e9ecef;
         --input-bg: #fff;
         --input-group-bg: #f5f5f5;
-        --range-track: #808080; /* Ciemniejszy szary w trybie jasnym */
+        --range-track: #808080; /* Ciemniejszy szary w trybie jasnym - zatwierdzone */
         --harmonogram-bg: #f9f9f9;
         --small-font-size: 0.7em;
         --border-radius: 5px;
-        --slider-thumb-color: #DAA520; /* Ciemniejszy złoty */
+        --slider-thumb-color: #DAA520; /* Ciemniejszy złoty - zatwierdzone */
         --range-bg: #e5e5e5;
     }
     
@@ -233,9 +233,9 @@
         --logo-bg: #3a3a3a;
         --input-bg: #3a3a3a;
         --input-group-bg: #666666;
-        --range-track: #333333; /* Prawie czarny w trybie ciemnym */
+        --range-track: #333333; /* Prawie czarny w trybie ciemnym - zatwierdzone */
         --harmonogram-bg: #404040;
-        --slider-thumb-color: #DAA520; /* Taki sam ciemniejszy złoty */
+        --slider-thumb-color: #DAA520; /* Taki sam ciemniejszy złoty - zatwierdzone */
         --range-bg: #333333;
         --accent-gradient-start-black: #a3945c;
     }
@@ -259,7 +259,7 @@
         width: 100%;
         padding: 15px calc(var(--bs-gutter-x) * 0.5);
         margin: 30px auto 0;
-        max-width: 1200px;
+        max-width: 1200px; /* Przywracam pierwotne ograniczenie */
         background: var(--secondary-bg);
         border-radius: 10px;
         box-shadow: 0 0 15px var(--shadow-color);
@@ -465,13 +465,11 @@
         border-radius: var(--border-radius);
     }
     
-    input 
-       
-    [type="range"].form-range::-webkit-slider-thumb,
+    input[type="range"].form-range::-webkit-slider-thumb,
     input[type="range"].form-range::-moz-range-thumb,
     input[type="range"].form-range::-ms-thumb {
         background: var(--slider-thumb-color);
-        width: 6px;
+        width: 6px; /* Mniejszy rozmiar - zatwierdzone */
         height: 6px;
         border-radius: 50%;
         border: none;
@@ -522,7 +520,7 @@
         font-size: clamp(0.2625em, 0.6125vw, 0.4125em);
         text-align: left;
         max-width: clamp(98%, 100vw, 1000px);
-        margin: 0 auto; /* Bez odstępu nad tabelką */
+        margin: 0 auto; /* Bez odstępu nad tabelką - zatwierdzone */
         line-height: 1.4;
         padding-left: clamp(0.5em, 1vw, 8em);
     }
@@ -553,7 +551,7 @@
         margin-top: 20px;
         padding: clamp(2px, 2vw, 20px);
         width: 100%;
-        max-width: 100%;
+        max-width: clamp(98%, 100vw, 1100px); /* Pierwotna wartość */
         margin-left: auto;
         margin-right: auto;
     }
@@ -563,20 +561,13 @@
         padding: clamp(2px, 2vw, 20px);
         border-radius: 10px;
         width: 100%;
-        max-width: 100%;
+        max-width: clamp(98%, 100vw, 1100px); /* Pierwotna wartość */
         margin: 0 auto;
-        aspect-ratio: 16 / 9;
-        min-height: 200px;
-    }
-
-    .harmonogram-chart-wrapper canvas {
-        width: 100% !important;
-        height: 100% !important;
     }
     
     .result-wrapper-chart {
         width: 100%;
-        max-width: 100%; /* Skaluje się z rozdzielczością */
+        max-width: 600px; /* Pierwotna wartość */
         margin: 0 auto;
     }
     
@@ -675,14 +666,14 @@
     .harmonogram {
         padding: 0;
         width: 100%;
-        max-width: clamp(98%, 100vw, 1000px);
+        max-width: clamp(98%, 100vw, 1000px); /* Pierwotna wartość */
         margin: 0 auto;
         overflow-x: auto;
     }
     
     .harmonogram table {
         width: 100%;
-        max-width: clamp(98%, 100vw, 1000px);
+        max-width: clamp(98%, 100vw, 1000px); /* Pierwotna wartość */
         border-collapse: separate;
         border-spacing: 0;
         border-radius: 10px;
@@ -845,7 +836,7 @@
     
         .form-control, .form-select {
             height: 26px;
-            width: 200px; /* Spójna szerokość dla wszystkich, w tym TYP OBLIGACJI */
+            width: 200px; /* Spójna szerokość - zatwierdzone */
             padding: 4px 8px;
             line-height: 20px;
         }
@@ -904,7 +895,7 @@
         .form-select {
             height: 28px;
             width: 200px;
-            padding: 4px 24px 4px 4px;
+            padding: 4px 24px 4px 4px; /* Wyśrodkowanie tekstu - zatwierdzone */
             line-height: 20px;
             text-align: center;
             background-position: right 8px center;
@@ -951,7 +942,7 @@
         }
     
         .highlight {
-            width: 240px; /* Troszeczkę szersze */
+            width: 240px; /* Troszeczkę szersze - zatwierdzone */
         }
     
         .logo-container {
