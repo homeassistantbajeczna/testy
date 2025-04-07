@@ -634,31 +634,31 @@
     }
 
     .dark-mode .dropdown-btn {
-        border: 2px solid var(--accent-gradient-start);
+        border: 2px solid #8b7d47;
         background-size: cover;
         background-position: center;
         background-color: transparent;
         padding: 2px;
     }
     
-    .dark-mode .dropdown-btn[data-lang="PL"] {
-        background-image: url('flag-pl.png');
+    .dark-mode button.dropdown-btn[data-lang="PL"] {
+        background-image: url('flag-pl.png') !important;
     }
     
-    .dark-mode .dropdown-btn[data-lang="EN"] {
-        background-image: url('flag-en.png');
+    .dark-mode button.dropdown-btn[data-lang="EN"] {
+        background-image: url('flag-en.png') !important;
     }
     
-    .dark-mode .dropdown-btn[data-lang="UA"] {
-        background-image: url('flag-ua.png');
+    .dark-mode button.dropdown-btn[data-lang="UA"] {
+        background-image: url('flag-ua.png') !important;
     }
 
-    .dark-mode .dropdown-btn:hover {
-        border: 2px solid var(--accent-gradient-start);
+    .dark-mode button.dropdown-btn:hover {
+        border: 2px solid #8b7d47;
         background-size: cover;
         background-position: center;
         background-color: transparent;
-        background-image: inherit;
+        background-image: inherit !important;
     }
 
     /* O P I S Y   I   D A N E */
@@ -1165,7 +1165,7 @@
         width: 25px;
         height: 25px;
         border-radius: 50%;
-        border: 2px solid var(--accent-gradient-start);
+        border: 2px solid #c2b280;
         background-size: cover;
         background-position: center;
         text-indent: -9999px;
@@ -1178,7 +1178,7 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 6px var(--shadow-color);
-        padding: 2px; /* Daje przestrzeń dla ramki */
+        padding: 2px;
     }
 
     .dropdown-item {
@@ -1187,30 +1187,29 @@
         padding: 0;
     }
 
-    .dropdown-btn:hover,
+    button.dropdown-btn:hover,
     .dropdown-item:hover {
-        border: 2px solid var(--accent-gradient-start);
+        border: 2px solid #c2b280;
         background-size: cover;
         background-position: center;
         background-color: transparent;
-        background-image: inherit;
+        background-image: inherit !important;
     }
 
-    .dropdown-btn[data-lang="PL"],
+    button.dropdown-btn[data-lang="PL"],
     .dropdown-item[data-lang="PL"] {
-        background-image: url('flag-pl.png');
+        background-image: url('flag-pl.png') !important;
     }
 
-    .dropdown-btn[data-lang="EN"],
+    button.dropdown-btn[data-lang="EN"],
     .dropdown-item[data-lang="EN"] {
-        background-image: url('flag-en.png');
+        background-image: url('flag-en.png') !important;
     }
-
-    .dropdown-btn[data-lang="UA"],
+    
+    button.dropdown-btn[data-lang="UA"],
     .dropdown-item[data-lang="UA"] {
-        background-image: url('flag-ua.png');
+        background-image: url('flag-ua.png') !important;
     }
-
     .dropdown .dropdown-menu {
         display: none;
         position: absolute;
