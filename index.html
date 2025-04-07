@@ -953,8 +953,12 @@
         text-align: center;
     }
     
-    /* P R Z Y C I S K I */
-    .btn-gradient {
+   /* P R Z Y C I S K I */
+    .btn-primary,
+    .btn-secondary,
+    #addVariableBtn,
+    #generatePdfBtn,
+    .zoom-controls .btn { /* +, - */
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
         border: none !important;
         color: var(--primary-text) !important;
@@ -962,13 +966,25 @@
         transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
     
-    .btn-gradient:hover {
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    #addVariableBtn:hover,
+    #generatePdfBtn:hover,
+    .zoom-controls .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 12px var(--shadow-color);
         background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
     }
     
-    .btn-primary,
+    .btn-primary {
+        font-size: 0.9em;
+        padding: 8px 20px;
+        width: auto;
+        margin: 25px auto 0;
+        display: block;
+        border-radius: 25px;
+    }
+    
     .btn-secondary {
         font-size: 0.9em;
         padding: 8px 20px;
@@ -985,6 +1001,12 @@
         margin: 0 auto;
     }
     
+    #generatePdfBtn {
+        display: block;
+        margin: 0 0 15px auto;
+        padding: 6px 15px;
+    }
+    
     .zoom-controls .btn {
         padding: 2px 8px;
         width: 25px;
@@ -993,12 +1015,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-    
-    #generatePdfBtn {
-        display: block;
-        margin: 0 0 15px auto;
-        padding: 6px 15px;
     }
     
     .btn-toggle {
@@ -1089,40 +1105,40 @@
         justify-content: center;
         border: 2px solid var(--accent-gradient-start) !important;
         box-shadow: 0 4px 6px var(--shadow-color);
-        background-size: cover;
-        background-position: center;
+        background-size: cover !important;
+        background-position: center !important;
         text-indent: -9999px;
         background-color: transparent !important;
     }
     
     .dropdown-btn[data-lang="PL"] {
-        background-image: url('flag-pl.png');
+        background-image: url('flag-pl.png') !important;
     }
     
     .dropdown-btn[data-lang="EN"] {
-        background-image: url('flag-en.png');
+        background-image: url('flag-en.png') !important;
     }
     
     .dropdown-btn[data-lang="UA"] {
-        background-image: url('flag-ua.png');
+        background-image: url('flag-ua.png') !important;
     }
     
     .dropdown-btn:hover {
         border: 2px solid var(--accent-gradient-start) !important;
-        background-size: cover;
-        background-position: center;
+        background-size: cover !important;
+        background-position: center !important;
         background-color: transparent !important;
     }
     
     .dropdown .dropdown-menu {
         display: none;
         position: absolute;
-        background: transparent;
+        background: transparent !important;
         min-width: 25px;
         z-index: 1;
         padding: 5px 0;
-        box-shadow: none;
-        border: none;
+        box-shadow: none !important;
+        border: none !important;
     }
     
     .dropdown .dropdown-menu.show {
@@ -1135,8 +1151,8 @@
         height: 25px;
         border-radius: 50%;
         border: 2px solid var(--accent-gradient-start) !important;
-        background-size: cover;
-        background-position: center;
+        background-size: cover !important;
+        background-position: center !important;
         text-indent: -9999px;
         margin: 5px 0;
         padding: 0;
@@ -1144,21 +1160,21 @@
     }
     
     .dropdown-item[data-lang="PL"] {
-        background-image: url('flag-pl.png');
+        background-image: url('flag-pl.png') !important;
     }
     
     .dropdown-item[data-lang="EN"] {
-        background-image: url('flag-en.png');
+        background-image: url('flag-en.png') !important;
     }
     
     .dropdown-item[data-lang="UA"] {
-        background-image: url('flag-ua.png');
+        background-image: url('flag-ua.png') !important;
     }
     
     .dropdown-item:hover {
         border: 2px solid var(--accent-gradient-start) !important;
-        background-size: cover;
-        background-position: center;
+        background-size: cover !important;
+        background-position: center !important;
         background-color: transparent !important;
     }
     
