@@ -634,46 +634,31 @@
     }
 
     .dark-mode .dropdown-btn {
-        border: 2px solid var(--accent-gradient-start) !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-clip: content-box;
-        background-color: transparent !important;
+        border: 2px solid var(--accent-gradient-start);
+        background-size: cover;
+        background-position: center;
+        background-color: transparent;
+        padding: 2px;
     }
     
     .dark-mode .dropdown-btn[data-lang="PL"] {
-        background-image: url('flag-pl.png') !important;
+        background-image: url('flag-pl.png');
     }
     
     .dark-mode .dropdown-btn[data-lang="EN"] {
-        background-image: url('flag-en.png') !important;
+        background-image: url('flag-en.png');
     }
     
     .dark-mode .dropdown-btn[data-lang="UA"] {
-        background-image: url('flag-ua.png') !important;
+        background-image: url('flag-ua.png');
     }
 
     .dark-mode .dropdown-btn:hover {
-        border: 2px solid var(--accent-gradient-start) !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-color: transparent !important;
-        background-image: inherit !important;
-    }
-    
-    .dropdown .dropdown-menu {
-        display: none;
-        position: absolute;
-        background: transparent !important;
-        min-width: 25px;
-        z-index: 1;
-        padding: 5px 0;
-        box-shadow: none !important;
-        border: none !important;
-    }
-    
-    .dropdown .dropdown-menu.show {
-        display: block;
+        border: 2px solid var(--accent-gradient-start);
+        background-size: cover;
+        background-position: center;
+        background-color: transparent;
+        background-image: inherit;
     }
 
     /* O P I S Y   I   D A N E */
@@ -1177,15 +1162,14 @@
 
     .dropdown-btn,
     .dropdown-item {
-        padding: 2px 8px;
         width: 25px;
         height: 25px;
         border-radius: 50%;
-        border: 2px solid var(--accent-gradient-start) !important;
-        background-size: cover !important;
-        background-position: center !important;
+        border: 2px solid var(--accent-gradient-start);
+        background-size: cover;
+        background-position: center;
         text-indent: -9999px;
-        background-color: transparent !important;
+        background-color: transparent;
         box-sizing: border-box;
     }
 
@@ -1194,7 +1178,7 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 4px 6px var(--shadow-color);
-        background-clip: content-box;
+        padding: 2px; /* Daje przestrzeń dla ramki */
     }
 
     .dropdown-item {
@@ -1205,37 +1189,37 @@
 
     .dropdown-btn:hover,
     .dropdown-item:hover {
-        border: 2px solid var(--accent-gradient-start) !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-color: transparent !important;
-        background-image: inherit !important;
+        border: 2px solid var(--accent-gradient-start);
+        background-size: cover;
+        background-position: center;
+        background-color: transparent;
+        background-image: inherit;
     }
 
     .dropdown-btn[data-lang="PL"],
     .dropdown-item[data-lang="PL"] {
-        background-image: url('flag-pl.png') !important;
+        background-image: url('flag-pl.png');
     }
 
     .dropdown-btn[data-lang="EN"],
     .dropdown-item[data-lang="EN"] {
-        background-image: url('flag-en.png') !important;
+        background-image: url('flag-en.png');
     }
 
     .dropdown-btn[data-lang="UA"],
     .dropdown-item[data-lang="UA"] {
-        background-image: url('flag-ua.png') !important;
+        background-image: url('flag-ua.png');
     }
 
     .dropdown .dropdown-menu {
         display: none;
         position: absolute;
-        background: transparent !important;
+        background: transparent;
         min-width: 25px;
         z-index: 1;
         padding: 5px 0;
-        box-shadow: none !important;
-        border: none !important;
+        box-shadow: none;
+        border: none;
     }
 
     .dropdown .dropdown-menu.show {
