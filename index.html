@@ -644,6 +644,7 @@
     
     .dark-mode .zoom-controls button.dropdown-btn {
         background: transparent !important;
+        border: 2px solid var(--accent-gradient-start) !important;
         background-image: inherit;
         background-clip: padding-box;
     }
@@ -661,11 +662,12 @@
     }
     
     .dark-mode .zoom-controls button.dropdown-btn:hover {
-        border: 2px solid var(--accent-gradient-start);
+        border: 2px solid var(--accent-gradient-start) !important;
         background: transparent !important;
         background-size: cover;
         background-position: center;
         background-image: inherit !important;
+        background-clip: padding-box;
     }
 
     /* O P I S Y   I   D A N E */
@@ -1191,6 +1193,7 @@
 
     .zoom-controls .btn.dropdown-btn {
         background: transparent !important;
+        border: 2px solid var(--accent-gradient-start) !important;
         background-image: inherit;
         background-clip: padding-box;
     }
@@ -1218,7 +1221,7 @@
 
     .zoom-controls button.dropdown-btn:hover,
     .dropdown-item:hover {
-        border: 2px solid var(--accent-gradient-start);
+        border: 2px solid var(--accent-gradient-start) !important;
         background: transparent !important;
         background-size: cover;
         background-position: center;
