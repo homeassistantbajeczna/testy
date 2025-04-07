@@ -1498,10 +1498,6 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    
-    
-    /*  G L O B A L N E    Z M I E N N E  */
-    
     const elements = {
         formSection: document.getElementById("formSection"),
         resultSection: document.getElementById("resultSection"),
@@ -1528,8 +1524,8 @@
         chartLine: null,
         harmonogramData: [],
         isIkeIkzeMode: false,
-        variableInflation: [],
-        variableReferenceRates: [],
+        variableInflation: [], // Tablica dla danych "Zmienna inflacja"
+        variableReferenceRates: [], // Tablica dla danych "Zmienne stopy referencyjne NBP"
         lastFormData: {
             kwota: 10000,
             typObligacji: "OTS",
@@ -1551,18 +1547,18 @@
     };
 
     const maxVariableChanges = {
-        "ROR": 11,
-        "DOR": 23,
-        "COI": 3,
-        "EDO": 9,
-        "ROS": 5,
-        "ROD": 11
+        "ROR": 11, // 12 miesięcy - 1 domyślny
+        "DOR": 23, // 24 miesiące - 1 domyślny
+        "COI": 3,  // 4 lata - 1 domyślny
+        "EDO": 9,  // 10 lat - 1 domyślny
+        "ROS": 5,  // 6 lat - 1 domyślny
+        "ROD": 11  // 12 lat - 1 domyślny
     };
 
     const obligacjeConfig = {
         "OTS": { okres: 3, oprocentowanie: 3.00, zmienne: false, kapitalizacja: false, oplataWykup: 0.00 },
         "ROR": { okres: 12, oprocentowanie: 5.75, zmienne: true, marza: 0.00, kapitalizacja: false, oplataWykup: 0.005 },
-        "DOR": { okres: 24MF, oprocentowanie: 5.90, zmienne: true, marza: 0.15, kapitalizacja: false, oplataWykup: 0.007 },
+        "DOR": { okres: 24, oprocentowanie: 5.90, zmienne: true, marza: 0.15, kapitalizacja: false, oplataWykup: 0.007 },
         "TOS": { okres: 36, oprocentowanie: 5.95, zmienne: false, kapitalizacja: true, oplataWykup: 0.01 },
         "COI": { okres: 48, oprocentowanie: 6.30, zmienne: true, marza: 1.50, indeksowaneInflacja: true, kapitalizacja: false, oplataWykup: 0.02 },
         "EDO": { okres: 120, oprocentowanie: 6.55, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 },
@@ -1585,11 +1581,8 @@
         "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
         "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
     };
-
-
-    
-    /*  Z D A R Z E N I A    I    F U N K C J E    P O M O C N I C Z E  */
-    
+</script>
+<script>
     elements.dynamicRateRange.addEventListener("input", () => { 
         elements.dynamicRate.value = elements.dynamicRateRange.value; 
         const typ = elements.typObligacji.value;
@@ -1610,6 +1603,7 @@
         if (!elements.inflacjaZmiennaBtn.checked) {
             state.variableInflation = [];
         } else {
+            // Pobieramy wartość z górnego panelu
             const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
             state.variableInflation = [];
             state.variableInflation.push({ value: defaultValue, period: 2 });
@@ -1623,6 +1617,7 @@
         if (!elements.stopaZmiennaBtn.checked) {
             state.variableReferenceRates = [];
         } else {
+            // Pobieramy wartość z górnego panelu
             const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
             state.variableReferenceRates = [];
             state.variableReferenceRates.push({ value: defaultValue, period: 2 });
@@ -1688,6 +1683,7 @@
         updateOprocentowanieInfo();
         updateOpisObligacji();
     
+        // Logika widoczności dynamicRateGroup
         const dynamicRateGroup = document.getElementById("dynamicRateGroup");
         if (["ROR", "DOR"].includes(typ)) {
             const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
@@ -1722,15 +1718,16 @@
             state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
         }
     
+        // Logika widoczności checkboxa IKE/IKZE
         const ikeIkzeContainer = document.getElementById("ikeIkzeContainer");
         const allowedTypes = ["ROR", "DOR", "TOS", "COI", "EDO"];
         if (allowedTypes.includes(typ)) {
             ikeIkzeContainer.style.display = "block";
         } else {
             ikeIkzeContainer.style.display = "none";
-            elements.ikeIkzeBtn.checked = false;
-            state.isIkeIkzeMode = false;
-            state.lastFormData.ikeIkze = false;
+            elements.ikeIkzeBtn.checked = false; // Odznaczamy checkbox
+            state.isIkeIkzeMode = false; // Resetujemy stan
+            state.lastFormData.ikeIkze = false; // Aktualizujemy zapisany stan
         }
     
         updateVariableInputs();
@@ -1760,6 +1757,7 @@
             let period = Math.round(parseFloat(cyklInput.value));
             const value = parseFloat(rateInput.value);
     
+            // Ustalamy minimalną i maksymalną wartość okresu
             const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 2;
             if (period < minPeriod) {
                 period = minPeriod;
@@ -1777,11 +1775,13 @@
             newChanges.push({ period, value });
         });
     
+        // Usuwamy kolejne wiersze, które mają okres mniejszy lub równy bieżącemu
         for (let i = 0; i < newChanges.length; i++) {
             const currentPeriod = newChanges[i].period;
+            // Sprawdzamy wszystkie kolejne wiersze
             for (let j = newChanges.length - 1; j > i; j--) {
                 if (newChanges[j].period <= currentPeriod) {
-                    newChanges.splice(j, 1);
+                    newChanges.splice(j, 1); // Usuwamy wiersz
                 }
             }
         }
@@ -1843,7 +1843,7 @@
         updateLata();
         updateOprocentowanieInfo();
         updateOpisObligacji();
-        updateVariableInputs();
+        updateVariableInputs(); // Aktualizujemy pola zmiennych na podstawie danych z state
     }
 
     function updateVariableInputs() {
@@ -1863,6 +1863,7 @@
             const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
             const maxChanges = maxVariableChanges[typ] || 0;
     
+            // Pobieramy wartość z górnego panelu
             const defaultValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
             const defaultPeriod = 2;
     
@@ -1880,6 +1881,7 @@
                 const fieldsWrapper = document.createElement("div");
                 fieldsWrapper.className = "fields-wrapper";
     
+                // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza, ale dla pierwszego wiersza min to 2
                 const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
     
                 const cyklGroup = document.createElement("div");
@@ -1952,6 +1954,7 @@
     
                 cyklInput.addEventListener("input", () => {
                     let value = parseInt(cyklInput.value);
+                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                         cyklInput.value = value;
@@ -1963,17 +1966,21 @@
                     cyklRange.value = value;
                     changes[index].period = value;
                     updateVariableData();
+                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
                 cyklRange.addEventListener("input", () => {
                     let value = parseFloat(cyklRange.value);
+                    // Podczas przesuwania pokazujemy tylko wartości całkowite
                     cyklInput.value = Math.round(value);
                 });
     
                 cyklRange.addEventListener("change", () => {
                     let value = parseFloat(cyklRange.value);
+                    // Po zakończeniu przesuwania zaokrąglamy do najbliższej liczby całkowitej
                     value = Math.round(value);
+                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
                     if (value < minPeriod) {
                         value = minPeriod;
                     }
@@ -1984,6 +1991,7 @@
                     cyklInput.value = value;
                     changes[index].period = value;
                     updateVariableData();
+                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
                     updateVariableInputs();
                 });
     
@@ -2002,9 +2010,14 @@
                 });
             });
     
+            // Ustawiamy tekst przycisku
             addVariableBtn.textContent = "Dodaj kolejną zmianę";
+    
+            // Sprawdzamy, czy ostatni okres osiągnął maxCykl
             const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
             const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
+    
+            // Ukrywamy przycisk, jeśli liczba zmian osiągnęła maxChanges lub ostatni okres osiągnął maxCykl
             addVariableBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
         } else {
             variableInputs.style.display = "none";
@@ -2023,6 +2036,7 @@
     
         if (!isInflacjaZmienna && !isStopaZmienna) return;
     
+        // Sprawdzamy, czy ostatni okres osiągnął maxCykl
         const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
         const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
     
@@ -2030,7 +2044,7 @@
             if (changes.length >= maxChanges) {
                 alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
             }
-            elements.addVariableBtn.style.display = "none";
+            elements.addVariableBtn.style.display = "none"; // Ukryj przycisk
             return;
         }
     
@@ -2054,11 +2068,8 @@
 
     updateDynamicRateField();
     updateIloscObligacji();
-
-
-    
-    /* O B L I C Z E N I A    I    W Y K R E S Y  */
-    
+</script>
+<script>
     if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
         pdfMake.fonts = {
             Roboto: {
@@ -2086,7 +2097,7 @@
         }
     
         let kwota = parseFloat(elements.kwota.value) || 0;
-        const maxKwota = 10000000;
+        const maxKwota = 10000000; // Maksymalna wartość 10 000 000 zł
         if (kwota > maxKwota) {
             kwota = maxKwota;
             elements.kwota.value = maxKwota;
@@ -2113,8 +2124,8 @@
             ikeIkze: state.isIkeIkzeMode,
             inflacjaZmienna: inflacjaZmienna,
             stopaZmienna: stopaZmienna,
-            variableInflacjaChanges: [...state.variableInflation],
-            variableStopaChanges: [...state.variableReferenceRates]
+            variableInflacjaChanges: [...state.variableInflation], // Zapisujemy aktualne dane inflacji
+            variableStopaChanges: [...state.variableReferenceRates] // Zapisujemy aktualne dane stóp referencyjnych
         };
     
         if (kwota < 100 || miesiace <= 0 || (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(typ) && (!dynamicRate || dynamicRate < 0))) {
@@ -2151,6 +2162,7 @@
         
             let oprocentowanieRoczne;
             if (inflacjaZmienna || stopaZmienna) {
+                // Pobieramy wartość z górnego panelu jako domyślną
                 let dynamicValue = (state.lastFormData.dynamicRates[typ] || (inflacjaZmienna ? 4.90 : 5.75)) / 100;
                 for (const change of changes) {
                     if (i >= change.period) {
@@ -2229,6 +2241,7 @@
         const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
         if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
 
+        // Ustawianie data-tooltip dla etykiet tekstowych w legendzie
         document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
         document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
         document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
@@ -2349,10 +2362,11 @@
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
         const isDarkMode = document.body.classList.contains('dark-mode');
         
+        // Dynamiczne ustawienie rozmiaru czcionek w zależności od szerokości ekranu
         const screenWidth = window.innerWidth;
-        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14;
-        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
-        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
+        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14; // Mobile: 10px, Tablet: 12px, Desktop: 14px
+        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;  // Mobile: 8px, Tablet: 10px, Desktop: 12px
+        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12; // Mobile: 8px, Tablet: 10px, Desktop: 12px
         
         state.chartLine = new Chart(ctxLine, {
             type: 'line',
@@ -2387,16 +2401,16 @@
                         title: { 
                             display: true, 
                             text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
-                            font: { size: titleFontSize },
+                            font: { size: titleFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         }, 
                         ticks: { 
-                            font: { size: tickFontSize },
+                            font: { size: tickFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333',
-                            maxRotation: 45,
+                            maxRotation: 45, // Obrót etykiet dla małych ekranów
                             minRotation: 0,
-                            autoSkip: true,
-                            maxTicksLimit: 10
+                            autoSkip: true, // Automatyczne pomijanie etykiet
+                            maxTicksLimit: 10 // Ograniczenie liczby etykiet
                         },
                         grid: {
                             color: isDarkMode ? '#333333' : '#e0e0e0',
@@ -2407,14 +2421,14 @@
                         title: { 
                             display: true, 
                             text: 'Wartość (PLN)', 
-                            font: { size: titleFontSize },
+                            font: { size: titleFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         }, 
                         min: yMin, 
                         max: yMax, 
                         ticks: { 
                             stepSize: stepSize, 
-                            font: { size: tickFontSize },
+                            font: { size: tickFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
                         grid: {
@@ -2426,7 +2440,7 @@
                 plugins: { 
                     legend: { 
                         labels: { 
-                            font: { size: legendFontSize },
+                            font: { size: legendFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         } 
                     } 
@@ -2442,16 +2456,15 @@
         console.log("ObliczObligacje completed");
     }
 
-
     
-    /*  G E N E R O W A N I E    P L I K U    P D F  */
-
+    
+    // Dodajemy plugin do ustawiania tła, ale nie rejestrujemy go globalnie
     const backgroundPlugin = {
         id: 'customBackground',
         beforeDraw: (chart, args, options) => {
             const ctx = chart.ctx;
             ctx.save();
-            ctx.fillStyle = options.color || '#ffffff';
+            ctx.fillStyle = options.color || '#ffffff'; // Domyślnie białe tło
             ctx.fillRect(0, 0, chart.width, chart.height);
             ctx.restore();
         }
@@ -2645,37 +2658,104 @@
                         { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
                     ],
                     styles: {
-                        header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 0, 0, 10] },
+                        header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
                         subheader: { fontSize: 10, alignment: 'justify' },
                         sectionHeader: { fontSize: 12, bold: true },
                         listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', fillColor: '#C2B280' },
+                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
                         tableCell: { fontSize: 8, alignment: 'center' },
-                        footerNote: { fontSize: 8, alignment: 'justify' }
-                    },
-                    footer: function(currentPage, pageCount) {
-                        return { text: `Strona ${currentPage} z ${pageCount}`, alignment: 'center', fontSize: 8, margin: [0, 10, 0, 0] };
+                        footerNote: { fontSize: 8, italics: true }
                     }
                 };
     
-                const fileName = `Wynik_inwestycji_${nazwaObligacji.replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`;
-                pdfMake.createPdf(docDefinition).download(fileName);
-                console.log(`PDF generated: ${fileName}`);
+                pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${nazwaObligacji.replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`);
             };
     
-            const logoUrl = 'ścieżka/do/logo.png'; // Zastąp rzeczywistą ścieżką do logo, jeśli istnieje
-            if (logoUrl) {
-                getBase64ImageFromUrl(logoUrl)
-                    .then(logoBase64 => generateDoc(logoBase64))
-                    .catch(() => {
-                        console.warn("Nie udało się załadować logo, generowanie PDF bez logo.");
-                        generateDoc(null);
-                    });
-            } else {
-                generateDoc(null);
-            }
+            getBase64ImageFromUrl('cropped-logo-FB-1.png')
+                .then(logoBase64 => generateDoc(logoBase64))
+                .catch(error => {
+                    console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
+                    generateDoc(null);
+                });
         });
     }
+
+    document.getElementById('siteLogo').addEventListener('click', () => {
+        window.open('https://finance-brothers.pl', '_blank');
+    });
+    // Zoomowanie
+    let currentZoom = 1;
+    const zoomStep = 0.1;
+    const minZoom = 0.5;
+    const maxZoom = 2;
+    
+    function updateZoom() {
+        const container = document.querySelector('.container');
+        container.style.transform = `scale(${currentZoom})`;
+        container.style.transformOrigin = 'top center';
+    }
+    
+    document.getElementById("zoomInBtn").addEventListener("click", () => {
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+            updateZoom();
+        }
+    });
+    
+    document.getElementById("zoomOutBtn").addEventListener("click", () => {
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+            updateZoom();
+        }
+    });
+    
+    function toggleDarkMode() {
+        const body = document.body;
+        const isDarkMode = body.classList.contains('dark-mode');
+        
+        if (isDarkMode) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        }
+    }
+    
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        } else {
+            document.body.classList.add('light-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        }
+    }
+    
+    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
+        toggleDarkMode();
+        if (state.chartLine) {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.update();
+        }
+    });
+    
+    initializeTheme();
+    
 </script>
 </body>
 </html>
