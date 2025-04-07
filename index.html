@@ -474,6 +474,7 @@
         border-radius: 50%;
         border: none;
         cursor: pointer;
+        appearance: none;
     }
     
     .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track,
@@ -486,6 +487,12 @@
     .dark-mode input[type="range"].form-range::-moz-range-thumb,
     .dark-mode input[type="range"].form-range::-ms-thumb {
         background: var(--slider-thumb-color);
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        appearance: none;
     }
     
     .sub-info {
@@ -625,6 +632,7 @@
         justify-content: center;
         align-items: center;
         width: clamp(200px, 20vw, 240px);
+        position: relative;
     }
     
     .highlight.yellow {
