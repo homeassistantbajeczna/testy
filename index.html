@@ -584,9 +584,19 @@
         cursor: pointer;
     }
 
-    input[type="range"].form-range:focus {
-        outline: 2px solid var(--accent-gradient-start);
-        outline-offset: 2px;
+    input[type="range"].form-range:focus::-webkit-slider-thumb {
+        outline: none;
+        box-shadow: 0 0 4px var(--accent-gradient-start);
+    }
+    
+    input[type="range"].form-range:focus::-moz-range-thumb {
+        outline: none;
+        box-shadow: 0 0 4px var(--accent-gradient-start);
+    }
+    
+    input[type="range"].form-range:focus::-ms-thumb {
+        outline: none;
+        box-shadow: 0 0 4px var(--accent-gradient-start);
     }
 
     /* D A R K   M O D E   -   S P E C Y F I C Z N E */
