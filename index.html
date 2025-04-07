@@ -634,30 +634,35 @@
     }
 
     .dark-mode .dropdown-btn {
-        border: 2px solid #8b7d47;
+        border: 2px solid var(--accent-gradient-start);
         background-size: cover;
         background-position: center;
         background-color: transparent;
         padding: 2px;
     }
     
-    .dark-mode button.dropdown-btn[data-lang="PL"] {
+    .dark-mode .zoom-controls button.dropdown-btn {
+        background: transparent !important;
+        background-image: inherit;
+    }
+    
+    .dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"] {
         background-image: url('flag-pl.png') !important;
     }
     
-    .dark-mode button.dropdown-btn[data-lang="EN"] {
+    .dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"] {
         background-image: url('flag-en.png') !important;
     }
     
-    .dark-mode button.dropdown-btn[data-lang="UA"] {
+    .dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"] {
         background-image: url('flag-ua.png') !important;
     }
-
-    .dark-mode button.dropdown-btn:hover {
-        border: 2px solid #8b7d47;
+    
+    .dark-mode .zoom-controls button.dropdown-btn:hover {
+        border: 2px solid var(--accent-gradient-start);
+        background: transparent !important;
         background-size: cover;
         background-position: center;
-        background-color: transparent;
         background-image: inherit !important;
     }
 
@@ -1181,35 +1186,41 @@
         padding: 2px;
     }
 
+    .zoom-controls .btn.dropdown-btn {
+        background: transparent !important;
+        background-image: inherit;
+    }
+
     .dropdown-item {
         display: block;
         margin: 5px 0;
         padding: 0;
     }
 
-    button.dropdown-btn:hover,
+    .zoom-controls button.dropdown-btn:hover,
     .dropdown-item:hover {
-        border: 2px solid #c2b280;
+        border: 2px solid var(--accent-gradient-start);
+        background: transparent !important;
         background-size: cover;
         background-position: center;
-        background-color: transparent;
         background-image: inherit !important;
     }
 
-    button.dropdown-btn[data-lang="PL"],
+    .zoom-controls button.dropdown-btn[data-lang="PL"],
     .dropdown-item[data-lang="PL"] {
         background-image: url('flag-pl.png') !important;
     }
-
-    button.dropdown-btn[data-lang="EN"],
+    
+    .zoom-controls button.dropdown-btn[data-lang="EN"],
     .dropdown-item[data-lang="EN"] {
         background-image: url('flag-en.png') !important;
     }
     
-    button.dropdown-btn[data-lang="UA"],
+    .zoom-controls button.dropdown-btn[data-lang="UA"],
     .dropdown-item[data-lang="UA"] {
         background-image: url('flag-ua.png') !important;
     }
+    
     .dropdown .dropdown-menu {
         display: none;
         position: absolute;
