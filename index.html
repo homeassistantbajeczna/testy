@@ -1497,9 +1497,11 @@
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- G L O B A L N E    Z M I E N N E -->
 <script>
+    
+    
+    /*  G L O B A L N E    Z M I E N N E  */
+    
     const elements = {
         formSection: document.getElementById("formSection"),
         resultSection: document.getElementById("resultSection"),
@@ -1583,10 +1585,11 @@
         "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
         "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
     };
-</script>
 
-<!-- Z D A R Z E N I A    I    F U N K C J E    P O M O C N I C Z E -->
-<script>
+
+    
+    /*  Z D A R Z E N I A    I    F U N K C J E    P O M O C N I C Z E  */
+    
     elements.dynamicRateRange.addEventListener("input", () => { 
         elements.dynamicRate.value = elements.dynamicRateRange.value; 
         const typ = elements.typObligacji.value;
@@ -2051,10 +2054,11 @@
 
     updateDynamicRateField();
     updateIloscObligacji();
-</script>
 
-<!-- O B L I C Z E N I A    I    W Y K R E S Y -->
-<script>
+
+    
+    /* O B L I C Z E N I A    I    W Y K R E S Y  */
+    
     if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
         pdfMake.fonts = {
             Roboto: {
@@ -2437,9 +2441,11 @@
         state.isCalculating = false;
         console.log("ObliczObligacje completed");
     }
-</script>
-<!-- G E N E R O W A N I E    P L I K U    P D F -->
-<script>
+
+
+    
+    /*  G E N E R O W A N I E    P L I K U    P D F  */
+
     const backgroundPlugin = {
         id: 'customBackground',
         beforeDraw: (chart, args, options) => {
