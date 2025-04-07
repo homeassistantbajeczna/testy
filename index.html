@@ -466,9 +466,7 @@
     }
     
     .form-control,
-    .form-select,
-    .input-group-text,
-    .variable-input-group .form-control {
+    .form-select {
         height: 22px;
         font-size: var(--small-font-size);
         padding: 2px;
@@ -494,8 +492,19 @@
     }
     
     .input-group-text {
-        background: var(--input-group-bg);
+        height: 22px;
+        font-size: var(--small-font-size);
         padding: 2px 5px;
+        text-align: center;
+        background: var(--input-group-bg);
+        color: var(--primary-text);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-sizing: border-box;
+        line-height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
     
     .input-group {
@@ -526,10 +535,6 @@
         width: 100%;
         margin-left: auto;
         margin-right: auto;
-        outline: none;
-    }
-    
-    input[type="range"].form-range:focus {
         outline: none;
     }
     
@@ -568,12 +573,6 @@
         border-radius: 50%;
         border: none;
         cursor: pointer;
-    }
-    
-    input[type="range"].form-range:focus::-webkit-slider-thumb,
-    input[type="range"].form-range:focus::-moz-range-thumb,
-    input[type="range"].form-range:focus::-ms-thumb {
-        background: var(--accent-color);
     }
     
     /* D A R K   M O D E   -   S P E C Y F I C Z N E */
@@ -728,35 +727,33 @@
         table-layout: auto;
     }
     
-    .harmonogram th {
-        background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        color: var(--primary-text);
-        padding: clamp(1px, 0.5vw, 12px);
+    .harmonogram th,
+    .harmonogram td {
         text-align: center;
-        vertical-align: middle;
-        font-weight: 500;
-        border-bottom: 2px solid var(--border-color);
         white-space: normal;
         word-break: normal;
-        line-height: 1.2;
         overflow: hidden;
         text-overflow: ellipsis;
         font-size: clamp(0.3125em, 0.8125vw, 0.8125em);
     }
     
+    .harmonogram th {
+        background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
+        padding: clamp(1px, 0.5vw, 12px);
+        vertical-align: middle;
+        font-weight: 500;
+        border-bottom: 2px solid var(--border-color);
+        line-height: 1.2;
+    }
+    
     .harmonogram td {
         padding: clamp(1px, 0.5vw, 10px);
-        text-align: center;
         font-weight: 400;
         border-bottom: 1px solid var(--border-color);
         background-color: var(--harmonogram-bg);
         color: var(--primary-text);
-        white-space: normal;
-        word-break: normal;
-        overflow: hidden;
-        text-overflow: ellipsis;
         border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
-        font-size: clamp(0.3125em, 0.8125vw, 0.8125em);
     }
     
     .harmonogram th:last-child,
@@ -957,39 +954,33 @@
     }
     
     /* P R Z Y C I S K I */
-    .btn-primary,
-    .btn-secondary,
-    #addVariableBtn,
-    .zoom-controls .btn {
+    .btn-gradient {
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         border: none;
         color: var(--primary-text);
+        box-shadow: 0 4px 6px var(--shadow-color);
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px var(--shadow-color);
+        background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+    }
+    
+    .btn-primary,
+    .btn-secondary {
         font-size: 0.9em;
         padding: 8px 20px;
         width: auto;
         margin: 25px auto 0;
         display: block;
         border-radius: 25px;
-        box-shadow: 0 4px 6px var(--shadow-color);
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
     
-    .btn-primary:hover,
-    .btn-secondary:hover,
-    #addVariableBtn:hover,
-    .zoom-controls .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px var(--shadow-color);
-        background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
-    }
-    
-    .btn-sm,
     #addVariableBtn {
         font-size: var(--small-font-size);
         padding: 3px 10px;
-    }
-    
-    #addVariableBtn {
         border-radius: 15px;
         margin: 0 auto;
     }
@@ -1299,6 +1290,11 @@
             padding: 6px 10px;
         }
     
+        .btn-primary,
+        #addVariableBtn {
+            width: auto;
+        }
+    
         #generatePdfBtn {
             margin: 2.5px 0 2.5px auto;
         }
@@ -1355,14 +1351,10 @@
         .form-group,
         #dynamicRateGroup {
             display: block;
-            width: 200px;
-            max-width: 200px;
-            min-width: 200px;
             margin: 10px auto;
         }
     
         .input-group {
-            width: 200px;
             margin: 0 auto;
         }
     
@@ -1419,14 +1411,10 @@
         }
     
         .variable-input-group .form-group {
-            width: 200px;
-            max-width: 200px;
-            min-width: 200px;
             margin: 10px auto;
         }
     
         .variable-input-group .input-group {
-            width: 200px;
             margin: 0 auto;
         }
     
@@ -1461,11 +1449,6 @@
         #generatePdfBtn {
             margin: 20px auto;
             padding: 6px 15px;
-        }
-    
-        .btn-primary,
-        #addVariableBtn {
-            width: auto;
         }
     
         #generatePdfBtn {
