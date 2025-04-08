@@ -832,7 +832,7 @@
             variableInputs.style.display = "block";
             addVariableBtn.style.display = "block";
     
-            const maxChanges = maxCykl - 1; // Maksymalna liczba zmian (np. dla 2 lat: 2 - 1 = 1 zmiana)
+            const maxChanges = maxCykl - 1; // Maksymalna liczba zmian (np. dla 3 miesięcy: 3 - 1 = 2 zmiany)
             const data = state.variableRates;
     
             if (data.length === 0 && data.length < maxChanges) {
@@ -955,9 +955,13 @@
                 });
             });
     
+            // Sprawdzamy, czy ostatni okres osiągnął maxCykl
             const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
             const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-            addVariableBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
+            // Obliczamy, ile okresów pozostało do wykorzystania
+            const remainingPeriods = lastChange ? maxCykl - lastChange.period : maxCykl - 1;
+            // Przycisk "Dodaj kolejną zmianę" jest widoczny tylko, jeśli są jeszcze okresy do wykorzystania
+            addVariableBtn.style.display = (!isMaxPeriodReached && remainingPeriods > 0) ? "block" : "none";
         } else {
             variableInputs.style.display = "none";
             addVariableBtn.style.display = "none";
