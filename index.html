@@ -468,7 +468,7 @@
     }
 
     .info-text {
-        font-size: 0.65em;
+        font-size: 0.45em;
         color: var(--primary-text);
         margin-top: 5px;
         text-align: center;
@@ -736,7 +736,7 @@
         okresWDniach: document.getElementById("okresWDniach"),
         dataZakonczenia: document.getElementById("dataZakonczenia")
     };
-
+    
     const state = {
         chartLine: null,
         harmonogramData: [],
@@ -753,16 +753,16 @@
         },
         isCalculating: false
     };
-
+    
     // Inicjalizacja widoczności sekcji przy ładowaniu strony
     window.addEventListener("load", () => {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
     });
-
+    
     // Ustawienie domyślnej daty rozpoczęcia
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
-
+    
     // Synchronizacja suwaków
     elements.kwotaRange.addEventListener("input", () => { elements.kwota.value = elements.kwotaRange.value; });
     elements.kwota.addEventListener("input", () => { elements.kwotaRange.value = elements.kwota.value; });
@@ -770,20 +770,20 @@
     elements.oprocentowanie.addEventListener("input", () => { elements.oprocentowanieRange.value = elements.oprocentowanie.value; });
     elements.podatekRange.addEventListener("input", () => { elements.podatek.value = elements.podatekRange.value; });
     elements.podatek.addEventListener("input", () => { elements.podatekRange.value = elements.podatek.value; });
-
+    
     // Aktualizacja tekstów informacyjnych
     function updateInfoTexts() {
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
         const dataRozpoczecia = new Date(elements.dataRozpoczecia.value);
-
+    
         // Obliczanie okresu w dniach
         let dni;
         if (jednostka === "dni") dni = dlugoscUmowy;
         else if (jednostka === "miesiace") dni = Math.round(dlugoscUmowy * 30.42);
         else dni = dlugoscUmowy * 365;
         elements.okresWDniach.textContent = `Okres w dniach: ${dni}`;
-
+    
         // Obliczanie daty zakończenia
         const dataZakonczenia = new Date(dataRozpoczecia);
         if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
@@ -791,15 +791,15 @@
         else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
         elements.dataZakonczenia.textContent = `Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}`;
     }
-
+    
     // Inicjalizacja tekstów informacyjnych
     updateInfoTexts();
-
+    
     // Aktualizacja tekstów przy zmianie wartości
     elements.dlugoscUmowy.addEventListener("input", updateInfoTexts);
     elements.jednostkaOkresu.addEventListener("change", updateInfoTexts);
     elements.dataRozpoczecia.addEventListener("change", updateInfoTexts);
-
+    
     // Zmienne oprocentowanie
     elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
         state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
@@ -812,11 +812,11 @@
         }
         updateVariableInputs();
     });
-
+    
     elements.obliczBtn.addEventListener("click", obliczLokate);
     elements.addVariableBtn.addEventListener("click", addVariableChange);
     elements.generatePdfBtn.addEventListener("click", generatePDF);
-
+    
     function updateVariableInputs() {
         const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
         const variableInputs = document.getElementById("variableInputs");
@@ -824,34 +824,33 @@
         const wrapper = document.getElementById("variableInputsWrapper");
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
-        let maxCykl;
-        if (jednostka === "dni") maxCykl = dlugoscUmowy;
-        else if (jednostka === "miesiace") maxCykl = dlugoscUmowy;
-        else maxCykl = dlugoscUmowy * 12;
-
+    
+        // Obliczamy maxCykl w tej samej jednostce, co wybrana w "Długość umowy"
+        let maxCykl = dlugoscUmowy; // Bez przeliczania na miesiące dla "lat"
+    
         if (isZmienneOprocentowanie) {
             variableInputs.style.display = "block";
             addVariableBtn.style.display = "block";
-
-            const maxChanges = maxCykl - 1;
+    
+            const maxChanges = maxCykl - 1; // Maksymalna liczba zmian (np. dla 2 lat: 2 - 1 = 1 zmiana)
             const data = state.variableRates;
-
+    
             if (data.length === 0 && data.length < maxChanges) {
                 data.push({ value: parseFloat(elements.oprocentowanie.value) || 4, period: 2 });
             }
-
+    
             wrapper.innerHTML = "";
             const changes = state.variableRates;
-
+    
             changes.forEach((change, index) => {
                 const inputGroup = document.createElement("div");
                 inputGroup.className = "variable-input-group";
-
+    
                 const fieldsWrapper = document.createElement("div");
                 fieldsWrapper.className = "fields-wrapper";
-
+    
                 const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
-
+    
                 const cyklGroup = document.createElement("div");
                 cyklGroup.className = "form-group";
                 cyklGroup.innerHTML = `
@@ -862,7 +861,7 @@
                     </div>
                     <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
                 `;
-
+    
                 const rateGroup = document.createElement("div");
                 rateGroup.className = "form-group";
                 rateGroup.innerHTML = `
@@ -873,11 +872,11 @@
                     </div>
                     <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.1" value="${change.value}">
                 `;
-
+    
                 fieldsWrapper.appendChild(cyklGroup);
                 fieldsWrapper.appendChild(rateGroup);
                 inputGroup.appendChild(fieldsWrapper);
-
+    
                 if (index === 0 && changes.length === 1) {
                     const removeFirstBtnWrapper = document.createElement("div");
                     removeFirstBtnWrapper.className = "remove-first-btn-wrapper";
@@ -895,7 +894,7 @@
                     removeFirstBtnWrapper.appendChild(removeFirstBtn);
                     inputGroup.appendChild(removeFirstBtnWrapper);
                 }
-
+    
                 if (index === changes.length - 1 && changes.length > 1) {
                     const removeBtnWrapper = document.createElement("div");
                     removeBtnWrapper.className = "remove-btn-wrapper";
@@ -906,14 +905,14 @@
                     removeBtnWrapper.appendChild(removeBtn);
                     inputGroup.appendChild(removeBtnWrapper);
                 }
-
+    
                 wrapper.appendChild(inputGroup);
-
+    
                 const cyklInput = inputGroup.querySelector(".variable-cykl");
                 const cyklRange = inputGroup.querySelector(".variable-cykl-range");
                 const rateInput = inputGroup.querySelector(".variable-rate");
                 const rateRange = inputGroup.querySelector(".variable-rate-range");
-
+    
                 cyklInput.addEventListener("input", () => {
                     let value = parseInt(cyklInput.value);
                     if (value < minPeriod) {
@@ -929,7 +928,7 @@
                     updateVariableData();
                     updateVariableInputs();
                 });
-
+    
                 cyklRange.addEventListener("change", () => {
                     let value = Math.round(parseFloat(cyklRange.value));
                     if (value < minPeriod) value = minPeriod;
@@ -940,7 +939,7 @@
                     updateVariableData();
                     updateVariableInputs();
                 });
-
+    
                 rateInput.addEventListener("input", () => {
                     let value = parseFloat(rateInput.value);
                     if (value < 0.1 || value > 25) rateInput.value = Math.max(0.1, Math.min(25, value));
@@ -948,14 +947,14 @@
                     changes[index].value = parseFloat(rateInput.value);
                     updateVariableData();
                 });
-
+    
                 rateRange.addEventListener("input", () => {
                     rateInput.value = rateRange.value;
                     changes[index].value = parseFloat(rateRange.value);
                     updateVariableData();
                 });
             });
-
+    
             const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
             const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
             addVariableBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
@@ -965,16 +964,16 @@
             wrapper.innerHTML = "";
         }
     }
-
+    
     function addVariableChange() {
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
-        let maxCykl = jednostka === "dni" ? dlugoscUmowy : jednostka === "miesiace" ? dlugoscUmowy : dlugoscUmowy * 12;
+        let maxCykl = dlugoscUmowy; // Bez przeliczania na miesiące dla "lat"
         const changes = state.variableRates;
-
+    
         const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
         const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-
+    
         if (changes.length > 0 && !isMaxPeriodReached) {
             const lastPeriod = changes[changes.length - 1].period;
             const newPeriod = Math.min(lastPeriod + 1, maxCykl);
@@ -983,21 +982,21 @@
             updateVariableInputs();
         }
     }
-
+    
     function removeVariableChange(index) {
         state.variableRates.splice(index, 1);
         updateVariableData();
         updateVariableInputs();
     }
-
+    
     function updateVariableData() {
         state.variableRates.sort((a, b) => a.period - b.period);
     }
-
+    
     function obliczLokate() {
         if (state.isCalculating) return;
         state.isCalculating = true;
-
+    
         const kwota = parseFloat(elements.kwota.value) || 10000;
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
@@ -1006,19 +1005,19 @@
         const podatek = parseFloat(elements.podatek.value) || 19;
         const kapitalizacja = elements.kapitalizacja.value;
         const zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-
+    
         // Przeliczanie okresu na dni
         let dni;
         if (jednostka === "dni") dni = dlugoscUmowy;
         else if (jednostka === "miesiace") dni = dlugoscUmowy * 30.42;
         else dni = dlugoscUmowy * 365;
-
+    
         // Obliczanie daty zakończenia
         const dataZakonczenia = new Date(dataRozpoczecia);
         if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
         else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
         else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
-
+    
         // Obliczanie liczby okresów kapitalizacji
         let okresyKapitalizacji;
         if (kapitalizacja === "dzienna") okresyKapitalizacji = Math.floor(dni);
@@ -1026,28 +1025,46 @@
         else if (kapitalizacja === "kwartalna") okresyKapitalizacji = Math.floor(dni / 91.25);
         else if (kapitalizacja === "roczna") okresyKapitalizacji = Math.floor(dni / 365);
         else okresyKapitalizacji = 1;
-
+    
         // Obliczanie odsetek z uwzględnieniem zmiennego oprocentowania
         let kapital = kwota;
         let sumaOdsetekBrutto = 0;
         let sumaPodatku = 0;
         let sumaZyskuNetto = 0;
         state.harmonogramData = [];
-
+    
         const dniWMiesiacu = 30.42;
         const dniWRoku = 365;
         const liczbaOkresow = jednostka === "dni" ? dlugoscUmowy : jednostka === "miesiace" ? dlugoscUmowy : dlugoscUmowy * 12;
-
+    
         for (let okres = 1; okres <= liczbaOkresow; okres++) {
             let aktualneOprocentowanie = oprocentowanie;
             if (zmienneOprocentowanie) {
-                const zmiana = state.variableRates.find(rate => rate.period === okres);
+                // Przeliczamy okres z jednostki użytkownika na miesiące
+                let okresWMiesiacach = okres;
+                if (jednostka === "dni") {
+                    okresWMiesiacach = Math.ceil(okres / 30.42);
+                } else if (jednostka === "lata") {
+                    okresWMiesiacach = okres * 12;
+                }
+                // Szukamy zmiany oprocentowania dla przeliczonego okresu
+                const zmiana = state.variableRates.find(rate => {
+                    let ratePeriodWMiesiacach = rate.period;
+                    if (jednostka === "dni") {
+                        ratePeriodWMiesiacach = Math.ceil(rate.period / 30.42);
+                    } else if (jednostka === "lata") {
+                        ratePeriodWMiesiacach = rate.period * 12;
+                    } else {
+                        ratePeriodWMiesiacach = rate.period;
+                    }
+                    return ratePeriodWMiesiacach === okresWMiesiacach;
+                });
                 if (zmiana) aktualneOprocentowanie = zmiana.value;
             }
-
+    
             let dniWOkresie = jednostka === "dni" ? 1 : jednostka === "miesiace" ? dniWMiesiacu : dniWMiesiacu;
             let oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
-
+    
             if (kapitalizacja !== "naKoniec") {
                 const podOkresy = kapitalizacja === "dzienna" ? dniWOkresie :
                                  kapitalizacja === "miesieczna" ? 1 :
@@ -1070,7 +1087,7 @@
                 sumaOdsetekBrutto += odsetkiBrutto;
                 sumaPodatku += podatekOkresowy;
                 sumaZyskuNetto += zyskNetto;
-
+    
                 state.harmonogramData.push({
                     okres: okres,
                     wartoscLokaty: kapital.toFixed(2),
@@ -1083,11 +1100,11 @@
                 });
             }
         }
-
+    
         if (kapitalizacja === "naKoniec") {
             kapital += sumaZyskuNetto;
         }
-
+    
         // Aktualizacja podsumowania
         const summaryBars = document.querySelector(".summary-bars");
         summaryBars.innerHTML = `
@@ -1098,7 +1115,7 @@
             <div class="summary-bar" data-tooltip="${kapital.toFixed(2).replace('.', ',')} zł">Całkowita kwota po zakończeniu: ${kapital.toFixed(2).replace('.', ',')} zł</div>
             <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}">Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}</div>
         `;
-
+    
         // Aktualizacja harmonogramu
         elements.harmonogramTabela.innerHTML = "";
         state.harmonogramData.forEach(row => {
@@ -1115,7 +1132,7 @@
             `;
             elements.harmonogramTabela.appendChild(tr);
         });
-
+    
         // Aktualizacja wykresu liniowego
         if (state.chartLine) state.chartLine.destroy();
         state.chartLine = new Chart(elements.lokatyChartLine, {
@@ -1145,18 +1162,18 @@
                 }
             }
         });
-
+    
         // Przełączenie widoku
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
         state.isCalculating = false;
     }
-
+    
     function showForm() {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
     }
-
+    
     function toggleHarmonogram(contentId) {
         const content = document.getElementById(contentId);
         const toggleBtn = content.previousElementSibling;
@@ -1168,7 +1185,7 @@
             toggleBtn.innerHTML = "Harmonogram odsetek ►";
         }
     }
-
+    
     function generatePDF() {
         const dataZakonczenia = new Date(elements.dataRozpoczecia.value);
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
@@ -1176,7 +1193,7 @@
         if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
         else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
         else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
-
+    
         const docDefinition = {
             content: [
                 { text: 'Kalkulator Lokat - Podsumowanie', style: 'header' },
@@ -1214,16 +1231,16 @@
         };
         pdfMake.createPdf(docDefinition).download('Kalkulator_Lokat_Podsumowanie.pdf');
     }
-
+    
     // Zoom i tryb ciemny
     document.getElementById("zoomInBtn").addEventListener("click", () => {
         document.body.style.fontSize = `${parseFloat(window.getComputedStyle(document.body).fontSize) * 1.1}px`;
     });
-
+    
     document.getElementById("zoomOutBtn").addEventListener("click", () => {
         document.body.style.fontSize = `${parseFloat(window.getComputedStyle(document.body).fontSize) * 0.9}px`;
     });
-
+    
     document.getElementById("toggleDarkModeBtn").addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
         document.getElementById("toggleDarkModeBtn").textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
