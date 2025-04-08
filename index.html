@@ -105,7 +105,7 @@
                 </div>
             </div>
         </div>
-        <div class="result-section" id="resultSection">
+        <div class="result-section" id="resultSection" style="display: none;">
             <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
             <div class="result-header">
                 <h4 id="resultHeader">Podsumowanie wyników</h4>
@@ -114,12 +114,7 @@
             <div class="result-container">
                 <div class="result-wrapper-chart">
                     <div class="summary-bars">
-                        <div class="summary-bar" data-tooltip="10 000,00 zł">Kwota lokaty: 10 000,00 zł</div>
-                        <div class="summary-bar" data-tooltip="616,44 zł">Odsetki brutto: 616,44 zł</div>
-                        <div class="summary-bar" data-tooltip="308,22 zł">Podatek: 308,22 zł</div>
-                        <div class="summary-bar" data-tooltip="308,22 zł">Odsetki netto: 308,22 zł</div>
-                        <div class="summary-bar" data-tooltip="10 308,22 zł">Całkowita kwota po zakończeniu: 10 308,22 zł</div>
-                        <div class="summary-bar" data-tooltip="9.07.2025">Data zakończenia: 9.07.2025</div>
+                        <!-- Dane będą generowane dynamicznie przez JavaScript -->
                     </div>
                 </div>
             </div>
@@ -340,6 +335,12 @@
         position: relative;
     }
 
+    .result-section {
+        display: none;
+        padding: 10px;
+        position: relative;
+    }
+
     .form-row, .checkbox-row, .fields-wrapper {
         display: flex;
         justify-content: center;
@@ -554,6 +555,33 @@
         width: 100%;
     }
 
+    .summary-bar {
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: var(--border-radius);
+        text-align: center;
+        font-size: 0.9em;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .summary-bar:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.8em;
+        white-space: nowrap;
+        z-index: 10;
+    }
+
     @media (max-width: 576px) {
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
             flex-direction: column;
@@ -625,6 +653,12 @@
         isCalculating: false
     };
 
+    // Inicjalizacja widoczności sekcji przy ładowaniu strony
+    window.addEventListener("load", () => {
+        elements.formSection.style.display = "block";
+        elements.resultSection.style.display = "none";
+    });
+
     // Ustawienie domyślnej daty rozpoczęcia
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
 
@@ -680,6 +714,7 @@
 
     elements.obliczBtn.addEventListener("click", obliczLokate);
     elements.addVariableBtn.addEventListener("click", addVariableChange);
+    elements.generatePdfBtn.addEventListener("click", generatePDF);
 
     function updateVariableInputs() {
         const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
@@ -1054,6 +1089,7 @@
                                 row.okres,
                                 `${row.wartoscLokaty} zł`,
                                 `${row.oprocentowanie}%`,
+                                `${row.odsetkiBrutto} zł`,
                                 `${row.sumaOdsetek} zł`,
                                 `${row.podatek} zł`,
                                 `${row.zyskNetto} zł`,
