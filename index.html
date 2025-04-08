@@ -41,12 +41,13 @@
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="dlugoscUmowy" min="1" value="3">
                                     <select class="form-control" id="jednostkaOkresu">
-                                        <option value="dni">dni</option>
-                                        <option value="miesiace" selected>miesiące</option>
-                                        <option value="lata">lata</option>
+                                        <option value="dni">dzień</option>
+                                        <option value="miesiace" selected>miesiąc</option>
+                                        <option value="lata">rok</option>
                                     </select>
                                 </div>
                                 <div class="info-text" id="okresWDniach">Okres w dniach: 91</div>
+                                <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> <!-- Dodajemy nowy tekst -->
                             </div>
                             <div class="form-group">
                                 <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
@@ -76,6 +77,7 @@
                                     <option value="kwartalna">Kwartalna</option>
                                     <option value="roczna">Roczna</option>
                                 </select>
+                                <div class="info-text">Możesz dokonać wyboru</div> <!-- Dodajemy nowy tekst -->
                             </div>
                             <div class="form-group">
                                 <label for="dataRozpoczecia" class="form-label">Data rozpoczęcia</label>
@@ -365,6 +367,10 @@
         text-align: left;
     }
 
+    .form-row:first-child {
+        margin-bottom: 30px;
+    }
+
     .form-group {
         flex: 1;
         min-width: 120px;
@@ -432,7 +438,8 @@
     .form-select {
         max-width: 100px;
         appearance: none;
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 5px center;
+        background-size: 10px;
         padding: 0 20px 0 5px;
         line-height: 22px;
     }
@@ -471,7 +478,7 @@
         font-size: 0.45em;
         color: var(--primary-text);
         margin-top: 5px;
-        text-align: center;
+        text-align: left;
     }
 
     .result-container, .form-container, .harmonogram-container {
@@ -650,10 +657,7 @@
         background-color: rgba(0, 0, 0, 0.05);
     }
 
-    .dark-mode .harmonogram .table-striped tbody tr:nth-of-type(odd) {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-
+   
     .chart-container-line {
         margin-top: 20px;
         width: 100%;
@@ -670,6 +674,18 @@
         width: 100% !important;
         height: 100% !important;
     }
+
+    /*D A R K       M O D E*/
+
+     .dark-mode .harmonogram .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-mode .form-select {
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 5px center;
+        background-size: 10px;
+    }
+
 
     @media (max-width: 576px) {
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
