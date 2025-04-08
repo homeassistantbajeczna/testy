@@ -933,6 +933,14 @@
                     }
                     cyklRange.value = value;
                     changes[index].period = value;
+    
+                    // Usuwamy wszystkie kolejne wiersze, które mają okres mniejszy lub równy nowej wartości
+                    for (let i = changes.length - 1; i > index; i--) {
+                        if (changes[i].period <= value) {
+                            changes.splice(i, 1);
+                        }
+                    }
+    
                     updateVariableData();
                     updateVariableInputs();
                 });
@@ -944,6 +952,14 @@
                     cyklRange.value = value;
                     cyklInput.value = value;
                     changes[index].period = value;
+    
+                    // Usuwamy wszystkie kolejne wiersze, które mają okres mniejszy lub równy nowej wartości
+                    for (let i = changes.length - 1; i > index; i--) {
+                        if (changes[i].period <= value) {
+                            changes.splice(i, 1);
+                        }
+                    }
+    
                     updateVariableData();
                     updateVariableInputs();
                 });
