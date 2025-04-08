@@ -795,66 +795,15 @@
     // Inicjalizacja tekstów informacyjnych
     updateInfoTexts();
     
-    // Funkcja dostosowująca wartości w state.variableRates po zmianie długości umowy
-    function adjustVariableRates(oldDlugoscUmowy, newDlugoscUmowy) {
-        if (!elements.zmienneOprocentowanieBtn.checked || state.variableRates.length === 0) return;
-    
-        const changes = state.variableRates;
-        const newMaxCykl = newDlugoscUmowy;
-    
-        // Przeskalowujemy wartości w state.variableRates
-        changes.forEach((change, index) => {
-            // Obliczamy, ile okresów było "powyżej" minimalnego okresu (2) w starej skali
-            const offsetFromMin = change.period - 2;
-            // Przeskalowujemy offset względem nowej długości umowy
-            const newOffset = oldDlugoscUmowy === 2 ? 1 : Math.round((offsetFromMin * (newDlugoscUmowy - 2)) / (oldDlugoscUmowy - 2)) || 1;
-            // Nowy okres to minimalny okres (2) plus przeskalowany offset
-            let newPeriod = 2 + newOffset;
-    
-            // Upewniamy się, że nowy okres nie jest mniejszy niż minimalny (2) i nie przekracza nowego maxCykl
-            newPeriod = Math.max(2, Math.min(newPeriod, newMaxCykl));
-            change.period = newPeriod;
-    
-            // Jeśli to nie jest pierwszy wiersz, upewniamy się, że okres jest większy niż poprzedni
-            if (index > 0) {
-                const prevPeriod = changes[index - 1].period;
-                change.period = Math.max(prevPeriod + 1, change.period);
-            }
-        });
-    
-        // Usuwamy zmiany, które przekraczają nowy maxCykl
-        state.variableRates = changes.filter(change => change.period <= newMaxCykl);
-    
-        // Sortujemy zmiany według okresu
-        state.variableRates.sort((a, b) => a.period - b.period);
-    
-        // Upewniamy się, że okresy są unikalne i kolejne
-        for (let i = 1; i < state.variableRates.length; i++) {
-            const prevPeriod = state.variableRates[i - 1].period;
-            state.variableRates[i].period = Math.max(prevPeriod + 1, state.variableRates[i].period);
-            if (state.variableRates[i].period > newMaxCykl) {
-                state.variableRates.splice(i, 1);
-                i--;
-            }
-        }
-    
-        updateVariableInputs();
-    }
-    
-    // Modyfikacja nasłuchiwania zdarzeń na dlugoscUmowy i jednostkaOkresu
-    let previousDlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-    
+    // Aktualizacja tekstów przy zmianie wartości
     elements.dlugoscUmowy.addEventListener("input", () => {
-        const newDlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-        adjustVariableRates(previousDlugoscUmowy, newDlugoscUmowy);
-        previousDlugoscUmowy = newDlugoscUmowy;
         updateInfoTexts();
+        updateVariableInputs(); // Odświeżamy interfejs, aby zaktualizować zakresy i jednostkę
     });
     
     elements.jednostkaOkresu.addEventListener("change", () => {
-        // Po zmianie jednostki wystarczy odświeżyć interfejs, bo jednostka w "Od" jest aktualizowana w updateVariableInputs
-        updateVariableInputs();
         updateInfoTexts();
+        updateVariableInputs(); // Odświeżamy interfejs, aby zaktualizować jednostkę w polach "Od"
     });
     
     elements.dataRozpoczecia.addEventListener("change", updateInfoTexts);
