@@ -3,2786 +3,661 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Obligacji Skarbu Państwa</title>
+    <title>Kalkulator Lokaty</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <style>
+        body {
+            background-color: #f5f6f5;
+            font-family: 'Montserrat', sans-serif;
+            padding: 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .dark-mode .container {
+            background: #444;
+            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+        }
+        .dark-mode .logo-container {
+            background-color: #555;
+        }
+        .dark-mode .result-item {
+            background: linear-gradient(90deg, #b0a070, #C2B280);
+            color: #fff;
+        }
+        .logo-container {
+            background-color: #e9ecef;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        .logo {
+            max-width: 200px;
+            cursor: pointer;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            background: #FFFFFF;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .form-section h4, .result-section h4 {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            color: #333333;
+            font-weight: 700;
+        }
+        .dark-mode .form-section h4, .dark-mode .result-section h4 {
+            color: #fff;
+        }
+        .form-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1;
+            min-width: 120px;
+            max-width: 150px;
+        }
+        .form-label {
+            font-size: 0.7em;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            color: #333333;
+        }
+        .dark-mode .form-label {
+            color: #ddd;
+        }
+        .form-control, .form-select, .form-range {
+            height: 22px;
+            font-size: 0.7em;
+            padding: 2px;
+            text-align: center;
+        }
+        .form-select {
+            max-width: 100px;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
+        }
+        .form-range {
+            margin-top: 2px;
+            height: 8px;
+            background: #d3d3d3;
+            border-radius: 5px;
+        }
+        .form-range::-webkit-slider-thumb {
+            background: #C2B280;
+            border: none;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            cursor: pointer;
+        }
+        .input-group-text {
+            font-size: 0.7em;
+            padding: 2px 5px;
+        }
+        .sub-info {
+            font-size: 0.4em;
+            color: #333333;
+            margin-top: 2px;
+            text-align: left;
+        }
+        .dark-mode .sub-info {
+            color: #ddd;
+        }
+        .checkbox-container {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        input[type="checkbox"] {
+            accent-color: #C2B280;
+        }
+        .checkbox-label {
+            font-size: 0.6em;
+            font-weight: bold;
+        }
+        .btn-primary, .btn-secondary {
+            background-color: #C2B280;
+            border-color: #C2B280;
+            color: #000000;
+            font-size: 0.9em;
+            padding: 5px 20px;
+            margin: 10px auto;
+            display: block;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            background-color: #b0a070;
+            border-color: #b0a070;
+        }
+        .result-section {
+            display: none;
+            padding: 10px;
+        }
+        .result-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .result-item {
+            font-size: 0.8em;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
+            color: #000000;
+        }
+        .result-item span {
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+        .chart-container {
+            max-width: 500px;
+            margin: 20px auto;
+            height: 200px;
+        }
+        .options-container {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .variable-rate-container {
+            margin: 10px 0;
+        }
+        .checkbox-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+        .variable-inputs {
+            margin-top: 10px;
+        }
+        .variable-input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .fields-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .variable-input-group .form-group {
+            max-width: 120px;
+        }
+        .variable-input-group .btn-danger {
+            font-size: 0.7em;
+            padding: 2px 8px;
+            height: 22px;
+            background: #dc3545;
+            border: none;
+        }
+        #addVariableBtn {
+            background: linear-gradient(135deg, #C2B280, #b0a070);
+            color: #000;
+            font-size: 0.7em;
+            padding: 3px 10px;
+            border-radius: 15px;
+        }
+        .controls-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .zoom-btn {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            background-color: #C2B280;
+            border: none;
+            color: #000;
+        }
+        .zoom-btn:hover {
+            background-color: #b0a070;
+        }
+        .toggle-mode-btn {
+            font-size: 0.9em;
+            padding: 5px 20px;
+            background-color: #C2B280;
+            border: none;
+            color: #000;
+        }
+        .toggle-mode-btn:hover {
+            background-color: #b0a070;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            .form-group {
+                max-width: 100%;
+            }
+            .chart-container {
+                max-width: 100%;
+                height: 150px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="logo-container">
-        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-        <div class="zoom-controls">
-            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
-            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
-            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
-        </div>
+        <a href="https://finance-brothers.pl">
+            <img src="cropped-logo-FB-1.png" class="logo" alt="Finance Brothers Logo">
+        </a>
     </div>
     <div class="container">
+        <div class="controls-container">
+            <button class="toggle-mode-btn" id="toggleModeBtn">Tryb ciemny</button>
+            <button class="zoom-btn" id="zoomInBtn">+</button>
+            <button class="zoom-btn" id="zoomOutBtn">−</button>
+        </div>
         <div class="form-section" id="formSection">
-            <div class="header-row">
-                <h4>Kalkulator Obligacji Skarbu Państwa</h4>
-            </div>
+            <h4>Kalkulator Lokaty</h4>
             <div class="form-container">
-                <div class="form-wrapper">
-                    <form id="obligacjeForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="typObligacji" class="form-label">Typ obligacji*</label>
-                                <select class="form-control" id="typObligacji">
-                                    <option value="OTS" selected>3-miesięczne (OTS)</option>
-                                    <option value="ROR">12-miesięczne (ROR)</option>
-                                    <option value="DOR">24-miesięczne (DOR)</option>
-                                    <option value="TOS">3-letnie (TOS)</option>
-                                    <option value="COI">4-letnie (COI)</option>
-                                    <option value="EDO">10-letnie (EDO)</option>
-                                    <option value="ROS">6-letnie (ROS)</option>
-                                    <option value="ROD">12-letnie (ROD)</option>
+                <form id="lokataForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="kwota" class="form-label">Kwota lokaty</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="kwota" min="1000" max="5000000" step="1000" value="10000">
+                                <span class="input-group-text">zł</span>
+                            </div>
+                            <input type="range" class="form-range" id="kwotaRange" min="1000" max="5000000" step="1000" value="10000">
+                            <div class="sub-info"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="okres" class="form-label">Długość umowy</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="okres" min="1" max="365" step="1" value="3">
+                                <select class="form-select" id="okresTyp">
+                                    <option value="dni">dni</option>
+                                    <option value="miesiace" selected>miesiące</option>
+                                    <option value="lata">lata</option>
                                 </select>
-                                <div class="sub-info"></div>
                             </div>
-                            <div class="form-group">
-                                <label for="kwota" class="form-label">Kwota inwestycji</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
-                                    <span class="input-group-text">zł</span>
-                                </div>
-                                <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
-                                <div class="sub-info" id="iloscObligacji">Ilość obligacji: 100</div>
-                            </div>
-                            <div class="form-group" id="dynamicRateGroup">
-                                <label for="dynamicRate" class="form-label" id="dynamicRateLabel">Stopa Ref. NBP</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="dynamicRate" min="0" max="50" step="0.05" value="4.90">
-                                    <span class="input-group-text">%</span>
-                                </div>
-                                <input type="range" class="form-range" id="dynamicRateRange" min="0" max="50" step="0.05" value="4.90">
-                                <div class="sub-info" id="dynamicRateInfo"></div>
-                            </div>
+                            <input type="range" class="form-range" id="okresRange" min="1" max="365" step="1" value="3">
+                            <div class="sub-info" id="okresWartosc">Okres w dniach: 90</div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="okres" class="form-label">Okres inwestycji</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="okres" min="3" max="144" step="1" value="3" readonly>
-                                    <span class="input-group-text">mc-y</span>
-                                </div>
-                                <div class="sub-info" id="lata"></div>
+                        <div class="form-group">
+                            <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="4">
+                                <span class="input-group-text">%</span>
                             </div>
-                            <div class="form-group">
-                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="3" readonly>
-                                    <span class="input-group-text">%</span>
-                                </div>
-                                <div class="sub-info" id="oprocentowanieInfo"></div>
-                            </div>
+                            <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="4">
+                            <div class="sub-info"></div>
                         </div>
-                        <div class="form-row">
-                            <div id="ikeIkzeContainer">
-                                <label class="checkbox-label" for="ikeIkzeBtn">
-                                    <input type="checkbox" id="ikeIkzeBtn">
-                                    <span class="checkbox-custom"></span>
-                                    <b>Inwestycje w IKE lub IKZE</b>
-                                </label>
-                            </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dataStart" class="form-label">Data rozpoczęcia</label>
+                            <input type="date" class="form-control" id="dataStart" value="2025-03-16">
+                            <div class="sub-info" id="dataKoniec">Data zakończenia: -</div>
                         </div>
+                    </div>
+                    <div class="options-container">
                         <div class="variable-rate-container">
                             <div class="checkbox-row" id="variableCheckboxRow">
-                                <label class="checkbox-label" id="inflacjaZmiennaLabel">
-                                    <input type="checkbox" id="inflacjaZmiennaBtn">
-                                    <span class="checkbox-custom"></span>
-                                    <b>Zmienna Inflacja</b>
-                                </label>
-                                <label class="checkbox-label" id="stopaZmiennaLabel">
-                                    <input type="checkbox" id="stopaZmiennaBtn">
-                                    <span class="checkbox-custom"></span>
-                                    <b>Zmienna Stopa Ref. NBP</b>
-                                </label>
+                                <div class="form-group">
+                                    <div style="display: flex; align-items: center; gap: 5px;">
+                                        <input type="checkbox" id="zmienneOprocentowanieBtn">
+                                        <label for="zmienneOprocentowanieBtn" class="checkbox-label">Zmienne oprocentowanie</label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="variable-inputs" id="variableInputs">
+                            <div class="variable-inputs" id="variableInputs" style="display: none;">
                                 <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;">Dodaj kolejne</button>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
+                        <div class="checkbox-container">
+                            <div class="form-group">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="checkbox" id="wlaczZaawansowane" name="wlaczZaawansowane">
+                                    <label for="wlaczZaawansowane" class="checkbox-label">Opcje zaawansowane</label>
+                                </div>
+                            </div>
                         </div>
-                    </form>
-                </div>
-            </div>
-            <div class="opis-container">
-                <div class="obligacje-opis" id="obligacjeOpis"></div>
-            </div>
-            <div class="data-container">
-                <div class="data-info"><strong>Dane z dnia:</strong> <span class="data-date"><strong>01.04.2025r.</strong></span></div>
+                        <div id="advancedOptions" style="display: none;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="podatek" class="form-label">Podatek</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="podatek" min="1" max="50" step="0.1" value="19">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="podatekRange" min="1" max="50" step="0.1" value="19">
+                                    <div class="sub-info"></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
+                                    <select class="form-control" id="kapitalizacja">
+                                        <option value="koniec" selected>Na koniec okresu</option>
+                                        <option value="roczna">Roczna</option>
+                                        <option value="kwartalna">Kwartalna</option>
+                                        <option value="miesieczna">Miesięczna</option>
+                                        <option value="dzienna">Dzienne</option>
+                                    </select>
+                                    <div class="sub-info"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <button type="button" class="btn btn-primary" id="obliczBtn">Oblicz</button>
+                    </div>
+                </form>
             </div>
         </div>
         <div class="result-section" id="resultSection">
-            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
-            <div class="result-header">
-                <h4 id="resultHeader">Podsumowanie wyników</h4>
-            </div>
-            <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
+            <h4>Wyniki Lokaty</h4>
             <div class="result-container">
-                <div class="result-wrapper-chart">
-                    <div class="chart-container">
-                        <div class="chart">
-                            <canvas id="obligacjeChart" aria-label="Wykres kołowy wyników inwestycji"></canvas>
-                        </div>
-                        <div class="chart-legend">
-                            <div class="legend-item" data-index="0">
-                                <div class="color-box" style="background-color: #28a745;" data-tooltip="" data-color="#28a745">
-                                    <span class="value" id="valueKapital">-</span>
-                                </div>
-                                <span class="legend-text" id="legendKapital">Kapitał</span>
-                            </div>
-                            <div class="legend-item" data-index="1">
-                                <div class="color-box" style="background-color: #007bff;" data-tooltip="" data-color="#007bff">
-                                    <span class="value" id="valueOdsetki">-</span>
-                                </div>
-                                <span class="legend-text" id="legendOdsetki">Odsetki</span>
-                            </div>
-                            <div class="legend-item" data-index="2">
-                                <div class="color-box" style="background-color: #dc3545;" data-tooltip="" data-color="#dc3545">
-                                    <span class="value" id="valuePodatek">-</span>
-                                </div>
-                                <span class="legend-text" id="legendPodatek">Podatek</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="summary-footer">
-                        <span class="highlight yellow" data-hover="3 miesięcy" id="okresInwestycji">-</span>
-                        <span class="highlight green" data-hover="" id="zyskNetto">-</span>
-                    </div>
-                    <div class="obligacje-opis" id="obligacjeOpisPodsumowanie"></div>
+                <div class="result-item">Kwota lokaty: <span id="resultKwota">-</span> zł</div>
+                <div class="result-item">Odsetki brutto: <span id="resultOdsetkiBrutto">-</span> zł</div>
+                <div class="result-item">Podatek: <span id="resultPodatek">-</span> zł</div>
+                <div class="result-item">Odsetki netto: <span id="resultOdsetkiNetto">-</span> zł</div>
+                <div class="result-item">Całkowita kwota po zakończeniu: <span id="resultCalkowita">-</span> zł</div>
+                <div class="result-item">Data zakończenia: <span id="resultDataKoniec">-</span></div>
+                <div class="chart-container">
+                    <canvas id="lokataChartLine"></canvas>
                 </div>
             </div>
-            <div class="harmonogram-container">
-                <div class="result-wrapper-harmonogram">
-                    <div class="harmonogram-chart-wrapper">
-                        <div class="harmonogram">
-                            <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
-                            <div id="harmonogramContent">
-                                <table class="table table-striped">
-                                    <thead id="harmonogramNaglowek">
-                                        <tr>
-                                            <th id="pierwszaKolumnaNaglowek">Rok</th>
-                                            <th>Wartość inwestycji</th>
-                                            <th>Oproc.</th>
-                                            <th>Odsetki</th>
-                                            <th>Suma odsetek</th>
-                                            <th>Podatek</th>
-                                            <th id="zyskKolumnaNaglowek">Zysk netto</th>
-                                            <th>Opłata za wykup</th>
-                                            <th id="kolumnaStopaInflacja">Inflacja</th>
-                                            <th>Suma netto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="harmonogramTabela"></tbody>
-                                </table>
-                                <div class="harmonogram-opis" id="harmonogramOpis"></div>
-                            </div>
-                        </div>
-                        <div class="chart-container-line">
-                            <div class="chart-line">
-                                <canvas id="obligacjeChartLine" aria-label="Wykres liniowy wartości inwestycji w czasie"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <button class="btn btn-secondary" onclick="showForm()">Powrót do edycji</button>
+            <button class="btn btn-secondary" id="generatePdfBtn">Pobierz PDF</button>
         </div>
     </div>
-
-    
-<style>
-    /* Z M I E N N E */
-    :root {
-        --primary-bg: #f5f6f5;
-        --primary-text: #333333;
-        --secondary-bg: #ffffff;
-        --accent-color: #c2b280;
-        --accent-gradient-start: #c2b280;
-        --accent-gradient-end: #b0a070;
-        --border-color: #e0e0e0;
-        --border-color-rgb: 102, 102, 102;
-        --highlight-yellow: #17a2b8;
-        --highlight-green: #28a745;
-        --shadow-color: rgba(0, 0, 0, 0.1);
-        --logo-bg: #e9ecef;
-        --input-bg: #fff;
-        --input-group-bg: #f5f5f5;
-        --range-track: #d3d3d3;
-        --harmonogram-bg: #f9f9f9;
-        --small-font-size: 0.7em;
-        --border-radius: 5px;
-        --range-bg: #e5e5e5;
-    }
-
-    /* D A R K   M O D E */
-    .dark-mode {
-        --primary-bg: #2b2b2b;
-        --primary-text: #e0e0e0;
-        --secondary-bg: #3a3a3a;
-        --accent-color: #8b7d47;
-        --accent-gradient-start: #8b7d47;
-        --accent-gradient-end: #70673b;
-        --border-color: #f5f5f5;
-        --border-color-rgb: 245, 245, 245;
-        --shadow-color: rgba(0, 0, 0, 0.5);
-        --logo-bg: #3a3a3a;
-        --input-bg: #3a3a3a;
-        --input-group-bg: #666666;
-        --range-track: #666666;
-        --harmonogram-bg: #404040;
-        --range-bg: #333333;
-        --accent-gradient-start-black: #a3945c;
-    }
-
-    /* R E S E T   I   B A Z A */
-    *,
-    ::after,
-    ::before {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        background-color: var(--primary-bg);
-        font-family: 'Montserrat', sans-serif;
-        font-size: var(--bs-body-font-size, 1rem);
-        font-weight: var(--bs-body-font-weight, 400);
-        line-height: var(--bs-body-line-height, 1.5);
-        color: var(--primary-text);
-        text-align: var(--bs-body-text-align, left);
-        padding: 10px;
-        -webkit-text-size-adjust: 100%;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    /* K O N T E N E R Y */
-    .container,
-    .container-fluid,
-    .container-lg,
-    .container-md,
-    .container-sm,
-    .container-xl,
-    .container-xxl {
-        --bs-gutter-x: 1.5rem;
-        --bs-gutter-y: 0;
-        width: 100%;
-        padding: 15px calc(var(--bs-gutter-x) * 0.5);
-        margin: 30px auto 0;
-        max-width: 1200px;
-        background: var(--secondary-bg);
-        border-radius: 10px;
-        box-shadow: 0 4px 6px var(--shadow-color);
-    }
-
-    .calculator-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: clamp(10px, 2vw, 20px);
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* L O G O   I   N A G Ł Ó W E K */
-    .logo-container {
-        background-color: var(--logo-bg);
-        padding: 15px;
-        text-align: center;
-        margin-bottom: 20px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .zoom-controls {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        gap: 5px;
-    }
-
-    .logo,
-    #siteLogo {
-        max-width: 200px;
-        margin-bottom: 0;
-        cursor: pointer;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .header-row,
-    .result-header {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 15px;
-        position: relative;
-    }
-
-    .header-row h4,
-    .result-header h4 {
-        font-weight: 700;
-        font-size: 1.2em;
-        flex: 1;
-        text-align: center;
-        margin: 0;
-    }
-
-    .result-wrapper-chart h5,
-    .result-wrapper-harmonogram h5 {
-        font-weight: 700;
-        font-size: 1em;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-
-    /* C H E C K B O X Y */
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-        font-size: clamp(0.65em, 1vw, var(--small-font-size));
-        cursor: pointer;
-        position: relative;
-        margin: 5px 0;
-        justify-content: center;
-    }
-
-    .checkbox-label input {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .checkbox-custom {
-        width: 16px;
-        height: 16px;
-        border: 2px solid var(--border-color);
-        background-color: var(--input-bg);
-        margin-right: 5px;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-
-    .checkbox-label input:checked + .checkbox-custom {
-        background-color: var(--accent-color);
-        border-color: var(--accent-color);
-    }
-
-    .checkbox-custom::after {
-        content: "✔";
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 12px;
-        color: #000000;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-
-    .checkbox-label input:checked + .checkbox-custom::after {
-        opacity: 1;
-    }
-
-    .checkbox-label.header-checkbox {
-        position: static;
-        top: auto;
-        right: auto;
-    }
-
-    /* F O R M U L A R Z E   I   W Y N I K I */
-    .form-section {
-        display: block;
-        padding: 10px;
-        position: relative;
-    }
-
-    .result-section {
-        display: none;
-        padding: 10px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .form-row,
-    .checkbox-row,
-    .fields-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        margin-bottom: 10px;
-        gap: 15px;
-        flex-wrap: wrap;
-        text-align: left;
-    }
-
-    .form-group {
-        flex: 1;
-        min-width: 120px;
-        max-width: 150px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-    }
-
-    #obligacjeForm .form-row:first-child {
-        margin-bottom: 30px;
-    }
-
-    #dynamicRateGroup {
-        width: 150px;
-        min-width: 150px;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: flex-start;
-        margin-right: 15px;
-    }
-
-    .form-label,
-    .variable-input-group .form-label {
-        font-size: var(--small-font-size);
-        text-transform: uppercase;
-        margin-bottom: 2px;
-        text-align: left;
-        width: 100%;
-    }
-
-    .form-control,
-    .form-select {
-        height: 22px;
-        font-size: var(--small-font-size);
-        padding: 2px;
-        text-align: center;
-        background: var(--input-bg);
-        color: var(--primary-text);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-sizing: border-box;
-        line-height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        outline: none !important;
-        box-shadow: 0 0 4px var(--accent-color);
-        border-color: var(--border-color);
-        background: var(--input-bg);
-        color: var(--primary-text);
-    }
-
-    .input-group-text {
-        height: 22px;
-        font-size: var(--small-font-size);
-        padding: 2px 5px;
-        text-align: center;
-        background: var(--input-group-bg);
-        color: var(--primary-text);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-sizing: border-box;
-        line-height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .input-group {
-        width: 150px;
-        display: flex;
-        justify-content: center;
-    }
-
-    .form-select {
-        max-width: 100px;
-        appearance: none;
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
-        padding: 0 20px 0 5px;
-        line-height: 22px;
-    }
-
-    .form-select option {
-        text-align: center;
-    }
-
-    input[type="range"].form-range {
-        margin-top: 5px;
-        height: 6px;
-        background: var(--input-group-bg);
-        border: 2px solid var(--border-color);
-        border-radius: var(--border-radius);
-        appearance: none;
-        width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-        outline: none;
-    }
-
-    input[type="range"].form-range::-webkit-slider-runnable-track {
-        background: var(--input-group-bg);
-        height: 6px;
-        border-radius: var(--border-radius);
-    }
-    
-    input[type="range"].form-range::-moz-range-track {
-        background: var(--input-group-bg);
-        height: 6px;
-        border-radius: var(--border-radius);
-    }
-    
-    input[type="range"].form-range::-ms-track {
-        background: var(--input-group-bg);
-        height: 6px;
-        border-radius: var(--border-radius);
-    }
-
-    input[type="range"].form-range::-webkit-slider-thumb {
-        background: var(--accent-gradient-start);
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-        appearance: none;
-        transform: translateY(2px);
-    }
-
-    input[type="range"].form-range::-moz-range-thumb {
-        background: var(--accent-gradient-start);
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-    }
-
-    input[type="range"].form-range::-ms-thumb {
-        background: var(--accent-gradient-start);
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-    }
-
-    input[type="range"].form-range:focus::-webkit-slider-thumb {
-        outline: none;
-        box-shadow: 0 0 4px var(--accent-gradient-start);
-    }
-    
-    input[type="range"].form-range:focus::-moz-range-thumb {
-        outline: none;
-        box-shadow: 0 0 4px var(--accent-gradient-start);
-    }
-    
-    input[type="range"].form-range:focus::-ms-thumb {
-        outline: none;
-        box-shadow: 0 0 4px var(--accent-gradient-start);
-    }
-
-    /* D A R K   M O D E   -   S P E C Y F I C Z N E */
-    .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
-        background: var(--input-group-bg);
-    }
-    
-    .dark-mode input[type="range"].form-range::-moz-range-track {
-        background: var(--input-group-bg);
-    }
-    
-    .dark-mode input[type="range"].form-range::-ms-track {
-        background: var(--input-group-bg);
-    }
-    
-    .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
-        background: var(--accent-gradient-start-black);
-        transform: translateY(2px);
-    }
-
-    .dark-mode input[type="range"].form-range::-moz-range-thumb,
-    .dark-mode input[type="range"].form-range::-ms-thumb {
-        background: var(--accent-gradient-start-black);
-    }
-
-    .dark-mode .harmonogram table {
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-        border: 1px solid #666666;
-    }
-
-    .dark-mode .harmonogram th {
-        border-bottom: 2px solid #666666;
-    }
-
-    .dark-mode .harmonogram td {
-        border-bottom: 1px solid #666666;
-        border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
-    }
-
-    .dark-mode .harmonogram td .star,
-    .dark-mode #harmonogramOpis .star {
-        color: #c2b280;
-    }
-
-    .dark-mode .dropdown-btn {
-        border: 2px solid var(--accent-gradient-start);
-        background-size: cover;
-        background-position: center;
-        background-color: transparent;
-        padding: 2px;
-        background-clip: padding-box;
-    }
-    
-    .dark-mode .zoom-controls button.dropdown-btn {
-        background: transparent !important;
-        border: 2px solid var(--accent-gradient-start) !important;
-        background-clip: padding-box;
-    }
-    
-    .dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"] {
-        background-image: url('flag-pl.png') !important;
-    }
-    
-    .dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"] {
-        background-image: url('flag-en.png') !important;
-    }
-    
-    .dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"] {
-        background-image: url('flag-ua.png') !important;
-    }
-    
-    .dark-mode .zoom-controls button.dropdown-btn:hover {
-        border: 2px solid var(--accent-gradient-start) !important;
-        background: transparent !important;
-        background-size: cover;
-        background-position: center;
-        background-clip: padding-box;
-    }
-
-    .dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"]:hover {
-        background-image: url('flag-pl.png') !important;
-    }
-    
-    .dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"]:hover {
-        background-image: url('flag-en.png') !important;
-    }
-    
-    .dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"]:hover {
-        background-image: url('flag-ua.png') !important;
-    }
-
-    /* O P I S Y   I   D A N E */
-    .sub-info {
-        font-size: 0.4em;
-        margin-top: 2px;
-        text-align: left;
-        align-self: flex-start;
-        width: 100%;
-    }
-
-    .opis-container {
-        margin-top: 20px;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-
-    .obligacje-opis {
-        font-size: 0.6em;
-        text-align: center;
-        max-width: 400px;
-        margin: 10px auto 0;
-        line-height: 1.4;
-    }
-
-    .harmonogram-opis {
-        font-size: clamp(0.2625em, 0.6125vw, 0.4125em);
-        text-align: left;
-        max-width: clamp(98%, 100vw, 1000px);
-        margin: 10px auto 0;
-        line-height: 1.4;
-        padding-left: clamp(0.5em, 1vw, 8em);
-    }
-
-    .harmonogram td,
-    #harmonogramOpis {
-        color: var(--primary-text);
-    }
-
-    .harmonogram td .star,
-    #harmonogramOpis .star {
-        color: #8b7d47;
-    }
-
-    .data-container {
-        text-align: right;
-        margin-top: 5px;
-    }
-
-    .data-info,
-    .data-date {
-        font-size: 0.8em;
-        color: var(--accent-color);
-    }
-
-    .data-date {
-        font-size: 0.9em;
-    }
-
-    /* W Y N I K I   I   H A R M O N O G R A M */
-    .result-container,
-    .form-container,
-    .harmonogram-container {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
-        position: relative;
-    }
-
-    .harmonogram-container {
-        margin-top: 20px;
-        padding: clamp(2px, 2vw, 20px);
-        width: 100%;
-        max-width: clamp(98%, 100vw, 1100px);
-        margin-left: auto;
-        margin-right: auto;
-        box-sizing: border-box;
-    }
-
-    .harmonogram-chart-wrapper {
-        background-color: var(--harmonogram-bg);
-        padding: clamp(2px, 2vw, 20px);
-        border-radius: 10px;
-        width: 100%;
-        max-width: clamp(98%, 100vw, 1100px);
-        margin: 0 auto;
-        box-sizing: border-box;
-    }
-
-    .result-wrapper-chart {
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .result-wrapper-harmonogram {
-        flex: 1;
-        max-width: 1000px;
-    }
-
-    .harmonogram {
-        padding: 0;
-        width: 100%;
-        max-width: 100%;
-        margin: 0 auto;
-        overflow-x: auto;
-    }
-
-    .harmonogram table {
-        margin: 0 auto;
-        width: 100%;
-        max-width: 100%;
-        display: table;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px var(--shadow-color);
-        background: var(--harmonogram-bg);
-        font-size: clamp(0.55em, 1.2vw, 0.8em);
-        table-layout: auto;
-    }
-
-    .harmonogram th,
-    .harmonogram td {
-        text-align: center;
-        white-space: normal;
-        word-break: normal;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: clamp(0.3125em, 0.8125vw, 0.8125em);
-    }
-
-    .harmonogram th {
-        background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        color: var(--primary-text);
-        padding: clamp(1px, 0.5vw, 12px);
-        vertical-align: middle;
-        font-weight: 500;
-        border-bottom: 2px solid var(--border-color);
-        line-height: 1.2;
-    }
-
-    .harmonogram td {
-        padding: clamp(1px, 0.5vw, 10px);
-        font-weight: 400;
-        border-bottom: 1px solid var(--border-color);
-        background-color: var(--harmonogram-bg);
-        color: var(--primary-text);
-        border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
-    }
-
-    .harmonogram th:last-child,
-    .harmonogram td:last-child {
-        border-right: none;
-    }
-
-    .harmonogram .btn-toggle {
-        cursor: pointer;
-        font-size: 0.65em;
-        text-decoration: underline;
-        margin-bottom: 25px;
-        position: relative;
-        color: var(--primary-text);
-    }
-
-    /* W Y K R E S Y */
-    .chart-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 20px;
-        position: relative;
-    }
-
-    .chart {
-        flex: 0 0 auto;
-        width: 160px;
-        height: 160px;
-        position: relative;
-        z-index: 25;
-    }
-
-    .chart canvas {
-        position: relative;
-        z-index: 30;
-    }
-
-    .chart-container-line {
-        margin-top: 20px;
-        width: 100%;
-        max-width: clamp(98%, 100vw, 1100px);
-        height: clamp(200px, 32vw, 400px);
-        background-color: transparent;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .chart-line {
-        width: 100%;
-        height: 100%;
-        font-size: clamp(0.3625em, 0.8125vw + 0.7px, 0.9125em);
-    }
-
-    .chart-legend {
-        flex: 0 0 auto;
-        max-width: 200px;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .chart-legend .legend-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 6px;
-        font-size: var(--small-font-size);
-        cursor: pointer;
-        transition: transform 0.3s ease;
-        padding-left: 8px;
-    }
-
-    .chart-legend .legend-text {
-        font-weight: bold;
-        font-size: 14px;
-        opacity: 1;
-        transition: opacity 0.3s ease;
-    }
-
-    .chart-legend .color-box {
-        width: 130px;
-        min-width: 130px;
-        height: 26px;
-        border-radius: var(--border-radius);
-        text-align: center;
-        font-weight: bold;
-        line-height: 26px;
-        font-size: 10px;
-        white-space: nowrap;
-        overflow: hidden;
-        position: relative;
-        color: #fff;
-        margin-right: 6px;
-    }
-
-    .chart-legend .color-box .value {
-        font-weight: bold;
-        font-size: 10px;
-        display: block;
-    }
-
-    .color-box:hover::after,
-    .legend-text:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 10px;
-        white-space: nowrap;
-        z-index: 10;
-        background-color: #000000;
-        color: #ffffff;
-        line-height: normal;
-        font-family: 'Montserrat', sans-serif;
-    }
-
-    .legend-item[data-index="0"] .color-box:hover::after {
-        background-color: #28a745;
-        color: #000000;
-    }
-
-    .legend-item[data-index="1"] .color-box:hover::after {
-        background-color: #007bff;
-        color: #ffffff;
-    }
-
-    .legend-item[data-index="2"] .color-box:hover::after {
-        background-color: #dc3545;
-        color: #ffffff;
-    }
-
-    /* S T O P K A   P O D S U M O W A N I A */
-    .summary-footer {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 10px;
-    }
-
-    .highlight {
-        font-size: 0.8em;
-        padding: 4px 6px;
-        border-radius: var(--border-radius);
-        position: relative;
-        cursor: pointer;
-        color: #ffffff;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        max-width: 210px;
-    }
-
-    .summary-footer .highlight {
-        display: inline-block;
-        width: clamp(200px, 20vw, 240px);
-        max-width: 100%;
-        margin: 2px 0;
-        padding: clamp(5px, 1vw, 8px) clamp(8px, 2vw, 12px);
-        font-weight: 500;
-        font-size: clamp(0.525em, 1.05vw, 0.825em);
-    }
-
-    .highlight.yellow {
-        background-color: var(--highlight-yellow);
-    }
-
-    .highlight.green {
-        background-color: var(--highlight-green);
-    }
-
-    .highlight.yellow:hover,
-    .highlight.green:hover {
-        color: transparent;
-    }
-
-    .highlight.yellow:hover::after,
-    .highlight.green:hover::after {
-        content: attr(data-hover);
-        font-weight: bold;
-        font-size: 1.1em;
-        color: #ffffff;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-    }
-
-    /* P R Z Y C I S K I */
-    .btn-primary,
-    .btn-secondary,
-    #addVariableBtn,
-    #generatePdfBtn,
-    .zoom-controls .btn {
-        background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
-        border: none !important;
-        color: var(--primary-text) !important;
-        box-shadow: 0 4px 6px var(--shadow-color);
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
-        border-radius: 25px;
-        display: block;
-        margin: 0 auto;
-        transform: translateY(0);
-    }
-
-    .btn-primary:hover,
-    .btn-secondary:hover,
-    #addVariableBtn:hover,
-    #generatePdfBtn:hover,
-    .zoom-controls .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px var(--shadow-color);
-        background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
-    }
-
-    .dark-mode .btn-primary,
-    .dark-mode .btn-secondary,
-    .dark-mode #addVariableBtn,
-    .dark-mode #generatePdfBtn,
-    .dark-mode .zoom-controls .btn {
-        background: linear-gradient(135deg, var(--accent-gradient-start, #8b7d47), var(--accent-gradient-end, #70673b)) !important;
-        color: #ffffff !important;
-    }
-
-    .dark-mode .btn-primary:hover,
-    .dark-mode .btn-secondary:hover,
-    .dark-mode #addVariableBtn:hover,
-    .dark-mode #generatePdfBtn:hover,
-    .dark-mode .zoom-controls .btn:hover {
-        background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start, #8b7d47)) !important;
-    }
-
-    .btn-primary,
-    .btn-secondary {
-        font-size: 0.9em;
-        padding: 8px 20px;
-        margin: 25px auto 0;
-    }
-
-    #addVariableBtn {
-        font-size: var(--small-font-size);
-        padding: 3px 10px;
-        border-radius: 15px;
-    }
-
-    #generatePdfBtn {
-        margin: 0 0 15px auto;
-        padding: 6px 15px;
-    }
-
-    .zoom-controls .btn {
-        padding: 2px 8px;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0;
-    }
-
-    .btn-toggle {
-        cursor: pointer;
-        font-size: 0.8em;
-        color: #007bff;
-        text-decoration: underline;
-        margin-bottom: 10px;
-    }
-
-    /* Z M I E N N E   S T O P Y */
-    .variable-rate-container {
-        margin-top: 15px;
-        text-align: center;
-    }
-
-    .variable-inputs {
-        margin-top: 10px;
-    }
-
-    .variable-input-group {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 10px;
-        align-items: center;
-    }
-
-    .variable-inputs-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .variable-input-group .form-group {
-        width: 150px;
-        min-width: 0;
-        max-width: none;
-        flex: none;
-    }
-
-    .variable-input-group .input-group {
-        display: flex;
-        align-items: center;
-        max-width: 150px;
-        width: 150px;
-    }
-
-    .variable-input-group .btn-danger,
-    .variable-input-group .btn-danger.remove-first-btn {
-        font-size: var(--small-font-size);
-        padding: 2px 8px;
-        height: 22px;
-        line-height: 18px;
-        background: #dc3545;
-        border: none;
-        border-radius: var(--border-radius);
-        color: #fff;
-    }
-
-    .variable-input-group .btn-danger:hover,
-    .variable-input-group .btn-danger.remove-first-btn:hover {
-        background: #c82333;
-    }
-
-    .remove-btn-wrapper,
-    .remove-first-btn-wrapper {
-        display: flex;
-        justify-content: center;
-        margin-top: 5px;
-        align-self: center;
-        width: 100%;
-    }
-
-    /* R E S P O N S Y W N O Ś Ć */
-    @media (max-width: 768px) {
-        .calculator-container {
-            flex-direction: column;
-            padding: clamp(10px, 2vw, 15px);
-        }
-    }
-
-    @media (max-width: 576px) {
-        .header-row h4,
-        .result-header h4 {
-            font-size: 1em;
-        }
-
-        .checkbox-label.header-checkbox {
-            top: -15px;
-            right: 5px;
-        }
-
-        .summary-footer {
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-            text-align: center;
-            width: auto;
-        }
-
-        .summary-footer .highlight {
-            margin: 2px 0;
-        }
-
-        .form-row,
-        .checkbox-row,
-        .fields-wrapper,
-        .variable-inputs-wrapper {
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-        }
-
-        .form-group,
-        .input-group,
-        #dynamicRateGroup {
-            width: 200px;
-            max-width: 200px;
-            min-width: 200px;
-            margin: 2px auto;
-        }
-
-        .form-control,
-        .form-select {
-            height: 26px;
-            width: 130px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .input-group-text {
-            height: 26px;
-            width: 70px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        #typObligacji.form-control {
-            text-align: center;
-            text-align-last: center;
-            width: 200px;
-            height: 26px;
-        }
-
-        .variable-input-group .input-group {
-            max-width: 200px;
-            min-width: 200px;
-        }
-
-        .variable-input-group .form-group {
-            width: 200px;
-            max-width: 200px;
-            min-width: 200px;
-            margin: 2px auto;
-        }
-
-        .variable-input-group .form-control {
-            width: 130px;
-            height: 26px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .variable-input-group .input-group-text {
-            width: 70px;
-            height: 26px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .variable-input-group .fields-wrapper {
-            flex-wrap: nowrap;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            max-width: 200px;
-            min-width: 200px;
-            gap: 2px;
-        }
-
-        .variable-input-group .form-group:nth-child(1) .input-group,
-        .variable-input-group .form-group:nth-child(2) .input-group {
-            width: 200px;
-            max-width: 200px;
-            min-width: 200px;
-        }
-
-        .variable-input-group .form-group:nth-child(1) .form-control,
-        .variable-input-group .form-group:nth-child(2) .form-control {
-            width: 130px;
-        }
-
-        .btn-primary,
-        #addVariableBtn,
-        #generatePdfBtn {
-            margin: 2.5px auto;
-            padding: 6px 10px;
-        }
-
-        .btn-primary,
-        #addVariableBtn {
-            width: auto;
-        }
-
-        .zoom-controls .btn {
-            width: 30px;
-            height: 30px;
-            padding: 4px 10px;
-        }
-
-        #generatePdfBtn {
-            margin: 2.5px 0 2.5px auto;
-        }
-
-        .chart-container {
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .chart {
-            width: 120px;
-            height: 120px;
-        }
-
-        .chart-legend {
-            max-width: 100%;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .chart-legend .legend-item {
-            width: 100%;
-            max-width: 200px;
-            justify-content: flex-start;
-            padding-left: 0;
-        }
-
-        .chart-legend .legend-text {
-            font-size: 12px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        .calculator-container {
-            padding: 10px;
-        }
-
-        .form-row,
-        .checkbox-row,
-        .fields-wrapper,
-        .variable-inputs-wrapper {
-            display: block;
-            text-align: center;
-        }
-
-        .form-group,
-        #dynamicRateGroup {
-            display: block;
-            margin: 10px auto;
-        }
-
-        .input-group {
-            margin: 0 auto;
-        }
-
-        .chart-container {
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .chart {
-            width: 100px;
-            height: 100px;
-        }
-
-        .form-control,
-        .form-select {
-            height: 28px;
-            width: 130px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .input-group-text {
-            height: 28px;
-            width: 70px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .form-range {
-            height: 8px;
-            width: 200px;
-            margin: 5px auto 0;
-        }
-
-        .form-range::-webkit-slider-thumb,
-        .form-range::-moz-range-thumb,
-        .form-range::-ms-thumb {
-            width: 14px;
-            height: 14px;
-        }
-
-        .variable-input-group {
-            display: block;
-            width: 200px;
-            margin: 15px auto;
-        }
-
-        .variable-input-group .fields-wrapper {
-            display: block;
-            width: 200px;
-        }
-
-        .variable-input-group .form-group {
-            margin: 10px auto;
-        }
-
-        .variable-input-group .input-group {
-            margin: 0 auto;
-        }
-
-        .variable-input-group .form-control {
-            width: 130px;
-            height: 28px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .variable-input-group .input-group-text {
-            width: 70px;
-            height: 28px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .variable-input-group .form-range {
-            width: 200px;
-            margin: 5px auto 0;
-        }
-
-        #typObligacji.form-control {
-            text-align: center;
-            text-align-last: center;
-            width: 200px;
-            height: 28px;
-        }
-
-        .btn-primary,
-        #addVariableBtn,
-        #generatePdfBtn {
-            margin: 20px auto;
-            padding: 6px 15px;
-        }
-
-        #generatePdfBtn {
-            margin: 20px 0 20px auto;
-        }
-
-        .logo-container {
-            display: flex !important;
-            justify-content: flex-start !important;
-            text-align: left !important;
-            flex-wrap: wrap;
-        }
-
-        .logo,
-        #siteLogo {
-            margin: 0 !important;
-            padding: 10px 0;
-            max-width: 150px;
-        }
-
-        .zoom-controls {
-            position: static;
-            transform: none;
-            margin-left: auto;
-        }
-
-        .summary-footer {
-            flex-direction: row;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 5px;
-            text-align: center;
-            width: auto;
-        }
-
-        .summary-footer .highlight {
-            margin: 2px 0;
-        }
-    }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-
-    // D E F I N I C J E   Z M I E N N Y C H
-    
-    const elements = {
-        formSection: document.getElementById("formSection"),
-        resultSection: document.getElementById("resultSection"),
-        kwota: document.getElementById("kwota"),
-        kwotaRange: document.getElementById("kwotaRange"),
-        typObligacji: document.getElementById("typObligacji"),
-        dynamicRate: document.getElementById("dynamicRate"),
-        dynamicRateRange: document.getElementById("dynamicRateRange"),
-        okres: document.getElementById("okres"),
-        oprocentowanie: document.getElementById("oprocentowanie"),
-        ikeIkzeBtn: document.getElementById("ikeIkzeBtn"),
-        inflacjaZmiennaBtn: document.getElementById("inflacjaZmiennaBtn"),
-        stopaZmiennaBtn: document.getElementById("stopaZmiennaBtn"),
-        obliczBtn: document.getElementById("obliczBtn"),
-        addVariableBtn: document.getElementById("addVariableBtn"),
-        resultHeader: document.getElementById("resultHeader"),
-        obligacjeChart: document.getElementById("obligacjeChart"),
-        obligacjeChartLine: document.getElementById("obligacjeChartLine"),
-        generatePdfBtn: document.getElementById("generatePdfBtn")
-    };
-
-    const state = {
-        chart: null,
-        chartLine: null,
-        harmonogramData: [],
-        isIkeIkzeMode: false,
-        variableInflation: [], // Tablica dla danych "Zmienna inflacja"
-        variableReferenceRates: [], // Tablica dla danych "Zmienne stopy referencyjne NBP"
-        lastFormData: {
-            kwota: 10000,
-            typObligacji: "OTS",
-            dynamicRates: {
-                "ROR": 5.75,
-                "DOR": 5.75,
-                "COI": 4.90,
-                "EDO": 4.90,
-                "ROS": 4.90,
-                "ROD": 4.90
-            },
-            okres: 3,
-            oprocentowanie: 3,
-            ikeIkze: false,
-            inflacjaZmienna: false,
-            stopaZmienna: false,
-        },
-        isCalculating: false
-    };
-
-    const maxVariableChanges = {
-        "ROR": 11, // 12 miesięcy - 1 domyślny
-        "DOR": 23, // 24 miesiące - 1 domyślny
-        "COI": 3,  // 4 lata - 1 domyślny
-        "EDO": 9,  // 10 lat - 1 domyślny
-        "ROS": 5,  // 6 lat - 1 domyślny
-        "ROD": 11  // 12 lat - 1 domyślny
-    };
-
-    const obligacjeConfig = {
-        "OTS": { okres: 3, oprocentowanie: 3.00, zmienne: false, kapitalizacja: false, oplataWykup: 0.00 },
-        "ROR": { okres: 12, oprocentowanie: 5.75, zmienne: true, marza: 0.00, kapitalizacja: false, oplataWykup: 0.005 },
-        "DOR": { okres: 24, oprocentowanie: 5.90, zmienne: true, marza: 0.15, kapitalizacja: false, oplataWykup: 0.007 },
-        "TOS": { okres: 36, oprocentowanie: 5.95, zmienne: false, kapitalizacja: true, oplataWykup: 0.01 },
-        "COI": { okres: 48, oprocentowanie: 6.30, zmienne: true, marza: 1.50, indeksowaneInflacja: true, kapitalizacja: false, oplataWykup: 0.02 },
-        "EDO": { okres: 120, oprocentowanie: 6.55, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 },
-        "ROS": { okres: 72, oprocentowanie: 6.50, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.02 },
-        "ROD": { okres: 144, oprocentowanie: 6.80, zmienne: true, marza: 2.50, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 }
-    };
-
-    const opisyObligacji = {
-        "OTS": "* <b>OTS (3-miesięczne) </b>: stałe oprocentowanie <b>3,00%</b> na okres <b>3-miesięcy</b>, wypłata odsetek nastąpi <b>przy wykupie</b> obligacji. Wcześniejszy odkup powoduje nienaliczenie odsetek, natomiast <b>nie ma opłat za wcześniejszy odkup</b>. Obligacje <b>OTS</b> są idealne dla <b>krótkoterminowych inwestycji</b>.",
-        "ROR": "* <b>ROR (12-miesięczne) </b>: <b>oprocentowanie zmienne</b>, w pierwszym miesiącu <b>5,75%</b>, w pozostałych <b>11 miesiącach</b> oprocentowanie oparte na <b>stopie referencyjnej NBP + 0%</b>. Wypłata odsetek następuje <b>co miesiąc</b>, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>0,5%</b> wartości obligacji (<b>0,5 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>ROR</b> przeznaczone są dla <b>krótko i średnioterminowych inwestorów</b>.",
-        "DOR": "* <b>DOR (24-miesięczne) </b>: <b>oprocentowanie zmienne</b>, <b>5,90% w pierwszym miesiącu</b>, w pozostałych <b>23 miesiącach</b> oprocentowanie oparte na <b>stopie referencyjnej NBP + 0,15%</b>. Wypłata odsetek następuje <b>co miesiąc</b>, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>0,7%</b> wartości obligacji (<b>0,7 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>DOR</b> przeznaczone są dla <b>średnioterminowych inwestorów</b>.",
-        "TOS": "* <b>TOS (3-letnie)</b>: <b>stałe oprocentowanie 5,95%</b> na okres <b>3-lat</b>, wypłata odsetek nastąpi <b>przy wykupie</b> obligacji po <b>3 latach</b> inwestycji. Wcześniejszy odkup wiąże się z opłatą w wysokości <b>1%</b> wartości obligacji (<b>1 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>TOS</b> przeznaczone dla <b>stabilnych średnioterminowych inwestycji</b>.",
-        "COI": "* <b>COI (4-letnie)</b>: obligacje <b>indeksowane inflacją</b>, <b>6,30% w pierwszym roku</b>, w kolejnych <b>3 latach</b> oprocentowanie wynosi <b>wartość inflacji + 1,50%</b>. Wypłata odsetek następuje <b>po każdym roku</b> inwestycji, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>2%</b> wartości obligacji (<b>2 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>COI</b> są idealne dla <b>średnio i długoterminowych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>.",
-        "EDO": "* <b>EDO (10-letnie)</b>: obligacje <b>indeksowane inflacją</b>, <b>6,55% w pierwszym roku</b>, w kolejnych <b>9 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,00%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>10 latach inwestycji</b>. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>3%</b> wartości obligacji (<b>3 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>EDO</b> są idealne dla <b>długoterminowych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>.",
-        "ROS": "* <b>ROS (6-letnie)</b>: rodzinne obligacje przeznaczone są wyłącznie dla beneficjentów programu <b>800+</b>. Obligacje <b>indeksowane inflacją</b>, <b>6,50% w pierwszym roku</b>, w kolejnych <b>5 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,00%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>6 latach inwestycji</b>. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>2%</b> wartości obligacji (<b>2 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>ROS</b> są idealne dla <b>rodzinnych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>.",
-        "ROD": "* <b>ROD (12-letnie) </b>: rodzinne obligacje przeznaczone są wyłącznie dla beneficjentów programu <b>800+</b>. Obligacje <b>indeksowane inflacją</b>, <b>6,80% w pierwszym roku</b>, w kolejnych <b>11 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,50%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>12 latach</b> inwestycji. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>3%</b> wartości obligacji (<b>3 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>ROD</b> są idealne dla <b>długoterminowych rodzinnych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>."
-    };
-
-    const nazwyObligacji = {
-        "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
-        "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
-    };
-
-    // O B S Ł U G A   Z D A R Z E Ń
-    
-    elements.dynamicRateRange.addEventListener("input", () => { 
-        elements.dynamicRate.value = elements.dynamicRateRange.value; 
-        const typ = elements.typObligacji.value;
-        state.lastFormData.dynamicRates[typ] = parseFloat(elements.dynamicRate.value);
-    });
-    elements.dynamicRate.addEventListener("input", () => { 
-        elements.dynamicRateRange.value = elements.dynamicRate.value; 
-        const typ = elements.typObligacji.value;
-        state.lastFormData.dynamicRates[typ] = parseFloat(elements.dynamicRate.value);
-    });
-    elements.kwotaRange.addEventListener("input", () => { elements.kwota.value = elements.kwotaRange.value; updateIloscObligacji(); });
-    elements.kwota.addEventListener("input", () => { elements.kwotaRange.value = elements.kwota.value; updateIloscObligacji(); });
-    elements.typObligacji.addEventListener("change", updateDynamicRateField);
-    elements.ikeIkzeBtn.addEventListener("change", updateDynamicRateField);
-    elements.inflacjaZmiennaBtn.addEventListener("change", () => { 
-        state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked; 
-        const typ = elements.typObligacji.value;
-        if (!elements.inflacjaZmiennaBtn.checked) {
-            state.variableInflation = [];
-        } else {
-            // Pobieramy wartość z górnego panelu
-            const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
-            state.variableInflation = [];
-            state.variableInflation.push({ value: defaultValue, period: 2 });
-        }
-        updateVariableInputs(); 
-    });
-    
-    elements.stopaZmiennaBtn.addEventListener("change", () => { 
-        state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; 
-        const typ = elements.typObligacji.value;
-        if (!elements.stopaZmiennaBtn.checked) {
-            state.variableReferenceRates = [];
-        } else {
-            // Pobieramy wartość z górnego panelu
-            const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
-            state.variableReferenceRates = [];
-            state.variableReferenceRates.push({ value: defaultValue, period: 2 });
-        }
-        updateVariableInputs(); 
-    });
-    
-    elements.obliczBtn.addEventListener("click", () => { console.log("Oblicz clicked"); obliczObligacje(); });
-    elements.addVariableBtn.addEventListener("click", () => { console.log("AddVariable clicked"); addVariableChange(); });
-    elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
-
-    function setDynamicRateField(label, value, step, max) {
-        const dynamicRateLabel = document.getElementById("dynamicRateLabel");
-        const dynamicRateInfo = document.getElementById("dynamicRateInfo");
-        dynamicRateLabel.textContent = label;
-        elements.dynamicRate.value = value;
-        elements.dynamicRateRange.value = value;
-        elements.dynamicRate.step = step;
-        elements.dynamicRateRange.step = step;
-        elements.dynamicRate.max = max;
-        elements.dynamicRateRange.max = max;
-    }
-
-    function updateDynamicRateField() {
-        state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
-        const select = elements.typObligacji;
-        const previousTyp = select.value;
-    
-        select.innerHTML = state.isIkeIkzeMode ? `
-            <option value="ROR">12-miesięczne (ROR)</option>
-            <option value="DOR">24-miesięczne (DOR)</option>
-            <option value="TOS" selected>3-letnie (TOS)</option>
-            <option value="COI">4-letnie (COI)</option>
-            <option value="EDO">10-letnie (EDO)</option>
-        ` : `
-            <option value="OTS" selected>3-miesięczne (OTS)</option>
-            <option value="ROR">12-miesięczne (ROR)</option>
-            <option value="DOR">24-miesięczne (DOR)</option>
-            <option value="TOS">3-letnie (TOS)</option>
-            <option value="COI">4-letnie (COI)</option>
-            <option value="EDO">10-letnie (EDO)</option>
-            <option value="ROS">6-letnie (ROS)</option>
-            <option value="ROD">12-letnich (ROD)</option>
-        `;
-    
-        const availableOptions = Array.from(select.options).map(opt => opt.value);
-        select.value = availableOptions.includes(previousTyp) ? previousTyp : (state.isIkeIkzeMode ? "TOS" : "OTS");
-    
-        const typ = select.value;
-        const config = obligacjeConfig[typ];
-    
-        elements.okres.value = config.okres;
-        const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-        const inputGroup = elements.okres.closest('.input-group');
-        const okresUnitElement = inputGroup ? inputGroup.querySelector('.input-group-text') : null;
-        if (okresUnitElement) {
-            okresUnitElement.textContent = jednostkaOkresu;
-        } else {
-            console.warn("Nie znaleziono elementu '.input-group-text' w obrębie '#okres'. Sprawdź strukturę HTML.");
-        }
-        elements.oprocentowanie.value = config.oprocentowanie;
-        updateLata();
-        updateOprocentowanieInfo();
-        updateOpisObligacji();
-    
-        // Logika widoczności dynamicRateGroup
-        const dynamicRateGroup = document.getElementById("dynamicRateGroup");
-        if (["ROR", "DOR"].includes(typ)) {
-            const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
-            setDynamicRateField("Stopa Ref. NBP", stopaRefValue, "0.05", "20");
-            dynamicRateGroup.style.display = "flex";
-        } else if (["COI", "EDO", "ROS", "ROD"].includes(typ)) {
-            const inflacjaValue = state.lastFormData.dynamicRates[typ] || 4.90;
-            setDynamicRateField("Inflacja", inflacjaValue, "0.1", "50");
-            dynamicRateGroup.style.display = "flex";
-        } else {
-            dynamicRateGroup.style.display = "none";
-        }
-    
-        document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
-        document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(typ) ? "flex" : "none";
-    
-        if (!["COI", "EDO", "ROS", "ROD"].includes(typ)) {
-            state.variableInflation = [];
-            elements.inflacjaZmiennaBtn.checked = false;
-            state.lastFormData.inflacjaZmienna = false;
-        } else if (elements.inflacjaZmiennaBtn.checked && state.variableInflation.length === 0) {
-            const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
-            state.variableInflation = [{ value: defaultValue, period: 2 }];
-        }
-    
-        if (!["ROR", "DOR"].includes(typ)) {
-            state.variableReferenceRates = [];
-            elements.stopaZmiennaBtn.checked = false;
-            state.lastFormData.stopaZmienna = false;
-        } else if (elements.stopaZmiennaBtn.checked && state.variableReferenceRates.length === 0) {
-            const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
-            state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
-        }
-    
-        // Logika widoczności checkboxa IKE/IKZE
-        const ikeIkzeContainer = document.getElementById("ikeIkzeContainer");
-        const allowedTypes = ["ROR", "DOR", "TOS", "COI", "EDO"];
-        if (allowedTypes.includes(typ)) {
-            ikeIkzeContainer.style.display = "block";
-        } else {
-            ikeIkzeContainer.style.display = "none";
-            elements.ikeIkzeBtn.checked = false; // Odznaczamy checkbox
-            state.isIkeIkzeMode = false; // Resetujemy stan
-            state.lastFormData.ikeIkze = false; // Aktualizujemy zapisany stan
-        }
-    
-        updateVariableInputs();
-    }
-
-    // F U N K C J E   P O M O C N I C Z E
-    
-    function updateIloscObligacji() {
-        const kwota = parseFloat(elements.kwota.value) || 0;
-        const ilosc = Math.floor(kwota / 100);
-        const iloscElement = document.getElementById("iloscObligacji");
-        if (iloscElement) iloscElement.textContent = `Ilość obligacji: ${ilosc}`;
-        else console.warn("Element #iloscObligacji nie znaleziony.");
-    }
-    
-    function updateVariableData() {
-        const typ = elements.typObligacji.value;
-        const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
-        const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
-        const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-        const maxCykl = ["ROR", "DOR"].includes(typ) ? obligacjeConfig[typ].okres : obligacjeConfig[typ].okres / 12;
-    
-        const inputs = document.querySelectorAll(".variable-input-group");
-        const newChanges = [];
-    
-        inputs.forEach((inputGroup, index) => {
-            const cyklInput = inputGroup.querySelector(".variable-cykl");
-            const rateInput = inputGroup.querySelector(".variable-rate");
-            let period = Math.round(parseFloat(cyklInput.value));
-            const value = parseFloat(rateInput.value);
-    
-            // Ustalamy minimalną i maksymalną wartość okresu
-            const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 2;
-            if (period < minPeriod) {
-                period = minPeriod;
-                cyklInput.value = period;
-                const cyklRange = inputGroup.querySelector(".variable-cykl-range");
-                cyklRange.value = period;
-            }
-            if (period > maxCykl) {
-                period = maxCykl;
-                cyklInput.value = period;
-                const cyklRange = inputGroup.querySelector(".variable-cykl-range");
-                cyklRange.value = period;
-            }
-    
-            newChanges.push({ period, value });
-        });
-    
-        // Usuwamy kolejne wiersze, które mają okres mniejszy lub równy bieżącemu
-        for (let i = 0; i < newChanges.length; i++) {
-            const currentPeriod = newChanges[i].period;
-            // Sprawdzamy wszystkie kolejne wiersze
-            for (let j = newChanges.length - 1; j > i; j--) {
-                if (newChanges[j].period <= currentPeriod) {
-                    newChanges.splice(j, 1); // Usuwamy wiersz
-                }
-            }
-        }
-    
-        if (isInflacjaZmienna) {
-            state.variableInflation = newChanges;
-        } else {
-            state.variableReferenceRates = newChanges;
-        }
-    }
-
-    function updateLata() {
-        const miesiace = parseInt(elements.okres.value) || 0;
-        const lata = (miesiace / 12).toFixed(0);
-        document.getElementById("lata").textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
-    }
-
-    function updateOprocentowanieInfo() {
-        const typ = elements.typObligacji.value;
-        const config = obligacjeConfig[typ];
-        let info = config.zmienne ? 
-            (config.indeksowaneInflacja ? 
-                `Pierwszy rok: ${config.oprocentowanie}%, kolejne: inflacja + ${config.marza}%` : 
-                `Pierwszy m-c: ${config.oprocentowanie}%, kolejne: stopa NBP + ${config.marza}%`) : 
-            `Stałe oprocentowanie: ${config.oprocentowanie}%`;
-        document.getElementById("oprocentowanieInfo").textContent = info;
-    }
-
-    function updateOpisObligacji() {
-        const typ = elements.typObligacji.value;
-        const opis = opisyObligacji[typ] || "";
-        document.getElementById("obligacjeOpis").innerHTML = opis;
-        document.getElementById("obligacjeOpisPodsumowanie").innerHTML = opis;
-    }
-
-    function toggleHarmonogram(sectionId) {
-        const content = document.getElementById(sectionId);
-        const toggleBtn = content.previousElementSibling;
-        content.style.display = content.style.display === "none" ? "block" : "none";
-        toggleBtn.textContent = content.style.display === "none" ? "Harmonogram odsetek ►" : "Harmonogram odsetek ▼";
-    }
-
-    function showForm() {
-        elements.formSection.style.display = "block";
-        elements.resultSection.style.display = "none";
-    
-        elements.kwota.value = state.lastFormData.kwota;
-        elements.kwotaRange.value = state.lastFormData.kwota;
-        elements.okres.value = state.lastFormData.okres;
-        elements.oprocentowanie.value = state.lastFormData.oprocentowanie;
-        elements.ikeIkzeBtn.checked = state.lastFormData.ikeIkze;
-        state.isIkeIkzeMode = state.lastFormData.ikeIkze;
-        elements.typObligacji.value = state.lastFormData.typObligacji;
-        elements.inflacjaZmiennaBtn.checked = state.lastFormData.inflacjaZmienna || false;
-        elements.stopaZmiennaBtn.checked = state.lastFormData.stopaZmienna || false;
-    
-        updateDynamicRateField();
-        updateIloscObligacji();
-        updateLata();
-        updateOprocentowanieInfo();
-        updateOpisObligacji();
-        updateVariableInputs(); // Aktualizujemy pola zmiennych na podstawie danych z state
-    }
-
-    function updateVariableInputs() {
-        const typ = elements.typObligacji.value;
-        const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
-        const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
-        const variableInputs = document.getElementById("variableInputs");
-        const addVariableBtn = elements.addVariableBtn;
-        const wrapper = document.getElementById("variableInputsWrapper");
-        const config = obligacjeConfig[typ];
-        const maxCykl = ["ROR", "DOR"].includes(typ) ? config.okres : config.okres / 12;
-    
-        if (isInflacjaZmienna || isStopaZmienna) {
-            variableInputs.style.display = "block";
-            addVariableBtn.style.display = "block";
-    
-            const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-            const maxChanges = maxVariableChanges[typ] || 0;
-    
-            // Pobieramy wartość z górnego panelu
-            const defaultValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
-            const defaultPeriod = 2;
-    
-            if (data.length === 0 && data.length < maxChanges) {
-                data.push({ value: defaultValue, period: defaultPeriod });
-            }
-    
-            wrapper.innerHTML = "";
-            const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-    
-            changes.forEach((change, index) => {
-                const inputGroup = document.createElement("div");
-                inputGroup.className = "variable-input-group";
-    
-                const fieldsWrapper = document.createElement("div");
-                fieldsWrapper.className = "fields-wrapper";
-    
-                // Ustalamy minimalną wartość okresu na podstawie poprzedniego wiersza, ale dla pierwszego wiersza min to 2
-                const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
-    
-                const cyklGroup = document.createElement("div");
-                cyklGroup.className = "form-group";
-                cyklGroup.innerHTML = `
-                    <label class="form-label">Od</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
-                        <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
-                    </div>
-                    <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
-                `;
-    
-                const rateGroup = document.createElement("div");
-                rateGroup.className = "form-group";
-                rateGroup.innerHTML = `
-                    <label class="form-label">${isInflacjaZmienna ? "Inflacja" : "Stopa Ref. NBP"}</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-rate" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
-                        <span class="input-group-text">%</span>
-                    </div>
-                    <input type="range" class="form-range variable-rate-range" min="0" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
-                `;
-    
-                fieldsWrapper.appendChild(cyklGroup);
-                fieldsWrapper.appendChild(rateGroup);
-                inputGroup.appendChild(fieldsWrapper);
-    
-                if (index === 0 && changes.length === 1) {
-                    const removeFirstBtnWrapper = document.createElement("div");
-                    removeFirstBtnWrapper.className = "remove-first-btn-wrapper";
-                    const removeFirstBtn = document.createElement("button");
-                    removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
-                    removeFirstBtn.textContent = "Usuń";
-                    removeFirstBtn.onclick = () => {
-                        if (isInflacjaZmienna) {
-                            state.variableInflation = [];
-                            elements.inflacjaZmiennaBtn.checked = false;
-                            state.lastFormData.inflacjaZmienna = false;
-                        } else {
-                            state.variableReferenceRates = [];
-                            elements.stopaZmiennaBtn.checked = false;
-                            state.lastFormData.stopaZmienna = false;
-                        }
-                        variableInputs.style.display = "none";
-                        addVariableBtn.style.display = "none";
-                        wrapper.innerHTML = "";
-                    };
-                    removeFirstBtnWrapper.appendChild(removeFirstBtn);
-                    inputGroup.appendChild(removeFirstBtnWrapper);
-                }
-    
-                if (index === changes.length - 1 && changes.length > 1) {
-                    const removeBtnWrapper = document.createElement("div");
-                    removeBtnWrapper.className = "remove-btn-wrapper";
-                    const removeBtn = document.createElement("button");
-                    removeBtn.className = "btn btn-danger btn-sm";
-                    removeBtn.textContent = "Usuń";
-                    removeBtn.onclick = () => removeVariableChange(index);
-                    removeBtnWrapper.appendChild(removeBtn);
-                    inputGroup.appendChild(removeBtnWrapper);
-                }
-    
-                wrapper.appendChild(inputGroup);
-    
-                const cyklInput = inputGroup.querySelector(".variable-cykl");
-                const cyklRange = inputGroup.querySelector(".variable-cykl-range");
-                const rateInput = inputGroup.querySelector(".variable-rate");
-                const rateRange = inputGroup.querySelector(".variable-rate-range");
-    
-                cyklInput.addEventListener("input", () => {
-                    let value = parseInt(cyklInput.value);
-                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
-                    if (value < minPeriod) {
-                        value = minPeriod;
-                        cyklInput.value = value;
-                    }
-                    if (value > maxCykl) {
-                        value = maxCykl;
-                        cyklInput.value = value;
-                    }
-                    cyklRange.value = value;
-                    changes[index].period = value;
-                    updateVariableData();
-                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
-                    updateVariableInputs();
-                });
-    
-                cyklRange.addEventListener("input", () => {
-                    let value = parseFloat(cyklRange.value);
-                    // Podczas przesuwania pokazujemy tylko wartości całkowite
-                    cyklInput.value = Math.round(value);
-                });
-    
-                cyklRange.addEventListener("change", () => {
-                    let value = parseFloat(cyklRange.value);
-                    // Po zakończeniu przesuwania zaokrąglamy do najbliższej liczby całkowitej
-                    value = Math.round(value);
-                    // Sprawdzamy, czy wartość jest większa niż minimalny okres
-                    if (value < minPeriod) {
-                        value = minPeriod;
-                    }
-                    if (value > maxCykl) {
-                        value = maxCykl;
-                    }
-                    cyklRange.value = value;
-                    cyklInput.value = value;
-                    changes[index].period = value;
-                    updateVariableData();
-                    // Aktualizujemy min dla kolejnych wierszy i usuwamy konflikty
-                    updateVariableInputs();
-                });
-    
-                rateInput.addEventListener("input", () => {
-                    let value = parseFloat(rateInput.value);
-                    if (value < 0 || value > (isInflacjaZmienna ? 50 : 20)) rateInput.value = Math.max(0, Math.min(isInflacjaZmienna ? 50 : 20, value));
-                    rateRange.value = rateInput.value;
-                    changes[index].value = parseFloat(rateInput.value);
-                    updateVariableData();
-                });
-    
-                rateRange.addEventListener("input", () => {
-                    rateInput.value = rateRange.value;
-                    changes[index].value = parseFloat(rateRange.value);
-                    updateVariableData();
-                });
-            });
-    
-            // Ustawiamy tekst przycisku
-            addVariableBtn.textContent = "Dodaj kolejną zmianę";
-    
-            // Sprawdzamy, czy ostatni okres osiągnął maxCykl
-            const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-            const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-    
-            // Ukrywamy przycisk, jeśli liczba zmian osiągnęła maxChanges lub ostatni okres osiągnął maxCykl
-            addVariableBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
-        } else {
-            variableInputs.style.display = "none";
-            addVariableBtn.style.display = "none";
-            wrapper.innerHTML = "";
-        }
-    }
-
-    function addVariableChange() {
-        const typ = elements.typObligacji.value;
-        const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
-        const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
-        const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-        const maxCykl = ["ROR", "DOR"].includes(typ) ? obligacjeConfig[typ].okres : obligacjeConfig[typ].okres / 12;
-        const maxChanges = maxVariableChanges[typ] || 0;
-    
-        if (!isInflacjaZmienna && !isStopaZmienna) return;
-    
-        // Sprawdzamy, czy ostatni okres osiągnął maxCykl
-        const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-        const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-    
-        if (changes.length >= maxChanges || isMaxPeriodReached) {
-            if (changes.length >= maxChanges) {
-                alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
-            }
-            elements.addVariableBtn.style.display = "none"; // Ukryj przycisk
-            return;
-        }
-    
-        const lastCykl = lastChange ? lastChange.period : 1;
-        const newCykl = Math.min(lastCykl + 1, maxCykl);
-        const newValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
-    
-        changes.push({ period: newCykl, value: newValue });
-        updateVariableInputs();
-    }
-
-    function removeVariableChange(index) {
-        const typ = elements.typObligacji.value;
-        const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
-        const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-        if (changes.length > 1) {
-            changes.splice(index, 1);
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- Inicjalizacja zmiennych ---
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("dataStart").value = today;
+        let lokataChart;
+        let variableOprocentowanieChanges = [];
+        let zoomLevel = 1;
+
+        // --- Event Listeners ---
+        document.getElementById("kwotaRange").addEventListener("input", function() { document.getElementById("kwota").value = this.value; });
+        document.getElementById("kwota").addEventListener("input", function() { document.getElementById("kwotaRange").value = this.value; });
+        document.getElementById("okresRange").addEventListener("input", function() { document.getElementById("okres").value = this.value; updateOkres(); });
+        document.getElementById("okres").addEventListener("input", function() { document.getElementById("okresRange").value = this.value; updateOkres(); });
+        document.getElementById("okresTyp").addEventListener("change", updateOkres);
+        document.getElementById("oprocentowanieRange").addEventListener("input", function() { document.getElementById("oprocentowanie").value = this.value; });
+        document.getElementById("oprocentowanie").addEventListener("input", function() { document.getElementById("oprocentowanieRange").value = this.value; });
+        document.getElementById("podatekRange").addEventListener("input", function() { document.getElementById("podatek").value = this.value; });
+        document.getElementById("podatek").addEventListener("input", function() { document.getElementById("podatekRange").value = this.value; });
+        document.getElementById("wlaczZaawansowane").addEventListener("change", function() { document.getElementById("advancedOptions").style.display = this.checked ? "block" : "none"; });
+        document.getElementById("dataStart").addEventListener("change", updateDataKoniec);
+        document.getElementById("obliczBtn").addEventListener("click", obliczLokate);
+        document.getElementById("zmienneOprocentowanieBtn").addEventListener("change", updateVariableInputs);
+        document.getElementById("addVariableBtn").addEventListener("click", addVariableChange);
+        document.getElementById("toggleModeBtn").addEventListener("click", toggleDarkMode);
+        document.getElementById("zoomInBtn").addEventListener("click", () => adjustZoom(0.1));
+        document.getElementById("zoomOutBtn").addEventListener("click", () => adjustZoom(-0.1));
+        document.getElementById("generatePdfBtn").addEventListener("click", generatePDF);
+
+        // --- Funkcje aktualizacji UI ---
+        function updateOkres() {
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typ = document.getElementById("okresTyp").value;
+            let dni = typ === "dni" ? okres : typ === "miesiace" ? okres * 30 : okres * 365;
+            document.getElementById("okresWartosc").textContent = `Okres w dniach: ${dni}`;
+            updateDataKoniec();
             updateVariableInputs();
         }
-    }
 
-    updateDynamicRateField();
-    updateIloscObligacji();
-</script>
-<script>
-    if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
-        pdfMake.fonts = {
-            Roboto: {
-                normal: 'Roboto-Regular.ttf',
-                bold: 'Roboto-Medium.ttf',
-                italics: 'Roboto-Italic.ttf',
-                bolditalics: 'Roboto-MediumItalic.ttf'
-            }
-        };
-    }
+        function updateDataKoniec() {
+            const dataStart = new Date(document.getElementById("dataStart").value);
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typ = document.getElementById("okresTyp").value;
+            const dataKoniec = new Date(dataStart);
+            if (typ === "dni") dataKoniec.setDate(dataStart.getDate() + okres);
+            else if (typ === "miesiace") dataKoniec.setMonth(dataStart.getMonth() + okres);
+            else dataKoniec.setFullYear(dataStart.getFullYear() + okres);
+            dataKoniec.setDate(dataKoniec.getDate() + 1);
+            document.getElementById("dataKoniec").textContent = `Data zakończenia: ${dataKoniec.toLocaleDateString('pl-PL')}`;
+            return dataKoniec;
+        }
 
-    // L O G I K A   O B L I C Z E Ń
-    
-    function obliczObligacje() {
-        console.log("Starting obliczObligacje");
-        if (state.isCalculating) {
-            console.log("Calculation already in progress");
-            return;
-        }
-        state.isCalculating = true;
-    
-        if (typeof Chart === "undefined") {
-            console.error("Biblioteka Chart.js nie została załadowana.");
-            alert("Błąd: Nie można załadować wykresów. Spróbuj ponownie później.");
-            state.isCalculating = false;
-            return;
-        }
-    
-        let kwota = parseFloat(elements.kwota.value) || 0;
-        const maxKwota = 10000000; // Maksymalna wartość 10 000 000 zł
-        if (kwota > maxKwota) {
-            kwota = maxKwota;
-            elements.kwota.value = maxKwota;
-            elements.kwotaRange.value = maxKwota;
-            alert("Maksymalna wartość to 10 000 000 zł. Wartość została dostosowana.");
-        }
-        const typ = elements.typObligacji.value;
-        const config = obligacjeConfig[typ];
-        const miesiace = config.okres;
-        const dynamicRate = parseFloat(elements.dynamicRate.value) || state.lastFormData.dynamicRates[typ];
-        const inflacja = (["COI", "EDO", "ROS", "ROD"].includes(typ) ? dynamicRate : 4.90) / 100;
-        const stopaRefNBP = (["ROR", "DOR"].includes(typ) ? dynamicRate : 5.75) / 100;
-        const isInflacja = ["COI", "EDO", "ROS", "ROD"].includes(typ);
-        const inflacjaZmienna = elements.inflacjaZmiennaBtn.checked && isInflacja;
-        const stopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
-        const podatekBelki = state.isIkeIkzeMode ? 0 : 0.19;
-    
-        state.lastFormData = {
-            kwota: kwota,
-            typObligacji: typ,
-            dynamicRates: { ...state.lastFormData.dynamicRates, [typ]: dynamicRate },
-            okres: miesiace,
-            oprocentowanie: config.oprocentowanie,
-            ikeIkze: state.isIkeIkzeMode,
-            inflacjaZmienna: inflacjaZmienna,
-            stopaZmienna: stopaZmienna,
-            variableInflacjaChanges: [...state.variableInflation], // Zapisujemy aktualne dane inflacji
-            variableStopaChanges: [...state.variableReferenceRates] // Zapisujemy aktualne dane stóp referencyjnych
-        };
-    
-        if (kwota < 100 || miesiace <= 0 || (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(typ) && (!dynamicRate || dynamicRate < 0))) {
-            alert("Proszę wypełnić wszystkie wymagane pola poprawnymi wartościami.");
-            state.isCalculating = false;
-            return;
-        }
-    
-        elements.resultHeader.textContent = `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
-        const pierwszaKolumnaNaglowek = document.getElementById("pierwszaKolumnaNaglowek");
-        const kolumnaStopaInflacja = document.getElementById("kolumnaStopaInflacja");
-        const zyskKolumnaNaglowek = document.getElementById("zyskKolumnaNaglowek");
-    
-        if (pierwszaKolumnaNaglowek) pierwszaKolumnaNaglowek.textContent = ["OTS", "ROR", "DOR"].includes(typ) ? "Miesiąc" : "Rok";
-        if (kolumnaStopaInflacja) {
-            kolumnaStopaInflacja.textContent = ["ROR", "DOR"].includes(typ) ? "Stopa Ref. NBP" : "Inflacja";
-            kolumnaStopaInflacja.style.display = ["OTS", "TOS"].includes(typ) ? "none" : "table-cell";
-        }
-        if (zyskKolumnaNaglowek) zyskKolumnaNaglowek.textContent = state.isIkeIkzeMode ? "Zysk" : "Zysk netto";
-    
-        let kapital = kwota;
-        let odsetkiCalkowite = 0;
-        let zyskNettoCalkowity = 0;
-        state.harmonogramData = [];
-        let skumulowaneOdsetki = 0;
-    
-        let liczbaCykli = ["OTS", "ROR", "DOR"].includes(typ) ? miesiace : miesiace / 12;
-        let changes = inflacjaZmienna ? state.variableInflation : (stopaZmienna ? state.variableReferenceRates : []);
-        let poprzedniaStopaLubInflacja = null;
-        for (let i = 1; i <= liczbaCykli; i++) {
-            let okresWiersz = i;
-            let changeApplied = false;
-            let stopaRefLubInflacja = "-";
-        
-            let oprocentowanieRoczne;
-            if (inflacjaZmienna || stopaZmienna) {
-                // Pobieramy wartość z górnego panelu jako domyślną
-                let dynamicValue = (state.lastFormData.dynamicRates[typ] || (inflacjaZmienna ? 4.90 : 5.75)) / 100;
-                for (const change of changes) {
-                    if (i >= change.period) {
-                        dynamicValue = change.value / 100;
+        function updateVariableInputs() {
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typOkresu = document.getElementById("okresTyp").value;
+            const isZmienneOprocentowanie = document.getElementById("zmienneOprocentowanieBtn").checked;
+            const variableInputs = document.getElementById("variableInputs");
+            const addVariableBtn = document.getElementById("addVariableBtn");
+            const wrapper = document.getElementById("variableInputsWrapper");
+
+            let maxCykl = typOkresu === "dni" ? okres : typOkresu === "miesiace" ? okres : okres;
+            let jednostka = typOkresu === "dni" ? "dnia" : typOkresu === "miesiace" ? "miesiąca" : "roku";
+            const maxChanges = maxCykl > 1 ? maxCykl - 1 : 0;
+
+            if (isZmienneOprocentowanie && maxCykl > 1) {
+                variableInputs.style.display = "block";
+                addVariableBtn.style.display = "block";
+                if (variableOprocentowanieChanges.length === 0) addVariableChange();
+                wrapper.innerHTML = "";
+                variableOprocentowanieChanges.forEach((change, index) => {
+                    const inputGroup = document.createElement("div");
+                    inputGroup.className = "variable-input-group";
+                    const fieldsWrapper = document.createElement("div");
+                    fieldsWrapper.className = "fields-wrapper";
+                    fieldsWrapper.innerHTML = `
+                        <div class="form-group">
+                            <label class="form-label">Od</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${change.cykl}">
+                                <span class="input-group-text">${jednostka}</span>
+                            </div>
+                            <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="1" value="${change.cykl}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Oprocentowanie</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="${change.wartosc}">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.1" value="${change.wartosc}">
+                        </div>`;
+                    inputGroup.appendChild(fieldsWrapper);
+                    if (index === variableOprocentowanieChanges.length - 1 && variableOprocentowanieChanges.length > 1) {
+                        inputGroup.innerHTML += `<div class="remove-btn-wrapper"><button class="btn btn-danger btn-sm" onclick="removeVariableChange()">Usuń</button></div>`;
                     }
-                }
-                if (poprzedniaStopaLubInflacja !== null && dynamicValue !== poprzedniaStopaLubInflacja) {
-                    changeApplied = true;
-                }
-                if (i === 1 && changes.length > 0 && changes[0].period === 1) {
-                    changeApplied = true;
-                }
-                oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (dynamicValue + config.marza / 100);
-                stopaRefLubInflacja = (dynamicValue * 100).toFixed(2) + "%";
-                poprzedniaStopaLubInflacja = dynamicValue;
-            } else if (isInflacja) {
-                oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (inflacja + config.marza / 100);
-                stopaRefLubInflacja = (inflacja * 100).toFixed(2) + "%";
-            } else if (["ROR", "DOR"].includes(typ)) {
-                oprocentowanieRoczne = i === 1 ? config.oprocentowanie / 100 : (stopaRefNBP + config.marza / 100);
-                stopaRefLubInflacja = (stopaRefNBP * 100).toFixed(2) + "%";
-            } else {
-                oprocentowanieRoczne = config.oprocentowanie / 100;
-            }
-        
-            let oprocentowanieMiesieczne = oprocentowanieRoczne / 12;
-            let miesiecyWCyklu = ["OTS", "ROR", "DOR"].includes(typ) ? 1 : 12;
-            let odsetkiCykl = kapital * oprocentowanieMiesieczne * miesiecyWCyklu;
-        
-            let podatekCykl = odsetkiCykl * podatekBelki;
-            let odsetkiNettoCykl = state.isIkeIkzeMode ? odsetkiCykl : (odsetkiCykl - podatekCykl);
-        
-            odsetkiCalkowite += odsetkiCykl;
-            skumulowaneOdsetki += odsetkiCykl;
-            zyskNettoCalkowity += odsetkiNettoCykl;
-        
-            let wartoscInwestycji = kwota;
-            if (config.kapitalizacja) {
-                kapital += odsetkiCykl;
-                wartoscInwestycji = kapital;
-            }
-        
-            let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) : 
-                (config.kapitalizacja ? (wartoscInwestycji - skumulowaneOdsetki * 0.19) : kwota + zyskNettoCalkowity);
-        
-            let oplataZaWykup = i < liczbaCykli ? kwota * config.oplataWykup : 0;
-        
-            state.harmonogramData.push({
-                okres: okresWiersz,
-                wartoscInwestycji: wartoscInwestycji.toFixed(2),
-                oprocentowanieNaCykl: (oprocentowanieRoczne * 100).toFixed(2) + "%",
-                odsetkiBrutto: odsetkiCykl.toFixed(2),
-                skumulowaneOdsetki: skumulowaneOdsetki.toFixed(2),
-                podatek: podatekCykl.toFixed(2),
-                zyskNetto: odsetkiNettoCykl.toFixed(2),
-                oplataZaWykup: oplataZaWykup.toFixed(2),
-                stopaRefLubInflacja: stopaRefLubInflacja,
-                kwotaPoZakonczeniuCyklu: kwotaPoCyklu.toFixed(2),
-                changeApplied: changeApplied
-            });
-        }
-    
-        const valueKapital = document.getElementById("valueKapital");
-        if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-        const legendKapital = document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box');
-        if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-    
-        const valueOdsetki = document.getElementById("valueOdsetki");
-        if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const legendOdsetki = document.querySelector('.result-wrapper-chart .legend-item[data-index="1"] .color-box');
-        if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
-    
-        const podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
-        const valuePodatek = document.getElementById("valuePodatek");
-        if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
-        if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
+                    wrapper.appendChild(inputGroup);
 
-        document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
-        document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
-        document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
-    
-        const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-        const okresInwestycjiSpan = document.querySelector('.summary-footer .highlight.yellow');
-        if (okresInwestycjiSpan) okresInwestycjiSpan.textContent = `Okres inwestycji: ${miesiace} ${jednostkaOkresu}`;
-        const highlightYellow = document.querySelector('.result-wrapper-chart .highlight.yellow');
-        if (highlightYellow) highlightYellow.setAttribute('data-hover', `${miesiace} ${jednostkaOkresu}`);
-    
-        const zyskNettoSpan = document.querySelector('.summary-footer .highlight.green');
-        if (zyskNettoSpan) zyskNettoSpan.textContent = `Zysk netto: ${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-        const highlightGreen = document.querySelector('.result-wrapper-chart .highlight.green');
-        if (highlightGreen) highlightGreen.setAttribute('data-hover', `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
-    
-        if (state.chart) state.chart.destroy();
-        if (state.chartLine) state.chartLine.destroy();
-    
-        const ctx = elements.obligacjeChart.getContext("2d");
-        if (!ctx) {
-            console.error("Nie można uzyskać kontekstu 2D dla wykresu kołowego.");
-            state.isCalculating = false;
-            return;
-        }
-        state.chart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Kapitał', 'Odsetki', 'Podatek'],
-                datasets: [{
-                    data: [kwota, odsetkiCalkowite, podatekCalkowity],
-                    backgroundColor: ['#28a745', '#007bff', '#dc3545'],
-                    borderWidth: 1,
-                    hoverOffset: 20
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                cutout: '50%',
-                layout: { padding: 20 }
-            }
-        });
-    
-        document.querySelectorAll('.result-wrapper-chart .legend-item').forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                state.chart.setActiveElements([{ datasetIndex: 0, index: index }]);
-                state.chart.update();
-                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][index]}`);
-                if (currentLegend) currentLegend.style.opacity = 0;
-                const valueElements = document.querySelectorAll('#valueKapital, #valueOdsetki, #valuePodatek');
-                valueElements.forEach((value, idx) => {
-                    if (idx === index) {
-                        if (idx === 0) value.textContent = `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                        if (idx === 1) value.textContent = `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-                        if (idx === 2) value.textContent = `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`;
-                    }
+                    const cyklInput = inputGroup.querySelector(".variable-cykl");
+                    const cyklRange = inputGroup.querySelector(".variable-cykl-range");
+                    const rateInput = inputGroup.querySelector(".variable-rate");
+                    const rateRange = inputGroup.querySelector(".variable-rate-range");
+
+                    cyklInput.addEventListener("input", () => { cyklRange.value = cyklInput.value; variableOprocentowanieChanges[index].cykl = parseInt(cyklInput.value); });
+                    cyklRange.addEventListener("input", () => { cyklInput.value = cyklRange.value; variableOprocentowanieChanges[index].cykl = parseInt(cyklRange.value); });
+                    rateInput.addEventListener("input", () => { rateRange.value = rateInput.value; variableOprocentowanieChanges[index].wartosc = parseFloat(rateInput.value); });
+                    rateRange.addEventListener("input", () => { rateInput.value = rateRange.value; variableOprocentowanieChanges[index].wartosc = parseFloat(rateRange.value); });
                 });
-            });
-    
-            item.addEventListener('mouseleave', function() {
-                const index = parseInt(this.getAttribute('data-index'));
-                state.chart.setActiveElements([]);
-                state.chart.update();
-                const currentLegend = document.querySelector(`#legend${['Kapital', 'Odsetki', 'Podatek'][index]}`);
-                if (currentLegend) currentLegend.style.opacity = 1;
-                if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-                if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-                if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
-            });
-        });
-    
-        let tabela = document.getElementById("harmonogramTabela");
-        if (tabela) {
-            tabela.innerHTML = "";
-            state.harmonogramData.forEach(wiersz => {
-                let rowHTML = `
-                    <tr>
-                        <td>${wiersz.okres}</td>
-                        <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
-                        <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}</td>
-                        <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**</td>
-                `;
-                if (!["OTS", "TOS"].includes(typ)) {
-                    rowHTML += `<td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.stopaRefLubInflacja}</td>`;
+                addVariableBtn.style.display = variableOprocentowanieChanges.length < maxChanges ? "block" : "none";
+            } else {
+                variableInputs.style.display = "none";
+                addVariableBtn.style.display = "none";
+                wrapper.innerHTML = "";
+            }
+        }
+
+        // --- Funkcje logiki ---
+        function addVariableChange() {
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typOkresu = document.getElementById("okresTyp").value;
+            let maxCykl = typOkresu === "dni" ? okres : typOkresu === "miesiace" ? okres : okres;
+            const maxChanges = maxCykl > 1 ? maxCykl - 1 : 0;
+            if (variableOprocentowanieChanges.length >= maxChanges) {
+                alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
+                return;
+            }
+            const lastCykl = variableOprocentowanieChanges.length > 0 ? variableOprocentowanieChanges[variableOprocentowanieChanges.length - 1].cykl : 1;
+            variableOprocentowanieChanges.push({ cykl: Math.min(lastCykl + 1, maxCykl), wartosc: parseFloat(document.getElementById("oprocentowanie").value) || 4 });
+            updateVariableInputs();
+        }
+
+        function removeVariableChange() {
+            if (variableOprocentowanieChanges.length > 1) {
+                variableOprocentowanieChanges.pop();
+                updateVariableInputs();
+            }
+        }
+
+        function obliczLokate() {
+            const kwota = parseFloat(document.getElementById("kwota").value) || 0;
+            const okres = parseInt(document.getElementById("okres").value) || 0;
+            const typOkresu = document.getElementById("okresTyp").value;
+            const podatekProcent = parseFloat(document.getElementById("podatek").value) / 100 || 0.19;
+            const kapitalizacja = document.getElementById("kapitalizacja").value;
+            const isZmienneOprocentowanie = document.getElementById("zmienneOprocentowanieBtn").checked;
+
+            if (kwota < 1000 || okres < 1) {
+                alert("Proszę wypełnić wszystkie pola poprawnymi wartościami.");
+                return;
+            }
+
+            let okresWDniach = typOkresu === "dni" ? okres : typOkresu === "miesiace" ? okres * 30 : okres * 365;
+            let okresWRokach = okresWDniach / 365;
+            variableOprocentowanieChanges.sort((a, b) => a.cykl - b.cykl);
+
+            let odsetkiBrutto = 0;
+            const kapitalizacjeWDniach = { "koniec": 1 / okresWRokach, "roczna": 1, "kwartalna": 4, "miesieczna": 12, "dzienna": 365 };
+            const czestoscKapitalizacji = kapitalizacjeWDniach[kapitalizacja] || 1 / okresWRokach;
+            const liczbaOkresowKapitalizacji = Math.floor(czestoscKapitalizacji * okresWRokach);
+            let kapital = kwota;
+            let skumulowaneOdsetkiBrutto = 0;
+
+            if (kapitalizacja === "koniec") {
+                if (isZmienneOprocentowanie) {
+                    let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
+                    for (let dzien = 1; dzien <= okresWDniach; dzien++) {
+                        let cykl = typOkresu === "dni" ? dzien : typOkresu === "miesiace" ? Math.ceil(dzien / 30) : Math.ceil(dzien / 365);
+                        for (const change of variableOprocentowanieChanges) {
+                            if (cykl >= change.cykl) currentOprocentowanie = change.wartosc / 100;
+                        }
+                        skumulowaneOdsetkiBrutto += kapital * (currentOprocentowanie / 365);
+                    }
+                    odsetkiBrutto = skumulowaneOdsetkiBrutto;
+                } else {
+                    odsetkiBrutto = kwota * ((parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100) * okresWRokach;
                 }
-                rowHTML += `
-                        <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                    </tr>
-                `;
-                tabela.innerHTML += rowHTML;
-            });
+            } else {
+                // Uproszczona logika dla innych kapitalizacji (można rozwinąć)
+                const oprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
+                odsetkiBrutto = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, liczbaOkresowKapitalizacji) - 1);
+            }
+
+            const podatek = odsetkiBrutto * podatekProcent;
+            const odsetkiNetto = odsetkiBrutto - podatek;
+            const calkowitaKwota = kwota + odsetkiNetto;
+            const dataKoniec = updateDataKoniec();
+
+            document.getElementById("resultKwota").textContent = kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
+            document.getElementById("resultOdsetkiBrutto").textContent = odsetkiBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
+            document.getElementById("resultPodatek").textContent = podatek.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
+            document.getElementById("resultOdsetkiNetto").textContent = odsetkiNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
+            document.getElementById("resultCalkowita").textContent = calkowitaKwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
+            document.getElementById("resultDataKoniec").textContent = dataKoniec.toLocaleDateString('pl-PL');
+
+            renderChart(kwota, okresWDniach, odsetkiNetto, kapitalizacja, isZmienneOprocentowanie);
+            document.getElementById("formSection").style.display = "none";
+            document.getElementById("resultSection").style.display = "block";
         }
-    
-        const harmonogramOpis = document.getElementById("harmonogramOpis");
-        if (harmonogramOpis) {
-            const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-            const starText = hasStar ? '<span class="star">★</span><strong> Zmiana oprocentowania.</strong><br>' : "";
-            const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
-            const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
-            harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
-            harmonogramOpis.style.display = "block";
-        }
-    
-        const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
-        const minKwota = kwota;
-        const range = maxKwotaPoCyklu - minKwota;
-        const padding = range * 0.1;
-        const yMin = minKwota - padding;
-        const yMax = maxKwotaPoCyklu + padding;
-        const stepSize = range * 0.2;
-    
-        const ctxLine = elements.obligacjeChartLine.getContext("2d");
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        
-        // Dynamiczne ustawienie rozmiaru czcionek w zależności od szerokości ekranu
-        const screenWidth = window.innerWidth;
-        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14; // Mobile: 10px, Tablet: 12px, Desktop: 14px
-        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;  // Mobile: 8px, Tablet: 10px, Desktop: 12px
-        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12; // Mobile: 8px, Tablet: 10px, Desktop: 12px
-        
-        state.chartLine = new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: state.harmonogramData.map(wiersz => ["OTS", "ROR", "DOR"].includes(typ) ? `Miesiąc ${wiersz.okres}` : `Rok ${wiersz.okres}`),
-                datasets: [
-                    {
-                        label: 'Zainwestowana kwota',
-                        data: state.harmonogramData.map(() => kwota),
-                        borderColor: '#8B7D47',
-                        backgroundColor: 'rgba(139, 125, 71, 0.1)',
-                        fill: false,
-                        tension: 0,
-                        borderWidth: 2
-                    },
-                    {
-                        label: 'Kwota po zakończeniu cyklu',
-                        data: state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)),
-                        borderColor: '#D4C791',
-                        backgroundColor: 'rgba(212, 199, 145, 0.2)',
+
+        // --- Funkcje dodatkowe ---
+        function renderChart(kwota, okresWDniach, odsetkiNetto, kapitalizacja, isZmienneOprocentowanie) {
+            const dataStart = new Date(document.getElementById("dataStart").value);
+            const labels = [];
+            const wartosciLokaty = [];
+            const krokWDniach = Math.max(1, Math.floor(okresWDniach / 10));
+            let kapital = kwota;
+
+            for (let i = 0; i <= okresWDniach; i += krokWDniach) {
+                const dniOdStartu = Math.min(i, okresWDniach);
+                const data = new Date(dataStart);
+                data.setDate(data.getDate() + Math.round(dniOdStartu));
+                let wartosc = kapitalizacja === "koniec" && dniOdStartu === okresWDniach ? kwota + odsetkiNetto : kwota;
+                labels.push(data.toLocaleDateString('pl-PL'));
+                wartosciLokaty.push(wartosc);
+            }
+
+            if (lokataChart) lokataChart.destroy();
+            const ctx = document.getElementById("lokataChartLine").getContext("2d");
+            lokataChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Wartość lokaty netto',
+                        data: wartosciLokaty,
+                        borderColor: '#C2B280',
+                        backgroundColor: 'rgba(194, 178, 128, 0.2)',
                         fill: true,
                         tension: 0.1,
                         borderWidth: 2
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { 
-                        title: { 
-                            display: true, 
-                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
-                            font: { size: titleFontSize }, // Dynamiczny rozmiar
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }, 
-                        ticks: { 
-                            font: { size: tickFontSize }, // Dynamiczny rozmiar
-                            color: isDarkMode ? '#e0e0e0' : '#333333',
-                            maxRotation: 45, // Obrót etykiet dla małych ekranów
-                            minRotation: 0,
-                            autoSkip: true, // Automatyczne pomijanie etykiet
-                            maxTicksLimit: 10 // Ograniczenie liczby etykiet
-                        },
-                        grid: {
-                            color: isDarkMode ? '#333333' : '#e0e0e0',
-                            borderColor: isDarkMode ? '#333333' : '#333333'
-                        }
-                    },
-                    y: { 
-                        title: { 
-                            display: true, 
-                            text: 'Wartość (PLN)', 
-                            font: { size: titleFontSize }, // Dynamiczny rozmiar
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }, 
-                        min: yMin, 
-                        max: yMax, 
-                        ticks: { 
-                            stepSize: stepSize, 
-                            font: { size: tickFontSize }, // Dynamiczny rozmiar
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        },
-                        grid: {
-                            color: isDarkMode ? '#333333' : '#e0e0e0',
-                            borderColor: isDarkMode ? '#333333' : '#333333'
-                        }
-                    }
+                    }]
                 },
-                plugins: { 
-                    legend: { 
-                        labels: { 
-                            font: { size: legendFontSize }, // Dynamiczny rozmiar
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        } 
-                    } 
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { title: { display: true, text: 'Data' } }, y: { title: { display: true, text: 'Wartość (PLN)' }, beginAtZero: false } }
                 }
-            }
-        });
-    
-        elements.formSection.style.display = "none";
-        elements.resultSection.style.display = "block";
-        elements.generatePdfBtn.disabled = false;
-        console.log("GeneratePdfBtn enabled:", !elements.generatePdfBtn.disabled);
-        state.isCalculating = false;
-        console.log("ObliczObligacje completed");
-    }
-
-    const backgroundPlugin = {
-        id: 'customBackground',
-        beforeDraw: (chart, args, options) => {
-            const ctx = chart.ctx;
-            ctx.save();
-            ctx.fillStyle = options.color || '#ffffff'; // Domyślnie białe tło
-            ctx.fillRect(0, 0, chart.width, chart.height);
-            ctx.restore();
-        }
-    };
-
-    // G E N E R O W A N I E   P L I K U   P D F
-    
-    function generatePdf() {
-        console.log("Starting generatePdf");
-        if (typeof pdfMake === "undefined") {
-            console.error("Biblioteka PDFMake nie została załadowana.");
-            alert("Błąd: Biblioteka PDFMake nie jest załadowana.");
-            return;
-        }
-    
-        if (!state.harmonogramData.length) {
-            alert("Najpierw oblicz wyniki inwestycji, klikając 'Oblicz'.");
-            return;
-        }
-    
-        const valueKapital = document.getElementById("valueKapital");
-        const valueOdsetki = document.getElementById("valueOdsetki");
-        const valuePodatek = document.getElementById("valuePodatek");
-        const zyskNetto = document.getElementById("zyskNetto");
-    
-        const typ = state.lastFormData.typObligacji;
-        if (!typ) {
-            console.error("Brak typu obligacji w state.lastFormData.typObligacji");
-            alert("Błąd: Brak typu obligacji.");
-            return;
-        }
-    
-        const nazwaObligacji = nazwyObligacji[typ];
-        const headerText = `Wynik inwestycji dla obligacji ${nazwaObligacji}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
-        const opis = opisyObligacji[typ] || "";
-        const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-        const today = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    
-        const parseNumber = (text) => {
-            const cleaned = text.replace(/[^\d,.]/g, "").replace(",", ".");
-            const number = parseFloat(cleaned);
-            return isNaN(number) ? 0 : number;
-        };
-    
-        const summary = [
-            `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Odsetki: ${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`,
-            `Okres inwestycji: ${state.lastFormData.okres} ${jednostkaOkresu}`,
-            `Zysk netto: ${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
-        ];
-    
-        const headers = ["OTS", "ROR", "DOR"].includes(typ)
-            ? ["Miesiąc", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Stopa Ref. NBP", "Suma netto"]
-            : ["Rok", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Inflacja", "Suma netto"];
-        if (["OTS", "TOS"].includes(typ)) headers.splice(8, 1);
-    
-        const safeParseFloat = (value) => isNaN(parseFloat(value)) ? 0 : parseFloat(value);
-    
-        const tableData = state.harmonogramData.map(wiersz => {
-            const row = [
-                (wiersz.okres || 0).toString(),
-                `${safeParseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl || '0%'}`,
-                `${safeParseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                state.isIkeIkzeMode ? "0,00 zł***" : `${safeParseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
-            ];
-            if (!["OTS", "TOS"].includes(typ)) {
-                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja || '0%'}`);
-            }
-            row.push(`${safeParseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-            return row;
-        });
-    
-        const calculateColumnWidths = () => {
-            const allRows = [headers, ...tableData];
-            const columnWidths = headers.map((_, colIndex) => {
-                const maxLength = Math.max(
-                    ...allRows.map(row => row[colIndex] ? row[colIndex].length : 0)
-                );
-                const baseWidth = maxLength * 4;
-                return Math.min(Math.max(baseWidth, 30), 100);
             });
-    
-            return columnWidths;
-        };
-    
-        const columnWidths = calculateColumnWidths();
-        const lineChartCanvas = document.getElementById("obligacjeChartLine");
-    
-        const originalColors = {
-            xGridColor: state.chartLine.options.scales.x.grid.color,
-            yGridColor: state.chartLine.options.scales.y.grid.color,
-            xGridBorderColor: state.chartLine.options.scales.x.grid.borderColor,
-            yGridBorderColor: state.chartLine.options.scales.y.grid.borderColor,
-            xTitleColor: state.chartLine.options.scales.x.title.color,
-            yTitleColor: state.chartLine.options.scales.y.title.color,
-            xTicksColor: state.chartLine.options.scales.x.ticks.color,
-            yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color
-        };
-    
-        state.chartLine.options.scales.x.grid.color = '#e0e0e0';
-        state.chartLine.options.scales.y.grid.color = '#e0e0e0';
-        state.chartLine.options.scales.x.grid.borderColor = '#333333';
-        state.chartLine.options.scales.y.grid.borderColor = '#333333';
-        state.chartLine.options.scales.x.title.color = '#333333';
-        state.chartLine.options.scales.y.title.color = '#333333';
-        state.chartLine.options.scales.x.ticks.color = '#333333';
-        state.chartLine.options.scales.y.ticks.color = '#333333';
-        state.chartLine.options.plugins.legend.labels.color = '#333333';
-        state.chartLine.update();
-    
-        requestAnimationFrame(() => {
-            const lineChartImage = lineChartCanvas.toDataURL("image/png");
-    
-            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
-            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
-            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
-            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
-            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
-            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
-            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
-            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
-            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.update();
-    
-            function getBase64ImageFromUrl(url) {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = this.width;
-                        canvas.height = this.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(this, 0, 0);
-                        const dataURL = canvas.toDataURL('image/png');
-                        resolve(dataURL);
-                    };
-                    img.onerror = reject;
-                    img.src = url;
-                });
-            }
-    
-            const generateDoc = (logoBase64) => {
-                const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-                const starText = hasStar ? "★ Zmiana oprocentowania.\n" : "";
-                const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym razie opłata będzie do wartości narosłych odsetek.";
-                const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
-                const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
-    
-                const docDefinition = {
-                    pageSize: 'A4',
-                    pageMargins: [14.17, 60, 14.17, 20],
-                    defaultStyle: { font: 'Roboto' },
-                    header: logoBase64 ? {
-                        columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 10, 0, 0] },
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] }
-                        ]
-                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
-                    content: [
-                        { text: headerText, style: 'header' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [0, 10, 0, 10] },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
-                        { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] },
-                        {
-                            table: {
-                                headerRows: 1,
-                                widths: columnWidths,
-                                body: [
-                                    headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
-                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
-                                ]
-                            },
-                            layout: {
-                                fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                                hLineWidth: function () { return 0.5; },
-                                vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 1; },
-                                paddingRight: function () { return 1; },
-                                paddingTop: function () { return 2; },
-                                paddingBottom: function () { return 2; }
-                            },
-                            margin: [0, 10, 0, 10]
-                        },
-                        { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
-                        { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
-                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
-                    ],
-                    styles: {
-                        header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
-                        subheader: { fontSize: 10, alignment: 'justify' },
-                        sectionHeader: { fontSize: 12, bold: true },
-                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
-                        tableCell: { fontSize: 8, alignment: 'center' },
-                        footerNote: { fontSize: 8, italics: true }
-                    }
-                };
-    
-                pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${nazwaObligacji.replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`);
+        }
+
+        function showForm() {
+            document.getElementById("formSection").style.display = "block";
+            document.getElementById("resultSection").style.display = "none";
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            const btn = document.getElementById("toggleModeBtn");
+            btn.textContent = document.body.classList.contains("dark-mode") ? "Tryb jasny" : "Tryb ciemny";
+        }
+
+        function adjustZoom(delta) {
+            zoomLevel = Math.max(0.5, Math.min(2, zoomLevel + delta));
+            document.querySelector(".container").style.transform = `scale(${zoomLevel})`;
+            document.querySelector(".container").style.transformOrigin = "top center";
+        }
+
+        function generatePDF() {
+            const docDefinition = {
+                content: [
+                    { text: 'Wyniki Lokaty', style: 'header' },
+                    { text: `Kwota lokaty: ${document.getElementById("resultKwota").textContent} zł` },
+                    { text: `Odsetki brutto: ${document.getElementById("resultOdsetkiBrutto").textContent} zł` },
+                    { text: `Podatek: ${document.getElementById("resultPodatek").textContent} zł` },
+                    { text: `Odsetki netto: ${document.getElementById("resultOdsetkiNetto").textContent} zł` },
+                    { text: `Całkowita kwota: ${document.getElementById("resultCalkowita").textContent} zł` },
+                    { text: `Data zakończenia: ${document.getElementById("resultDataKoniec").textContent}` }
+                ],
+                styles: { header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] } }
             };
-    
-            getBase64ImageFromUrl('cropped-logo-FB-1.png')
-                .then(logoBase64 => generateDoc(logoBase64))
-                .catch(error => {
-                    console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
-                    generateDoc(null);
-                });
-        });
-    }
+            pdfMake.createPdf(docDefinition).download("wyniki_lokaty.pdf");
+        }
 
-// F U N K C J A      Z O O M
-    
-    document.getElementById('siteLogo').addEventListener('click', () => {
-        window.open('https://finance-brothers.pl', '_blank');
-    });
-
-    let currentZoom = 1;
-    const zoomStep = 0.1;
-    const minZoom = 0.5;
-    const maxZoom = 2;
-    
-    function updateZoom() {
-        const container = document.querySelector('.container');
-        container.style.transform = `scale(${currentZoom})`;
-        container.style.transformOrigin = 'top center';
-    }
-    
-    document.getElementById("zoomInBtn").addEventListener("click", () => {
-        if (currentZoom < maxZoom) {
-            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
-            updateZoom();
-        }
-    });
-    
-    document.getElementById("zoomOutBtn").addEventListener("click", () => {
-        if (currentZoom > minZoom) {
-            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
-            updateZoom();
-        }
-    });
-
-    // D A R K     M O D E
-    
-    function toggleDarkMode() {
-        const body = document.body;
-        const isDarkMode = body.classList.contains('dark-mode');
-        
-        if (isDarkMode) {
-            body.classList.remove('dark-mode');
-            body.classList.add('light-mode');
-            localStorage.setItem('theme', 'light');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        } else {
-            body.classList.remove('light-mode');
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        }
-    }
-    
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        } else {
-            document.body.classList.add('light-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        }
-    }
-    
-    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
-        toggleDarkMode();
-        if (state.chartLine) {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.update();
-        }
-    });
-    
-    initializeTheme();
-    
-</script>
+        // --- Inicjalizacja ---
+        updateOkres();
+        updateDataKoniec();
+    </script>
 </body>
 </html>
