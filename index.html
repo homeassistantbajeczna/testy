@@ -389,7 +389,7 @@
         width: 100%;
     }
 
-    .form-control, .form-select {
+    .form-control {
         height: 22px;
         font-size: var(--small-font-size);
         padding: 2px;
@@ -403,6 +403,24 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .form-control.form-select {
+        background: var(--input-bg);
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+        background-repeat: no-repeat;
+        background-position: right 5px center;
+        background-size: 12px;
+        padding: 0 20px 0 5px;
+        max-width: 100px;
+        line-height: 22px;
+    }
+
+    .form-control.form-select::-ms-expand {
+        display: none;
     }
 
     .form-control:focus, .form-select:focus {
@@ -433,19 +451,6 @@
         width: 150px;
         display: flex;
         justify-content: center;
-    }
-
-    .form-select {
-        max-width: 100px;
-        appearance: none;
-        background: var(--input-bg) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 5px center;
-        background-size: 10px;
-        padding: 0 20px 0 5px;
-        line-height: 22px;
-    }
-
-    .form-select::-ms-expand {
-        display: none;
     }
 
     input[type="range"].form-range {
@@ -686,9 +691,11 @@
         background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .dark-mode .form-select {
-        background: var(--input-bg) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="%23e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') no-repeat right 5px center;
-        background-size: 10px;
+    .dark-mode .form-control.form-select {
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+        background-repeat: no-repeat;
+        background-position: right 5px center;
+        background-size: 12px;
     }
 
     
