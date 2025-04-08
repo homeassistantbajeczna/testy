@@ -46,8 +46,7 @@
                                         <option value="lata">rok</option>
                                     </select>
                                 </div>
-                                <div class="info-text" id="okresWDniach">Okres w dniach: 91</div>
-                                <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> <!-- Dodajemy nowy tekst -->
+                                <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> 
                             </div>
                             <div class="form-group">
                                 <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
@@ -379,6 +378,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
+        text-align: left;
     }
 
     .form-label {
@@ -438,9 +438,25 @@
     .form-select {
         max-width: 100px;
         appearance: none;
-        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
+        background: var(--input-bg);
         padding: 0 20px 0 5px;
         line-height: 22px;
+        position: relative;
+    }
+
+    .form-select::-ms-expand {
+        display: none;
+    }
+    
+    .form-select::after {
+        content: "▼";
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.6em;
+        color: var(--primary-text);
+        pointer-events: none;
     }
 
     input[type="range"].form-range {
@@ -478,6 +494,7 @@
         color: var(--primary-text);
         margin-top: 5px;
         text-align: left;
+        width: 100%;
     }
 
     .result-container, .form-container, .harmonogram-container {
@@ -680,7 +697,11 @@
         background-color: rgba(255, 255, 255, 0.05);
     }
 
+    .dark-mode .form-select::after {
+        color: var(--primary-text);
+    }
 
+    
     @media (max-width: 576px) {
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
             flex-direction: column;
@@ -743,7 +764,6 @@
         lokatyChartLine: document.getElementById("lokatyChartLine"),
         generatePdfBtn: document.getElementById("generatePdfBtn"),
         harmonogramTabela: document.getElementById("harmonogramTabela"),
-        okresWDniach: document.getElementById("okresWDniach"),
         dataZakonczenia: document.getElementById("dataZakonczenia")
     };
     
@@ -786,13 +806,6 @@
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
         const dataRozpoczecia = new Date(elements.dataRozpoczecia.value);
-    
-        // Obliczanie okresu w dniach
-        let dni;
-        if (jednostka === "dni") dni = dlugoscUmowy;
-        else if (jednostka === "miesiace") dni = Math.round(dlugoscUmowy * 30.42);
-        else dni = dlugoscUmowy * 365;
-        elements.okresWDniach.textContent = `Okres w dniach: ${dni}`;
     
         // Obliczanie daty zakończenia
         const dataZakonczenia = new Date(dataRozpoczecia);
