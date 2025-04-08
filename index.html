@@ -7,657 +7,1112 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        <div class="zoom-controls">
+            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
+            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
+            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="form-section" id="formSection">
+            <div class="header-row">
+                <h4>Kalkulator Lokaty</h4>
+            </div>
+            <div class="form-container">
+                <div class="form-wrapper">
+                    <form id="lokatyForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kwota" class="form-label">Kwota lokaty</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
+                                <div class="sub-info" id="kwotaInfo">Minimalna kwota: 100 zł</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="okres" class="form-label">Okres lokaty</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="okres" min="1" max="120" step="1" value="12">
+                                    <span class="input-group-text">m-cy</span>
+                                </div>
+                                <input type="range" class="form-range" id="okresRange" min="1" max="120" step="1" value="12">
+                                <div class="sub-info" id="okresInfo">Maksymalnie: 120 miesięcy</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="20" step="0.1" value="5">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="20" step="0.1" value="5">
+                                <div class="sub-info" id="oprocentowanieInfo">Stałe oprocentowanie</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kapitalizacja" class="form-label">Kapitalizacja</label>
+                                <select class="form-control" id="kapitalizacja">
+                                    <option value="1">Miesięczna</option>
+                                    <option value="3">Kwartalna</option>
+                                    <option value="6">Półroczna</option>
+                                    <option value="12" selected>Roczna</option>
+                                    <option value="koniec">Na koniec</option>
+                                </select>
+                                <div class="sub-info" id="kapitalizacjaInfo">Okres kapitalizacji</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki lokaty">Oblicz</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="opis-container">
+                <div class="lokaty-opis" id="lokatyOpis">
+                    Kalkulator lokat pozwala obliczyć zysk z lokaty bankowej na podstawie kwoty, okresu, oprocentowania i częstotliwości kapitalizacji odsetek.
+                </div>
+            </div>
+            <div class="data-container">
+                <div class="data-info"><strong>Dane z dnia:</strong> <span class="data-date"><strong>08.04.2025r.</strong></span></div>
+            </div>
+        </div>
+        <div class="result-section" id="resultSection">
+            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
+            <div class="result-header">
+                <h4 id="resultHeader">Podsumowanie wyników</h4>
+            </div>
+            <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
+            <div class="result-container">
+                <div class="result-wrapper-chart">
+                    <div class="chart-container">
+                        <div class="chart">
+                            <canvas id="lokatyChart" aria-label="Wykres kołowy wyników lokaty"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item" data-index="0">
+                                <div class="color-box" style="background-color: #28a745;" data-tooltip="" data-color="#28a745">
+                                    <span class="value" id="valueKapital">-</span>
+                                </div>
+                                <span class="legend-text" id="legendKapital">Kapitał</span>
+                            </div>
+                            <div class="legend-item" data-index="1">
+                                <div class="color-box" style="background-color: #007bff;" data-tooltip="" data-color="#007bff">
+                                    <span class="value" id="valueOdsetki">-</span>
+                                </div>
+                                <span class="legend-text" id="legendOdsetki">Odsetki</span>
+                            </div>
+                            <div class="legend-item" data-index="2">
+                                <div class="color-box" style="background-color: #dc3545;" data-tooltip="" data-color="#dc3545">
+                                    <span class="value" id="valuePodatek">-</span>
+                                </div>
+                                <span class="legend-text" id="legendPodatek">Podatek</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="summary-footer">
+                        <span class="highlight yellow" data-hover="" id="okresLokaty">-</span>
+                        <span class="highlight green" data-hover="" id="zyskNetto">-</span>
+                    </div>
+                    <div class="lokaty-opis" id="lokatyOpisPodsumowanie">
+                        Kalkulator lokat pozwala obliczyć zysk z lokaty bankowej na podstawie kwoty, okresu, oprocentowania i częstotliwości kapitalizacji odsetek.
+                    </div>
+                </div>
+            </div>
+            <div class="harmonogram-container">
+                <div class="result-wrapper-harmonogram">
+                    <div class="harmonogram-chart-wrapper">
+                        <div class="harmonogram">
+                            <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
+                            <div id="harmonogramContent">
+                                <table class="table table-striped">
+                                    <thead id="harmonogramNaglowek">
+                                        <tr>
+                                            <th>Okres</th>
+                                            <th>Wartość lokaty</th>
+                                            <th>Oprocentowanie</th>
+                                            <th>Odsetki</th>
+                                            <th>Suma odsetek</th>
+                                            <th>Podatek</th>
+                                            <th>Zysk netto</th>
+                                            <th>Suma netto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="harmonogramTabela"></tbody>
+                                </table>
+                                <div class="harmonogram-opis" id="harmonogramOpis"></div>
+                            </div>
+                        </div>
+                        <div class="chart-container-line">
+                            <div class="chart-line">
+                                <canvas id="lokatyChartLine" aria-label="Wykres liniowy wartości lokaty w czasie"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <style>
-        body {
-            background-color: #f5f6f5;
-            font-family: 'Montserrat', sans-serif;
-            padding: 10px;
-            transition: background-color 0.3s, color 0.3s;
+        :root {
+            --primary-bg: #f5f6f5;
+            --primary-text: #333333;
+            --secondary-bg: #ffffff;
+            --accent-color: #c2b280;
+            --accent-gradient-start: #c2b280;
+            --accent-gradient-end: #b0a070;
+            --border-color: #e0e0e0;
+            --border-color-rgb: 102, 102, 102;
+            --highlight-yellow: #17a2b8;
+            --highlight-green: #28a745;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --logo-bg: #e9ecef;
+            --input-bg: #fff;
+            --input-group-bg: #f5f5f5;
+            --range-track: #d3d3d3;
+            --harmonogram-bg: #f9f9f9;
+            --small-font-size: 0.7em;
+            --border-radius: 5px;
+            --range-bg: #e5e5e5;
         }
+
         .dark-mode {
-            background-color: #333;
-            color: #fff;
+            --primary-bg: #2b2b2b;
+            --primary-text: #e0e0e0;
+            --secondary-bg: #3a3a3a;
+            --accent-color: #8b7d47;
+            --accent-gradient-start: #8b7d47;
+            --accent-gradient-end: #70673b;
+            --border-color: #f5f5f5;
+            --border-color-rgb: 245, 245, 245;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --logo-bg: #3a3a3a;
+            --input-bg: #3a3a3a;
+            --input-group-bg: #666666;
+            --range-track: #666666;
+            --harmonogram-bg: #404040;
+            --range-bg: #333333;
+            --accent-gradient-start-black: #a3945c;
         }
-        .dark-mode .container {
-            background: #444;
-            box-shadow: 0 0 15px rgba(255,255,255,0.1);
+
+        *,
+        ::after,
+        ::before {
+            box-sizing: border-box;
         }
-        .dark-mode .logo-container {
-            background-color: #555;
+
+        body {
+            margin: 0;
+            background-color: var(--primary-bg);
+            font-family: 'Montserrat', sans-serif;
+            font-size: var(--bs-body-font-size, 1rem);
+            font-weight: var(--bs-body-font-weight, 400);
+            line-height: var(--bs-body-line-height, 1.5);
+            color: var(--primary-text);
+            text-align: var(--bs-body-text-align, left);
+            padding: 10px;
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
         }
-        .dark-mode .result-item {
-            background: linear-gradient(90deg, #b0a070, #C2B280);
-            color: #fff;
+
+        .container {
+            --bs-gutter-x: 1.5rem;
+            --bs-gutter-y: 0;
+            width: 100%;
+            padding: 15px calc(var(--bs-gutter-x) * 0.5);
+            margin: 30px auto 0;
+            max-width: 1200px;
+            background: var(--secondary-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadow-color);
         }
+
         .logo-container {
-            background-color: #e9ecef;
+            background-color: var(--logo-bg);
             padding: 15px;
             text-align: center;
             margin-bottom: 20px;
-            transition: background-color 0.3s;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .logo {
+
+        .zoom-controls {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 5px;
+        }
+
+        .logo,
+        #siteLogo {
             max-width: 200px;
+            margin-bottom: 0;
             cursor: pointer;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .container {
-            max-width: 1200px;
-            margin: 30px auto 0;
-            background: #FFFFFF;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .form-section h4, .result-section h4 {
+
+        .header-row,
+        .result-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-bottom: 15px;
-            text-align: center;
-            font-size: 1.2em;
-            color: #333333;
+            position: relative;
+        }
+
+        .header-row h4,
+        .result-header h4 {
             font-weight: 700;
+            font-size: 1.2em;
+            flex: 1;
+            text-align: center;
+            margin: 0;
         }
-        .dark-mode .form-section h4, .dark-mode .result-section h4 {
-            color: #fff;
+
+        .form-section {
+            display: block;
+            padding: 10px;
+            position: relative;
         }
+
+        .result-section {
+            display: none;
+            padding: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         .form-row {
             display: flex;
             justify-content: center;
+            align-items: flex-start;
             margin-bottom: 10px;
-            gap: 10px;
+            gap: 15px;
             flex-wrap: wrap;
+            text-align: left;
         }
+
         .form-group {
             flex: 1;
             min-width: 120px;
             max-width: 150px;
-        }
-        .form-label {
-            font-size: 0.7em;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-            color: #333333;
-        }
-        .dark-mode .form-label {
-            color: #ddd;
-        }
-        .form-control, .form-select, .form-range {
-            height: 22px;
-            font-size: 0.7em;
-            padding: 2px;
-            text-align: center;
-        }
-        .form-select {
-            max-width: 100px;
-            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
-        }
-        .form-range {
-            margin-top: 2px;
-            height: 8px;
-            background: #d3d3d3;
-            border-radius: 5px;
-        }
-        .form-range::-webkit-slider-thumb {
-            background: #C2B280;
-            border: none;
-            border-radius: 50%;
-            width: 12px;
-            height: 12px;
-            cursor: pointer;
-        }
-        .input-group-text {
-            font-size: 0.7em;
-            padding: 2px 5px;
-        }
-        .sub-info {
-            font-size: 0.4em;
-            color: #333333;
-            margin-top: 2px;
-            text-align: left;
-        }
-        .dark-mode .sub-info {
-            color: #ddd;
-        }
-        .checkbox-container {
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
-        }
-        input[type="checkbox"] {
-            accent-color: #C2B280;
-        }
-        .checkbox-label {
-            font-size: 0.6em;
-            font-weight: bold;
-        }
-        .btn-primary, .btn-secondary {
-            background-color: #C2B280;
-            border-color: #C2B280;
-            color: #000000;
-            font-size: 0.9em;
-            padding: 5px 20px;
-            margin: 10px auto;
-            display: block;
-        }
-        .btn-primary:hover, .btn-secondary:hover {
-            background-color: #b0a070;
-            border-color: #b0a070;
-        }
-        .result-section {
-            display: none;
-            padding: 10px;
-        }
-        .result-container {
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        .result-item {
-            font-size: 0.8em;
-            padding: 5px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            background: linear-gradient(90deg, #C2B280, #b0a070);
-            color: #000000;
-        }
-        .result-item span {
-            font-weight: 700;
-            font-size: 1.2em;
-        }
-        .chart-container {
-            max-width: 500px;
-            margin: 20px auto;
-            height: 200px;
-        }
-        .options-container {
-            max-width: 400px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        .variable-rate-container {
-            margin: 10px 0;
-        }
-        .checkbox-row {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 10px;
-        }
-        .variable-inputs {
-            margin-top: 10px;
-        }
-        .variable-input-group {
             display: flex;
             flex-direction: column;
-            margin-bottom: 10px;
             align-items: center;
+            justify-content: flex-start;
         }
-        .fields-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
+
+        .form-label {
+            font-size: var(--small-font-size);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            text-align: left;
+            width: 100%;
         }
-        .variable-input-group .form-group {
-            max-width: 120px;
-        }
-        .variable-input-group .btn-danger {
-            font-size: 0.7em;
-            padding: 2px 8px;
+
+        .form-control,
+        .form-select {
             height: 22px;
-            background: #dc3545;
-            border: none;
+            font-size: var(--small-font-size);
+            padding: 2px;
+            text-align: center;
+            background: var(--input-bg);
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            line-height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        #addVariableBtn {
-            background: linear-gradient(135deg, #C2B280, #b0a070);
-            color: #000;
-            font-size: 0.7em;
-            padding: 3px 10px;
-            border-radius: 15px;
+
+        .form-control:focus,
+        .form-select:focus {
+            outline: none !important;
+            box-shadow: 0 0 4px var(--accent-color);
+            border-color: var(--border-color);
+            background: var(--input-bg);
+            color: var(--primary-text);
         }
-        .controls-container {
+
+        .input-group-text {
+            height: 22px;
+            font-size: var(--small-font-size);
+            padding: 2px 5px;
+            text-align: center;
+            background: var(--input-group-bg);
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            line-height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-group {
+            width: 150px;
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin: 10px 0;
         }
-        .zoom-btn {
-            font-size: 0.9em;
-            padding: 5px 10px;
-            background-color: #C2B280;
+
+        .form-select {
+            max-width: 100px;
+            appearance: none;
+            background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
+            padding: 0 20px 0 5px;
+            line-height: 22px;
+        }
+
+        input[type="range"].form-range {
+            margin-top: 5px;
+            height: 6px;
+            background: var(--input-group-bg);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius);
+            appearance: none;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            outline: none;
+        }
+
+        input[type="range"].form-range::-webkit-slider-runnable-track {
+            background: var(--input-group-bg);
+            height: 6px;
+            border-radius: var(--border-radius);
+        }
+
+        input[type="range"].form-range::-moz-range-track {
+            background: var(--input-group-bg);
+            height: 6px;
+            border-radius: var(--border-radius);
+        }
+
+        input[type="range"].form-range::-ms-track {
+            background: var(--input-group-bg);
+            height: 6px;
+            border-radius: var(--border-radius);
+        }
+
+        input[type="range"].form-range::-webkit-slider-thumb {
+            background: var(--accent-gradient-start);
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
             border: none;
-            color: #000;
+            cursor: pointer;
+            appearance: none;
+            transform: translateY(2px);
         }
-        .zoom-btn:hover {
-            background-color: #b0a070;
-        }
-        .toggle-mode-btn {
-            font-size: 0.9em;
-            padding: 5px 20px;
-            background-color: #C2B280;
+
+        input[type="range"].form-range::-moz-range-thumb {
+            background: var(--accent-gradient-start);
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
             border: none;
-            color: #000;
+            cursor: pointer;
         }
-        .toggle-mode-btn:hover {
-            background-color: #b0a070;
+
+        input[type="range"].form-range::-ms-thumb {
+            background: var(--accent-gradient-start);
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
         }
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                align-items: center;
-            }
-            .form-group {
-                max-width: 100%;
-            }
-            .chart-container {
-                max-width: 100%;
-                height: 150px;
-            }
+
+        .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
+            background: var(--accent-gradient-start-black);
+        }
+
+        .dark-mode input[type="range"].form-range::-moz-range-thumb,
+        .dark-mode input[type="range"].form-range::-ms-thumb {
+            background: var(--accent-gradient-start-black);
+        }
+
+        .sub-info {
+            font-size: 0.4em;
+            margin-top: 2px;
+            text-align: left;
+            align-self: flex-start;
+            width: 100%;
+        }
+
+        .opis-container {
+            margin-top: 20px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .lokaty-opis {
+            font-size: 0.6em;
+            text-align: center;
+            max-width: 400px;
+            margin: 10px auto 0;
+            line-height: 1.4;
+        }
+
+        .data-container {
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .data-info,
+        .data-date {
+            font-size: 0.8em;
+            color: var(--accent-color);
+        }
+
+        .data-date {
+            font-size: 0.9em;
+        }
+
+        .result-container,
+        .form-container,
+        .harmonogram-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .harmonogram-container {
+            margin-top: 20px;
+            padding: clamp(2px, 2vw, 20px);
+            width: 100%;
+            max-width: clamp(98%, 100vw, 1100px);
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
+        }
+
+        .harmonogram-chart-wrapper {
+            background-color: var(--harmonogram-bg);
+            padding: clamp(2px, 2vw, 20px);
+            border-radius: 10px;
+            width: 100%;
+            max-width: clamp(98%, 100vw, 1100px);
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .result-wrapper-chart {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .harmonogram {
+            padding: 0;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        .harmonogram table {
+            margin: 0 auto;
+            width: 100%;
+            max-width: 100%;
+            display: table;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            background: var(--harmonogram-bg);
+            font-size: clamp(0.55em, 1.2vw, 0.8em);
+            table-layout: auto;
+        }
+
+        .harmonogram th,
+        .harmonogram td {
+            text-align: center;
+            white-space: normal;
+            word-break: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: clamp(0.3125em, 0.8125vw, 0.8125em);
+        }
+
+        .harmonogram th {
+            background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+            color: var(--primary-text);
+            padding: clamp(1px, 0.5vw, 12px);
+            vertical-align: middle;
+            font-weight: 500;
+            border-bottom: 2px solid var(--border-color);
+            line-height: 1.2;
+        }
+
+        .harmonogram td {
+            padding: clamp(1px, 0.5vw, 10px);
+            font-weight: 400;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--harmonogram-bg);
+            color: var(--primary-text);
+            border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
+        }
+
+        .harmonogram th:last-child,
+        .harmonogram td:last-child {
+            border-right: none;
+        }
+
+        .harmonogram .btn-toggle {
+            cursor: pointer;
+            font-size: 0.65em;
+            text-decoration: underline;
+            margin-bottom: 25px;
+            position: relative;
+            color: var(--primary-text);
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .chart {
+            flex: 0 0 auto;
+            width: 160px;
+            height: 160px;
+            position: relative;
+            z-index: 25;
+        }
+
+        .chart-container-line {
+            margin-top: 20px;
+            width: 100%;
+            max-width: clamp(98%, 100vw, 1100px);
+            height: clamp(200px, 32vw, 400px);
+            background-color: transparent;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .chart-line {
+            width: 100%;
+            height: 100%;
+            font-size: clamp(0.3625em, 0.8125vw + 0.7px, 0.9125em);
+        }
+
+        .chart-legend {
+            flex: 0 0 auto;
+            max-width: 200px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .chart-legend .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: var(--small-font-size);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            padding-left: 8px;
+        }
+
+        .chart-legend .legend-text {
+            font-weight: bold;
+            font-size: 14px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .chart-legend .color-box {
+            width: 130px;
+            min-width: 130px;
+            height: 26px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: bold;
+            line-height: 26px;
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+            margin-right: 6px;
+        }
+
+        .summary-footer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .highlight {
+            font-size: 0.8em;
+            padding: 4px 6px;
+            border-radius: var(--border-radius);
+            position: relative;
+            cursor: pointer;
+            color: #ffffff;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 210px;
+        }
+
+        .summary-footer .highlight {
+            display: inline-block;
+            width: clamp(200px, 20vw, 240px);
+            max-width: 100%;
+            margin: 2px 0;
+            padding: clamp(5px, 1vw, 8px) clamp(8px, 2vw, 12px);
+            font-weight: 500;
+            font-size: clamp(0.525em, 1.05vw, 0.825em);
+        }
+
+        .highlight.yellow {
+            background-color: var(--highlight-yellow);
+        }
+
+        .highlight.green {
+            background-color: var(--highlight-green);
+        }
+
+        .btn-primary,
+        .btn-secondary,
+        #generatePdfBtn,
+        .zoom-controls .btn {
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
+            border: none !important;
+            color: var(--primary-text) !important;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            border-radius: 25px;
+            display: block;
+            margin: 0 auto;
+            transform: translateY(0);
+        }
+
+        .btn-primary:hover,
+        .btn-secondary:hover,
+        #generatePdfBtn:hover,
+        .zoom-controls .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow-color);
+            background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
+        }
+
+        .dark-mode .btn-primary,
+        .dark-mode .btn-secondary,
+        .dark-mode #generatePdfBtn,
+        .dark-mode .zoom-controls .btn {
+            background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
+            color: #ffffff !important;
+        }
+
+        .dark-mode .btn-primary:hover,
+        .dark-mode .btn-secondary:hover,
+        .dark-mode #generatePdfBtn:hover,
+        .dark-mode .zoom-controls .btn:hover {
+            background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            font-size: 0.9em;
+            padding: 8px 20px;
+            margin: 25px auto 0;
+        }
+
+        #generatePdfBtn {
+            margin: 0 0 15px auto;
+            padding: 6px 15px;
+        }
+
+        .zoom-controls .btn {
+            padding: 2px 8px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
         }
     </style>
-</head>
-<body>
-    <div class="logo-container">
-        <a href="https://finance-brothers.pl">
-            <img src="cropped-logo-FB-1.png" class="logo" alt="Finance Brothers Logo">
-        </a>
-    </div>
-    <div class="container">
-        <div class="controls-container">
-            <button class="toggle-mode-btn" id="toggleModeBtn">Tryb ciemny</button>
-            <button class="zoom-btn" id="zoomInBtn">+</button>
-            <button class="zoom-btn" id="zoomOutBtn">−</button>
-        </div>
-        <div class="form-section" id="formSection">
-            <h4>Kalkulator Lokaty</h4>
-            <div class="form-container">
-                <form id="lokataForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="kwota" class="form-label">Kwota lokaty</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="kwota" min="1000" max="5000000" step="1000" value="10000">
-                                <span class="input-group-text">zł</span>
-                            </div>
-                            <input type="range" class="form-range" id="kwotaRange" min="1000" max="5000000" step="1000" value="10000">
-                            <div class="sub-info"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="okres" class="form-label">Długość umowy</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="okres" min="1" max="365" step="1" value="3">
-                                <select class="form-select" id="okresTyp">
-                                    <option value="dni">dni</option>
-                                    <option value="miesiace" selected>miesiące</option>
-                                    <option value="lata">lata</option>
-                                </select>
-                            </div>
-                            <input type="range" class="form-range" id="okresRange" min="1" max="365" step="1" value="3">
-                            <div class="sub-info" id="okresWartosc">Okres w dniach: 90</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="4">
-                                <span class="input-group-text">%</span>
-                            </div>
-                            <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="4">
-                            <div class="sub-info"></div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="dataStart" class="form-label">Data rozpoczęcia</label>
-                            <input type="date" class="form-control" id="dataStart" value="2025-03-16">
-                            <div class="sub-info" id="dataKoniec">Data zakończenia: -</div>
-                        </div>
-                    </div>
-                    <div class="options-container">
-                        <div class="variable-rate-container">
-                            <div class="checkbox-row" id="variableCheckboxRow">
-                                <div class="form-group">
-                                    <div style="display: flex; align-items: center; gap: 5px;">
-                                        <input type="checkbox" id="zmienneOprocentowanieBtn">
-                                        <label for="zmienneOprocentowanieBtn" class="checkbox-label">Zmienne oprocentowanie</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="variable-inputs" id="variableInputs" style="display: none;">
-                                <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" style="display: none;">Dodaj kolejne</button>
-                            </div>
-                        </div>
-                        <div class="checkbox-container">
-                            <div class="form-group">
-                                <div style="display: flex; align-items: center; gap: 5px;">
-                                    <input type="checkbox" id="wlaczZaawansowane" name="wlaczZaawansowane">
-                                    <label for="wlaczZaawansowane" class="checkbox-label">Opcje zaawansowane</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="advancedOptions" style="display: none;">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="podatek" class="form-label">Podatek</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control" id="podatek" min="1" max="50" step="0.1" value="19">
-                                        <span class="input-group-text">%</span>
-                                    </div>
-                                    <input type="range" class="form-range" id="podatekRange" min="1" max="50" step="0.1" value="19">
-                                    <div class="sub-info"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
-                                    <select class="form-control" id="kapitalizacja">
-                                        <option value="koniec" selected>Na koniec okresu</option>
-                                        <option value="roczna">Roczna</option>
-                                        <option value="kwartalna">Kwartalna</option>
-                                        <option value="miesieczna">Miesięczna</option>
-                                        <option value="dzienna">Dzienne</option>
-                                    </select>
-                                    <div class="sub-info"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <button type="button" class="btn btn-primary" id="obliczBtn">Oblicz</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="result-section" id="resultSection">
-            <h4>Wyniki Lokaty</h4>
-            <div class="result-container">
-                <div class="result-item">Kwota lokaty: <span id="resultKwota">-</span> zł</div>
-                <div class="result-item">Odsetki brutto: <span id="resultOdsetkiBrutto">-</span> zł</div>
-                <div class="result-item">Podatek: <span id="resultPodatek">-</span> zł</div>
-                <div class="result-item">Odsetki netto: <span id="resultOdsetkiNetto">-</span> zł</div>
-                <div class="result-item">Całkowita kwota po zakończeniu: <span id="resultCalkowita">-</span> zł</div>
-                <div class="result-item">Data zakończenia: <span id="resultDataKoniec">-</span></div>
-                <div class="chart-container">
-                    <canvas id="lokataChartLine"></canvas>
-                </div>
-            </div>
-            <button class="btn btn-secondary" onclick="showForm()">Powrót do edycji</button>
-            <button class="btn btn-secondary" id="generatePdfBtn">Pobierz PDF</button>
-        </div>
-    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- Inicjalizacja zmiennych ---
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById("dataStart").value = today;
-        let lokataChart;
-        let variableOprocentowanieChanges = [];
-        let zoomLevel = 1;
+        const elements = {
+            formSection: document.getElementById("formSection"),
+            resultSection: document.getElementById("resultSection"),
+            kwota: document.getElementById("kwota"),
+            kwotaRange: document.getElementById("kwotaRange"),
+            okres: document.getElementById("okres"),
+            okresRange: document.getElementById("okresRange"),
+            oprocentowanie: document.getElementById("oprocentowanie"),
+            oprocentowanieRange: document.getElementById("oprocentowanieRange"),
+            kapitalizacja: document.getElementById("kapitalizacja"),
+            obliczBtn: document.getElementById("obliczBtn"),
+            resultHeader: document.getElementById("resultHeader"),
+            lokatyChart: document.getElementById("lokatyChart"),
+            lokatyChartLine: document.getElementById("lokatyChartLine"),
+            generatePdfBtn: document.getElementById("generatePdfBtn")
+        };
 
-        // --- Event Listeners ---
-        document.getElementById("kwotaRange").addEventListener("input", function() { document.getElementById("kwota").value = this.value; });
-        document.getElementById("kwota").addEventListener("input", function() { document.getElementById("kwotaRange").value = this.value; });
-        document.getElementById("okresRange").addEventListener("input", function() { document.getElementById("okres").value = this.value; updateOkres(); });
-        document.getElementById("okres").addEventListener("input", function() { document.getElementById("okresRange").value = this.value; updateOkres(); });
-        document.getElementById("okresTyp").addEventListener("change", updateOkres);
-        document.getElementById("oprocentowanieRange").addEventListener("input", function() { document.getElementById("oprocentowanie").value = this.value; });
-        document.getElementById("oprocentowanie").addEventListener("input", function() { document.getElementById("oprocentowanieRange").value = this.value; });
-        document.getElementById("podatekRange").addEventListener("input", function() { document.getElementById("podatek").value = this.value; });
-        document.getElementById("podatek").addEventListener("input", function() { document.getElementById("podatekRange").value = this.value; });
-        document.getElementById("wlaczZaawansowane").addEventListener("change", function() { document.getElementById("advancedOptions").style.display = this.checked ? "block" : "none"; });
-        document.getElementById("dataStart").addEventListener("change", updateDataKoniec);
-        document.getElementById("obliczBtn").addEventListener("click", obliczLokate);
-        document.getElementById("zmienneOprocentowanieBtn").addEventListener("change", updateVariableInputs);
-        document.getElementById("addVariableBtn").addEventListener("click", addVariableChange);
-        document.getElementById("toggleModeBtn").addEventListener("click", toggleDarkMode);
-        document.getElementById("zoomInBtn").addEventListener("click", () => adjustZoom(0.1));
-        document.getElementById("zoomOutBtn").addEventListener("click", () => adjustZoom(-0.1));
-        document.getElementById("generatePdfBtn").addEventListener("click", generatePDF);
+        const state = {
+            chart: null,
+            chartLine: null,
+            harmonogramData: [],
+            lastFormData: {
+                kwota: 10000,
+                okres: 12,
+                oprocentowanie: 5,
+                kapitalizacja: "12"
+            },
+            isCalculating: false
+        };
 
-        // --- Funkcje aktualizacji UI ---
-        function updateOkres() {
-            const okres = parseInt(document.getElementById("okres").value) || 0;
-            const typ = document.getElementById("okresTyp").value;
-            let dni = typ === "dni" ? okres : typ === "miesiace" ? okres * 30 : okres * 365;
-            document.getElementById("okresWartosc").textContent = `Okres w dniach: ${dni}`;
-            updateDataKoniec();
-            updateVariableInputs();
+        elements.kwotaRange.addEventListener("input", () => { elements.kwota.value = elements.kwotaRange.value; });
+        elements.kwota.addEventListener("input", () => { elements.kwotaRange.value = elements.kwota.value; });
+        elements.okresRange.addEventListener("input", () => { elements.okres.value = elements.okresRange.value; });
+        elements.okres.addEventListener("input", () => { elements.okresRange.value = elements.okres.value; });
+        elements.oprocentowanieRange.addEventListener("input", () => { elements.oprocentowanie.value = elements.oprocentowanieRange.value; });
+        elements.oprocentowanie.addEventListener("input", () => { elements.oprocentowanieRange.value = elements.oprocentowanie.value; });
+        elements.obliczBtn.addEventListener("click", obliczLokate);
+        elements.generatePdfBtn.addEventListener("click", generatePdf);
+
+        function showForm() {
+            elements.formSection.style.display = "block";
+            elements.resultSection.style.display = "none";
+
+            elements.kwota.value = state.lastFormData.kwota;
+            elements.kwotaRange.value = state.lastFormData.kwota;
+            elements.okres.value = state.lastFormData.okres;
+            elements.okresRange.value = state.lastFormData.okres;
+            elements.oprocentowanie.value = state.lastFormData.oprocentowanie;
+            elements.oprocentowanieRange.value = state.lastFormData.oprocentowanie;
+            elements.kapitalizacja.value = state.lastFormData.kapitalizacja;
         }
 
-        function updateDataKoniec() {
-            const dataStart = new Date(document.getElementById("dataStart").value);
-            const okres = parseInt(document.getElementById("okres").value) || 0;
-            const typ = document.getElementById("okresTyp").value;
-            const dataKoniec = new Date(dataStart);
-            if (typ === "dni") dataKoniec.setDate(dataStart.getDate() + okres);
-            else if (typ === "miesiace") dataKoniec.setMonth(dataStart.getMonth() + okres);
-            else dataKoniec.setFullYear(dataStart.getFullYear() + okres);
-            dataKoniec.setDate(dataKoniec.getDate() + 1);
-            document.getElementById("dataKoniec").textContent = `Data zakończenia: ${dataKoniec.toLocaleDateString('pl-PL')}`;
-            return dataKoniec;
-        }
-
-        function updateVariableInputs() {
-            const okres = parseInt(document.getElementById("okres").value) || 0;
-            const typOkresu = document.getElementById("okresTyp").value;
-            const isZmienneOprocentowanie = document.getElementById("zmienneOprocentowanieBtn").checked;
-            const variableInputs = document.getElementById("variableInputs");
-            const addVariableBtn = document.getElementById("addVariableBtn");
-            const wrapper = document.getElementById("variableInputsWrapper");
-
-            let maxCykl = typOkresu === "dni" ? okres : typOkresu === "miesiace" ? okres : okres;
-            let jednostka = typOkresu === "dni" ? "dnia" : typOkresu === "miesiace" ? "miesiąca" : "roku";
-            const maxChanges = maxCykl > 1 ? maxCykl - 1 : 0;
-
-            if (isZmienneOprocentowanie && maxCykl > 1) {
-                variableInputs.style.display = "block";
-                addVariableBtn.style.display = "block";
-                if (variableOprocentowanieChanges.length === 0) addVariableChange();
-                wrapper.innerHTML = "";
-                variableOprocentowanieChanges.forEach((change, index) => {
-                    const inputGroup = document.createElement("div");
-                    inputGroup.className = "variable-input-group";
-                    const fieldsWrapper = document.createElement("div");
-                    fieldsWrapper.className = "fields-wrapper";
-                    fieldsWrapper.innerHTML = `
-                        <div class="form-group">
-                            <label class="form-label">Od</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${change.cykl}">
-                                <span class="input-group-text">${jednostka}</span>
-                            </div>
-                            <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="1" value="${change.cykl}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Oprocentowanie</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="${change.wartosc}">
-                                <span class="input-group-text">%</span>
-                            </div>
-                            <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.1" value="${change.wartosc}">
-                        </div>`;
-                    inputGroup.appendChild(fieldsWrapper);
-                    if (index === variableOprocentowanieChanges.length - 1 && variableOprocentowanieChanges.length > 1) {
-                        inputGroup.innerHTML += `<div class="remove-btn-wrapper"><button class="btn btn-danger btn-sm" onclick="removeVariableChange()">Usuń</button></div>`;
-                    }
-                    wrapper.appendChild(inputGroup);
-
-                    const cyklInput = inputGroup.querySelector(".variable-cykl");
-                    const cyklRange = inputGroup.querySelector(".variable-cykl-range");
-                    const rateInput = inputGroup.querySelector(".variable-rate");
-                    const rateRange = inputGroup.querySelector(".variable-rate-range");
-
-                    cyklInput.addEventListener("input", () => { cyklRange.value = cyklInput.value; variableOprocentowanieChanges[index].cykl = parseInt(cyklInput.value); });
-                    cyklRange.addEventListener("input", () => { cyklInput.value = cyklRange.value; variableOprocentowanieChanges[index].cykl = parseInt(cyklRange.value); });
-                    rateInput.addEventListener("input", () => { rateRange.value = rateInput.value; variableOprocentowanieChanges[index].wartosc = parseFloat(rateInput.value); });
-                    rateRange.addEventListener("input", () => { rateInput.value = rateRange.value; variableOprocentowanieChanges[index].wartosc = parseFloat(rateRange.value); });
-                });
-                addVariableBtn.style.display = variableOprocentowanieChanges.length < maxChanges ? "block" : "none";
-            } else {
-                variableInputs.style.display = "none";
-                addVariableBtn.style.display = "none";
-                wrapper.innerHTML = "";
-            }
-        }
-
-        // --- Funkcje logiki ---
-        function addVariableChange() {
-            const okres = parseInt(document.getElementById("okres").value) || 0;
-            const typOkresu = document.getElementById("okresTyp").value;
-            let maxCykl = typOkresu === "dni" ? okres : typOkresu === "miesiace" ? okres : okres;
-            const maxChanges = maxCykl > 1 ? maxCykl - 1 : 0;
-            if (variableOprocentowanieChanges.length >= maxChanges) {
-                alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
-                return;
-            }
-            const lastCykl = variableOprocentowanieChanges.length > 0 ? variableOprocentowanieChanges[variableOprocentowanieChanges.length - 1].cykl : 1;
-            variableOprocentowanieChanges.push({ cykl: Math.min(lastCykl + 1, maxCykl), wartosc: parseFloat(document.getElementById("oprocentowanie").value) || 4 });
-            updateVariableInputs();
-        }
-
-        function removeVariableChange() {
-            if (variableOprocentowanieChanges.length > 1) {
-                variableOprocentowanieChanges.pop();
-                updateVariableInputs();
-            }
+        function toggleHarmonogram(sectionId) {
+            const content = document.getElementById(sectionId);
+            const toggleBtn = content.previousElementSibling;
+            content.style.display = content.style.display === "none" ? "block" : "none";
+            toggleBtn.textContent = content.style.display === "none" ? "Harmonogram odsetek ►" : "Harmonogram odsetek ▼";
         }
 
         function obliczLokate() {
-            const kwota = parseFloat(document.getElementById("kwota").value) || 0;
-            const okres = parseInt(document.getElementById("okres").value) || 0;
-            const typOkresu = document.getElementById("okresTyp").value;
-            const podatekProcent = parseFloat(document.getElementById("podatek").value) / 100 || 0.19;
-            const kapitalizacja = document.getElementById("kapitalizacja").value;
-            const isZmienneOprocentowanie = document.getElementById("zmienneOprocentowanieBtn").checked;
+            if (state.isCalculating) return;
+            state.isCalculating = true;
 
-            if (kwota < 1000 || okres < 1) {
+            let kwota = parseFloat(elements.kwota.value) || 0;
+            const maxKwota = 10000000;
+            if (kwota > maxKwota) {
+                kwota = maxKwota;
+                elements.kwota.value = maxKwota;
+                elements.kwotaRange.value = maxKwota;
+                alert("Maksymalna wartość to 10 000 000 zł.");
+            }
+            const okres = parseInt(elements.okres.value) || 0;
+            const oprocentowanie = parseFloat(elements.oprocentowanie.value) || 0;
+            const kapitalizacja = elements.kapitalizacja.value === "koniec" ? okres : parseInt(elements.kapitalizacja.value);
+            const podatekBelki = 0.19;
+
+            state.lastFormData = { kwota, okres, oprocentowanie, kapitalizacja: elements.kapitalizacja.value };
+
+            if (kwota < 100 || okres <= 0 || oprocentowanie <= 0) {
                 alert("Proszę wypełnić wszystkie pola poprawnymi wartościami.");
+                state.isCalculating = false;
                 return;
             }
 
-            let okresWDniach = typOkresu === "dni" ? okres : typOkresu === "miesiace" ? okres * 30 : okres * 365;
-            let okresWRokach = okresWDniach / 365;
-            variableOprocentowanieChanges.sort((a, b) => a.cykl - b.cykl);
-
-            let odsetkiBrutto = 0;
-            const kapitalizacjeWDniach = { "koniec": 1 / okresWRokach, "roczna": 1, "kwartalna": 4, "miesieczna": 12, "dzienna": 365 };
-            const czestoscKapitalizacji = kapitalizacjeWDniach[kapitalizacja] || 1 / okresWRokach;
-            const liczbaOkresowKapitalizacji = Math.floor(czestoscKapitalizacji * okresWRokach);
+            elements.resultHeader.textContent = `Wynik lokaty na ${okres} miesięcy`;
             let kapital = kwota;
-            let skumulowaneOdsetkiBrutto = 0;
+            let odsetkiCalkowite = 0;
+            let zyskNettoCalkowity = 0;
+            state.harmonogramData = [];
 
-            if (kapitalizacja === "koniec") {
-                if (isZmienneOprocentowanie) {
-                    let currentOprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
-                    for (let dzien = 1; dzien <= okresWDniach; dzien++) {
-                        let cykl = typOkresu === "dni" ? dzien : typOkresu === "miesiace" ? Math.ceil(dzien / 30) : Math.ceil(dzien / 365);
-                        for (const change of variableOprocentowanieChanges) {
-                            if (cykl >= change.cykl) currentOprocentowanie = change.wartosc / 100;
-                        }
-                        skumulowaneOdsetkiBrutto += kapital * (currentOprocentowanie / 365);
-                    }
-                    odsetkiBrutto = skumulowaneOdsetkiBrutto;
-                } else {
-                    odsetkiBrutto = kwota * ((parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100) * okresWRokach;
+            const oprocentowanieMiesieczne = oprocentowanie / 100 / 12;
+            const liczbaCykli = Math.floor(okres / (kapitalizacja === "koniec" ? okres : kapitalizacja));
+
+            for (let i = 0; i <= liczbaCykli; i++) {
+                const okresWiersz = i === 0 ? 0 : i * (kapitalizacja === "koniec" ? okres : kapitalizacja);
+                let odsetkiCykl = i === 0 ? 0 : kapital * oprocentowanieMiesieczne * (kapitalizacja === "koniec" ? okres : kapitalizacja);
+                let podatekCykl = odsetkiCykl * podatekBelki;
+                let odsetkiNettoCykl = odsetkiCykl - podatekCykl;
+
+                if (i > 0) {
+                    odsetkiCalkowite += odsetkiCykl;
+                    zyskNettoCalkowity += odsetkiNettoCykl;
+                    kapital += odsetkiCykl;
                 }
-            } else {
-                // Uproszczona logika dla innych kapitalizacji (można rozwinąć)
-                const oprocentowanie = (parseFloat(document.getElementById("oprocentowanie").value) || 4) / 100;
-                odsetkiBrutto = kwota * (Math.pow(1 + oprocentowanie / czestoscKapitalizacji, liczbaOkresowKapitalizacji) - 1);
+
+                state.harmonogramData.push({
+                    okres: okresWiersz,
+                    wartoscLokaty: kapital.toFixed(2),
+                    oprocentowanie: `${oprocentowanie.toFixed(2)}%`,
+                    odsetkiBrutto: odsetkiCykl.toFixed(2),
+                    skumulowaneOdsetki: odsetkiCalkowite.toFixed(2),
+                    podatek: podatekCykl.toFixed(2),
+                    zyskNetto: odsetkiNettoCykl.toFixed(2),
+                    sumaNetto: (kwota + zyskNettoCalkowity).toFixed(2)
+                });
             }
 
-            const podatek = odsetkiBrutto * podatekProcent;
-            const odsetkiNetto = odsetkiBrutto - podatek;
-            const calkowitaKwota = kwota + odsetkiNetto;
-            const dataKoniec = updateDataKoniec();
+            document.getElementById("valueKapital").textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+            document.getElementById("valueOdsetki").textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+            document.getElementById("valuePodatek").textContent = `${(odsetkiCalkowite * podatekBelki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+            document.getElementById("okresLokaty").textContent = `Okres lokaty: ${okres} miesięcy`;
+            document.getElementById("zyskNetto").textContent = `Zysk netto: ${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
 
-            document.getElementById("resultKwota").textContent = kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
-            document.getElementById("resultOdsetkiBrutto").textContent = odsetkiBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
-            document.getElementById("resultPodatek").textContent = podatek.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
-            document.getElementById("resultOdsetkiNetto").textContent = odsetkiNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
-            document.getElementById("resultCalkowita").textContent = calkowitaKwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 });
-            document.getElementById("resultDataKoniec").textContent = dataKoniec.toLocaleDateString('pl-PL');
+            if (state.chart) state.chart.destroy();
+            if (state.chartLine) state.chartLine.destroy();
 
-            renderChart(kwota, okresWDniach, odsetkiNetto, kapitalizacja, isZmienneOprocentowanie);
-            document.getElementById("formSection").style.display = "none";
-            document.getElementById("resultSection").style.display = "block";
-        }
-
-        // --- Funkcje dodatkowe ---
-        function renderChart(kwota, okresWDniach, odsetkiNetto, kapitalizacja, isZmienneOprocentowanie) {
-            const dataStart = new Date(document.getElementById("dataStart").value);
-            const labels = [];
-            const wartosciLokaty = [];
-            const krokWDniach = Math.max(1, Math.floor(okresWDniach / 10));
-            let kapital = kwota;
-
-            for (let i = 0; i <= okresWDniach; i += krokWDniach) {
-                const dniOdStartu = Math.min(i, okresWDniach);
-                const data = new Date(dataStart);
-                data.setDate(data.getDate() + Math.round(dniOdStartu));
-                let wartosc = kapitalizacja === "koniec" && dniOdStartu === okresWDniach ? kwota + odsetkiNetto : kwota;
-                labels.push(data.toLocaleDateString('pl-PL'));
-                wartosciLokaty.push(wartosc);
-            }
-
-            if (lokataChart) lokataChart.destroy();
-            const ctx = document.getElementById("lokataChartLine").getContext("2d");
-            lokataChart = new Chart(ctx, {
-                type: 'line',
+            state.chart = new Chart(elements.lokatyChart.getContext("2d"), {
+                type: 'doughnut',
                 data: {
-                    labels: labels,
+                    labels: ['Kapitał', 'Odsetki', 'Podatek'],
                     datasets: [{
-                        label: 'Wartość lokaty netto',
-                        data: wartosciLokaty,
-                        borderColor: '#C2B280',
-                        backgroundColor: 'rgba(194, 178, 128, 0.2)',
-                        fill: true,
-                        tension: 0.1,
-                        borderWidth: 2
+                        data: [kwota, odsetkiCalkowite, odsetkiCalkowite * podatekBelki],
+                        backgroundColor: ['#28a745', '#007bff', '#dc3545'],
+                        borderWidth: 1,
+                        hoverOffset: 20
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { x: { title: { display: true, text: 'Data' } }, y: { title: { display: true, text: 'Wartość (PLN)' }, beginAtZero: false } }
+                    plugins: { legend: { display: false } },
+                    cutout: '50%',
+                    layout: { padding: 20 }
                 }
             });
+
+            let tabela = document.getElementById("harmonogramTabela");
+            tabela.innerHTML = "";
+            state.harmonogramData.forEach(wiersz => {
+                tabela.innerHTML += `
+                    <tr>
+                        <td>${wiersz.okres}</td>
+                        <td>${parseFloat(wiersz.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                        <td>${wiersz.oprocentowanie}</td>
+                        <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                    </tr>
+                `;
+            });
+
+            const ctxLine = elements.lokatyChartLine.getContext("2d");
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            state.chartLine = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: state.harmonogramData.map(wiersz => `Miesiąc ${wiersz.okres}`),
+                    datasets: [
+                        {
+                            label: 'Zainwestowana kwota',
+                            data: state.harmonogramData.map(() => kwota),
+                            borderColor: '#8B7D47',
+                            backgroundColor: 'rgba(139, 125, 71, 0.1)',
+                            fill: false,
+                            tension: 0,
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Wartość lokaty',
+                            data: state.harmonogramData.map(wiersz => parseFloat(wiersz.sumaNetto)),
+                            borderColor: '#D4C791',
+                            backgroundColor: 'rgba(212, 199, 145, 0.2)',
+                            fill: true,
+                            tension: 0.1,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { 
+                            title: { display: true, text: 'Okres (miesiące)', color: isDarkMode ? '#e0e0e0' : '#333333' },
+                            ticks: { color: isDarkMode ? '#e0e0e0' : '#333333' },
+                            grid: { color: isDarkMode ? '#666666' : '#e0e0e0', borderColor: isDarkMode ? '#e0e0e0' : '#333333' }
+                        },
+                        y: { 
+                            title: { display: true, text: 'Wartość (PLN)', color: isDarkMode ? '#e0e0e0' : '#333333' },
+                            ticks: { color: isDarkMode ? '#e0e0e0' : '#333333' },
+                            grid: { color: isDarkMode ? '#666666' : '#e0e0e0', borderColor: isDarkMode ? '#e0e0e0' : '#333333' }
+                        }
+                    },
+                    plugins: { legend: { labels: { color: isDarkMode ? '#e0e0e0' : '#333333' } } }
+                }
+            });
+
+            elements.formSection.style.display = "none";
+            elements.resultSection.style.display = "block";
+            state.isCalculating = false;
         }
 
-        function showForm() {
-            document.getElementById("formSection").style.display = "block";
-            document.getElementById("resultSection").style.display = "none";
+        function generatePdf() {
+            if (!state.harmonogramData.length) {
+                alert("Najpierw oblicz wyniki lokaty, klikając 'Oblicz'.");
+                return;
+            }
+
+            const today = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const summary = [
+                `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `Odsetki: ${parseFloat(state.harmonogramData[state.harmonogramData.length - 1].skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `Podatek: ${parseFloat(state.harmonogramData[state.harmonogramData.length - 1].skumulowaneOdsetki * 0.19).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `Okres lokaty: ${state.lastFormData.okres} miesięcy`,
+                `Kapitalizacja: ${elements.kapitalizacja.options[elements.kapitalizacja.selectedIndex].text}`,
+                `Zysk netto: ${parseFloat(state.harmonogramData[state.harmonogramData.length - 1].sumaNetto - state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
+            ];
+
+            const headers = ["Okres", "Wartość lokaty", "Oprocentowanie", "Odsetki", "Suma odsetek", "Podatek", "Zysk netto", "Suma netto"];
+            const tableData = state.harmonogramData.map(wiersz => [
+                wiersz.okres.toString(),
+                `${parseFloat(wiersz.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                wiersz.oprocentowanie,
+                `${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${parseFloat(wiersz.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
+            ]);
+
+            const columnWidths = headers.map(() => '*');
+            const lineChartImage = elements.lokatyChartLine.toDataURL("image/png");
+
+            const docDefinition = {
+                pageSize: 'A4',
+                pageMargins: [14.17, 60, 14.17, 20],
+                header: { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
+                content: [
+                    { text: `Wynik lokaty na ${state.lastFormData.okres} miesięcy`, style: 'header' },
+                    { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
+                    { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] },
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: columnWidths,
+                            body: [headers.map(h => ({ text: h, style: 'tableHeader' })), ...tableData]
+                        },
+                        layout: {
+                            fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
+                            hLineWidth: function () { return 0.5; },
+                            vLineWidth: function () { return 0.5; },
+                            paddingLeft: function () { return 1; },
+                            paddingRight: function () { return 1; },
+                            paddingTop: function () { return 2; },
+                            paddingBottom: function () { return 2; }
+                        },
+                        margin: [0, 10, 0, 10]
+                    },
+                    { text: "Wykres liniowy wartości lokaty w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5] },
+                    { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
+                ],
+                styles: {
+                    header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
+                    sectionHeader: { fontSize: 12, bold: true },
+                    listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
+                    tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
+                    tableCell: { fontSize: 8, alignment: 'center' }
+                }
+            };
+
+            pdfMake.createPdf(docDefinition).download(`Wynik_lokaty_${today.replace(/\./g, '-')}.pdf`);
         }
+
+        document.getElementById('siteLogo').addEventListener('click', () => {
+            window.open('https://finance-brothers.pl', '_blank');
+        });
+
+        let currentZoom = 1;
+        const zoomStep = 0.1;
+        const minZoom = 0.5;
+        const maxZoom = 2;
+
+        function updateZoom() {
+            const container = document.querySelector('.container');
+            container.style.transform = `scale(${currentZoom})`;
+            container.style.transformOrigin = 'top center';
+        }
+
+        document.getElementById("zoomInBtn").addEventListener("click", () => {
+            if (currentZoom < maxZoom) {
+                currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+                updateZoom();
+            }
+        });
+
+        document.getElementById("zoomOutBtn").addEventListener("click", () => {
+            if (currentZoom > minZoom) {
+                currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+                updateZoom();
+            }
+        });
 
         function toggleDarkMode() {
-            document.body.classList.toggle("dark-mode");
-            const btn = document.getElementById("toggleModeBtn");
-            btn.textContent = document.body.classList.contains("dark-mode") ? "Tryb jasny" : "Tryb ciemny";
+            const body = document.body;
+            const isDarkMode = body.classList.contains('dark-mode');
+            body.classList.toggle('dark-mode', !isDarkMode);
+            body.classList.toggle('light-mode', isDarkMode);
+            localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+            document.getElementById('toggleDarkModeBtn').textContent = isDarkMode ? '🌙' : '☀️';
+
+            if (state.chartLine) {
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+                state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+                state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+                state.chartLine.update();
+            }
         }
 
-        function adjustZoom(delta) {
-            zoomLevel = Math.max(0.5, Math.min(2, zoomLevel + delta));
-            document.querySelector(".container").style.transform = `scale(${zoomLevel})`;
-            document.querySelector(".container").style.transformOrigin = "top center";
-        }
+        document.getElementById('toggleDarkModeBtn').addEventListener('click', toggleDarkMode);
 
-        function generatePDF() {
-            const docDefinition = {
-                content: [
-                    { text: 'Wyniki Lokaty', style: 'header' },
-                    { text: `Kwota lokaty: ${document.getElementById("resultKwota").textContent} zł` },
-                    { text: `Odsetki brutto: ${document.getElementById("resultOdsetkiBrutto").textContent} zł` },
-                    { text: `Podatek: ${document.getElementById("resultPodatek").textContent} zł` },
-                    { text: `Odsetki netto: ${document.getElementById("resultOdsetkiNetto").textContent} zł` },
-                    { text: `Całkowita kwota: ${document.getElementById("resultCalkowita").textContent} zł` },
-                    { text: `Data zakończenia: ${document.getElementById("resultDataKoniec").textContent}` }
-                ],
-                styles: { header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] } }
-            };
-            pdfMake.createPdf(docDefinition).download("wyniki_lokaty.pdf");
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        } else {
+            document.body.classList.add('light-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
         }
-
-        // --- Inicjalizacja ---
-        updateOkres();
-        updateDataKoniec();
     </script>
 </body>
 </html>
