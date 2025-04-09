@@ -1069,16 +1069,20 @@
         elements.oprocentowanie.value = value;
     });
     elements.oprocentowanie.addEventListener("input", () => {
-        let value = parseFloat(elements.oprocentowanie.value) || 0.1;
+        let value = parseFloat(elements.oprocentowanie.value);
         const maxValue = parseFloat(elements.oprocentowanieRange.max);
+        
+        // Jeśli wartość jest mniejsza niż 0,1 lub nie jest liczbą, ustawiamy 0,1
         if (isNaN(value) || value < 0.1) {
             value = 0.1;
-            elements.oprocentowanie.value = value;
+            elements.oprocentowanie.value = value.toFixed(1); // Ustawiamy z jedną cyfrą po przecinku
         }
+        // Jeśli wartość przekracza maksymalną, ustawiamy maksymalną
         if (value > maxValue) {
             value = maxValue;
-            elements.oprocentowanie.value = value;
+            elements.oprocentowanie.value = value.toFixed(1);
         }
+        
         elements.oprocentowanieRange.value = value;
     });
     
@@ -1103,16 +1107,20 @@
     });
     
     elements.dlugoscUmowy.addEventListener("input", () => {
-        let value = parseInt(elements.dlugoscUmowy.value) || 1;
+        let value = parseInt(elements.dlugoscUmowy.value);
         const maxValue = parseInt(elements.dlugoscUmowyRange.max);
+        
+        // Jeśli wartość jest mniejsza niż 1 lub nie jest liczbą, ustawiamy 1
         if (isNaN(value) || value < 1) {
             value = 1;
             elements.dlugoscUmowy.value = value;
         }
+        // Jeśli wartość przekracza maksymalną, ustawiamy maksymalną
         if (value > maxValue) {
             value = maxValue;
             elements.dlugoscUmowy.value = value;
         }
+        
         elements.dlugoscUmowyRange.value = value;
         updateInfoTexts();
         updateVariableInputs();
@@ -1363,14 +1371,14 @@
                 });
     
                 rateInput.addEventListener("input", () => {
-                    let value = parseFloat(rateInput.value) || 0.1;
+                    let value = parseFloat(rateInput.value);
                     if (isNaN(value) || value < 0.1) {
                         value = 0.1;
-                        rateInput.value = value;
+                        rateInput.value = value.toFixed(1); // Ustawiamy z jedną cyfrą po przecinku
                     }
                     if (value > 25) {
                         value = 25;
-                        rateInput.value = value;
+                        rateInput.value = value.toFixed(1);
                     }
                     rateRange.value = value;
                     changes[index].value = value;
