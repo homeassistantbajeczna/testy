@@ -366,8 +366,8 @@
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        margin-bottom: 10px;
-        gap: 15px;
+        margin-bottom: 20px; /* Zwiększamy odstęp */
+        gap: 20px; /* Zwiększamy odstęp między polami */
         flex-wrap: wrap;
         text-align: left;
     }
@@ -378,19 +378,20 @@
 
     .form-group {
         flex: 1;
-        min-width: 120px;
+        min-width: 150px; /* Ustawiamy jednolitą szerokość */
         max-width: 150px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
         text-align: left;
+        margin: 0 5px; /* Dodajemy margines boczny */
     }
 
     .form-label {
         font-size: var(--small-font-size);
         text-transform: uppercase;
-        margin-bottom: 2px;
+        margin-bottom: 5px; /* Zwiększamy odstęp od pola */
         text-align: left;
         width: 100%;
     }
@@ -413,8 +414,8 @@
 
     .select-wrapper {
         position: relative;
-        width: 100%;
-        max-width: 100px;
+        width: 150px; /* Dopasowujemy do szerokości innych pól */
+        max-width: 150px;
     }
 
     .select-hidden {
@@ -427,7 +428,7 @@
     }
 
     .select-display {
-        display: inline-flex;
+        display: flex; /* Zmieniamy na flex dla lepszego wyrównania */
         align-items: center;
         justify-content: center;
         height: 22px;
@@ -473,6 +474,7 @@
         width: 150px;
         display: flex;
         justify-content: center;
+        align-items: center; /* Wyrównanie w pionie */
     }
 
     input[type="range"].form-range {
@@ -482,7 +484,7 @@
         border: 2px solid var(--border-color);
         border-radius: var(--border-radius);
         appearance: none;
-        width: 100%;
+        width: 150px; /* Dopasowujemy do szerokości pól */
         margin-left: auto;
         margin-right: auto;
         outline: none;
@@ -508,7 +510,7 @@
     .info-text {
         font-size: 0.40em;
         color: var(--primary-text);
-        margin-top: 5px;
+        margin-top: 5px; /* Zwiększamy odstęp */
         text-align: left;
         width: 100%;
     }
@@ -715,14 +717,14 @@
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
             flex-direction: column;
             align-items: center;
-            gap: 2px;
+            gap: 10px; /* Zwiększamy odstęp */
         }
 
         .form-group, .input-group {
             width: 200px;
             max-width: 200px;
             min-width: 200px;
-            margin: 2px auto;
+            margin: 5px auto; /* Zwiększamy margines */
         }
 
         .form-control, .select-display {
@@ -737,6 +739,19 @@
             width: 70px;
             padding: 4px 8px;
             line-height: 20px;
+        }
+
+        .select-wrapper {
+            width: 200px; /* Zwiększamy szerokość na małych ekranach */
+            max-width: 200px;
+        }
+
+        .select-display {
+            width: 200px; /* Dopasowujemy do .select-wrapper */
+        }
+
+        input[type="range"].form-range {
+            width: 200px; /* Dopasowujemy suwak */
         }
 
         .harmonogram table {
@@ -1226,7 +1241,7 @@
         });
     
         if (state.chartLine) state.chartLine.destroy();
-        state.chartLine = new Chart(elements.lokatyChartLine, {
+                state.chartLine = new Chart(elements.lokatyChartLine, {
             type: 'line',
             data: {
                 labels: state.harmonogramData.map(row => `Okres ${row.okres}`),
