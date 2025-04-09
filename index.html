@@ -1212,6 +1212,7 @@
     
         let maxCykl = dlugoscUmowy;
     
+        // Jeśli długość umowy wynosi 1, ukrywamy sekcję "Zmienne Oprocentowanie"
         if (dlugoscUmowy === 1) {
             variableCheckboxRow.style.display = "none";
             elements.zmienneOprocentowanieBtn.checked = false;
@@ -1224,6 +1225,9 @@
         } else {
             variableCheckboxRow.style.display = "block";
         }
+    
+        // Usuwamy zmiany oprocentowania, które wykraczają poza nową wartość dlugoscUmowy
+        state.variableRates = state.variableRates.filter(change => change.period <= maxCykl);
     
         if (isZmienneOprocentowanie) {
             variableInputs.style.display = "block";
