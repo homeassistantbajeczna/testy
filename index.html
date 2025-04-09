@@ -367,7 +367,7 @@
         justify-content: center;
         align-items: flex-start;
         margin-bottom: 20px;
-        gap: 20px;
+        gap: 13px;
         flex-wrap: wrap;
         text-align: left;
     }
@@ -436,8 +436,8 @@
     /* Specyficzne style dla "Długość umowy" */
     .form-group:has(#dlugoscUmowy) .select-wrapper {
         position: relative;
-        width: 70px;
-        max-width: 70px;
+        width: 80px;
+        max-width: 80px;
     }
 
     .form-group:has(#dlugoscUmowy) .select-display {
@@ -637,6 +637,10 @@
         flex: none;
     }
 
+    .variable-input-group .form-group .form-label {
+        text-align: left;
+    }
+
     .variable-input-group .input-group {
         display: flex;
         align-items: center;
@@ -770,7 +774,7 @@
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
         .form-group, .input-group {
@@ -787,23 +791,23 @@
         }
 
         #dlugoscUmowy {
-            width: 130px;
+            width: 120px;
         }
 
         .input-group-text {
             height: 26px;
-            width: 70px;
+            width: 80px;
             padding: 4px 8px;
             line-height: 20px;
         }
 
         .form-group:has(#dlugoscUmowy) .select-wrapper {
-            width: 70px;
-            max-width: 70px;
+            width: 80px;
+            max-width: 80px;
         }
 
         .form-group:has(#dlugoscUmowy) .select-display {
-            width: 70px;
+            width: 80px;
         }
 
         .form-group:has(#kapitalizacja) .select-wrapper {
@@ -1296,7 +1300,7 @@
                 <td>${row.okres}</td>
                 <td>${row.wartoscLokaty} zł</td>
                 <td>${row.oprocentowanie}%</td>
-                <td>${row.odsetkiBrutto} zł</td>
+                                <td>${row.odsetkiBrutto} zł</td>
                 <td>${row.sumaOdsetek} zł</td>
                 <td>${row.podatek} zł</td>
                 <td>${row.zyskNetto} zł</td>
