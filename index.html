@@ -548,7 +548,7 @@
         border: none;
         cursor: pointer;
         appearance: none;
-        transform: translateY(2 🙂px);
+        transform: translateY(2px);
     }
 
     .info-text {
@@ -664,6 +664,14 @@
     }
 
     .remove-btn-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 5px;
+        align-self: center;
+        width: 100%;
+    }
+
+    .remove-first-btn-wrapper {
         display: flex;
         justify-content: center;
         margin-top: 5px;
@@ -869,6 +877,10 @@
         }
 
         .remove-btn-wrapper {
+            justify-content: center;
+        }
+
+        .remove-first-btn-wrapper {
             justify-content: center;
         }
     }
