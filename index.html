@@ -980,14 +980,18 @@
             justify-content: center;
         }
 
-        /* Poprawione style dla logo w widoku 576px i mniejszym (w tym 480px) */
         .logo-container {
-            justify-content: flex-start;
+            display: flex !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            flex-wrap: wrap;
         }
 
-        .logo-container #siteLogo {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
+        .logo,
+        #siteLogo {
+            margin: 0 !important;
+            padding: 10px 0;
+            max-width: 150px;
         }
     }
 </style>
