@@ -40,11 +40,14 @@
                                 <label for="dlugoscUmowy" class="form-label">Długość umowy</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="dlugoscUmowy" min="1" value="3">
-                                    <select class="form-control" id="jednostkaOkresu">
-                                        <option value="dni">dzień</option>
-                                        <option value="miesiace" selected>miesiąc</option>
-                                        <option value="lata">rok</option>
-                                    </select>
+                                    <div class="select-wrapper">
+                                        <select class="form-control select-hidden" id="jednostkaOkresu">
+                                            <option value="dni">dzień</option>
+                                            <option value="miesiace" selected>miesiąc</option>
+                                            <option value="lata">rok</option>
+                                        </select>
+                                        <span class="select-display" id="jednostkaOkresuDisplay">miesiąc ▼</span>
+                                    </div>
                                 </div>
                                 <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> 
                             </div>
@@ -69,14 +72,17 @@
                             </div>
                             <div class="form-group">
                                 <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
-                                <select class="form-control" id="kapitalizacja">
-                                    <option value="naKoniec" selected>Na koniec okresu</option>
-                                    <option value="dzienna">Dzienna</option>
-                                    <option value="miesieczna">Miesięczna</option>
-                                    <option value="kwartalna">Kwartalna</option>
-                                    <option value="roczna">Roczna</option>
-                                </select>
-                                <div class="info-text">Możesz dokonać wyboru</div> <!-- Dodajemy nowy tekst -->
+                                <div class="select-wrapper">
+                                    <select class="form-control select-hidden" id="kapitalizacja">
+                                        <option value="naKoniec" selected>Na koniec okresu</option>
+                                        <option value="dzienna">Dzienna</option>
+                                        <option value="miesieczna">Miesięczna</option>
+                                        <option value="kwartalna">Kwartalna</option>
+                                        <option value="roczna">Roczna</option>
+                                    </select>
+                                    <span class="select-display" id="kapitalizacjaDisplay">Na koniec okresu ▼</span>
+                                </div>
+                                <div class="info-text">Możesz dokonać wyboru</div>
                             </div>
                             <div class="form-group">
                                 <label for="dataRozpoczecia" class="form-label">Data rozpoczęcia</label>
@@ -405,30 +411,38 @@
         justify-content: center;
     }
 
-    .form-control.form-select {
-        background: var(--input-bg);
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        padding: 0 20px 0 5px;
-        max-width: 100px;
-        line-height: 22px;
+    .select-wrapper {
         position: relative;
+        width: 100%;
+        max-width: 100px;
     }
 
-    .form-control.form-select::-ms-expand {
-        display: none;
-    }
-
-    .form-control.form-select::after {
-        content: "▼";
+    .select-hidden {
+        opacity: 0;
         position: absolute;
-        right: 5px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 10px;
+        width: 100%;
+        height: 22px;
+        z-index: 2;
+        cursor: pointer;
+    }
+
+    .select-display {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 22px;
+        font-size: var(--small-font-size);
+        padding: 2px 5px;
+        text-align: center;
+        background: var(--input-bg);
         color: var(--primary-text);
-        pointer-events: none;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        box-sizing: border-box;
+        line-height: 18px;
+        width: 100%;
+        cursor: pointer;
+        z-index: 1;
     }
 
     .form-control:focus, .form-select:focus {
@@ -697,10 +711,6 @@
         background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .dark-mode .form-control.form-select::after {
-        color: var(--primary-text);
-    }
-
     @media (max-width: 576px) {
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
             flex-direction: column;
@@ -715,7 +725,7 @@
             margin: 2px auto;
         }
 
-        .form-control, .form-select {
+        .form-control, .select-display {
             height: 26px;
             width: 130px;
             padding: 4px 8px;
@@ -783,30 +793,64 @@
         isCalculating: false
     };
     
-    // Inicjalizacja widoczności sekcji przy ładowaniu strony
     window.addEventListener("load", () => {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
     });
     
-    // Ustawienie domyślnej daty rozpoczęcia
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
     
-    // Synchronizacja suwaków
     elements.kwotaRange.addEventListener("input", () => { elements.kwota.value = elements.kwotaRange.value; });
     elements.kwota.addEventListener("input", () => { elements.kwotaRange.value = elements.kwota.value; });
     elements.oprocentowanieRange.addEventListener("input", () => { elements.oprocentowanie.value = elements.oprocentowanieRange.value; });
     elements.oprocentowanie.addEventListener("input", () => { elements.oprocentowanieRange.value = elements.oprocentowanie.value; });
     elements.podatekRange.addEventListener("input", () => { elements.podatek.value = elements.podatekRange.value; });
     elements.podatek.addEventListener("input", () => { elements.podatekRange.value = elements.podatek.value; });
+
+    // Funkcja aktualizująca wyświetlany tekst w <span>
+    function updateSelectDisplay(selectElement, displayElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex].text;
+        displayElement.textContent = `${selectedOption} ▼`;
+    }
+
+    // Inicjalizacja dla "Długość umowy"
+    const jednostkaOkresuSelect = document.getElementById("jednostkaOkresu");
+    const jednostkaOkresuDisplay = document.getElementById("jednostkaOkresuDisplay");
+    updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
+
+    // Inicjalizacja dla "Kapitalizacja odsetek"
+    const kapitalizacjaSelect = document.getElementById("kapitalizacja");
+    const kapitalizacjaDisplay = document.getElementById("kapitalizacjaDisplay");
+    updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
+
+    // Obsługa zmiany w "Długość umowy"
+    jednostkaOkresuSelect.addEventListener("change", () => {
+        updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
+        updateInfoTexts();
+        updateVariableInputs();
+    });
+
+    // Obsługa zmiany w "Kapitalizacja odsetek"
+    kapitalizacjaSelect.addEventListener("change", () => {
+        updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
+    });
+
+    // Symulacja kliknięcia na <select> po kliknięciu w <span>
+    jednostkaOkresuDisplay.addEventListener("click", () => {
+        jednostkaOkresuSelect.focus();
+        jednostkaOkresuSelect.click();
+    });
+
+    kapitalizacjaDisplay.addEventListener("click", () => {
+        kapitalizacjaSelect.focus();
+        kapitalizacjaSelect.click();
+    });
     
-    // Aktualizacja tekstów informacyjnych
     function updateInfoTexts() {
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
         const dataRozpoczecia = new Date(elements.dataRozpoczecia.value);
     
-        // Obliczanie daty zakończenia
         const dataZakonczenia = new Date(dataRozpoczecia);
         if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
         else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
@@ -814,23 +858,21 @@
         elements.dataZakonczenia.textContent = `Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}`;
     }
     
-    // Inicjalizacja tekstów informacyjnych
     updateInfoTexts();
+    updateVariableInputs();
     
-    // Aktualizacja tekstów przy zmianie wartości
     elements.dlugoscUmowy.addEventListener("input", () => {
         updateInfoTexts();
-        updateVariableInputs(); // Odświeżamy interfejs, aby zaktualizować zakresy i jednostkę
+        updateVariableInputs();
     });
     
     elements.jednostkaOkresu.addEventListener("change", () => {
         updateInfoTexts();
-        updateVariableInputs(); // Odświeżamy interfejs, aby zaktualizować jednostkę w polach "Od"
+        updateVariableInputs();
     });
     
     elements.dataRozpoczecia.addEventListener("change", updateInfoTexts);
     
-    // Zmienne oprocentowanie
     elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
         state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
         if (!elements.zmienneOprocentowanieBtn.checked) {
@@ -856,29 +898,26 @@
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
     
-        // Obliczamy maxCykl w tej samej jednostce, co wybrana w "Długość umowy"
         let maxCykl = dlugoscUmowy;
     
-        // Jeśli dlugoscUmowy wynosi 1, ukrywamy checkbox i resetujemy zmienne oprocentowanie
         if (dlugoscUmowy === 1) {
-            variableCheckboxRow.style.display = "none"; // Ukrywamy checkbox
-            elements.zmienneOprocentowanieBtn.checked = false; // Odznaczamy checkbox
-            state.lastFormData.zmienneOprocentowanie = false; // Aktualizujemy stan
-            state.variableRates = []; // Czyścimy dane zmiennego oprocentowania
-            variableInputs.style.display = "none"; // Ukrywamy sekcję zmiennego oprocentowania
-            addVariableBtn.style.display = "none"; // Ukrywamy przycisk "Dodaj kolejną zmianę"
-            wrapper.innerHTML = ""; // Czyścimy wrapper
-            return; // Kończymy funkcję, bo nie ma potrzeby dalszego przetwarzania
+            variableCheckboxRow.style.display = "none";
+            elements.zmienneOprocentowanieBtn.checked = false;
+            state.lastFormData.zmienneOprocentowanie = false;
+            state.variableRates = [];
+            variableInputs.style.display = "none";
+            addVariableBtn.style.display = "none";
+            wrapper.innerHTML = "";
+            return;
         } else {
-            variableCheckboxRow.style.display = "block"; // Pokazujemy checkbox
+            variableCheckboxRow.style.display = "block";
         }
     
-        // Reszta kodu działa jak dotychczas, jeśli dlugoscUmowy >= 2
         if (isZmienneOprocentowanie) {
             variableInputs.style.display = "block";
             addVariableBtn.style.display = "block";
     
-            const maxChanges = maxCykl - 1; // Maksymalna liczba zmian (np. dla 3 miesięcy: 3 - 1 = 2 zmiany)
+            const maxChanges = maxCykl - 1;
             const data = state.variableRates;
     
             if (data.length === 0 && data.length < maxChanges) {
@@ -972,7 +1011,6 @@
                     cyklRange.value = value;
                     changes[index].period = value;
     
-                    // Usuwamy wszystkie kolejne wiersze, które mają okres mniejszy lub równy nowej wartości
                     for (let i = changes.length - 1; i > index; i--) {
                         if (changes[i].period <= value) {
                             changes.splice(i, 1);
@@ -991,7 +1029,6 @@
                     cyklInput.value = value;
                     changes[index].period = value;
     
-                    // Usuwamy wszystkie kolejne wiersze, które mają okres mniejszy lub równy nowej wartości
                     for (let i = changes.length - 1; i > index; i--) {
                         if (changes[i].period <= value) {
                             changes.splice(i, 1);
@@ -1017,12 +1054,9 @@
                 });
             });
     
-            // Sprawdzamy, czy ostatni okres osiągnął maxCykl
             const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
             const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-            // Obliczamy, ile okresów pozostało do wykorzystania
             const remainingPeriods = lastChange ? maxCykl - lastChange.period : maxCykl - 1;
-            // Przycisk "Dodaj kolejną zmianę" jest widoczny tylko, jeśli są jeszcze okresy do wykorzystania
             addVariableBtn.style.display = (!isMaxPeriodReached && remainingPeriods > 0) ? "block" : "none";
         } else {
             variableInputs.style.display = "none";
@@ -1034,7 +1068,7 @@
     function addVariableChange() {
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
-        let maxCykl = dlugoscUmowy; // Bez przeliczania na miesiące dla "lat"
+        let maxCykl = dlugoscUmowy;
         const changes = state.variableRates;
     
         const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
@@ -1072,19 +1106,16 @@
         const kapitalizacja = elements.kapitalizacja.value;
         const zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     
-        // Przeliczanie okresu na dni
         let dni;
         if (jednostka === "dni") dni = dlugoscUmowy;
         else if (jednostka === "miesiace") dni = dlugoscUmowy * 30.42;
         else dni = dlugoscUmowy * 365;
     
-        // Obliczanie daty zakończenia
         const dataZakonczenia = new Date(dataRozpoczecia);
         if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
         else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
         else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
     
-        // Obliczanie liczby okresów kapitalizacji
         let okresyKapitalizacji;
         if (kapitalizacja === "dzienna") okresyKapitalizacji = Math.floor(dni);
         else if (kapitalizacja === "miesieczna") okresyKapitalizacji = Math.floor(dni / 30.42);
@@ -1092,7 +1123,6 @@
         else if (kapitalizacja === "roczna") okresyKapitalizacji = Math.floor(dni / 365);
         else okresyKapitalizacji = 1;
     
-        // Obliczanie odsetek z uwzględnieniem zmiennego oprocentowania
         let kapital = kwota;
         let sumaOdsetekBrutto = 0;
         let sumaPodatku = 0;
@@ -1106,14 +1136,12 @@
         for (let okres = 1; okres <= liczbaOkresow; okres++) {
             let aktualneOprocentowanie = oprocentowanie;
             if (zmienneOprocentowanie) {
-                // Przeliczamy okres z jednostki użytkownika na miesiące
                 let okresWMiesiacach = okres;
                 if (jednostka === "dni") {
                     okresWMiesiacach = Math.ceil(okres / 30.42);
                 } else if (jednostka === "lata") {
                     okresWMiesiacach = okres * 12;
                 }
-                // Szukamy zmiany oprocentowania dla przeliczonego okresu
                 const zmiana = state.variableRates.find(rate => {
                     let ratePeriodWMiesiacach = rate.period;
                     if (jednostka === "dni") {
@@ -1171,7 +1199,6 @@
             kapital += sumaZyskuNetto;
         }
     
-        // Aktualizacja podsumowania
         const summaryBars = document.querySelector(".summary-bars");
         summaryBars.innerHTML = `
             <div class="summary-bar" data-tooltip="${kwota.toFixed(2).replace('.', ',')} zł">Kwota lokaty: ${kwota.toFixed(2).replace('.', ',')} zł</div>
@@ -1182,7 +1209,6 @@
             <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}">Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}</div>
         `;
     
-        // Aktualizacja harmonogramu
         elements.harmonogramTabela.innerHTML = "";
         state.harmonogramData.forEach(row => {
             const tr = document.createElement("tr");
@@ -1199,7 +1225,6 @@
             elements.harmonogramTabela.appendChild(tr);
         });
     
-        // Aktualizacja wykresu liniowego
         if (state.chartLine) state.chartLine.destroy();
         state.chartLine = new Chart(elements.lokatyChartLine, {
             type: 'line',
@@ -1229,7 +1254,6 @@
             }
         });
     
-        // Przełączenie widoku
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
         state.isCalculating = false;
@@ -1298,8 +1322,6 @@
         pdfMake.createPdf(docDefinition).download('Kalkulator_Lokat_Podsumowanie.pdf');
     }
     
-    // F U N K C J A      Z O O M
-    
     document.getElementById('siteLogo').addEventListener('click', () => {
         window.open('https://finance-brothers.pl', '_blank');
     });
@@ -1329,8 +1351,6 @@
         }
     });
 
-    // D A R K     M O D E
-    
     function toggleDarkMode() {
         const body = document.body;
         const isDarkMode = body.classList.contains('dark-mode');
@@ -1377,7 +1397,6 @@
     });
 
     initializeTheme();
-    
 </script>
 </body>
 </html>
