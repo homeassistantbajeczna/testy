@@ -532,6 +532,15 @@
         margin-left: auto;
         margin-right: auto;
         outline: none;
+        /* Usunięcie niebieskiego cienia na poziomie całego elementu */
+        box-shadow: none !important;
+    }
+
+    /* Usunięcie niebieskiego cienia dla całego elementu w stanach :focus i :active */
+    input[type="range"].form-range:focus,
+    input[type="range"].form-range:active {
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     input[type="range"].form-range::-webkit-slider-runnable-track {
@@ -551,10 +560,28 @@
         transform: translateY(2px);
     }
 
-    /* Usunięcie niebieskiego cienia przy fokusie */
-    input[type="range"].form-range::-webkit-slider-thumb:focus {
-        box-shadow: none !important; /* Usuwamy niebieski cień */
-        outline: none; /* Usuwamy domyślny outline */
+    /* Usunięcie niebieskiego cienia dla kciuka w WebKit */
+    input[type="range"].form-range::-webkit-slider-thumb:focus,
+    input[type="range"].form-range::-webkit-slider-thumb:active {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Kompatybilność z Firefox */
+    input[type="range"].form-range::-moz-range-thumb {
+        background: var(--accent-gradient-start);
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+    }
+
+    /* Usunięcie niebieskiego cienia dla kciuka w Firefox */
+    input[type="range"].form-range::-moz-range-thumb:focus,
+    input[type="range"].form-range::-moz-range-thumb:active {
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     .info-text {
@@ -574,7 +601,7 @@
         filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
     }
 
-    .result-container, .form-container, .harmonogram-container {
+    .result-container, .form контейнер, .harmonogram-container {
         display: flex;
         gap: 20px;
         justify-content: center;
@@ -847,10 +874,23 @@
             align-self: flex-start;
         }
 
-        /* Usunięcie niebieskiego cienia przy fokusie w widoku mobilnym */
-        input[type="range"].form-range::-webkit-slider-thumb:focus {
-            box-shadow: none !important; /* Usuwamy niebieski cień */
-            outline: none; /* Usuwamy domyślny outline */
+        /* Usunięcie niebieskiego cienia w widoku mobilnym */
+        input[type="range"].form-range:focus,
+        input[type="range"].form-range:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        input[type="range"].form-range::-webkit-slider-thumb:focus,
+        input[type="range"].form-range::-webkit-slider-thumb:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        input[type="range"].form-range::-moz-range-thumb:focus,
+        input[type="range"].form-range::-moz-range-thumb:active {
+            outline: none !important;
+            box-shadow: none !important;
         }
 
         .harmonogram table {
