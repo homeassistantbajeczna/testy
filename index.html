@@ -551,6 +551,12 @@
         transform: translateY(2px);
     }
 
+    /* Usunięcie niebieskiego cienia przy fokusie */
+    input[type="range"].form-range::-webkit-slider-thumb:focus {
+        box-shadow: none !important; /* Usuwamy niebieski cień */
+        outline: none; /* Usuwamy domyślny outline */
+    }
+
     .info-text {
         font-size: 0.40em;
         color: var(--primary-text);
@@ -839,6 +845,12 @@
         input[type="range"].form-range {
             width: 200px;
             align-self: flex-start;
+        }
+
+        /* Usunięcie niebieskiego cienia przy fokusie w widoku mobilnym */
+        input[type="range"].form-range::-webkit-slider-thumb:focus {
+            box-shadow: none !important; /* Usuwamy niebieski cień */
+            outline: none; /* Usuwamy domyślny outline */
         }
 
         .harmonogram table {
