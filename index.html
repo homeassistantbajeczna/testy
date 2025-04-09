@@ -527,13 +527,13 @@
         background: var(--input-group-bg);
         border: 2px solid var(--border-color);
         border-radius: var(--border-radius);
-        appearance: none;
+        -webkit-appearance: none !important; /* Reset domyślnego wyglądu w WebKit */
+        appearance: none !important; /* Reset domyślnego wyglądu w innych przeglądarkach */
         width: 150px;
         margin-left: auto;
         margin-right: auto;
-        outline: none;
-        /* Usunięcie niebieskiego cienia na poziomie całego elementu */
-        box-shadow: none !important;
+        outline: none !important; /* Usunięcie outline */
+        box-shadow: none !important; /* Usunięcie cienia */
     }
 
     /* Usunięcie niebieskiego cienia dla całego elementu w stanach :focus i :active */
@@ -541,14 +541,28 @@
     input[type="range"].form-range:active {
         outline: none !important;
         box-shadow: none !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
     }
 
+    /* Styl dla toru suwaka w WebKit */
     input[type="range"].form-range::-webkit-slider-runnable-track {
         background: var(--input-group-bg);
         height: 6px;
         border-radius: var(--border-radius);
+        -webkit-appearance: none !important;
+        box-shadow: none !important;
+        outline: none !important;
     }
 
+    /* Usunięcie cienia dla toru w stanach :focus i :active */
+    input[type="range"].form-range:focus::-webkit-slider-runnable-track,
+    input[type="range"].form-range:active::-webkit-slider-runnable-track {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* Styl dla kciuka suwaka w WebKit */
     input[type="range"].form-range::-webkit-slider-thumb {
         background: var(--accent-gradient-start);
         width: 11px;
@@ -556,18 +570,31 @@
         border-radius: 50%;
         border: none;
         cursor: pointer;
-        appearance: none;
+        -webkit-appearance: none !important;
+        appearance: none !important;
         transform: translateY(2px);
+        box-shadow: none !important;
+        outline: none !important;
     }
 
-    /* Usunięcie niebieskiego cienia dla kciuka w WebKit */
+    /* Usunięcie niebieskiego cienia dla kciuka w WebKit w stanach :focus i :active */
     input[type="range"].form-range::-webkit-slider-thumb:focus,
     input[type="range"].form-range::-webkit-slider-thumb:active {
         outline: none !important;
         box-shadow: none !important;
+        -webkit-appearance: none !important;
     }
 
-    /* Kompatybilność z Firefox */
+    /* Styl dla toru suwaka w Firefox */
+    input[type="range"].form-range::-moz-range-track {
+        background: var(--input-group-bg);
+        height: 6px;
+        border-radius: var(--border-radius);
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* Styl dla kciuka suwaka w Firefox */
     input[type="range"].form-range::-moz-range-thumb {
         background: var(--accent-gradient-start);
         width: 11px;
@@ -575,9 +602,11 @@
         border-radius: 50%;
         border: none;
         cursor: pointer;
+        box-shadow: none !important;
+        outline: none !important;
     }
 
-    /* Usunięcie niebieskiego cienia dla kciuka w Firefox */
+    /* Usunięcie niebieskiego cienia dla kciuka w Firefox w stanach :focus i :active */
     input[type="range"].form-range::-moz-range-thumb:focus,
     input[type="range"].form-range::-moz-range-thumb:active {
         outline: none !important;
@@ -601,7 +630,7 @@
         filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
     }
 
-    .result-container, .form контейнер, .harmonogram-container {
+    .result-container, .form-container, .harmonogram-container {
         display: flex;
         gap: 20px;
         justify-content: center;
@@ -872,6 +901,10 @@
         input[type="range"].form-range {
             width: 200px;
             align-self: flex-start;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            outline: none !important;
+            box-shadow: none !important;
         }
 
         /* Usunięcie niebieskiego cienia w widoku mobilnym */
@@ -879,12 +912,42 @@
         input[type="range"].form-range:active {
             outline: none !important;
             box-shadow: none !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+        }
+
+        input[type="range"].form-range::-webkit-slider-runnable-track {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        input[type="range"].form-range:focus::-webkit-slider-runnable-track,
+        input[type="range"].form-range:active::-webkit-slider-runnable-track {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        input[type="range"].form-range::-webkit-slider-thumb {
+            -webkit-appearance: none !important;
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         input[type="range"].form-range::-webkit-slider-thumb:focus,
         input[type="range"].form-range::-webkit-slider-thumb:active {
             outline: none !important;
             box-shadow: none !important;
+            -webkit-appearance: none !important;
+        }
+
+        input[type="range"].form-range::-moz-range-track {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        input[type="range"].form-range::-moz-range-thumb {
+            box-shadow: none !important;
+            outline: none !important;
         }
 
         input[type="range"].form-range::-moz-range-thumb:focus,
