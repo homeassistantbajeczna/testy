@@ -410,17 +410,25 @@
         appearance: none;
         -webkit-appearance: none;
         -moz-appearance: none;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23333333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-        background-repeat: no-repeat;
-        background-position: right 5px center;
-        background-size: 12px;
         padding: 0 20px 0 5px;
         max-width: 100px;
         line-height: 22px;
+        position: relative;
     }
 
     .form-control.form-select::-ms-expand {
         display: none;
+    }
+
+    .form-control.form-select::after {
+        content: "▼";
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 10px;
+        color: var(--primary-text);
+        pointer-events: none;
     }
 
     .form-control:focus, .form-select:focus {
@@ -615,7 +623,7 @@
 
     /* Style dla harmonogramu i tabeli */
     .harmonogram-container {
-        display: block; /* Poprawione, aby harmonogram i wykres były w jednym bloku */
+        display: block;
         width: 100%;
     }
 
@@ -625,7 +633,7 @@
     }
 
     .harmonogram-chart-wrapper {
-        display: block; /* Upewniamy się, że elementy są ułożone pionowo */
+        display: block;
         width: 100%;
     }
 
@@ -667,11 +675,10 @@
         background-color: rgba(0, 0, 0, 0.05);
     }
 
-   
     .chart-container-line {
         margin-top: 20px;
         width: 100%;
-        height: 300px; /* Ograniczenie wysokości wykresu */
+        height: 300px;
         position: relative;
     }
 
@@ -686,19 +693,14 @@
     }
 
     /*  D A R K       M O D E  */
-
-     .dark-mode .harmonogram .table-striped tbody tr:nth-of-type(odd) {
+    .dark-mode .harmonogram .table-striped tbody tr:nth-of-type(odd) {
         background-color: rgba(255, 255, 255, 0.05);
     }
 
-    .dark-mode .form-control.form-select {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%23e0e0e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
-        background-repeat: no-repeat;
-        background-position: right 5px center;
-        background-size: 12px;
+    .dark-mode .form-control.form-select::after {
+        color: var(--primary-text);
     }
 
-    
     @media (max-width: 576px) {
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
             flex-direction: column;
@@ -736,7 +738,7 @@
         }
 
         .chart-container-line {
-            height: 200px; /* Mniejsza wysokość na urządzeniach mobilnych */
+            height: 200px;
         }
     }
 </style>
