@@ -232,7 +232,6 @@
     .logo-container {
         background-color: var(--logo-bg);
         padding: 15px;
-        text-align: center;
         margin-bottom: 20px;
         position: relative;
         display: flex;
@@ -548,8 +547,7 @@
         outline: none !important;
     }
 
-    input[type="range"].form-range:focus::-webkit-slider-runnable-track,
-    input[type="range"].form-range:active::-webkit-slider-runnable-track {
+    input[type="range"].form-range:focus::-webkit-slider-runnable-track    input[type="range"].form-range:active::-webkit-slider-runnable-track {
         box-shadow: none !important;
         outline: none !important;
     }
@@ -982,14 +980,14 @@
             justify-content: center;
         }
 
-        /* Przesunięcie logo na lewo w widoku 576px i mniejszym (w tym 480px) */
+        /* Poprawione style dla logo w widoku 576px i mniejszym (w tym 480px) */
         .logo-container {
             justify-content: flex-start;
         }
 
-        .logo, #siteLogo {
-            margin-left: 0;
-            margin-right: 0;
+        .logo-container #siteLogo {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
         }
     }
 </style>
