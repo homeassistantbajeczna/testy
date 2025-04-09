@@ -548,7 +548,7 @@
         border: none;
         cursor: pointer;
         appearance: none;
-        transform: translateY(2px);
+        transform: translateY(2 🙂px);
     }
 
     .info-text {
@@ -620,25 +620,25 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 10px;
-        align-items: flex-start;
-        width: 100%;
+        align-items: center;
+        width: auto;
     }
 
     .variable-inputs-wrapper {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         gap: 10px;
-        width: 100%;
+        width: auto;
     }
 
     .variable-input-group .form-group {
-        width: 200px;
+        width: 150px;
         min-width: 0;
         max-width: none;
         flex: none;
-        align-items: flex-start;
-        margin: 0;
+        align-items: center;
+        margin: 0 5px;
     }
 
     .variable-input-group .form-group .form-label {
@@ -647,9 +647,9 @@
 
     .variable-input-group .input-group {
         display: flex;
-        max-width: 200px;
-        width: 200px;
-        justify-content: flex-start;
+        max-width: 150px;
+        width: 150px;
+        justify-content: center;
     }
 
     .variable-input-group .btn-danger {
@@ -856,12 +856,20 @@
         }
 
         .variable-input-group .form-group {
+            width: 200px;
             margin: 5px 0;
             align-self: flex-start;
+            align-items: flex-start;
         }
 
         .variable-input-group .input-group {
+            width: 200px;
+            max-width: 200px;
             justify-content: flex-start;
+        }
+
+        .remove-btn-wrapper {
+            justify-content: center;
         }
     }
 </style>
