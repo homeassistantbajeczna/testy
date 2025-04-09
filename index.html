@@ -848,14 +848,30 @@
     function updateVariableInputs() {
         const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
         const variableInputs = document.getElementById("variableInputs");
+        const variableCheckboxRow = document.getElementById("variableCheckboxRow");
         const addVariableBtn = elements.addVariableBtn;
         const wrapper = document.getElementById("variableInputsWrapper");
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
     
         // Obliczamy maxCykl w tej samej jednostce, co wybrana w "Długość umowy"
-        let maxCykl = dlugoscUmowy; // Bez przeliczania na miesiące dla "lat"
+        let maxCykl = dlugoscUmowy;
     
+        // Jeśli dlugoscUmowy wynosi 1, ukrywamy checkbox i resetujemy zmienne oprocentowanie
+        if (dlugoscUmowy === 1) {
+            variableCheckboxRow.style.display = "none"; // Ukrywamy checkbox
+            elements.zmienneOprocentowanieBtn.checked = false; // Odznaczamy checkbox
+            state.lastFormData.zmienneOprocentowanie = false; // Aktualizujemy stan
+            state.variableRates = []; // Czyścimy dane zmiennego oprocentowania
+            variableInputs.style.display = "none"; // Ukrywamy sekcję zmiennego oprocentowania
+            addVariableBtn.style.display = "none"; // Ukrywamy przycisk "Dodaj kolejną zmianę"
+            wrapper.innerHTML = ""; // Czyścimy wrapper
+            return; // Kończymy funkcję, bo nie ma potrzeby dalszego przetwarzania
+        } else {
+            variableCheckboxRow.style.display = "block"; // Pokazujemy checkbox
+        }
+    
+        // Reszta kodu działa jak dotychczas, jeśli dlugoscUmowy >= 2
         if (isZmienneOprocentowanie) {
             variableInputs.style.display = "block";
             addVariableBtn.style.display = "block";
