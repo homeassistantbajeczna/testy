@@ -1053,10 +1053,32 @@
     
     // Synchronizacja suwaka i pola liczbowego dla "Kwota"
     elements.kwotaRange.addEventListener("input", () => {
-        elements.kwota.value = elements.kwotaRange.value;
+        let value = parseFloat(elements.kwotaRange.value);
+    
+        // Jeśli wartość jest mniejsza niż 1, ustawiamy 1
+        if (value < 1) {
+            value = 1;
+            elements.kwotaRange.value = value;
+        }
+        
+        elements.kwota.value = value;
     });
     elements.kwota.addEventListener("input", () => {
-        elements.kwotaRange.value = elements.kwota.value;
+        let value = parseFloat(elements.kwota.value);
+        const maxValue = parseFloat(elements.kwotaRange.max);
+        
+        // Jeśli wartość jest mniejsza niż 1 lub nie jest liczbą, ustawiamy 1
+        if (isNaN(value) || value < 1) {
+            value = 1;
+            elements.kwota.value = value;
+        }
+        // Jeśli wartość przekracza maksymalną, ustawiamy maksymalną
+        if (value > maxValue) {
+            value = maxValue;
+            elements.kwota.value = value;
+        }
+        
+        elements.kwotaRange.value = value;
     });
     
     // Synchronizacja suwaka i pola liczbowego dla "Oprocentowanie"
