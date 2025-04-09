@@ -158,6 +158,136 @@
             </div>
         </div>
     </div>
+<div class="form-group">
+                                <label for="kwota" class="form-label">Kwota lokaty</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
+                            </div>
+                            <div class="form-group">
+                                <label for="dlugoscUmowy" class="form-label">Długość umowy</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="dlugoscUmowy" min="1" value="3">
+                                    <div class="select-wrapper">
+                                        <select class="form-control select-hidden" id="jednostkaOkresu">
+                                            <option value="dni">dzień</option>
+                                            <option value="miesiace" selected>miesiąc</option>
+                                            <option value="lata">rok</option>
+                                        </select>
+                                        <span class="select-display" id="jednostkaOkresuDisplay">miesiąc ▼</span>
+                                    </div>
+                                </div>
+                                <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> 
+                            </div>
+                            <div class="form-group">
+                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="4">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="4">
+                                <div class="info-text">Roczne oprocentowanie</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="podatek" class="form-label">Podatek</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="podatek" min="0" max="50" step="0.1" value="19">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="podatekRange" min="0" max="50" step="0.1" value="19">
+                            </div>
+                            <div class="form-group">
+                                <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
+                                <div class="select-wrapper">
+                                    <select class="form-control select-hidden" id="kapitalizacja">
+                                        <option value="naKoniec" selected>Na koniec okresu</option>
+                                        <option value="dzienna">Dzienna</option>
+                                        <option value="miesieczna">Miesięczna</option>
+                                        <option value="kwartalna">Kwartalna</option>
+                                        <option value="roczna">Roczna</option>
+                                    </select>
+                                    <span class="select-display" id="kapitalizacjaDisplay">Na koniec okresu ▼</span>
+                                </div>
+                                <div class="info-text">Możesz dokonać wyboru</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataRozpoczecia" class="form-label">Data rozpoczęcia</label>
+                                <div class="input-group">
+                                    <input type="date" class="form-control" id="dataRozpoczecia">
+                                </div>
+                                <div class="info-text" id="dataZakonczenia">Data zakończenia: 09.07.2025</div>
+                            </div>
+                        </div>
+                        <div class="variable-rate-container">
+                            <div class="checkbox-row" id="variableCheckboxRow">
+                                <label class="checkbox-label" id="zmienneOprocentowanieLabel">
+                                    <input type="checkbox" id="zmienneOprocentowanieBtn">
+                                    <span class="checkbox-custom"></span>
+                                    <b>Zmienne Oprocentowanie</b>
+                                </label>
+                            </div>
+                            <div class="variable-inputs" id="variableInputs">
+                                <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki lokaty">Oblicz</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="result-section" id="resultSection" style="display: none;">
+            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
+            <div class="result-header">
+                <h4 id="resultHeader">Podsumowanie wyników</h4>
+            </div>
+            <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
+            <div class="result-container">
+                <div class="result-wrapper-chart">
+                    <div class="summary-bars">
+                        <!-- Dane będą generowane dynamicznie przez JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="harmonogram-container">
+                <div class="result-wrapper-harmonogram">
+                    <div class="harmonogram-chart-wrapper">
+                        <div class="harmonogram">
+                            <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
+                            <div id="harmonogramContent">
+                                <table class="table table-striped">
+                                    <thead id="harmonogramNaglowek">
+                                        <tr>
+                                            <th id="pierwszaKolumnaNaglowek">Okres</th>
+                                            <th>Wartość lokaty</th>
+                                            <th>Oprocentowanie</th>
+                                            <th>Odsetki brutto</th>
+                                            <th>Suma odsetek</th>
+                                            <th>Podatek</th>
+                                            <th>Zysk netto</th>
+                                            <th>Suma netto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="harmonogramTabela"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="chart-container-line">
+                            <div class="chart-line">
+                                <canvas id="lokatyChartLine" aria-label="Wykres liniowy wartości lokaty w czasie"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 <style>
     :root {
         --primary-bg: #f5f6f5;
@@ -422,8 +552,6 @@
 
     .select-wrapper {
         position: relative;
-        width: 70px; /* Zmniejszamy szerokość, aby zmieścić się obok pola liczbowego */
-        max-width: 70px;
     }
 
     .select-hidden {
@@ -435,7 +563,14 @@
         cursor: pointer;
     }
 
-    .select-display {
+    /* Specyficzne style dla "Długość umowy" */
+    .form-group:has(#dlugoscUmowy) .select-wrapper {
+        position: relative;
+        width: 70px;
+        max-width: 70px;
+    }
+
+    .form-group:has(#dlugoscUmowy) .select-display {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -448,6 +583,34 @@
         border: 1px solid var(--border-color);
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
+        border-top-right-radius: var(--border-radius);
+        border-bottom-right-radius: var(--border-radius);
+        box-sizing: border-box;
+        line-height: 18px;
+        width: 100%;
+        cursor: pointer;
+        z-index: 1;
+    }
+
+    /* Specyficzne style dla "Kapitalizacja odsetek" */
+    .form-group:has(#kapitalizacja) .select-wrapper {
+        position: relative;
+        width: 150px;
+        max-width: 150px;
+    }
+
+    .form-group:has(#kapitalizacja) .select-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 22px;
+        font-size: var(--small-font-size);
+        padding: 2px 5px;
+        text-align: center;
+        background: var(--input-bg);
+        color: var(--primary-text);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
         box-sizing: border-box;
         line-height: 18px;
         width: 100%;
@@ -482,10 +645,10 @@
     .input-group {
         width: 150px;
         display: flex;
-        flex-direction: row; /* Ustawiamy elementy w rzędzie */
+        flex-direction: row;
         justify-content: center;
         align-items: center;
-        gap: 0; /* Usuwamy odstęp między elementami */
+        gap: 0;
     }
 
     input[type="range"].form-range {
@@ -755,13 +918,22 @@
             line-height: 20px;
         }
 
-        .select-wrapper {
+        .form-group:has(#dlugoscUmowy) .select-wrapper {
             width: 70px;
             max-width: 70px;
         }
 
-        .select-display {
+        .form-group:has(#dlugoscUmowy) .select-display {
             width: 70px;
+        }
+
+        .form-group:has(#kapitalizacja) .select-wrapper {
+            width: 200px;
+            max-width: 200px;
+        }
+
+        .form-group:has(#kapitalizacja) .select-display {
+            width: 200px;
         }
 
         input[type="range"].form-range {
@@ -1319,7 +1491,7 @@
                 { text: `Kwota lokaty: ${parseFloat(elements.kwota.value).toFixed(2)} zł` },
                 { text: `Odsetki brutto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.odsetkiBrutto), 0).toFixed(2)} zł` },
                 { text: `Podatek: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.podatek), 0).toFixed(2)} zł` },
-                { text: `Odsetki netto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.zyskNetto), 0).toFixed(2)} zł` },
+                                { text: `Odsetki netto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.zyskNetto), 0).toFixed(2)} zł` },
                 { text: `Całkowita kwota po zakończeniu: ${state.harmonogramData[state.harmonogramData.length - 1].sumaNetto} zł` },
                 { text: `Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}` },
                 { text: '\nHarmonogram odsetek:', style: 'subheader' },
