@@ -49,6 +49,7 @@
                                         <span class="select-display" id="jednostkaOkresuDisplay">miesiąc ▼</span>
                                     </div>
                                 </div>
+                                <input type="range" class="form-range" id="dlugoscUmowyRange" min="1" max="36" step="1" value="3">
                                 <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> 
                             </div>
                             <div class="form-group">
@@ -869,6 +870,11 @@
             line-height: 20px;
         }
 
+        form-group:has(#dlugoscUmowy) .form-range {
+            width: 200px;
+            align-self: flex-start;
+        }
+
         .form-group:has(#kapitalizacja) .select-wrapper {
             width: 200px;
             max-width: 200px;
@@ -1002,6 +1008,7 @@
         kwota: document.getElementById("kwota"),
         kwotaRange: document.getElementById("kwotaRange"),
         dlugoscUmowy: document.getElementById("dlugoscUmowy"),
+        dlugoscUmowyRange: document.getElementById("dlugoscUmowyRange"), // Dodajemy suwak
         jednostkaOkresu: document.getElementById("jednostkaOkresu"),
         oprocentowanie: document.getElementById("oprocentowanie"),
         oprocentowanieRange: document.getElementById("oprocentowanieRange"),
@@ -1039,51 +1046,123 @@
     window.addEventListener("load", () => {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
+        updateDlugoscUmowyRange(); // Inicjalizujemy suwak przy ładowaniu strony
     });
     
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
     
-    elements.kwotaRange.addEventListener("input", () => { elements.kwota.value = elements.kwotaRange.value; });
-    elements.kwota.addEventListener("input", () => { elements.kwotaRange.value = elements.kwota.value; });
-    elements.oprocentowanieRange.addEventListener("input", () => { elements.oprocentowanie.value = elements.oprocentowanieRange.value; });
-    elements.oprocentowanie.addEventListener("input", () => { elements.oprocentowanieRange.value = elements.oprocentowanie.value; });
-    elements.podatekRange.addEventListener("input", () => { elements.podatek.value = elements.podatekRange.value; });
-    elements.podatek.addEventListener("input", () => { elements.podatekRange.value = elements.podatek.value; });
-
+    // Synchronizacja suwaka i pola liczbowego dla "Kwota"
+    elements.kwotaRange.addEventListener("input", () => {
+        elements.kwota.value = elements.kwotaRange.value;
+    });
+    elements.kwota.addEventListener("input", () => {
+        elements.kwotaRange.value = elements.kwota.value;
+    });
+    
+    // Synchronizacja suwaka i pola liczbowego dla "Oprocentowanie"
+    elements.oprocentowanieRange.addEventListener("input", () => {
+        elements.oprocentowanie.value = elements.oprocentowanieRange.value;
+    });
+    elements.oprocentowanie.addEventListener("input", () => {
+        elements.oprocentowanieRange.value = elements.oprocentowanie.value;
+    });
+    
+    // Synchronizacja suwaka i pola liczbowego dla "Podatek"
+    elements.podatekRange.addEventListener("input", () => {
+        elements.podatek.value = elements.podatekRange.value;
+    });
+    elements.podatek.addEventListener("input", () => {
+        elements.podatekRange.value = elements.podatek.value;
+    });
+    
+    // Synchronizacja suwaka i pola liczbowego dla "Długość umowy"
+    elements.dlugoscUmowyRange.addEventListener("input", () => {
+        elements.dlugoscUmowy.value = elements.dlugoscUmowyRange.value;
+        updateInfoTexts();
+        updateVariableInputs();
+    });
+    
+    elements.dlugoscUmowy.addEventListener("input", () => {
+        let value = parseInt(elements.dlugoscUmowy.value) || 1;
+        const maxValue = parseInt(elements.dlugoscUmowyRange.max);
+        if (value < 1) {
+            value = 1;
+            elements.dlugoscUmowy.value = value;
+        }
+        if (value > maxValue) {
+            value = maxValue;
+            elements.dlugoscUmowy.value = value;
+        }
+        elements.dlugoscUmowyRange.value = value;
+        updateInfoTexts();
+        updateVariableInputs();
+    });
+    
+    // Funkcja aktualizująca ograniczenia suwaka dla "Długość umowy"
+    function updateDlugoscUmowyRange() {
+        const jednostka = elements.jednostkaOkresu.value;
+        let maxValue;
+    
+        // Ustawiamy maksymalną wartość w zależności od jednostki
+        if (jednostka === "dni") {
+            maxValue = 365; // Maksymalnie 365 dni
+        } else if (jednostka === "miesiace") {
+            maxValue = 36; // Maksymalnie 36 miesięcy
+        } else if (jednostka === "lata") {
+            maxValue = 10; // Maksymalnie 10 lat
+        }
+    
+        // Aktualizujemy atrybuty suwaka
+        elements.dlugoscUmowyRange.min = 1;
+        elements.dlugoscUmowyRange.max = maxValue;
+        elements.dlugoscUmowyRange.step = 1;
+    
+        // Aktualizujemy wartość suwaka, jeśli przekracza maksymalną wartość
+        let currentValue = parseInt(elements.dlugoscUmowy.value) || 1;
+        if (currentValue > maxValue) {
+            currentValue = maxValue;
+            elements.dlugoscUmowy.value = currentValue;
+        }
+        elements.dlugoscUmowyRange.value = currentValue;
+    
+        // Aktualizujemy tekst informacyjny (np. data zakończenia)
+        updateInfoTexts();
+        updateVariableInputs();
+    }
+    
     // Funkcja aktualizująca wyświetlany tekst w <span>
     function updateSelectDisplay(selectElement, displayElement) {
         const selectedOption = selectElement.options[selectElement.selectedIndex].text;
         displayElement.textContent = `${selectedOption} ▼`;
     }
-
+    
     // Inicjalizacja dla "Długość umowy"
     const jednostkaOkresuSelect = document.getElementById("jednostkaOkresu");
     const jednostkaOkresuDisplay = document.getElementById("jednostkaOkresuDisplay");
     updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
-
+    
     // Inicjalizacja dla "Kapitalizacja odsetek"
     const kapitalizacjaSelect = document.getElementById("kapitalizacja");
     const kapitalizacjaDisplay = document.getElementById("kapitalizacjaDisplay");
     updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
-
+    
     // Obsługa zmiany w "Długość umowy"
     jednostkaOkresuSelect.addEventListener("change", () => {
         updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
-        updateInfoTexts();
-        updateVariableInputs();
+        updateDlugoscUmowyRange(); // Aktualizujemy suwak przy zmianie jednostki
     });
-
+    
     // Obsługa zmiany w "Kapitalizacja odsetek"
     kapitalizacjaSelect.addEventListener("change", () => {
         updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
     });
-
+    
     // Symulacja kliknięcia na <select> po kliknięciu w <span>
     jednostkaOkresuDisplay.addEventListener("click", () => {
         jednostkaOkresuSelect.focus();
         jednostkaOkresuSelect.click();
     });
-
+    
     kapitalizacjaDisplay.addEventListener("click", () => {
         kapitalizacjaSelect.focus();
         kapitalizacjaSelect.click();
@@ -1103,16 +1182,6 @@
     
     updateInfoTexts();
     updateVariableInputs();
-    
-    elements.dlugoscUmowy.addEventListener("input", () => {
-        updateInfoTexts();
-        updateVariableInputs();
-    });
-    
-    elements.jednostkaOkresu.addEventListener("change", () => {
-        updateInfoTexts();
-        updateVariableInputs();
-    });
     
     elements.dataRozpoczecia.addEventListener("change", updateInfoTexts);
     
@@ -1568,7 +1637,7 @@
     document.getElementById('siteLogo').addEventListener('click', () => {
         window.open('https://finance-brothers.pl', '_blank');
     });
-
+    
     let currentZoom = 1;
     const zoomStep = 0.1;
     const minZoom = 0.5;
@@ -1593,7 +1662,7 @@
             updateZoom();
         }
     });
-
+    
     function toggleDarkMode() {
         const body = document.body;
         const isDarkMode = body.classList.contains('dark-mode');
@@ -1638,7 +1707,7 @@
             state.chartLine.update();
         }
     });
-
+    
     initializeTheme();
 </script>
 </body>
