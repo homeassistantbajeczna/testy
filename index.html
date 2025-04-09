@@ -1071,7 +1071,7 @@
     elements.oprocentowanie.addEventListener("input", () => {
         let value = parseFloat(elements.oprocentowanie.value) || 0.1;
         const maxValue = parseFloat(elements.oprocentowanieRange.max);
-        if (value < 0.1) {
+        if (isNaN(value) || value < 0.1) {
             value = 0.1;
             elements.oprocentowanie.value = value;
         }
@@ -1105,7 +1105,7 @@
     elements.dlugoscUmowy.addEventListener("input", () => {
         let value = parseInt(elements.dlugoscUmowy.value) || 1;
         const maxValue = parseInt(elements.dlugoscUmowyRange.max);
-        if (value < 1) {
+        if (isNaN(value) || value < 1) {
             value = 1;
             elements.dlugoscUmowy.value = value;
         }
@@ -1364,7 +1364,7 @@
     
                 rateInput.addEventListener("input", () => {
                     let value = parseFloat(rateInput.value) || 0.1;
-                    if (value < 0.1) {
+                    if (isNaN(value) || value < 0.1) {
                         value = 0.1;
                         rateInput.value = value;
                     }
