@@ -1008,7 +1008,7 @@
         kwota: document.getElementById("kwota"),
         kwotaRange: document.getElementById("kwotaRange"),
         dlugoscUmowy: document.getElementById("dlugoscUmowy"),
-        dlugoscUmowyRange: document.getElementById("dlugoscUmowyRange"), // Dodajemy suwak
+        dlugoscUmowyRange: document.getElementById("dlugoscUmowyRange"),
         jednostkaOkresu: document.getElementById("jednostkaOkresu"),
         oprocentowanie: document.getElementById("oprocentowanie"),
         oprocentowanieRange: document.getElementById("oprocentowanieRange"),
@@ -1046,7 +1046,7 @@
     window.addEventListener("load", () => {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
-        updateDlugoscUmowyRange(); // Inicjalizujemy suwak przy ładowaniu strony
+        updateDlugoscUmowyRange();
     });
     
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
@@ -1061,10 +1061,25 @@
     
     // Synchronizacja suwaka i pola liczbowego dla "Oprocentowanie"
     elements.oprocentowanieRange.addEventListener("input", () => {
-        elements.oprocentowanie.value = elements.oprocentowanieRange.value;
+        let value = parseFloat(elements.oprocentowanieRange.value) || 0.1;
+        if (value < 0.1) {
+            value = 0.1;
+            elements.oprocentowanieRange.value = value;
+        }
+        elements.oprocentowanie.value = value;
     });
     elements.oprocentowanie.addEventListener("input", () => {
-        elements.oprocentowanieRange.value = elements.oprocentowanie.value;
+        let value = parseFloat(elements.oprocentowanie.value) || 0.1;
+        const maxValue = parseFloat(elements.oprocentowanieRange.max);
+        if (value < 0.1) {
+            value = 0.1;
+            elements.oprocentowanie.value = value;
+        }
+        if (value > maxValue) {
+            value = maxValue;
+            elements.oprocentowanie.value = value;
+        }
+        elements.oprocentowanieRange.value = value;
     });
     
     // Synchronizacja suwaka i pola liczbowego dla "Podatek"
@@ -1077,7 +1092,12 @@
     
     // Synchronizacja suwaka i pola liczbowego dla "Długość umowy"
     elements.dlugoscUmowyRange.addEventListener("input", () => {
-        elements.dlugoscUmowy.value = elements.dlugoscUmowyRange.value;
+        let value = parseInt(elements.dlugoscUmowyRange.value) || 1;
+        if (value < 1) {
+            value = 1;
+            elements.dlugoscUmowyRange.value = value;
+        }
+        elements.dlugoscUmowy.value = value;
         updateInfoTexts();
         updateVariableInputs();
     });
@@ -1098,26 +1118,22 @@
         updateVariableInputs();
     });
     
-    // Funkcja aktualizująca ograniczenia suwaka dla "Długość umowy"
     function updateDlugoscUmowyRange() {
         const jednostka = elements.jednostkaOkresu.value;
         let maxValue;
     
-        // Ustawiamy maksymalną wartość w zależności od jednostki
         if (jednostka === "dni") {
-            maxValue = 365; // Maksymalnie 365 dni
+            maxValue = 365;
         } else if (jednostka === "miesiace") {
-            maxValue = 36; // Maksymalnie 36 miesięcy
+            maxValue = 36;
         } else if (jednostka === "lata") {
-            maxValue = 10; // Maksymalnie 10 lat
+            maxValue = 10;
         }
     
-        // Aktualizujemy atrybuty suwaka
         elements.dlugoscUmowyRange.min = 1;
         elements.dlugoscUmowyRange.max = maxValue;
         elements.dlugoscUmowyRange.step = 1;
     
-        // Aktualizujemy wartość suwaka, jeśli przekracza maksymalną wartość
         let currentValue = parseInt(elements.dlugoscUmowy.value) || 1;
         if (currentValue > maxValue) {
             currentValue = maxValue;
@@ -1125,39 +1141,32 @@
         }
         elements.dlugoscUmowyRange.value = currentValue;
     
-        // Aktualizujemy tekst informacyjny (np. data zakończenia)
         updateInfoTexts();
         updateVariableInputs();
     }
     
-    // Funkcja aktualizująca wyświetlany tekst w <span>
     function updateSelectDisplay(selectElement, displayElement) {
         const selectedOption = selectElement.options[selectElement.selectedIndex].text;
         displayElement.textContent = `${selectedOption} ▼`;
     }
     
-    // Inicjalizacja dla "Długość umowy"
     const jednostkaOkresuSelect = document.getElementById("jednostkaOkresu");
     const jednostkaOkresuDisplay = document.getElementById("jednostkaOkresuDisplay");
     updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
     
-    // Inicjalizacja dla "Kapitalizacja odsetek"
     const kapitalizacjaSelect = document.getElementById("kapitalizacja");
     const kapitalizacjaDisplay = document.getElementById("kapitalizacjaDisplay");
     updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
     
-    // Obsługa zmiany w "Długość umowy"
     jednostkaOkresuSelect.addEventListener("change", () => {
         updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
-        updateDlugoscUmowyRange(); // Aktualizujemy suwak przy zmianie jednostki
+        updateDlugoscUmowyRange();
     });
     
-    // Obsługa zmiany w "Kapitalizacja odsetek"
     kapitalizacjaSelect.addEventListener("change", () => {
         updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
     });
     
-    // Symulacja kliknięcia na <select> po kliknięciu w <span>
     jednostkaOkresuDisplay.addEventListener("click", () => {
         jednostkaOkresuSelect.focus();
         jednostkaOkresuSelect.click();
@@ -1212,7 +1221,6 @@
     
         let maxCykl = dlugoscUmowy;
     
-        // Jeśli długość umowy wynosi 1, ukrywamy sekcję "Zmienne Oprocentowanie"
         if (dlugoscUmowy === 1) {
             variableCheckboxRow.style.display = "none";
             elements.zmienneOprocentowanieBtn.checked = false;
@@ -1226,7 +1234,6 @@
             variableCheckboxRow.style.display = "block";
         }
     
-        // Usuwamy zmiany oprocentowania, które wykraczają poza nową wartość dlugoscUmowy
         state.variableRates = state.variableRates.filter(change => change.period <= maxCykl);
     
         if (isZmienneOprocentowanie) {
@@ -1356,16 +1363,28 @@
                 });
     
                 rateInput.addEventListener("input", () => {
-                    let value = parseFloat(rateInput.value);
-                    if (value < 0.1 || value > 25) rateInput.value = Math.max(0.1, Math.min(25, value));
-                    rateRange.value = rateInput.value;
-                    changes[index].value = parseFloat(rateInput.value);
+                    let value = parseFloat(rateInput.value) || 0.1;
+                    if (value < 0.1) {
+                        value = 0.1;
+                        rateInput.value = value;
+                    }
+                    if (value > 25) {
+                        value = 25;
+                        rateInput.value = value;
+                    }
+                    rateRange.value = value;
+                    changes[index].value = value;
                     updateVariableData();
                 });
     
                 rateRange.addEventListener("input", () => {
-                    rateInput.value = rateRange.value;
-                    changes[index].value = parseFloat(rateRange.value);
+                    let value = parseFloat(rateRange.value) || 0.1;
+                    if (value < 0.1) {
+                        value = 0.1;
+                        rateRange.value = value;
+                    }
+                    rateInput.value = value;
+                    changes[index].value = value;
                     updateVariableData();
                 });
             });
