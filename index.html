@@ -366,8 +366,8 @@
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        margin-bottom: 20px; /* Zwiększamy odstęp */
-        gap: 20px; /* Zwiększamy odstęp między polami */
+        margin-bottom: 20px;
+        gap: 20px;
         flex-wrap: wrap;
         text-align: left;
     }
@@ -378,20 +378,20 @@
 
     .form-group {
         flex: 1;
-        min-width: 150px; /* Ustawiamy jednolitą szerokość */
+        min-width: 150px;
         max-width: 150px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
         text-align: left;
-        margin: 0 5px; /* Dodajemy margines boczny */
+        margin: 0 5px;
     }
 
     .form-label {
         font-size: var(--small-font-size);
         text-transform: uppercase;
-        margin-bottom: 5px; /* Zwiększamy odstęp od pola */
+        margin-bottom: 5px;
         text-align: left;
         width: 100%;
     }
@@ -412,10 +412,18 @@
         justify-content: center;
     }
 
+    /* Specyficzne style dla pola liczbowego w "Długość umowy" */
+    #dlugoscUmowy {
+        width: 80px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+    }
+
     .select-wrapper {
         position: relative;
-        width: 150px; /* Dopasowujemy do szerokości innych pól */
-        max-width: 150px;
+        width: 70px; /* Zmniejszamy szerokość, aby zmieścić się obok pola liczbowego */
+        max-width: 70px;
     }
 
     .select-hidden {
@@ -428,7 +436,7 @@
     }
 
     .select-display {
-        display: flex; /* Zmieniamy na flex dla lepszego wyrównania */
+        display: flex;
         align-items: center;
         justify-content: center;
         height: 22px;
@@ -438,7 +446,8 @@
         background: var(--input-bg);
         color: var(--primary-text);
         border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
         box-sizing: border-box;
         line-height: 18px;
         width: 100%;
@@ -473,8 +482,10 @@
     .input-group {
         width: 150px;
         display: flex;
+        flex-direction: row; /* Ustawiamy elementy w rzędzie */
         justify-content: center;
-        align-items: center; /* Wyrównanie w pionie */
+        align-items: center;
+        gap: 0; /* Usuwamy odstęp między elementami */
     }
 
     input[type="range"].form-range {
@@ -484,7 +495,7 @@
         border: 2px solid var(--border-color);
         border-radius: var(--border-radius);
         appearance: none;
-        width: 150px; /* Dopasowujemy do szerokości pól */
+        width: 150px;
         margin-left: auto;
         margin-right: auto;
         outline: none;
@@ -510,7 +521,7 @@
     .info-text {
         font-size: 0.40em;
         color: var(--primary-text);
-        margin-top: 5px; /* Zwiększamy odstęp */
+        margin-top: 5px;
         text-align: left;
         width: 100%;
     }
@@ -717,21 +728,24 @@
         .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
             flex-direction: column;
             align-items: center;
-            gap: 10px; /* Zwiększamy odstęp */
+            gap: 10px;
         }
 
         .form-group, .input-group {
             width: 200px;
             max-width: 200px;
             min-width: 200px;
-            margin: 5px auto; /* Zwiększamy margines */
+            margin: 5px auto;
         }
 
         .form-control, .select-display {
             height: 26px;
-            width: 130px;
             padding: 4px 8px;
             line-height: 20px;
+        }
+
+        #dlugoscUmowy {
+            width: 130px;
         }
 
         .input-group-text {
@@ -742,16 +756,16 @@
         }
 
         .select-wrapper {
-            width: 200px; /* Zwiększamy szerokość na małych ekranach */
-            max-width: 200px;
+            width: 70px;
+            max-width: 70px;
         }
 
         .select-display {
-            width: 200px; /* Dopasowujemy do .select-wrapper */
+            width: 70px;
         }
 
         input[type="range"].form-range {
-            width: 200px; /* Dopasowujemy suwak */
+            width: 200px;
         }
 
         .harmonogram table {
@@ -1241,7 +1255,7 @@
         });
     
         if (state.chartLine) state.chartLine.destroy();
-                state.chartLine = new Chart(elements.lokatyChartLine, {
+        state.chartLine = new Chart(elements.lokatyChartLine, {
             type: 'line',
             data: {
                 labels: state.harmonogramData.map(row => `Okres ${row.okres}`),
