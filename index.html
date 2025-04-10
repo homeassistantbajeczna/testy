@@ -297,8 +297,7 @@
 
     #generatePdfBtn {
         display: block;
-        margin: 0 auto 10px auto;
-        margin-left: 0;
+        margin: 0 0 10px auto; /* Przesunięty w prawo */
     }
 
     .checkbox-label {
@@ -758,13 +757,21 @@
         cursor: pointer;
         transition: color 0.3s ease;
         width: 90%;
-        max-width: 1000px;
+        max-width: 500px; /* Zmniejszone o połowę z 1000px */
         margin-left: auto;
         margin-right: auto;
     }
 
-    .summary-bar .label, .summary-bar .value {
-        transition: opacity 0.3s ease;
+    .summary-bar .label {
+        font-weight: normal;
+        color: var(--primary-text);
+        transition: opacity 0.1s ease; /* Szybsze znikanie */
+    }
+
+    .summary-bar .value {
+        font-weight: bold; /* Pogrubienie wartości */
+        color: var(--primary-text);
+        transition: opacity 0.1s ease; /* Szybsze znikanie */
     }
 
     .summary-bar:hover .label, .summary-bar:hover .value {
