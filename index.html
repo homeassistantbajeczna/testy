@@ -113,14 +113,15 @@
             </div>
         </div>
         <div class="result-section" id="resultSection" style="display: none;">
+            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
             <div class="result-header">
                 <h4 id="resultHeader">Podsumowanie wyników lokaty</h4>
-                <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
             </div>
             <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
             <div class="result-container">
                 <div class="result-wrapper-chart">
                     <div class="summary-bars">
+                        <!-- Dane generowane dynamicznie -->
                     </div>
                 </div>
             </div>
@@ -279,11 +280,9 @@
     }
 
     .header-row, .result-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        display: block;
         margin-bottom: 15px;
-        position: 100%;
+        text-align: center;
     }
 
     .header-row h4, .result-header h4 {
@@ -299,7 +298,8 @@
     }
 
     #generatePdfBtn {
-        margin-left: auto; 
+        display: block;
+        margin: 0 auto 10px auto;
     }
 
     .checkbox-label {
