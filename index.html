@@ -857,19 +857,26 @@
     .harmonogram .table-striped tbody tr:nth-of-type(odd) {
         background-color: rgba(0, 0, 0, 0.05);
     }
+    
+    .harmonogram-legend {
+        margin-top: 4px;
+        font-size: 0.35em;
+        text-align: left;
+    }
+
+    .harmonogram td:nth-child(3)
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+    }
 
     .star {
         color: #c2b280;
         font-size: 1em;
-        vertical-align: middle; /* Wyrównanie z wartością */
-        margin-right: 2px;
-        line-height: 1; /* Dodatkowe zabezpieczenie dla wyrównania w tabeli */
-    }
-    
-    .harmonogram-legend {
-        margin-top: 10px;
-        font-size: 0.55em;
-        text-align: left;
+        vertical-align: middle;
+        margin-right: none;
+        line-height: 1;
     }
     
     .legend-text {
