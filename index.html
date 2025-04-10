@@ -127,7 +127,7 @@
             </div>
             <div class="harmonogram-container">
                 <div class="result-wrapper-harmonogram">
-                    <div class="harmonogram-chart-wrapper">
+                    <div class="harmonogram-chart-container">
                         <div class="harmonogram">
                             <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
                             <div id="harmonogramContent">
@@ -281,7 +281,7 @@
 
     .header-row, .result-header {
         display: flex;
-        justify-content: center;
+        justify-content: space-between; /* Zmiana na space-between dla przycisku PDF */
         align-items: center;
         margin-bottom: 15px;
         position: relative;
@@ -293,6 +293,10 @@
         flex: 1;
         text-align: center;
         margin: 0;
+    }
+
+    #generatePdfBtn {
+        margin: 0; /* Usunięcie domyślnego marginesu */
     }
 
     .checkbox-label {
@@ -406,7 +410,6 @@
         justify-content: center;
     }
 
-    /* Specyficzne style dla pola liczbowego w "Długość umowy" */
     #dlugoscUmowy {
         width: 70px;
         border-top-right-radius: 0;
@@ -427,7 +430,6 @@
         cursor: pointer;
     }
 
-    /* Specyficzne style dla "Długość umowy" */
     .form-group:has(#dlugoscUmowy) .select-wrapper {
         position: relative;
         width: 80px;
@@ -456,7 +458,6 @@
         z-index: 1;
     }
 
-    /* Specyficzne style dla "Kapitalizacja odsetek" */
     .form-group:has(#kapitalizacja) .select-wrapper {
         position: relative;
         width: 150px;
@@ -547,7 +548,8 @@
         outline: none !important;
     }
 
-    input[type="range"].form-range:focus::-webkit-slider-runnable-track    input[type="range"].form-range:active::-webkit-slider-runnable-track {
+    input[type="range"].form-range:focus::-webkit-slider-runnable-track,
+    input[type="range"].form-range:active::-webkit-slider-runnable-track {
         box-shadow: none !important;
         outline: none !important;
     }
@@ -733,28 +735,44 @@
     .summary-bar {
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--primary-text);
-        padding: 10px;
+        padding: 8px 20px;
         margin: 5px 0;
         border-radius: var(--border-radius);
         text-align: center;
         font-size: 0.9em;
         position: relative;
         cursor: pointer;
+        transition: color 0.3s ease;
+        width: 80%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .summary-bar .label {
+        font-weight: normal;
+        color: var(--primary-text);
+    }
+
+    .summary-bar .value {
+        font-weight: bold;
+        color: var(--primary-text);
+    }
+
+    .summary-bar:hover {
+        color: transparent;
     }
 
     .summary-bar:hover::after {
         content: attr(data-tooltip);
         position: absolute;
-        top: -30px;
+        top: 50%;
         left: 50%;
-        transform: translateX(-50%);
-        background: #333;
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 0.8em;
-        white-space: nowrap;
-        z-index: 10;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-weight: bold;
+        font-size: 0.9em;
+        z-index: 1;
     }
 
     .result-wrapper-harmonogram {
@@ -762,17 +780,19 @@
         width: 100%;
     }
 
-    .harmonogram-chart-wrapper {
-        display: block;
-        width: 100%;
-    }
-
-    .harmonogram {
-        margin-top: 20px;
+    .harmonogram-chart-container {
         background: var(--harmonogram-bg);
         padding: 15px;
         border-radius: var(--border-radius);
         box-shadow: 0 2px 4px var(--shadow-color);
+        width: 100%;
+    }
+
+    .harmonogram {
+        margin-top: 0;
+        background: none;
+        padding: 0;
+        box-shadow: none;
     }
 
     .harmonogram h5 {
@@ -869,7 +889,7 @@
             line-height: 20px;
         }
 
-        form-group:has(#dlugoscUmowy) .form-range {
+        .form-group:has(#dlugoscUmowy) .form-range {
             width: 200px;
             align-self: flex-start;
         }
@@ -1605,12 +1625,12 @@
     
         const summaryBars = document.querySelector(".summary-bars");
         summaryBars.innerHTML = `
-            <div class="summary-bar" data-tooltip="${kwota.toFixed(2).replace('.', ',')} zł">Kwota lokaty: ${kwota.toFixed(2).replace('.', ',')} zł</div>
-            <div class="summary-bar" data-tooltip="${sumaOdsetekBrutto.toFixed(2).replace('.', ',')} zł">Odsetki brutto: ${sumaOdsetekBrutto.toFixed(2).replace('.', ',')} zł</div>
-            <div class="summary-bar" data-tooltip="${sumaPodatku.toFixed(2).replace('.', ',')} zł">Podatek: ${sumaPodatku.toFixed(2).replace('.', ',')} zł</div>
-            <div class="summary-bar" data-tooltip="${sumaZyskuNetto.toFixed(2).replace('.', ',')} zł">Odsetki netto: ${sumaZyskuNetto.toFixed(2).replace('.', ',')} zł</div>
-            <div class="summary-bar" data-tooltip="${kapital.toFixed(2).replace('.', ',')} zł">Całkowita kwota po zakończeniu: ${kapital.toFixed(2).replace('.', ',')} zł</div>
-            <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}">Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}</div>
+            <div class="summary-bar" data-tooltip="${kwota.toFixed(2).replace('.', ',')} zł"><span class="label">Kwota lokaty:</span> <span class="value">${kwota.toFixed(2).replace('.', ',')} zł</span></div>
+            <div class="summary-bar" data-tooltip="${sumaOdsetekBrutto.toFixed(2).replace('.', ',')} zł"><span class="label">Odsetki brutto:</span> <span class="value">${sumaOdsetekBrutto.toFixed(2).replace('.', ',')} zł</span></div>
+            <div class="summary-bar" data-tooltip="${sumaPodatku.toFixed(2).replace('.', ',')} zł"><span class="label">Podatek:</span> <span class="value">${sumaPodatku.toFixed(2).replace('.', ',')} zł</span></div>
+            <div class="summary-bar" data-tooltip="${sumaZyskuNetto.toFixed(2).replace('.', ',')} zł"><span class="label">Odsetki netto:</span> <span class="value">${sumaZyskuNetto.toFixed(2).replace('.', ',')} zł</span></div>
+            <div class="summary-bar" data-tooltip="${kapital.toFixed(2).replace('.', ',')} zł"><span class="label">Całkowita kwota po zakończeniu:</span> <span class="value">${kapital.toFixed(2).replace('.', ',')} zł</span></div>
+            <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}"><span class="label">Data zakończenia:</span> <span class="value">${dataZakonczenia.toLocaleDateString('pl-PL')}</span></div>
         `;
     
         elements.harmonogramTabela.innerHTML = "";
