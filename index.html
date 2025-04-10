@@ -835,6 +835,18 @@
         color: var(--primary-text);
     }
 
+    .harmonogram h5.btn-toggle {
+        margin: 0 auto;
+        text-align: center;
+        font-size: 0.8125em;
+        cursor: pointer;
+        color: var(--primary-text);
+        text-decoration: underline;
+        padding-bottom: 10px;
+        display: block;
+        width: fit-content;
+    }
+
     .harmonogram table {
         width: 100%;
         border-collapse: collapse;
@@ -872,7 +884,7 @@
     }
 
     .star {
-        color: #c2b280;
+        color: var(--accent-color, #c2b280) !important; 
         font-size: 1em;
         vertical-align: middle;
         margin-right: none;
@@ -912,6 +924,10 @@
 
     .dark-mode .legend-text {
         color: #e0e0e0;
+    }
+
+    .dark-mode .star {
+        color: var(--accent-color, #8b7d47) !important;
     }
 
     @media (max-width: 576px) {
