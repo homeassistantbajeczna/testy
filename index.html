@@ -1252,16 +1252,14 @@
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const kapitalizacjaSelect = elements.kapitalizacja;
         const kapitalizacjaDisplay = document.getElementById("kapitalizacjaDisplay");
-
+    
         const currentValue = kapitalizacjaSelect.value;
         kapitalizacjaSelect.innerHTML = "";
-
+    
         let options = [];
         if (jednostka === "dni") {
             if (dlugoscUmowy === 1) {
-                options = [
-                    { value: "naKoniec", text: "Na koniec okresu" }
-                ];
+                options = [{ value: "naKoniec", text: "Na koniec okresu" }];
             } else {
                 options = [
                     { value: "naKoniec", text: "Na koniec okresu" },
@@ -1269,7 +1267,12 @@
                 ];
             }
         } else if (jednostka === "miesiace") {
-            if (dlugoscUmowy === 24 || dlugoscUmowy === 36) {
+            if (dlugoscUmowy === 1) {
+                options = [
+                    { value: "naKoniec", text: "Na koniec okresu" },
+                    { value: "dzienna", text: "Dzienna" }
+                ];
+            } else if (dlugoscUmowy >= 24) {
                 options = [
                     { value: "naKoniec", text: "Na koniec okresu" },
                     { value: "dzienna", text: "Dzienna" },
@@ -1284,14 +1287,22 @@
                 ];
             }
         } else if (jednostka === "lata") {
-            options = [
-                { value: "naKoniec", text: "Na koniec okresu" },
-                { value: "dzienna", text: "Dzienna" },
-                { value: "miesieczna", text: "Miesięczna" },
-                { value: "roczna", text: "Roczna" }
-            ];
+            if (dlugoscUmowy === 1) {
+                options = [
+                    { value: "naKoniec", text: "Na koniec okresu" },
+                    { value: "dzienna", text: "Dzienna" },
+                    { value: "miesieczna", text: "Miesięczna" }
+                ];
+            } else {
+                options = [
+                    { value: "naKoniec", text: "Na koniec okresu" },
+                    { value: "dzienna", text: "Dzienna" },
+                    { value: "miesieczna", text: "Miesięczna" },
+                    { value: "roczna", text: "Roczna" }
+                ];
+            }
         }
-
+    
         options.forEach(option => {
             const opt = document.createElement("option");
             opt.value = option.value;
@@ -1299,13 +1310,13 @@
             if (option.value === "naKoniec") opt.selected = true;
             kapitalizacjaSelect.appendChild(opt);
         });
-
+    
         if (options.some(opt => opt.value === currentValue)) {
             kapitalizacjaSelect.value = currentValue;
         } else {
             kapitalizacjaSelect.value = "naKoniec";
         }
-
+    
         updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
     }
     
@@ -1568,7 +1579,6 @@
         const kapitalizacja = elements.kapitalizacja.value;
         const zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     
-        // Obliczanie liczby dni w zależności od jednostki
         let dni;
         if (jednostka === "dni") dni = dlugoscUmowy;
         else if (jednostka === "miesiace") dni = Math.round(dlugoscUmowy * 30.42);
@@ -1588,13 +1598,11 @@
         // Określenie liczby okresów w zależności od kapitalizacji (dla tabelki)
         let liczbaOkresowTabela;
         if (kapitalizacja === "dzienna") liczbaOkresowTabela = dni;
-        else if (kapitalizacja === "miesieczna") liczbaOkresowTabela = Math.ceil(dni / 30.42);
-        else if (kapitalizacja === "roczna") liczbaOkresowTabela = Math.ceil(dni / 365);
+        else if (kapitalizacja === "miesieczna") liczbaOkresowTabela = jednostka === "miesiace" ? dlugoscUmowy : Math.ceil(dni / 30.42);
+        else if (kapitalizacja === "roczna") liczbaOkresowTabela = jednostka === "lata" ? dlugoscUmowy : Math.ceil(dni / 365);
         else liczbaOkresowTabela = 1; // "Na koniec okresu"
     
-        // Liczba okresów dla wykresu (zależna od "Długość umowy")
         const liczbaOkresowWykres = jednostka === "dni" ? dlugoscUmowy : jednostka === "miesiace" ? dlugoscUmowy : dlugoscUmowy;
-    
         const dniWRoku = 365;
     
         // Obliczenia dla każdego okresu
@@ -1613,16 +1621,15 @@
     
             let oprocentowanieOkresowe;
             if (kapitalizacja === "naKoniec") {
-                // Dla "Na koniec okresu" pełne oprocentowanie roczne przeliczone na cały okres
                 const lata = dni / dniWRoku;
                 oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * lata;
             } else {
-                // Dla innych opcji proporcjonalne do okresu kapitalizacji
                 const dniWOkresie = kapitalizacja === "dzienna" ? 1 : kapitalizacja === "miesieczna" ? 30.42 : 365;
                 oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
             }
     
-            const odsetkiBrutto = kapital * oprocentowanieOkresowe;
+            const wartoscPoczatkowa = kapital; // Wartość przed naliczeniem odsetek
+            const odsetkiBrutto = wartoscPoczatkowa * oprocentowanieOkresowe;
             const podatekOkresowy = odsetkiBrutto * (podatek / 100);
             const zyskNetto = odsetkiBrutto - podatekOkresowy;
     
@@ -1634,13 +1641,13 @@
     
                 state.harmonogramData.push({
                     okres: okres,
-                    wartoscLokaty: kapital.toFixed(2),
+                    wartoscLokaty: wartoscPoczatkowa.toFixed(2), // Wartość początkowa
                     oprocentowanie: aktualneOprocentowanie.toFixed(2),
                     odsetkiBrutto: odsetkiBrutto.toFixed(2),
                     sumaOdsetek: sumaOdsetekBrutto.toFixed(2),
                     podatek: podatekOkresowy.toFixed(2),
                     zyskNetto: zyskNetto.toFixed(2),
-                    sumaNetto: kapital.toFixed(2)
+                    sumaNetto: kapital.toFixed(2) // Wartość po odsetkach
                 });
             } else {
                 sumaOdsetekBrutto += odsetkiBrutto;
@@ -1668,7 +1675,7 @@
             naglowekOkres.textContent = kapitalizacja === "dzienna" ? "Dzień" : kapitalizacja === "miesieczna" ? "Miesiąc" : "Rok";
         }
     
-        // Wypełnianie tabeli (pełny harmonogram)
+        // Wypełnianie tabeli
         const harmonogramContainer = document.querySelector(".harmonogram");
         harmonogramContainer.style.display = "block"; // Tabelka zawsze widoczna
         elements.harmonogramTabela.innerHTML = "";
@@ -1687,12 +1694,11 @@
             elements.harmonogramTabela.appendChild(tr);
         });
     
-        // Generowanie wykresu (zawsze widoczny)
+        // Generowanie wykresu
         const chartContainer = document.querySelector(".chart-container-line");
         if (state.chartLine) state.chartLine.destroy();
         chartContainer.style.display = "block";
     
-        // Agregacja danych do liczby okresów z "Długość umowy"
         const krok = Math.floor(state.harmonogramData.length / liczbaOkresowWykres) || 1;
         const daneWykres = [];
         for (let i = 0; i < liczbaOkresowWykres; i++) {
