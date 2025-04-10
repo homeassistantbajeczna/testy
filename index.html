@@ -123,7 +123,6 @@
             <div class="result-container">
                 <div class="result-wrapper-chart">
                     <div class="summary-bars">
-                        <!-- Dane generowane dynamicznie -->
                     </div>
                 </div>
             </div>
@@ -180,6 +179,7 @@
         --range-bg: #e5e5e5;
         --button-bg: #c2b280;
         --button-text: #333333;
+        --tooltip-color: #000000;
     }
 
     .dark-mode {
@@ -199,6 +199,7 @@
         --range-bg: #333333;
         --button-bg: #8b7d47;
         --button-text: #e0e0e0;
+        --tooltip-color: #ffffff;
     }
 
     *, ::after, ::before {
@@ -298,13 +299,12 @@
     }
 
     .pdf-button-container {
-        display: flex;
-        justify-content: flex-end;
+        text-align: right;
         margin-bottom: 10px;
     }
 
     #generatePdfBtn {
-        display: block;
+        display: inline-block;
         margin: 0;
     }
 
@@ -792,7 +792,7 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        color: white;
+        color: var(--tooltip-color);
         font-weight: bold;
         font-size: 1.1em;
         z-index: 1;
