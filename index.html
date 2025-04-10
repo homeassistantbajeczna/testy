@@ -147,6 +147,7 @@
                                     </thead>
                                     <tbody id="harmonogramTabela"></tbody>
                                 </table>
+                                <div class="harmonogram-legend"></div>
                             </div>
                         </div>
                         <div class="chart-container-line">
@@ -1731,12 +1732,12 @@
                 `;
                 elements.harmonogramTabela.appendChild(tr);
             });
-    
+        
             let legenda = document.querySelector(".harmonogram-legend");
             if (!legenda) {
                 legenda = document.createElement("div");
                 legenda.className = "harmonogram-legend";
-                harmonogramContainer.appendChild(legenda);
+                document.getElementById("harmonogramContent").appendChild(legenda); // Umieszczenie w #harmonogramContent
             }
             legenda.innerHTML = zmienneOprocentowanie && state.harmonogramData.some(row => row.zmianaOprocentowania) ? '<span class="star">★</span> <span class="legend-text">Zmiana oprocentowania</span>' : '';
         }
