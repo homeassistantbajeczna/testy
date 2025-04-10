@@ -838,7 +838,7 @@
     .harmonogram h5.btn-toggle {
         margin: 0 auto;
         text-align: center;
-        font-size: 0.75em;
+        font-size: 0.65em;
         font-weight: 700;
         cursor: pointer;
         color: var(--primary-text);
@@ -873,9 +873,24 @@
     }
     
     .harmonogram-legend {
-        margin-top: 4px;
+        margin-top: 1px;
         font-size: 0.35em;
         text-align: left;
+    }
+
+    .harmonogram-legend .star {
+        color: var(--accent-color, #c2b280) !important;
+        font-size: 0.6em; 
+        vertical-align: middle;
+        margin-right: 2px;
+        line-height: 1;
+    }
+
+    .harmonogram-legend .legend-text {
+        font-size: 1em;
+        color: var(--primary-text);
+        font-weight: bold;
+        vertical-align: middle;
     }
 
     .harmonogram td:nth-child(3)
@@ -928,7 +943,8 @@
         color: #e0e0e0;
     }
 
-    .dark-mode .star {
+    .dark-mode .star,
+    .dark-mode .harmonogram-legend .star {
         color: var(--accent-color, #8b7d47) !important;
     }
 
