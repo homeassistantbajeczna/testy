@@ -860,13 +860,14 @@
     .star {
         color: #c2b280;
         font-size: 1em;
-        vertical-align: middle;
-        margin-right: none;
+        vertical-align: middle; /* Wyrównanie z wartością */
+        margin-right: 2px;
+        line-height: 1; /* Dodatkowe zabezpieczenie dla wyrównania w tabeli */
     }
     
     .harmonogram-legend {
         margin-top: 10px;
-        font-size: 0.65em;
+        font-size: 0.55em;
         text-align: left;
     }
     
@@ -1125,7 +1126,8 @@
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
         updateDlugoscUmowyRange();
-        updateKapitalizacjaOptions(); // Inicjalizacja opcji kapitalizacji
+        updateKapitalizacjaOptions();
+        updateZmienneOprocentowanieVisibility(); // Dodajemy inicjalizację widoczności
     });
     
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
@@ -1383,8 +1385,14 @@
         const wrapper = document.getElementById("variableInputsWrapper");
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
+        const kapitalizacja = elements.kapitalizacja.value;
     
         let maxCykl = dlugoscUmowy;
+    
+        // Jeśli kapitalizacja to "Na koniec okresu", kontener jest już ukryty przez updateZmienneOprocentowanieVisibility
+        if (kapitalizacja === "naKoniec") {
+            return; // Nie robimy nic, bo kontener jest ukryty
+        }
     
         if (dlugoscUmowy === 1) {
             variableCheckboxRow.style.display = "none";
@@ -1628,7 +1636,7 @@
         const dniWRoku = 365;
     
         let aktualneOprocentowanie = oprocentowanie;
-        let pierwszaZmiana = true;
+        let poprzednieOprocentowanie = oprocentowanie;
     
         for (let okres = 1; okres <= liczbaOkresowTabela; okres++) {
             if (zmienneOprocentowanie && kapitalizacja !== "naKoniec") {
@@ -1657,12 +1665,9 @@
             const zyskNetto = odsetkiBrutto - podatekOkresowy;
     
             let zmianaOprocentowania = false;
-            if (zmienneOprocentowanie && kapitalizacja !== "naKoniec" && pierwszaZmiana) {
-                let okresWJednostce = kapitalizacja === "dzienna" ? (jednostka === "dni" ? okres : Math.ceil(okres / (jednostka === "miesiace" ? 30.42 : 365))) :
-                                      kapitalizacja === "miesieczna" ? (jednostka === "miesiace" ? okres : Math.ceil(okres / (jednostka === "dni" ? 30.42 : 12))) :
-                                      kapitalizacja === "roczna" ? (jednostka === "lata" ? okres : Math.ceil(okres / (jednostka === "dni" ? 365 : 12))) : okres;
-                zmianaOprocentowania = state.variableRates.some(rate => rate.period === okresWJednostce);
-                if (zmianaOprocentowania) pierwszaZmiana = false;
+            if (zmienneOprocentowanie && kapitalizacja !== "naKoniec" && aktualneOprocentowanie !== poprzednieOprocentowanie) {
+                zmianaOprocentowania = true;
+                poprzednieOprocentowanie = aktualneOprocentowanie;
             }
     
             if (kapitalizacja !== "naKoniec" || (kapitalizacja === "naKoniec" && okres === liczbaOkresowTabela)) {
@@ -1782,6 +1787,7 @@
             }
         });
     
+        updateZmienneOprocentowanieVisibility(); // Wywołanie funkcji po obliczeniach
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
         state.isCalculating = false;
@@ -1789,19 +1795,22 @@
 
     function updateZmienneOprocentowanieVisibility() {
         const kapitalizacja = elements.kapitalizacja.value;
-        const zmienneOprocentowanieContainer = document.querySelector(".zmienne-oprocentowanie-container"); // Załóżmy, że przycisk jest w takim kontenerze
+        const variableRateContainer = document.querySelector(".variable-rate-container"); // Poprawny kontener
         if (kapitalizacja === "naKoniec") {
-            zmienneOprocentowanieContainer.style.display = "none";
+            variableRateContainer.style.display = "none";
         } else {
-            zmienneOprocentowanieContainer.style.display = "block";
+            variableRateContainer.style.display = "block";
+            updateVariableInputs(); // Upewniamy się, że widoczność sekcji zmiennych jest zgodna z checkboxem
         }
     }
     
-    // Wywołaj funkcję przy zmianie kapitalizacji
+    // Podpięcie zdarzeń
     elements.kapitalizacja.addEventListener("change", () => {
         updateKapitalizacjaOptions();
         updateZmienneOprocentowanieVisibility();
     });
+    elements.dlugoscUmowy.addEventListener("input", updateZmienneOprocentowanieVisibility); // Aktualizacja przy zmianie długości
+    elements.jednostkaOkresu.addEventListener("change", updateZmienneOprocentowanieVisibility); // Aktualizacja przy zmianie jednostki
     
     function showForm() {
         elements.formSection.style.display = "block";
