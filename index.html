@@ -1046,6 +1046,7 @@
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
         updateDlugoscUmowyRange();
+        updateKapitalizacjaOptions(); // Inicjalizacja opcji kapitalizacji
     });
     
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
@@ -1053,30 +1054,23 @@
     // Synchronizacja suwaka i pola liczbowego dla "Kwota"
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-    
-        // Jeśli wartość jest mniejsza niż 1, ustawiamy 1
         if (value < 1) {
             value = 1;
             elements.kwotaRange.value = value;
         }
-        
         elements.kwota.value = value;
     });
     elements.kwota.addEventListener("input", () => {
         let value = parseFloat(elements.kwota.value);
         const maxValue = parseFloat(elements.kwotaRange.max);
-        
-        // Jeśli wartość jest mniejsza niż 1 lub nie jest liczbą, ustawiamy 1
         if (isNaN(value) || value < 1) {
             value = 1;
             elements.kwota.value = value;
         }
-        // Jeśli wartość przekracza maksymalną, ustawiamy maksymalną
         if (value > maxValue) {
             value = maxValue;
             elements.kwota.value = value;
         }
-        
         elements.kwotaRange.value = value;
     });
     
@@ -1092,18 +1086,14 @@
     elements.oprocentowanie.addEventListener("input", () => {
         let value = parseFloat(elements.oprocentowanie.value);
         const maxValue = parseFloat(elements.oprocentowanieRange.max);
-        
-        // Jeśli wartość jest mniejsza niż 0,1 lub nie jest liczbą, ustawiamy 0,1
         if (isNaN(value) || value < 0.1) {
             value = 0.1;
-            elements.oprocentowanie.value = value.toFixed(1); // Ustawiamy z jedną cyfrą po przecinku
+            elements.oprocentowanie.value = value.toFixed(1);
         }
-        // Jeśli wartość przekracza maksymalną, ustawiamy maksymalną
         if (value > maxValue) {
             value = maxValue;
             elements.oprocentowanie.value = value.toFixed(1);
         }
-        
         elements.oprocentowanieRange.value = value;
     });
     
@@ -1125,32 +1115,29 @@
         elements.dlugoscUmowy.value = value;
         updateInfoTexts();
         updateVariableInputs();
+        updateKapitalizacjaOptions(); // Aktualizacja opcji kapitalizacji
     });
     
     elements.dlugoscUmowy.addEventListener("input", () => {
         let value = parseInt(elements.dlugoscUmowy.value);
         const maxValue = parseInt(elements.dlugoscUmowyRange.max);
-        
-        // Jeśli wartość jest mniejsza niż 1 lub nie jest liczbą, ustawiamy 1
         if (isNaN(value) || value < 1) {
             value = 1;
             elements.dlugoscUmowy.value = value;
         }
-        // Jeśli wartość przekracza maksymalną, ustawiamy maksymalną
         if (value > maxValue) {
             value = maxValue;
             elements.dlugoscUmowy.value = value;
         }
-        
         elements.dlugoscUmowyRange.value = value;
         updateInfoTexts();
         updateVariableInputs();
+        updateKapitalizacjaOptions(); // Aktualizacja opcji kapitalizacji
     });
     
     function updateDlugoscUmowyRange() {
         const jednostka = elements.jednostkaOkresu.value;
         let maxValue;
-    
         if (jednostka === "dni") {
             maxValue = 365;
         } else if (jednostka === "miesiace") {
@@ -1158,18 +1145,15 @@
         } else if (jednostka === "lata") {
             maxValue = 10;
         }
-    
         elements.dlugoscUmowyRange.min = 1;
         elements.dlugoscUmowyRange.max = maxValue;
         elements.dlugoscUmowyRange.step = 1;
-    
         let currentValue = parseInt(elements.dlugoscUmowy.value) || 1;
         if (currentValue > maxValue) {
             currentValue = maxValue;
             elements.dlugoscUmowy.value = currentValue;
         }
         elements.dlugoscUmowyRange.value = currentValue;
-    
         updateInfoTexts();
         updateVariableInputs();
     }
@@ -1190,6 +1174,7 @@
     jednostkaOkresuSelect.addEventListener("change", () => {
         updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
         updateDlugoscUmowyRange();
+        updateKapitalizacjaOptions(); // Aktualizacja opcji kapitalizacji
     });
     
     kapitalizacjaSelect.addEventListener("change", () => {
@@ -1206,11 +1191,72 @@
         kapitalizacjaSelect.click();
     });
     
+    function updateKapitalizacjaOptions() {
+        const jednostka = elements.jednostkaOkresu.value;
+        const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
+        const kapitalizacjaSelect = elements.kapitalizacja;
+        const kapitalizacjaDisplay = document.getElementById("kapitalizacjaDisplay");
+
+        const currentValue = kapitalizacjaSelect.value;
+        kapitalizacjaSelect.innerHTML = "";
+
+        let options = [];
+        if (jednostka === "dni") {
+            if (dlugoscUmowy === 1) {
+                options = [
+                    { value: "naKoniec", text: "Na koniec okresu" }
+                ];
+            } else {
+                options = [
+                    { value: "naKoniec", text: "Na koniec okresu" },
+                    { value: "dzienna", text: "Dzienna" }
+                ];
+            }
+        } else if (jednostka === "miesiace") {
+            if (dlugoscUmowy === 24 || dlugoscUmowy === 36) {
+                options = [
+                    { value: "naKoniec", text: "Na koniec okresu" },
+                    { value: "dzienna", text: "Dzienna" },
+                    { value: "miesieczna", text: "Miesięczna" },
+                    { value: "roczna", text: "Roczna" }
+                ];
+            } else {
+                options = [
+                    { value: "naKoniec", text: "Na koniec okresu" },
+                    { value: "dzienna", text: "Dzienna" },
+                    { value: "miesieczna", text: "Miesięczna" }
+                ];
+            }
+        } else if (jednostka === "lata") {
+            options = [
+                { value: "naKoniec", text: "Na koniec okresu" },
+                { value: "dzienna", text: "Dzienna" },
+                { value: "miesieczna", text: "Miesięczna" },
+                { value: "roczna", text: "Roczna" }
+            ];
+        }
+
+        options.forEach(option => {
+            const opt = document.createElement("option");
+            opt.value = option.value;
+            opt.text = option.text;
+            if (option.value === "naKoniec") opt.selected = true;
+            kapitalizacjaSelect.appendChild(opt);
+        });
+
+        if (options.some(opt => opt.value === currentValue)) {
+            kapitalizacjaSelect.value = currentValue;
+        } else {
+            kapitalizacjaSelect.value = "naKoniec";
+        }
+
+        updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
+    }
+    
     function updateInfoTexts() {
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
         const dataRozpoczecia = new Date(elements.dataRozpoczecia.value);
-    
         const dataZakonczenia = new Date(dataRozpoczecia);
         if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
         else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
@@ -1362,13 +1408,11 @@
                     }
                     cyklRange.value = value;
                     changes[index].period = value;
-    
                     for (let i = changes.length - 1; i > index; i--) {
                         if (changes[i].period <= value) {
                             changes.splice(i, 1);
                         }
                     }
-    
                     updateVariableData();
                     updateVariableInputs();
                 });
@@ -1380,13 +1424,11 @@
                     cyklRange.value = value;
                     cyklInput.value = value;
                     changes[index].period = value;
-    
                     for (let i = changes.length - 1; i > index; i--) {
                         if (changes[i].period <= value) {
                             changes.splice(i, 1);
                         }
                     }
-    
                     updateVariableData();
                     updateVariableInputs();
                 });
@@ -1395,7 +1437,7 @@
                     let value = parseFloat(rateInput.value);
                     if (isNaN(value) || value < 0.1) {
                         value = 0.1;
-                        rateInput.value = value.toFixed(1); // Ustawiamy z jedną cyfrą po przecinku
+                        rateInput.value = value.toFixed(1);
                     }
                     if (value > 25) {
                         value = 25;
@@ -1483,7 +1525,6 @@
         let okresyKapitalizacji;
         if (kapitalizacja === "dzienna") okresyKapitalizacji = Math.floor(dni);
         else if (kapitalizacja === "miesieczna") okresyKapitalizacji = Math.floor(dni / 30.42);
-        else if (kapitalizacja === "kwartalna") okresyKapitalizacji = Math.floor(dni / 91.25);
         else if (kapitalizacja === "roczna") okresyKapitalizacji = Math.floor(dni / 365);
         else okresyKapitalizacji = 1;
     
@@ -1526,7 +1567,6 @@
             if (kapitalizacja !== "naKoniec") {
                 const podOkresy = kapitalizacja === "dzienna" ? dniWOkresie :
                                  kapitalizacja === "miesieczna" ? 1 :
-                                 kapitalizacja === "kwartalna" ? 1/3 :
                                  kapitalizacja === "roczna" ? 1/12 : 1;
                 const oprocentowaniePodOkresowe = oprocentowanieOkresowe * podOkresy;
                 for (let i = 0; i < 1/podOkresy; i++) {
@@ -1738,7 +1778,7 @@
             document.body.classList.add('dark-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         } else {
-            document.body.classList.add('light-mode');
+                     document.body.classList.add('light-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '🌙';
         }
     }
@@ -1761,6 +1801,6 @@
     });
     
     initializeTheme();
-</script>
+</script>    
 </body>
 </html>
