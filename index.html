@@ -113,7 +113,9 @@
             </div>
         </div>
         <div class="result-section" id="resultSection" style="display: none;">
-            <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
+            <div class="pdf-button-container">
+                <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
+            </div>
             <div class="result-header">
                 <h4 id="resultHeader">Podsumowanie wyników lokaty</h4>
             </div>
@@ -295,9 +297,15 @@
         margin: 0;
     }
 
+    .pdf-button-container {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+    }
+
     #generatePdfBtn {
         display: block;
-        margin: 0 0 10px auto; /* Przesunięty w prawo */
+        margin: 0;
     }
 
     .checkbox-label {
@@ -748,7 +756,7 @@
     .summary-bar {
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--primary-text);
-        padding: 8px 20px;
+        padding: 6px 20px;
         margin: 5px 0;
         border-radius: var(--border-radius);
         text-align: center;
@@ -757,7 +765,7 @@
         cursor: pointer;
         transition: color 0.3s ease;
         width: 90%;
-        max-width: 500px; /* Zmniejszone o połowę z 1000px */
+        max-width: 500px;
         margin-left: auto;
         margin-right: auto;
     }
@@ -765,13 +773,13 @@
     .summary-bar .label {
         font-weight: normal;
         color: var(--primary-text);
-        transition: opacity 0.1s ease; /* Szybsze znikanie */
+        transition: opacity 0.1s ease;
     }
 
     .summary-bar .value {
-        font-weight: bold; /* Pogrubienie wartości */
+        font-weight: bold;
         color: var(--primary-text);
-        transition: opacity 0.1s ease; /* Szybsze znikanie */
+        transition: opacity 0.1s ease;
     }
 
     .summary-bar:hover .label, .summary-bar:hover .value {
@@ -800,8 +808,8 @@
         padding: 15px;
         border-radius: var(--border-radius);
         box-shadow: 0 2px 4px var(--shadow-color);
-        width: 100%;
-        margin-top: 30px;
+        width: 90%;
+        margin: 30px auto 0 auto;
     }
 
     .harmonogram {
