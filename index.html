@@ -1596,9 +1596,8 @@
         const liczbaOkresowWykres = jednostka === "dni" ? dlugoscUmowy : jednostka === "miesiace" ? dlugoscUmowy : dlugoscUmowy;
     
         const dniWRoku = 365;
-        let dniWOkresie;
     
-        // Obliczenia dla każdego okresu (pełny harmonogram dla tabelki)
+        // Obliczenia dla każdego okresu
         for (let okres = 1; okres <= liczbaOkresowTabela; okres++) {
             let aktualneOprocentowanie = oprocentowanie;
             if (zmienneOprocentowanie) {
@@ -1612,13 +1611,17 @@
                 if (zmiana) aktualneOprocentowanie = zmiana.value;
             }
     
-            // Ustalanie dni w okresie w zależności od kapitalizacji
-            if (kapitalizacja === "dzienna") dniWOkresie = 1;
-            else if (kapitalizacja === "miesieczna") dniWOkresie = 30.42;
-            else if (kapitalizacja === "roczna") dniWOkresie = 365;
-            else dniWOkresie = dni; // "Na koniec okresu"
+            let oprocentowanieOkresowe;
+            if (kapitalizacja === "naKoniec") {
+                // Dla "Na koniec okresu" pełne oprocentowanie roczne przeliczone na cały okres
+                const lata = dni / dniWRoku;
+                oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * lata;
+            } else {
+                // Dla innych opcji proporcjonalne do okresu kapitalizacji
+                const dniWOkresie = kapitalizacja === "dzienna" ? 1 : kapitalizacja === "miesieczna" ? 30.42 : 365;
+                oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
+            }
     
-            const oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
             const odsetkiBrutto = kapital * oprocentowanieOkresowe;
             const podatekOkresowy = odsetkiBrutto * (podatek / 100);
             const zyskNetto = odsetkiBrutto - podatekOkresowy;
@@ -1659,74 +1662,69 @@
     
         // Dynamiczny nagłówek pierwszej kolumny
         const naglowekOkres = document.getElementById("pierwszaKolumnaNaglowek");
-        naglowekOkres.textContent = jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok";
+        if (kapitalizacja === "naKoniec") {
+            naglowekOkres.textContent = jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok";
+        } else {
+            naglowekOkres.textContent = kapitalizacja === "dzienna" ? "Dzień" : kapitalizacja === "miesieczna" ? "Miesiąc" : "Rok";
+        }
     
         // Wypełnianie tabeli (pełny harmonogram)
         const harmonogramContainer = document.querySelector(".harmonogram");
-        if (kapitalizacja === "naKoniec") {
-            harmonogramContainer.style.display = "none";
-            elements.harmonogramTabela.innerHTML = "";
-        } else {
-            harmonogramContainer.style.display = "block";
-            elements.harmonogramTabela.innerHTML = "";
-            state.harmonogramData.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${row.okres}</td>
-                    <td>${row.wartoscLokaty} zł</td>
-                    <td>${row.oprocentowanie}%</td>
-                    <td>${row.odsetkiBrutto} zł</td>
-                    <td>${row.sumaOdsetek} zł</td>
-                    <td>${row.podatek} zł</td>
-                    <td>${row.zyskNetto} zł</td>
-                    <td>${row.sumaNetto} zł</td>
-                `;
-                elements.harmonogramTabela.appendChild(tr);
-            });
-        }
+        harmonogramContainer.style.display = "block"; // Tabelka zawsze widoczna
+        elements.harmonogramTabela.innerHTML = "";
+        state.harmonogramData.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${row.okres}</td>
+                <td>${row.wartoscLokaty} zł</td>
+                <td>${row.oprocentowanie}%</td>
+                <td>${row.odsetkiBrutto} zł</td>
+                <td>${row.sumaOdsetek} zł</td>
+                <td>${row.podatek} zł</td>
+                <td>${row.zyskNetto} zł</td>
+                <td>${row.sumaNetto} zł</td>
+            `;
+            elements.harmonogramTabela.appendChild(tr);
+        });
     
-        // Generowanie wykresu (zależny od liczby okresów w "Długość umowy")
+        // Generowanie wykresu (zawsze widoczny)
         const chartContainer = document.querySelector(".chart-container-line");
         if (state.chartLine) state.chartLine.destroy();
-        if (kapitalizacja !== "naKoniec") {
-            chartContainer.style.display = "block";
+        chartContainer.style.display = "block";
     
-            // Agregacja danych do liczby okresów z "Długość umowy"
-            const krok = Math.floor(state.harmonogramData.length / liczbaOkresowWykres) || 1;
-            const daneWykres = [];
-            for (let i = 0; i < liczbaOkresowWykres; i++) {
-                const index = Math.min(i * krok, state.harmonogramData.length - 1);
-                daneWykres.push({
-                    okres: i + 1,
-                    sumaNetto: parseFloat(state.harmonogramData[index].sumaNetto)
-                });
-            }
-    
-            state.chartLine = new Chart(elements.lokatyChartLine, {
-                type: 'line',
-                data: {
-                    labels: daneWykres.map(row => `${jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok"} ${row.okres}`),
-                    datasets: [{
-                        label: 'Wartość lokaty',
-                        data: daneWykres.map(row => row.sumaNetto),
-                        borderColor: '#c2b280',
-                        backgroundColor: 'rgba(194, 178, 128, 0.2)',
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: false, title: { display: true, text: 'Wartość (zł)' } },
-                        x: { title: { display: true, text: jednostka === "dni" ? "Dni" : jednostka === "miesiace" ? "Miesiące" : "Lata" } }
-                    }
-                }
+        // Agregacja danych do liczby okresów z "Długość umowy"
+        const krok = Math.floor(state.harmonogramData.length / liczbaOkresowWykres) || 1;
+        const daneWykres = [];
+        for (let i = 0; i < liczbaOkresowWykres; i++) {
+            const index = Math.min(i * krok, state.harmonogramData.length - 1);
+            daneWykres.push({
+                okres: i + 1,
+                sumaNetto: i === 0 && kapitalizacja === "naKoniec" ? kwota : parseFloat(state.harmonogramData[index].sumaNetto)
             });
-        } else {
-            chartContainer.style.display = "none";
         }
+    
+        state.chartLine = new Chart(elements.lokatyChartLine, {
+            type: 'line',
+            data: {
+                labels: daneWykres.map(row => `${jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok"} ${row.okres}`),
+                datasets: [{
+                    label: 'Wartość lokaty',
+                    data: daneWykres.map(row => row.sumaNetto),
+                    borderColor: '#c2b280',
+                    backgroundColor: 'rgba(194, 178, 128, 0.2)',
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: false, title: { display: true, text: 'Wartość (zł)' } },
+                    x: { title: { display: true, text: jednostka === "dni" ? "Dni" : jednostka === "miesiace" ? "Miesiące" : "Lata" } }
+                }
+            }
+        });
     
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
