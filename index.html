@@ -857,6 +857,23 @@
         background-color: rgba(0, 0, 0, 0.05);
     }
 
+    .star {
+        color: #c2b280;
+        font-size: 1em;
+        vertical-align: middle;
+    }
+    
+    .harmonogram-legend {
+        margin-top: 10px;
+        font-size: 0.8em;
+        text-align: left;
+    }
+    
+    .legend-text {
+        color: #333333;
+        font-weight: bold;
+    }
+
     .chart-container-line {
         margin-top: 20px;
         width: 100%;
@@ -880,6 +897,10 @@
 
     .dark-mode .harmonogram .table-striped tbody tr:nth-of-type(odd) {
         background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .dark-mode .legend-text {
+        color: #e0e0e0;
     }
 
     @media (max-width: 576px) {
@@ -1595,7 +1616,6 @@
         let sumaZyskuNetto = 0;
         state.harmonogramData = [];
     
-        // Określenie liczby okresów w zależności od kapitalizacji (dla tabelki)
         let liczbaOkresowTabela;
         if (kapitalizacja === "dzienna") liczbaOkresowTabela = dni;
         else if (kapitalizacja === "miesieczna") liczbaOkresowTabela = jednostka === "miesiace" ? dlugoscUmowy : Math.ceil(dni / 30.42);
@@ -1605,17 +1625,25 @@
         const liczbaOkresowWykres = jednostka === "dni" ? dlugoscUmowy : jednostka === "miesiace" ? dlugoscUmowy : dlugoscUmowy;
         const dniWRoku = 365;
     
+        let aktualneOprocentowanie = oprocentowanie;
+    
         // Obliczenia dla każdego okresu
         for (let okres = 1; okres <= liczbaOkresowTabela; okres++) {
-            let aktualneOprocentowanie = oprocentowanie;
             if (zmienneOprocentowanie) {
-                let okresWMiesiacach = Math.ceil(okres / (kapitalizacja === "dzienna" ? 30.42 : kapitalizacja === "miesieczna" ? 1 : 12));
+                let okresWJednostce;
+                if (kapitalizacja === "dzienna") okresWJednostce = jednostka === "dni" ? okres : Math.ceil(okres / (jednostka === "miesiace" ? 30.42 : 365));
+                else if (kapitalizacja === "miesieczna") okresWJednostce = jednostka === "miesiace" ? okres : Math.ceil(okres / (jednostka === "dni" ? 30.42 : 12));
+                else if (kapitalizacja === "roczna") okresWJednostce = jednostka === "lata" ? okres : Math.ceil(okres / (jednostka === "dni" ? 365 : 12));
+                else okresWJednostce = okres;
+    
                 const zmiana = state.variableRates.find(rate => {
-                    let ratePeriodWMiesiacach = rate.period;
-                    if (jednostka === "dni") ratePeriodWMiesiacach = Math.ceil(rate.period / 30.42);
-                    else if (jednostka === "lata") ratePeriodWMiesiacach = rate.period * 12;
-                    return ratePeriodWMiesiacach === okresWMiesiacach;
+                    let ratePeriodWJednostce = rate.period;
+                    if (jednostka === "dni") ratePeriodWJednostce = rate.period;
+                    else if (jednostka === "miesiace") ratePeriodWJednostce = rate.period;
+                    else if (jednostka === "lata") ratePeriodWJednostce = rate.period;
+                    return ratePeriodWJednostce === okresWJednostce;
                 });
+    
                 if (zmiana) aktualneOprocentowanie = zmiana.value;
             }
     
@@ -1628,10 +1656,18 @@
                 oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
             }
     
-            const wartoscPoczatkowa = kapital; // Wartość przed naliczeniem odsetek
+            const wartoscPoczatkowa = kapital;
             const odsetkiBrutto = wartoscPoczatkowa * oprocentowanieOkresowe;
             const podatekOkresowy = odsetkiBrutto * (podatek / 100);
             const zyskNetto = odsetkiBrutto - podatekOkresowy;
+    
+            let zmianaOprocentowania = false;
+            if (zmienneOprocentowanie) {
+                let okresWJednostce = kapitalizacja === "dzienna" ? (jednostka === "dni" ? okres : Math.ceil(okres / (jednostka === "miesiace" ? 30.42 : 365))) :
+                                      kapitalizacja === "miesieczna" ? (jednostka === "miesiace" ? okres : Math.ceil(okres / (jednostka === "dni" ? 30.42 : 12))) :
+                                      kapitalizacja === "roczna" ? (jednostka === "lata" ? okres : Math.ceil(okres / (jednostka === "dni" ? 365 : 12))) : okres;
+                zmianaOprocentowania = state.variableRates.some(rate => rate.period === okresWJednostce);
+            }
     
             if (kapitalizacja !== "naKoniec" || (kapitalizacja === "naKoniec" && okres === liczbaOkresowTabela)) {
                 kapital += zyskNetto;
@@ -1641,13 +1677,14 @@
     
                 state.harmonogramData.push({
                     okres: okres,
-                    wartoscLokaty: wartoscPoczatkowa.toFixed(2), // Wartość początkowa
+                    wartoscLokaty: wartoscPoczatkowa.toFixed(2),
                     oprocentowanie: aktualneOprocentowanie.toFixed(2),
                     odsetkiBrutto: odsetkiBrutto.toFixed(2),
                     sumaOdsetek: sumaOdsetekBrutto.toFixed(2),
                     podatek: podatekOkresowy.toFixed(2),
                     zyskNetto: zyskNetto.toFixed(2),
-                    sumaNetto: kapital.toFixed(2) // Wartość po odsetkach
+                    sumaNetto: kapital.toFixed(2),
+                    zmianaOprocentowania: zmianaOprocentowania
                 });
             } else {
                 sumaOdsetekBrutto += odsetkiBrutto;
@@ -1675,16 +1712,16 @@
             naglowekOkres.textContent = kapitalizacja === "dzienna" ? "Dzień" : kapitalizacja === "miesieczna" ? "Miesiąc" : "Rok";
         }
     
-        // Wypełnianie tabeli
+        // Wypełnianie tabeli z gwiazdką
         const harmonogramContainer = document.querySelector(".harmonogram");
-        harmonogramContainer.style.display = "block"; // Tabelka zawsze widoczna
+        harmonogramContainer.style.display = "block";
         elements.harmonogramTabela.innerHTML = "";
         state.harmonogramData.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${row.okres}</td>
                 <td>${row.wartoscLokaty} zł</td>
-                <td>${row.oprocentowanie}%</td>
+                <td>${row.oprocentowanie}% ${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}</td>
                 <td>${row.odsetkiBrutto} zł</td>
                 <td>${row.sumaOdsetek} zł</td>
                 <td>${row.podatek} zł</td>
@@ -1693,6 +1730,15 @@
             `;
             elements.harmonogramTabela.appendChild(tr);
         });
+    
+        // Dodanie tekstu objaśniającego pod tabelką
+        let legenda = document.querySelector(".harmonogram-legend");
+        if (!legenda) {
+            legenda = document.createElement("div");
+            legenda.className = "harmonogram-legend";
+            harmonogramContainer.appendChild(legenda);
+        }
+        legenda.innerHTML = zmienneOprocentowanie ? '<span class="star">★</span> <span class="legend-text">Zmiana oprocentowania</span>' : '';
     
         // Generowanie wykresu
         const chartContainer = document.querySelector(".chart-container-line");
