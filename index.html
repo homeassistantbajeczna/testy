@@ -2662,35 +2662,45 @@
                 const harmonogramContent = document.getElementById("harmonogramContent");
                 const isHarmonogramVisible = harmonogramContent.style.display !== "none";
     
+                // Przygotowujemy elementy listy "Podsumowanie" z pogrubionymi wartościami
+                const summaryItems = summary.map(item => {
+                    const [label, value] = item.split(/: (.*)/); // Dzielimy na etykietę i wartość
+                    return {
+                        columns: [
+                            { text: `${label}: `, style: 'listItem' },
+                            { text: value, style: 'listItemBold' }
+                        ],
+                        margin: [0, 2, 0, 2]
+                    };
+                });
+    
                 const docDefinition = {
                     pageSize: 'A4',
                     pageMargins: [14.17, 60, 14.17, 20],
                     defaultStyle: { font: 'Roboto' },
-                    // Dodajemy znak wodny
-                    background: function(currentPage, pageSize) {
+                    // Znak wodny z logo
+                    background: logoBase64 ? function(currentPage, pageSize) {
                         return {
-                            text: 'Finance Brothers',
-                            fontSize: 60,
-                            color: '#000000',
+                            image: logoBase64,
+                            width: 300,
                             opacity: 0.08, // 8% widoczności
-                            bold: true,
-                            alignment: 'center',
-                            absolutePosition: { x: 0, y: pageSize.height / 2 },
+                            absolutePosition: { x: pageSize.width / 2 - 150, y: pageSize.height / 2 - 150 },
                             angle: 45
                         };
-                    },
+                    } : null,
                     header: logoBase64 ? {
                         columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 10, 0, 0] },
+                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 20, 0, 0] }, // Większy margines górny
                             { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] }
                         ]
                     } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
                     content: [
                         { text: headerText, style: 'header' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [0, 10, 0, 10] },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 10, 0, 5] }, // Przesunięcie o 1 cm w prawo
-                        { ul: summary.map(item => ({ text: item, style: 'listItem' })), margin: [28.35, 0, 0, 10] }, // Przesunięcie listy o 1 cm w prawo
-                        {
+                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [20, 10, 20, 10] }, // Większe marginesy z lewej i prawej
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
+                        { ul: summaryItems, margin: [0, 0, 0, 10] }, // Lista z pogrubionymi wartościami
+                        // Tabela pokazywana tylko, gdy harmonogram jest widoczny
+                        ...(isHarmonogramVisible ? [{
                             table: {
                                 headerRows: 1,
                                 widths: columnWidths,
@@ -2708,20 +2718,20 @@
                                 paddingTop: function () { return 2; },
                                 paddingBottom: function () { return 2; }
                             },
-                            margin: [0, 10, 0, 10]
-                        },
+                            width: 535, // 90% szerokości strony A4
+                            margin: ['auto', 10, 'auto', 10] // Wyśrodkowanie tabeli
+                        }] : []),
                         { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
-                        // Dodajemy wykres liniowy tylko, jeśli harmonogram jest widoczny
-                        ...(isHarmonogramVisible ? [
-                            { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
-                            { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
-                        ] : [])
+                        // Wykres liniowy zawsze widoczny
+                        { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 && isHarmonogramVisible ? 'before' : 'none' },
+                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] } // Wykres wyśrodkowany
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
                         subheader: { fontSize: 10, alignment: 'justify' },
                         sectionHeader: { fontSize: 12, bold: true },
-                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
+                        listItem: { fontSize: 10 },
+                        listItemBold: { fontSize: 10, bold: true },
                         tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
                         tableCell: { fontSize: 8, alignment: 'center' },
                         footerNote: { fontSize: 8, italics: true }
@@ -2739,6 +2749,7 @@
                 });
         });
     }
+    
 // F U N K C J A      Z O O M
     
     document.getElementById('siteLogo').addEventListener('click', () => {
