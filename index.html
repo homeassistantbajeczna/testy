@@ -2761,10 +2761,10 @@
                 console.log("PDF generated and download initiated");
             };
     
-            getBase64ImageFromUrl('https://example.com/logo.png') // Zastąp prawidłowym URL-em logo
-                .then(generateDoc)
+            getBase64ImageFromUrl('cropped-logo-FB-1.png')
+                .then(logoData => generateDoc(logoData))
                 .catch(error => {
-                    console.error("Błąd podczas ładowania logo:", error);
+                    console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
                     generateDoc(null);
                 });
         });
@@ -2772,6 +2772,86 @@
         generateDoc(null);
         console.log("GeneratePdf completed");
     }
+
+    // F U N K C J A      Z O O M
+    
+    document.getElementById('siteLogo').addEventListener('click', () => {
+        window.open('https://finance-brothers.pl', '_blank');
+    });
+
+    let currentZoom = 1;
+    const zoomStep = 0.1;
+    const minZoom = 0.5;
+    const maxZoom = 2;
+    
+    function updateZoom() {
+        const container = document.querySelector('.container');
+        container.style.transform = `scale(${currentZoom})`;
+        container.style.transformOrigin = 'top center';
+    }
+    
+    document.getElementById("zoomInBtn").addEventListener("click", () => {
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+            updateZoom();
+        }
+    });
+    
+    document.getElementById("zoomOutBtn").addEventListener("click", () => {
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+            updateZoom();
+        }
+    });
+
+    // D A R K     M O D E
+    
+    function toggleDarkMode() {
+        const body = document.body;
+        const isDarkMode = body.classList.contains('dark-mode');
+        
+        if (isDarkMode) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+            document.getElementById('toggleDarkModeBtn').textContent = '';
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            document.getElementById('toggleDarkModeBtn').textContent = '';
+        }
+    }
+    
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '';
+        } else {
+            document.body.classList.add('light-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '';
+        }
+    }
+    
+    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
+        toggleDarkMode();
+        if (state.chartLine) {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.update();
+        }
+    });
+    
+    initializeTheme();
     
 </script>
 </body>
