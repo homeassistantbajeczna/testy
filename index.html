@@ -2585,13 +2585,18 @@
             const pageWidth = 595.28; // Szerokość strony A4 w punktach
             const totalMargin = 28.34; // Suma marginesów bocznych (14.17 * 2)
             const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
-            const numColumns = headers.length;
-            const maxLengths = headers.map((_, colIndex) => {
-                const maxLength = Math.max(...allRows.map(row => row[colIndex] ? row[colIndex].length : 0));
+    
+            // Oblicz maksymalne długości dla nagłówków i wierszy
+            const headerLengths = headers.map(header => header.length);
+            const contentLengths = headers.map((_, colIndex) => {
+                const maxLength = Math.max(...allRows.slice(1).map(row => row[colIndex] ? row[colIndex].length : 0));
                 return maxLength;
             });
     
-            // Oblicz proporcje szerokości na podstawie maksymalnych długości
+            // Weź pod uwagę zarówno nagłówki, jak i zawartość
+            const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
+    
+            // Oblicz proporcje szerokości
             const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
             const columnWidths = maxLengths.map(length => {
                 const proportion = length / totalLength;
@@ -2605,6 +2610,12 @@
         };
     
         const columnWidths = calculateColumnWidths();
+        const totalTableWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+        const pageWidth = 595.28;
+        const totalMargin = 28.34;
+        const availableWidth = pageWidth - totalMargin;
+        const tableMarginLeft = (availableWidth - totalTableWidth) / 2; // Dynamiczny margines do wyśrodkowania
+    
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
     
         const originalColors = {
@@ -2723,8 +2734,8 @@
                                     headerRows: 1,
                                     widths: columnWidths,
                                     body: [
-                                        headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
-                                        ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
+                                        headers.map(h => ({ text: h, style: 'tableHeader' })),
+                                        ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
                                     ]
                                 },
                                 layout: {
@@ -2736,8 +2747,7 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                alignment: 'center',
-                                margin: [0, 0, 0, 0]
+                                margin: [tableMarginLeft + 14.17, 0, tableMarginLeft + 14.17, 0] // Dynamiczne marginesy do wyśrodkowania
                             },
                             { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10] }
                         ]),
