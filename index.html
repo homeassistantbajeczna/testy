@@ -2547,7 +2547,6 @@
             return isNaN(number) ? 0 : number;
         };
     
-        // Wartości w podsumowaniu pogrubione, w jednej linii
         const summary = [
             { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: `${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
             { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
@@ -2585,15 +2584,24 @@
             const allRows = [headers, ...tableData];
             const pageWidth = 595.28; // Szerokość strony A4 w punktach
             const totalMargin = 28.34; // Suma marginesów bocznych (14.17 * 2)
-            const availableWidth = pageWidth - totalMargin;
-            const totalContentWidth = headers.length * 30; // Minimalna szerokość kolumny: 30
-            const columnWidths = headers.map((_, colIndex) => {
+            const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
+            const numColumns = headers.length;
+            const maxLengths = headers.map((_, colIndex) => {
                 const maxLength = Math.max(...allRows.map(row => row[colIndex] ? row[colIndex].length : 0));
-                const baseWidth = maxLength * 4;
-                const minWidth = Math.min(Math.max(baseWidth, 30), 100);
-                return totalContentWidth > availableWidth ? (minWidth * availableWidth / totalContentWidth) : minWidth;
+                return maxLength;
             });
-            return columnWidths;
+    
+            // Oblicz proporcje szerokości na podstawie maksymalnych długości
+            const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
+            const columnWidths = maxLengths.map(length => {
+                const proportion = length / totalLength;
+                return proportion * availableWidth;
+            });
+    
+            // Upewnij się, że suma szerokości kolumn dokładnie odpowiada dostępnej szerokości
+            const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+            const adjustmentFactor = availableWidth / totalCalculatedWidth;
+            return columnWidths.map(width => width * adjustmentFactor);
         };
     
         const columnWidths = calculateColumnWidths();
@@ -2647,7 +2655,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(this, 0, 0);
                         const dataURL = canvas.toDataURL('image/png');
-                        const aspectRatio = this.height / this.width; // Proporcje logo
+                        const aspectRatio = this.height / this.width;
                         resolve({ dataURL, aspectRatio });
                     };
                     img.onerror = reject;
@@ -2674,8 +2682,8 @@
                     background: function(currentPage, pageSize) {
                         if (!logoBase64) return [];
                         const watermark = [];
-                        const watermarkWidth = 40; // Zmniejszony rozmiar, proporcjonalny
-                        const watermarkHeight = watermarkWidth * aspectRatio; // Proporcje logo
+                        const watermarkWidth = 40;
+                        const watermarkHeight = watermarkWidth * aspectRatio;
                         const cols = 4;
                         const rows = 7;
                         const spacingX = (pageSize.width - cols * watermarkWidth) / (cols + 1);
@@ -2700,7 +2708,7 @@
                     header: logoBase64 ? {
                         columns: [
                             { image: logoBase64, width: 100, margin: [40, 30, 0, 10] },
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 40, 0] } // Większy margines z prawej
+                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 40, 0] }
                         ]
                     } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [40, 30, 40, 0] },
                     content: [
@@ -2728,8 +2736,8 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                alignment: 'center', // Tabelka zawsze wyśrodkowana
-                                margin: [0, 0, 0, 0] // Brak marginesów bocznych
+                                alignment: 'center',
+                                margin: [0, 0, 0, 0]
                             },
                             { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10] }
                         ]),
@@ -2748,7 +2756,7 @@
                         sectionHeader: { fontSize: 12, bold: true },
                         listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
                         listItemBold: { fontSize: 10, bold: true, margin: [0, 2, 0, 2] },
-                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280', margin: [0, 4, 0, 4] }, // Wyśrodkowanie w pionie
+                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280', margin: [0, 4, 0, 4] },
                         tableCell: { fontSize: 8, alignment: 'center' },
                         footerNote: { fontSize: 8, italics: true }
                     }
