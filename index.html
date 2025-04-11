@@ -1254,7 +1254,6 @@
     
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
     
-    // Synchronizacja suwaka i pola liczbowego dla "Kwota"
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
         if (value < 1) {
@@ -1264,8 +1263,18 @@
         elements.kwota.value = formatNumber(value);
     });
     
-    elements.kwota.addEventListener("input", () => {
-        let rawValue = parseFormattedNumber(elements.kwota.value);
+    elements.kwota.addEventListener("input", (e) => {
+        const input = e.target;
+        const cursorPosition = input.selectionStart;
+        let rawValue = input.value.replace(/\s/g, '').replace(',', '');
+    
+        
+        if (!rawValue.includes('.') && !rawValue.match(/,\d{2}$/)) {
+            rawValue = rawValue || '0';
+        } else {
+            rawValue = parseFormattedNumber(input.value);
+        }
+    
         const maxValue = parseFloat(elements.kwotaRange.max);
         if (isNaN(rawValue) || rawValue < 1) {
             rawValue = 1;
@@ -1273,7 +1282,17 @@
         if (rawValue > maxValue) {
             rawValue = maxValue;
         }
-        elements.kwota.value = formatNumber(rawValue);
+    
+        const formattedValue = formatNumber(rawValue);
+        input.value = formattedValue;
+    
+        const newCursorPosition = formattedValue.length - 3;
+        if (cursorPosition <= formattedValue.replace(/\s/g, '').length - 3) {
+            input.setSelectionRange(cursorPosition, cursorPosition);
+        } else {
+            input.setSelectionRange(newCursorPosition, newCursorPosition);
+        }
+    
         elements.kwotaRange.value = rawValue;
     });
     
