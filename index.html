@@ -1908,9 +1908,11 @@
     }
 
     function updateVariableInputs() {
+        console.log("Aktualizacja pól zmiennych...");
         const typ = elements.typObligacji.value;
         const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
         const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
+        console.log(`Typ: ${typ}, Inflacja zmienna: ${isInflacjaZmienna}, Stopa zmienna: ${isStopaZmienna}`);
         const variableInputs = document.getElementById("variableInputs");
         const addVariableBtn = elements.addVariableBtn;
         const wrapper = document.getElementById("variableInputsWrapper");
@@ -1920,6 +1922,11 @@
         if (isInflacjaZmienna || isStopaZmienna) {
             variableInputs.style.display = "block";
             addVariableBtn.style.display = "block";
+            console.log("Pola zmiennych powinny być widoczne:", variableInputs.style.display);
+            if (variableInputs.style.display !== "block") {
+                console.error("Błąd: Pola zmiennych nie są widoczne!");
+                variableInputs.style.display = "block !important"; // Wymuszamy widoczność
+            }
     
             const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
             const maxChanges = maxVariableChanges[typ] || 0;
@@ -2363,30 +2370,38 @@
             });
         });
     
+        // Nowy kod:
         let tabela = document.getElementById("harmonogramTabela");
         if (tabela) {
             tabela.innerHTML = "";
-            state.harmonogramData.forEach(wiersz => {
-                let rowHTML = `
-                    <tr>
-                        <td>${wiersz.okres}</td>
-                        <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                        <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
-                        <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}</td>
-                        <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł**</td>
-                `;
-                if (!["OTS", "TOS"].includes(typ)) {
-                    rowHTML += `<td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.stopaRefLubInflacja}</td>`;
-                }
-                rowHTML += `
-                        <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    </tr>
-                `;
-                tabela.innerHTML += rowHTML;
-            });
+            console.log("Wypełnianie harmonogramu, liczba wierszy:", state.harmonogramData.length);
+            if (state.harmonogramData.length === 0) {
+                tabela.innerHTML = "<tr><td colspan='10'>Brak danych do wyświetlenia</td></tr>";
+                console.error("Harmonogram pusty!");
+            } else {
+                state.harmonogramData.forEach((wiersz, index) => {
+                    console.log(`Dodawanie wiersza ${index + 1}:`, wiersz);
+                    let rowHTML = `
+                        <tr>
+                            <td>${wiersz.okres}</td>
+                            <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                            <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
+                            <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                            <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                            <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}</td>
+                            <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                            <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł**</td>
+                    `;
+                    if (!["OTS", "TOS"].includes(typ)) {
+                        rowHTML += `<td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.stopaRefLubInflacja}</td>`;
+                    }
+                    rowHTML += `
+                            <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                        </tr>
+                    `;
+                    tabela.innerHTML += rowHTML;
+                });
+            }
         }
     
         const harmonogramOpis = document.getElementById("harmonogramOpis");
@@ -2501,11 +2516,14 @@
     
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
+        if (elements.resultSection.style.display !== "block") {
+            console.error("Błąd: Sekcja wyników nie jest widoczna!");
+            elements.resultSection.style.display = "block !important"; // Wymuszamy widoczność
+        }
         elements.generatePdfBtn.disabled = false;
         console.log("GeneratePdfBtn enabled:", !elements.generatePdfBtn.disabled);
+        console.log("Wyniki powinny być widoczne, sprawdź #resultSection");
         state.isCalculating = false;
-        console.log("ObliczObligacje completed");
-    }
 
     const backgroundPlugin = {
         id: 'customBackground',
@@ -2522,9 +2540,14 @@
     
     function generatePdf() {
         console.log("Starting generatePdf");
-        if (typeof pdfMake === "undefined") {
-            console.error("Biblioteka PDFMake nie została załadowana.");
-            alert("Błąd: Biblioteka PDFMake nie jest załadowana.");
+        if (typeof pdfMake === "undefined" || typeof pdfMake.vfs === "undefined") {
+            console.error("Biblioteka PDFMake lub vfs_fonts nie zostały załadowane.");
+            alert("Błąd: Nie można wygenerować PDF. Sprawdź połączenie z internetem lub skrypty PDFMake.");
+            return;
+        }
+        if (!state.harmonogramData || state.harmonogramData.length === 0) {
+            console.error("Brak danych harmonogramu do generowania PDF.");
+            alert("Najpierw wykonaj obliczenia, klikając 'Oblicz'.");
             return;
         }
     
