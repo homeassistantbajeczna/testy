@@ -1515,10 +1515,8 @@
         }
     }
 </style>
-Naniesiesz te zmiany na ten kod:
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-
     // D E F I N I C J E   Z M I E N N Y C H
     const formatNumber = (num) => {
         const formatted = parseFloat(num).toLocaleString('pl-PL', {
@@ -1526,7 +1524,6 @@ Naniesiesz te zmiany na ten kod:
             maximumFractionDigits: 2,
             useGrouping: true
         });
-        // Dodaj spację dla liczb czterocyfrowych, jeśli jej brak
         if (num >= 1000 && num < 10000 && !formatted.includes(' ')) {
             return formatted.replace(/(\d)(\d{3},\d{2})/, '$1 $2');
         }
@@ -1553,14 +1550,14 @@ Naniesiesz te zmiany na ten kod:
         obligacjeChartLine: document.getElementById("obligacjeChartLine"),
         generatePdfBtn: document.getElementById("generatePdfBtn")
     };
-
+    
     const state = {
         chart: null,
         chartLine: null,
         harmonogramData: [],
         isIkeIkzeMode: false,
-        variableInflation: [], // Tablica dla danych "Zmienna inflacja"
-        variableReferenceRates: [], // Tablica dla danych "Zmienne stopy referencyjne NBP"
+        variableInflation: [],
+        variableReferenceRates: [],
         lastFormData: {
             kwota: 10000,
             typObligacji: "OTS",
@@ -1580,16 +1577,16 @@ Naniesiesz te zmiany na ten kod:
         },
         isCalculating: false
     };
-
+    
     const maxVariableChanges = {
-        "ROR": 11, // 12 miesięcy - 1 domyślny
-        "DOR": 23, // 24 miesiące - 1 domyślny
-        "COI": 3,  // 4 lata - 1 domyślny
-        "EDO": 9,  // 10 lat - 1 domyślny
-        "ROS": 5,  // 6 lat - 1 domyślny
-        "ROD": 11  // 12 lat - 1 domyślny
+        "ROR": 11,
+        "DOR": 23,
+        "COI": 3,
+        "EDO": 9,
+        "ROS": 5,
+        "ROD": 11
     };
-
+    
     const obligacjeConfig = {
         "OTS": { okres: 3, oprocentowanie: 3.00, zmienne: false, kapitalizacja: false, oplataWykup: 0.00 },
         "ROR": { okres: 12, oprocentowanie: 5.75, zmienne: true, marza: 0.00, kapitalizacja: false, oplataWykup: 0.005 },
@@ -1600,7 +1597,7 @@ Naniesiesz te zmiany na ten kod:
         "ROS": { okres: 72, oprocentowanie: 6.50, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.02 },
         "ROD": { okres: 144, oprocentowanie: 6.80, zmienne: true, marza: 2.50, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 }
     };
-
+    
     const opisyObligacji = {
         "OTS": "* <b>OTS (3-miesięczne) </b>: stałe oprocentowanie <b>3,00%</b> na okres <b>3-miesięcy</b>, wypłata odsetek nastąpi <b>przy wykupie</b> obligacji. Wcześniejszy odkup powoduje nienaliczenie odsetek, natomiast <b>nie ma opłat za wcześniejszy odkup</b>. Obligacje <b>OTS</b> są idealne dla <b>krótkoterminowych inwestycji</b>.",
         "ROR": "* <b>ROR (12-miesięczne) </b>: <b>oprocentowanie zmienne</b>, w pierwszym miesiącu <b>5,75%</b>, w pozostałych <b>11 miesiącach</b> oprocentowanie oparte na <b>stopie referencyjnej NBP + 0%</b>. Wypłata odsetek następuje <b>co miesiąc</b>, jest możliwość wcześniejszego odkupu, niestety wiąże się to z opłatą w wysokości <b>0,5%</b> wartości obligacji (<b>0,5 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. Obligacje <b>ROR</b> przeznaczone są dla <b>krótko i średnioterminowych inwestorów</b>.",
@@ -1611,54 +1608,53 @@ Naniesiesz te zmiany na ten kod:
         "ROS": "* <b>ROS (6-letnie)</b>: rodzinne obligacje przeznaczone są wyłącznie dla beneficjentów programu <b>800+</b>. Obligacje <b>indeksowane inflacją</b>, <b>6,50% w pierwszym roku</b>, w kolejnych <b>5 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,00%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>6 latach inwestycji</b>. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>2%</b> wartości obligacji (<b>2 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>ROS</b> są idealne dla <b>rodzinnych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>.",
         "ROD": "* <b>ROD (12-letnie) </b>: rodzinne obligacje przeznaczone są wyłącznie dla beneficjentów programu <b>800+</b>. Obligacje <b>indeksowane inflacją</b>, <b>6,80% w pierwszym roku</b>, w kolejnych <b>11 latach</b> oprocentowanie wynosi <b>wartość inflacji + 2,50%</b>. Wypłata odsetek następuje <b>przy wykupie</b> obligacji po <b>12 latach</b> inwestycji. Wcześniejszy odkup niestety wiąże się z opłatą w wysokości <b>3%</b> wartości obligacji (<b>3 zł</b> za każdą obligację) lub do wartości narosłych odsetek, gdy wartość narosłych odsetek jest mniejsza od wartości opłaty, nie powoduje utraty należnych odsetek. <b>Roczna kapitalizacja odsetek</b> zwiększa efektywności inwestycji. Obligacje <b>ROD</b> są idealne dla <b>długoterminowych rodzinnych inwestycji</b> oraz dla <b>ochrony przed wzrostem inflacji</b>."
     };
-
+    
     const nazwyObligacji = {
         "OTS": "3-miesięcznych (OTS)", "ROR": "12-miesięcznych (ROR)", "DOR": "24-miesięcznych (DOR)", "TOS": "3-letnich (TOS)",
         "COI": "4-letnich (COI)", "EDO": "10-letnich (EDO)", "ROS": "6-letnich (ROS)", "ROD": "12-letnich (ROD)"
     };
-
+    
     // O B S Ł U G A   Z D A R Z E Ń
-    elements.dynamicRateRange.addEventListener("input", () => { 
+    elements.dynamicRateRange.addEventListener("input", () => {
         let value = parseFloat(elements.dynamicRateRange.value);
-        if (value < 0.1) value = 0.1; // Minimalna wartość 0,1
+        if (value < 0.1) value = 0.1;
         elements.dynamicRate.value = value;
-        elements.dynamicRateRange.value = value; // Synchronizacja suwaka
+        elements.dynamicRateRange.value = value;
         const typ = elements.typObligacji.value;
         state.lastFormData.dynamicRates[typ] = value;
     });
     
-    elements.dynamicRate.addEventListener("input", () => { 
+    elements.dynamicRate.addEventListener("input", () => {
         let value = parseFloat(elements.dynamicRate.value) || 0;
-        if (value < 0.1) value = 0.1; // Minimalna wartość 0,1
+        if (value < 0.1) value = 0.1;
         elements.dynamicRate.value = value;
-        elements.dynamicRateRange.value = value; // Synchronizacja suwaka
+        elements.dynamicRateRange.value = value;
         const typ = elements.typObligacji.value;
         state.lastFormData.dynamicRates[typ] = value;
     });
     
-    // Zaktualizowane zdarzenia dla kwota i kwotaRange
-    elements.kwotaRange.addEventListener("input", () => { 
+    elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
         if (value < 100) value = 100;
         if (value > 10000000) value = 10000000;
         elements.kwota.value = value;
-        elements.kwotaRange.value = value; // Synchronizacja suwaka
+        elements.kwotaRange.value = value;
         updateIloscObligacji();
     });
     
-    elements.kwota.addEventListener("input", () => { 
-        let value = parseFloat(elements.kwota.value) || 0; // Domyślnie 0, jeśli niepoprawna wartość
+    elements.kwota.addEventListener("input", () => {
+        let value = parseFloat(elements.kwota.value) || 0;
         if (value < 100) value = 100;
         if (value > 10000000) value = 10000000;
         elements.kwota.value = value;
-        elements.kwotaRange.value = value; // Synchronizacja suwaka
+        elements.kwotaRange.value = value;
         updateIloscObligacji();
     });
     
     elements.typObligacji.addEventListener("change", updateDynamicRateField);
     elements.ikeIkzeBtn.addEventListener("change", updateDynamicRateField);
-    elements.inflacjaZmiennaBtn.addEventListener("change", () => { 
-        state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked; 
+    elements.inflacjaZmiennaBtn.addEventListener("change", () => {
+        state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
         const typ = elements.typObligacji.value;
         if (!elements.inflacjaZmiennaBtn.checked) {
             state.variableInflation = [];
@@ -1667,11 +1663,11 @@ Naniesiesz te zmiany na ten kod:
             state.variableInflation = [];
             state.variableInflation.push({ value: defaultValue, period: 2 });
         }
-        updateVariableInputs(); 
+        updateVariableInputs();
     });
     
-    elements.stopaZmiennaBtn.addEventListener("change", () => { 
-        state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked; 
+    elements.stopaZmiennaBtn.addEventListener("change", () => {
+        state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked;
         const typ = elements.typObligacji.value;
         if (!elements.stopaZmiennaBtn.checked) {
             state.variableReferenceRates = [];
@@ -1680,13 +1676,22 @@ Naniesiesz te zmiany na ten kod:
             state.variableReferenceRates = [];
             state.variableReferenceRates.push({ value: defaultValue, period: 2 });
         }
-        updateVariableInputs(); 
+        updateVariableInputs();
     });
     
-    elements.obliczBtn.addEventListener("click", () => { console.log("Oblicz clicked"); obliczObligacje(); });
-    elements.addVariableBtn.addEventListener("click", () => { console.log("AddVariable clicked"); addVariableChange(); });
-    elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
-
+    elements.obliczBtn.addEventListener("click", () => {
+        console.log("Oblicz clicked");
+        obliczObligacje();
+    });
+    elements.addVariableBtn.addEventListener("click", () => {
+        console.log("AddVariable clicked");
+        addVariableChange();
+    });
+    elements.generatePdfBtn.addEventListener("click", () => {
+        console.log("GeneratePdf clicked");
+        generatePdf();
+    });
+    
     function setDynamicRateField(label, value, step, max) {
         const dynamicRateLabel = document.getElementById("dynamicRateLabel");
         const dynamicRateInfo = document.getElementById("dynamicRateInfo");
@@ -1698,12 +1703,10 @@ Naniesiesz te zmiany na ten kod:
         elements.dynamicRate.max = max;
         elements.dynamicRateRange.max = max;
     }
-
-    function updateDynamicRateField() {
-        state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
+    
+    function updateSelectOptions() {
         const select = elements.typObligacji;
         const previousTyp = select.value;
-    
         select.innerHTML = state.isIkeIkzeMode ? `
             <option value="ROR">12-miesięczne (ROR)</option>
             <option value="DOR">24-miesięczne (DOR)</option>
@@ -1720,23 +1723,12 @@ Naniesiesz te zmiany na ten kod:
             <option value="ROS">6-letnie (ROS)</option>
             <option value="ROD">12-letnich (ROD)</option>
         `;
-    
         const availableOptions = Array.from(select.options).map(opt => opt.value);
         select.value = availableOptions.includes(previousTyp) ? previousTyp : (state.isIkeIkzeMode ? "TOS" : "OTS");
+    }
     
-        const typ = select.value;
+    function updateOkresAndOprocentowanie(typ) {
         const config = obligacjeConfig[typ];
-    
-        // Wyłączanie "Zmienna Stopa Ref. NBP" i "Zmienna Inflacja" przy każdej zmianie typu
-        if (elements.stopaZmiennaBtn.checked || elements.inflacjaZmiennaBtn.checked) {
-            elements.stopaZmiennaBtn.checked = false;
-            elements.inflacjaZmiennaBtn.checked = false;
-            state.lastFormData.stopaZmienna = false;
-            state.lastFormData.inflacjaZmienna = false;
-            state.variableReferenceRates = [];
-            state.variableInflation = [];
-        }
-    
         elements.okres.value = config.okres;
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
         const inputGroup = elements.okres.closest('.input-group');
@@ -1744,14 +1736,15 @@ Naniesiesz te zmiany na ten kod:
         if (okresUnitElement) {
             okresUnitElement.textContent = jednostkaOkresu;
         } else {
-            console.warn("Nie znaleziono elementu '.input-group-text' w obrębie '#okres'. Sprawdź strukturę HTML.");
+            console.warn("Nie znaleziono elementu '.input-group-text' w obrębie '#okres'.");
         }
         elements.oprocentowanie.value = config.oprocentowanie;
         updateLata();
         updateOprocentowanieInfo();
         updateOpisObligacji();
+    }
     
-        // Logika widoczności dynamicRateGroup
+    function updateDynamicRateVisibility(typ) {
         const dynamicRateGroup = document.getElementById("dynamicRateGroup");
         if (["ROR", "DOR"].includes(typ)) {
             const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
@@ -1764,7 +1757,9 @@ Naniesiesz te zmiany na ten kod:
         } else {
             dynamicRateGroup.style.display = "none";
         }
+    }
     
+    function updateVariableCheckboxes(typ) {
         document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
         document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(typ) ? "flex" : "none";
     
@@ -1781,25 +1776,43 @@ Naniesiesz te zmiany na ten kod:
             const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
             state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
         }
+    }
     
-        // Logika widoczności checkboxa IKE/IKZE
+    function updateIkeIkzeVisibility(typ) {
         const ikeIkzeContainer = document.getElementById("ikeIkzeContainer");
         const allowedTypes = ["ROR", "DOR", "TOS", "COI", "EDO"];
         if (allowedTypes.includes(typ)) {
             ikeIkzeContainer.style.display = "block";
         } else {
             ikeIkzeContainer.style.display = "none";
-            elements.ikeIkzeBtn.checked = false; // Odznaczamy checkbox
-            state.isIkeIkzeMode = false; // Resetujemy stan
-            state.lastFormData.ikeIkze = false; // Aktualizujemy zapisany stan
+            elements.ikeIkzeBtn.checked = false;
+            state.isIkeIkzeMode = false;
+            state.lastFormData.ikeIkze = false;
+        }
+    }
+    
+    function updateDynamicRateField() {
+        state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
+        updateSelectOptions();
+        const typ = elements.typObligacji.value;
+    
+        if (elements.stopaZmiennaBtn.checked || elements.inflacjaZmiennaBtn.checked) {
+            elements.stopaZmiennaBtn.checked = false;
+            elements.inflacjaZmiennaBtn.checked = false;
+            state.lastFormData.stopaZmienna = false;
+            state.lastFormData.inflacjaZmienna = false;
+            state.variableReferenceRates = [];
+            state.variableInflation = [];
         }
     
+        updateOkresAndOprocentowanie(typ);
+        updateDynamicRateVisibility(typ);
+        updateVariableCheckboxes(typ);
+        updateIkeIkzeVisibility(typ);
         updateVariableInputs();
     }
-
-    // F U N K C J E   P O M O C N I C Z E
     
-    // Funkcja updateIloscObligacji pozostaje bez zmian
+    // F U N K C J E   P O M O C N I C Z E
     function updateIloscObligacji() {
         const kwota = parseFloat(elements.kwota.value) || 0;
         const ilosc = Math.floor(kwota / 100);
@@ -1824,7 +1837,6 @@ Naniesiesz te zmiany na ten kod:
             let period = Math.round(parseFloat(cyklInput.value));
             const value = parseFloat(rateInput.value);
     
-            // Ustalamy minimalną i maksymalną wartość okresu
             const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 2;
             if (period < minPeriod) {
                 period = minPeriod;
@@ -1842,13 +1854,11 @@ Naniesiesz te zmiany na ten kod:
             newChanges.push({ period, value });
         });
     
-        // Usuwamy kolejne wiersze, które mają okres mniejszy lub równy bieżącemu
         for (let i = 0; i < newChanges.length; i++) {
             const currentPeriod = newChanges[i].period;
-            // Sprawdzamy wszystkie kolejne wiersze
             for (let j = newChanges.length - 1; j > i; j--) {
                 if (newChanges[j].period <= currentPeriod) {
-                    newChanges.splice(j, 1); // Usuwamy wiersz
+                    newChanges.splice(j, 1);
                 }
             }
         }
@@ -1859,38 +1869,38 @@ Naniesiesz te zmiany na ten kod:
             state.variableReferenceRates = newChanges;
         }
     }
-
+    
     function updateLata() {
         const miesiace = parseInt(elements.okres.value) || 0;
         const lata = (miesiace / 12).toFixed(0);
         document.getElementById("lata").textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
     }
-
+    
     function updateOprocentowanieInfo() {
         const typ = elements.typObligacji.value;
         const config = obligacjeConfig[typ];
-        let info = config.zmienne ? 
-            (config.indeksowaneInflacja ? 
-                `Pierwszy rok: ${config.oprocentowanie}%, kolejne: inflacja + ${config.marza}%` : 
-                `Pierwszy m-c: ${config.oprocentowanie}%, kolejne: stopa NBP + ${config.marza}%`) : 
+        let info = config.zmienne ?
+            (config.indeksowaneInflacja ?
+                `Pierwszy rok: ${config.oprocentowanie}%, kolejne: inflacja + ${config.marza}%` :
+                `Pierwszy m-c: ${config.oprocentowanie}%, kolejne: stopa NBP + ${config.marza}%`) :
             `Stałe oprocentowanie: ${config.oprocentowanie}%`;
         document.getElementById("oprocentowanieInfo").textContent = info;
     }
-
+    
     function updateOpisObligacji() {
         const typ = elements.typObligacji.value;
         const opis = opisyObligacji[typ] || "";
         document.getElementById("obligacjeOpis").innerHTML = opis;
         document.getElementById("obligacjeOpisPodsumowanie").innerHTML = opis;
     }
-
+    
     function toggleHarmonogram(sectionId) {
         const content = document.getElementById(sectionId);
         const toggleBtn = content.previousElementSibling;
         content.style.display = content.style.display === "none" ? "block" : "none";
         toggleBtn.textContent = content.style.display === "none" ? "Harmonogram odsetek ►" : "Harmonogram odsetek ▼";
     }
-
+    
     function showForm() {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
@@ -1910,9 +1920,9 @@ Naniesiesz te zmiany na ten kod:
         updateLata();
         updateOprocentowanieInfo();
         updateOpisObligacji();
-        updateVariableInputs(); // Aktualizujemy pola zmiennych na podstawie danych z state
+        updateVariableInputs();
     }
-
+    
     function updateVariableInputs() {
         const typ = elements.typObligacji.value;
         const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
@@ -2052,9 +2062,9 @@ Naniesiesz te zmiany na ten kod:
     
                 rateInput.addEventListener("input", () => {
                     let value = parseFloat(rateInput.value) || 0;
-                    if (value < 0.1) value = 0.1; // Minimalna wartość 0,1
+                    if (value < 0.1) value = 0.1;
                     if (value > (isInflacjaZmienna ? 50 : 20)) value = isInflacjaZmienna ? 50 : 20;
-                    rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2); // Zachowaj precyzję
+                    rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2);
                     rateRange.value = value;
                     changes[index].value = value;
                     updateVariableData();
@@ -2062,8 +2072,8 @@ Naniesiesz te zmiany na ten kod:
     
                 rateRange.addEventListener("input", () => {
                     let value = parseFloat(rateRange.value);
-                    if (value < 0.1) value = 0.1; // Minimalna wartość 0,1
-                    rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2); // Zachowaj precyzję
+                    if (value < 0.1) value = 0.1;
+                    rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2);
                     changes[index].value = value;
                     updateVariableData();
                 });
@@ -2079,6 +2089,7 @@ Naniesiesz te zmiany na ten kod:
             wrapper.innerHTML = "";
         }
     }
+    
     function addVariableChange() {
         const typ = elements.typObligacji.value;
         const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
@@ -2089,7 +2100,6 @@ Naniesiesz te zmiany na ten kod:
     
         if (!isInflacjaZmienna && !isStopaZmienna) return;
     
-        // Sprawdzamy, czy ostatni okres osiągnął maxCykl
         const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
         const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
     
@@ -2097,7 +2107,7 @@ Naniesiesz te zmiany na ten kod:
             if (changes.length >= maxChanges) {
                 alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
             }
-            elements.addVariableBtn.style.display = "none"; // Ukryj przycisk
+            elements.addVariableBtn.style.display = "none";
             return;
         }
     
@@ -2108,7 +2118,7 @@ Naniesiesz te zmiany na ten kod:
         changes.push({ period: newCykl, value: newValue });
         updateVariableInputs();
     }
-
+    
     function removeVariableChange(index) {
         const typ = elements.typObligacji.value;
         const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
@@ -2118,11 +2128,10 @@ Naniesiesz te zmiany na ten kod:
             updateVariableInputs();
         }
     }
-
+    
     updateDynamicRateField();
     updateIloscObligacji();
-</script>
-<script>
+
     if (typeof pdfMake !== "undefined" && typeof pdfMake.vfs !== "undefined") {
         pdfMake.fonts = {
             Roboto: {
@@ -2135,7 +2144,6 @@ Naniesiesz te zmiany na ten kod:
     }
 
     // L O G I K A   O B L I C Z E Ń
-    
     function obliczObligacje() {
         console.log("Starting obliczObligacje");
         if (state.isCalculating) {
@@ -2151,18 +2159,35 @@ Naniesiesz te zmiany na ten kod:
             return;
         }
     
-        let kwota = parseFloat(elements.kwota.value) || 0;
-        const maxKwota = 10000000; // Maksymalna wartość 10 000 000 zł
+        let kwota = parseFloat(elements.kwota.value);
+        const maxKwota = 10000000;
+        if (isNaN(kwota) || kwota <= 0) {
+            alert("Proszę wprowadzić poprawną kwotę inwestycji (większą od 0).");
+            state.isCalculating = false;
+            return;
+        }
         if (kwota > maxKwota) {
             kwota = maxKwota;
             elements.kwota.value = maxKwota;
             elements.kwotaRange.value = maxKwota;
             alert("Maksymalna wartość to 10 000 000 zł. Wartość została dostosowana.");
         }
+        if (kwota < 100) {
+            alert("Minimalna kwota inwestycji to 100 zł.");
+            state.isCalculating = false;
+            return;
+        }
+    
         const typ = elements.typObligacji.value;
         const config = obligacjeConfig[typ];
         const miesiace = config.okres;
         const dynamicRate = parseFloat(elements.dynamicRate.value) || state.lastFormData.dynamicRates[typ];
+        if (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(typ) && (isNaN(dynamicRate) || dynamicRate < 0)) {
+            alert("Proszę wprowadzić poprawną wartość stopy referencyjnej lub inflacji.");
+            state.isCalculating = false;
+            return;
+        }
+    
         const inflacja = (["COI", "EDO", "ROS", "ROD"].includes(typ) ? dynamicRate : 4.90) / 100;
         const stopaRefNBP = (["ROR", "DOR"].includes(typ) ? dynamicRate : 5.75) / 100;
         const isInflacja = ["COI", "EDO", "ROS", "ROD"].includes(typ);
@@ -2179,15 +2204,9 @@ Naniesiesz te zmiany na ten kod:
             ikeIkze: state.isIkeIkzeMode,
             inflacjaZmienna: inflacjaZmienna,
             stopaZmienna: stopaZmienna,
-            variableInflacjaChanges: [...state.variableInflation], // Zapisujemy aktualne dane inflacji
-            variableStopaChanges: [...state.variableReferenceRates] // Zapisujemy aktualne dane stóp referencyjnych
+            variableInflacjaChanges: [...state.variableInflation],
+            variableStopaChanges: [...state.variableReferenceRates]
         };
-    
-        if (kwota < 100 || miesiace <= 0 || (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(typ) && (!dynamicRate || dynamicRate < 0))) {
-            alert("Proszę wypełnić wszystkie wymagane pola poprawnymi wartościami.");
-            state.isCalculating = false;
-            return;
-        }
     
         elements.resultHeader.textContent = `Wynik inwestycji dla obligacji ${nazwyObligacji[typ]}${state.isIkeIkzeMode ? " (IKE/IKZE)" : ""}*`;
         const pierwszaKolumnaNaglowek = document.getElementById("pierwszaKolumnaNaglowek");
@@ -2214,10 +2233,9 @@ Naniesiesz te zmiany na ten kod:
             let okresWiersz = i;
             let changeApplied = false;
             let stopaRefLubInflacja = "-";
-        
+    
             let oprocentowanieRoczne;
             if (inflacjaZmienna || stopaZmienna) {
-                // Pobieramy wartość z górnego panelu jako domyślną
                 let dynamicValue = (state.lastFormData.dynamicRates[typ] || (inflacjaZmienna ? 4.90 : 5.75)) / 100;
                 for (const change of changes) {
                     if (i >= change.period) {
@@ -2242,29 +2260,29 @@ Naniesiesz te zmiany na ten kod:
             } else {
                 oprocentowanieRoczne = config.oprocentowanie / 100;
             }
-        
+    
             let oprocentowanieMiesieczne = oprocentowanieRoczne / 12;
             let miesiecyWCyklu = ["OTS", "ROR", "DOR"].includes(typ) ? 1 : 12;
             let odsetkiCykl = kapital * oprocentowanieMiesieczne * miesiecyWCyklu;
-        
+    
             let podatekCykl = odsetkiCykl * podatekBelki;
             let odsetkiNettoCykl = state.isIkeIkzeMode ? odsetkiCykl : (odsetkiCykl - podatekCykl);
-        
+    
             odsetkiCalkowite += odsetkiCykl;
             skumulowaneOdsetki += odsetkiCykl;
             zyskNettoCalkowity += odsetkiNettoCykl;
-        
+    
             let wartoscInwestycji = kwota;
             if (config.kapitalizacja) {
                 kapital += odsetkiCykl;
                 wartoscInwestycji = kapital;
             }
-        
-            let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) : 
+    
+            let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) :
                 (config.kapitalizacja ? (wartoscInwestycji - skumulowaneOdsetki * 0.19) : kwota + zyskNettoCalkowity);
-        
+    
             let oplataZaWykup = i < liczbaCykli ? kwota * config.oplataWykup : 0;
-        
+    
             state.harmonogramData.push({
                 okres: okresWiersz,
                 wartoscInwestycji: wartoscInwestycji.toFixed(2),
@@ -2291,11 +2309,11 @@ Naniesiesz te zmiany na ten kod:
         if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
     
         const podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
-        const valuePodatek = document.getElementById("valuePodatek");
+        const valuePodatek = document.getElementId("valuePodatek");
         if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
         if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
-
+    
         document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
         document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
         document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
@@ -2399,7 +2417,7 @@ Naniesiesz te zmiany na ten kod:
         if (harmonogramOpis) {
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
             const starText = hasStar ? '<span class="star">★</span><strong> Zmiana oprocentowania.</strong><br>' : "";
-            const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
+            const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym razie opłata będzie do wartości narosłych odsetek.";
             const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
@@ -2415,13 +2433,12 @@ Naniesiesz te zmiany na ten kod:
     
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
         const isDarkMode = document.body.classList.contains('dark-mode');
-        
-        // Dynamiczne ustawienie rozmiaru czcionek w zależności od szerokości ekranu
+    
         const screenWidth = window.innerWidth;
-        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14; // Mobile: 10px, Tablet: 12px, Desktop: 14px
-        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;  // Mobile: 8px, Tablet: 10px, Desktop: 12px
-        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12; // Mobile: 8px, Tablet: 10px, Desktop: 12px
-        
+        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14;
+        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
+        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
+    
         state.chartLine = new Chart(ctxLine, {
             type: 'line',
             data: {
@@ -2451,20 +2468,20 @@ Naniesiesz te zmiany na ten kod:
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { 
-                        title: { 
-                            display: true, 
-                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
-                            font: { size: titleFontSize }, // Dynamiczny rozmiar
+                    x: {
+                        title: {
+                            display: true,
+                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)',
+                            font: { size: titleFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }, 
-                        ticks: { 
-                            font: { size: tickFontSize }, // Dynamiczny rozmiar
+                        },
+                        ticks: {
+                            font: { size: tickFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333',
-                            maxRotation: 45, // Obrót etykiet dla małych ekranów
+                            maxRotation: 45,
                             minRotation: 0,
-                            autoSkip: true, // Automatyczne pomijanie etykiet
-                            maxTicksLimit: 10 // Ograniczenie liczby etykiet
+                            autoSkip: true,
+                            maxTicksLimit: 10
                         },
                         grid: {
                             color: isDarkMode ? '#333333' : '#e0e0e0',
@@ -2494,13 +2511,13 @@ Naniesiesz te zmiany na ten kod:
                         }
                     }
                 },
-                plugins: { 
-                    legend: { 
-                        labels: { 
-                            font: { size: legendFontSize }, // Dynamiczny rozmiar
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: { size: legendFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333'
-                        } 
-                    } 
+                        }
+                    }
                 }
             }
         });
@@ -2512,20 +2529,19 @@ Naniesiesz te zmiany na ten kod:
         state.isCalculating = false;
         console.log("ObliczObligacje completed");
     }
-
+    
     const backgroundPlugin = {
         id: 'customBackground',
         beforeDraw: (chart, args, options) => {
             const ctx = chart.ctx;
             ctx.save();
-            ctx.fillStyle = options.color || '#ffffff'; // Domyślnie białe tło
+            ctx.fillStyle = options.color || '#ffffff';
             ctx.fillRect(0, 0, chart.width, chart.height);
             ctx.restore();
         }
     };
 
     // G E N E R O W A N I E   P L I K U   P D F
-    
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
@@ -2542,7 +2558,7 @@ Naniesiesz te zmiany na ten kod:
         const valueKapital = document.getElementById("valueKapital");
         const valueOdsetki = document.getElementById("valueOdsetki");
         const valuePodatek = document.getElementById("valuePodatek");
-        const zyskNetto = document.getElementById("zyskNetto");
+        const zyskNetto = document.querySelector('.summary-footer .highlight.green');
     
         const typ = state.lastFormData.typObligacji;
         if (!typ) {
@@ -2568,7 +2584,7 @@ Naniesiesz te zmiany na ten kod:
             { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
             { text: [{ text: "Podatek: ", style: 'listItem' }, { text: `${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`, style: 'listItemBold' }] },
             { text: [{ text: "Okres inwestycji: ", style: 'listItem' }, { text: `${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'listItemBold' }] },
-            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] }
+            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${parseNumber(zyskNetto.textContent.replace('Zysk netto: ', '')).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] }
         ];
     
         const headers = ["OTS", "ROR", "DOR"].includes(typ)
@@ -2598,36 +2614,28 @@ Naniesiesz te zmiany na ten kod:
     
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
-            const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const leftMargin = 14.17; // 0,5 cm z lewej (bez zmian)
-            const rightMargin = 65.19; // 2,3 cm z prawej (zwiększone o 4 mm)
-            const totalMargin = leftMargin + rightMargin; // Suma marginesów bocznych
-            const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
+            const pageWidth = 595.28;
+            const leftMargin = 14.17;
+            const rightMargin = 65.19;
+            const totalMargin = leftMargin + rightMargin;
+            const availableWidth = pageWidth - totalMargin;
     
-            console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
-            console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
-            console.log(`Dostępna szerokość: ${availableWidth} punktów`);
-    
-            // Oblicz maksymalne długości dla nagłówków i wierszy
             const headerLengths = headers.map(header => header.length);
             const contentLengths = headers.map((_, colIndex) => {
                 const maxLength = Math.max(...allRows.slice(1).map(row => row[colIndex] ? row[colIndex].length : 0));
                 return maxLength;
             });
     
-            // Weź pod uwagę zarówno nagłówki, jak i zawartość, z minimalną szerokością
             const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
             const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
     
-            // Ustaw minimalną szerokość kolumny
-            const minWidth = 40; // Minimalna szerokość kolumny, aby nagłówki mogły się zawijać
+            const minWidth = 40;
             const columnWidths = maxLengths.map(length => {
                 const proportion = length / totalLength;
                 const calculatedWidth = proportion * availableWidth;
-                return Math.max(minWidth, calculatedWidth); // Zapewnia minimalną szerokość
+                return Math.max(minWidth, calculatedWidth);
             });
     
-            // Upewnij się, że suma szerokości kolumn dokładnie odpowiada dostępnej szerokości
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
             const adjustmentFactor = availableWidth / totalCalculatedWidth;
             return columnWidths.map(width => width * adjustmentFactor);
@@ -2648,6 +2656,8 @@ Naniesiesz te zmiany na ten kod:
             legendColor: state.chartLine.options.plugins.legend.labels.color
         };
     
+        Chart.register(backgroundPlugin);
+        state.chartLine.options.plugins.customBackground = { color: '#ffffff' };
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
         state.chartLine.options.scales.y.grid.color = '#e0e0e0';
         state.chartLine.options.scales.x.grid.borderColor = '#333333';
@@ -2659,9 +2669,108 @@ Naniesiesz te zmiany na ten kod:
         state.chartLine.options.plugins.legend.labels.color = '#333333';
         state.chartLine.update();
     
-        requestAnimationFrame(() => {
-            const lineChartImage = lineChartCanvas.toDataURL("image/png");
+        const lineChartImage = new Promise((resolve) => {
+            setTimeout(() => {
+                const image = lineChartCanvas.toDataURL('image/png');
+                resolve(image);
+            }, 500);
+        });
     
+        const harmonogramOpis = document.getElementById("harmonogramOpis");
+        const footerText = harmonogramOpis ? harmonogramOpis.innerHTML : '';
+    
+        Promise.all([lineChartImage]).then(([lineChartImage]) => {
+            const docDefinition = {
+                pageSize: 'A4',
+                pageOrientation: 'landscape',
+                pageMargins: [14.17, 14.17, 65.19, 14.17],
+                content: [
+                    {
+                        columns: [
+                            {
+                                image: 'logo',
+                                width: 50,
+                                alignment: 'left'
+                            },
+                            {
+                                text: headerText,
+                                style: 'header',
+                                alignment: 'center'
+                            },
+                            {
+                                text: `Data: ${today}`,
+                                style: 'date',
+                                alignment: 'right'
+                            }
+                        ],
+                        columnGap: 10,
+                        margin: [0, 0, 0, 10]
+                    },
+                    {
+                        text: opis,
+                        style: 'description',
+                        margin: [0, 0, 0, 10]
+                    },
+                    {
+                        columns: [
+                            {
+                                width: '50%',
+                                stack: [
+                                    { text: 'Podsumowanie:', style: 'subheader', margin: [0, 0, 0, 5] },
+                                    { ul: summary, style: 'list', margin: [0, 0, 0, 10] }
+                                ]
+                            },
+                            {
+                                width: '50%',
+                                image: lineChartImage,
+                                fit: [300, 200],
+                                alignment: 'center'
+                            }
+                        ],
+                        columnGap: 10
+                    },
+                    { text: 'Harmonogram odsetek:', style: 'subheader', margin: [0, 10, 0, 5] },
+                    {
+                        table: {
+                            headerRows: 1,
+                            widths: columnWidths,
+                            body: [
+                                headers.map(header => ({ text: header, style: 'tableHeader' })),
+                                ...tableData
+                            ]
+                        },
+                        layout: {
+                            hLineWidth: () => 0.5,
+                            vLineWidth: () => 0.5,
+                            hLineColor: () => '#666',
+                            vLineColor: () => '#666',
+                            paddingLeft: () => 4,
+                            paddingRight: () => 4,
+                            paddingTop: () => 2,
+                            paddingBottom: () => 2
+                        }
+                    },
+                    { text: footerText, style: 'footer', margin: [0, 10, 0, 0] }
+                ],
+                images: {
+                    logo: 'https://kalkulatorobligacji.pl/images/logo.png'
+                },
+                styles: {
+                    header: { fontSize: 16, bold: true, alignment: 'center' },
+                    date: { fontSize: 10, alignment: 'right' },
+                    description: { fontSize: 10, margin: [0, 0, 0, 10] },
+                    subheader: { fontSize: 12, bold: true },
+                    list: { fontSize: 10 },
+                    listItem: { fontSize: 10 },
+                    listItemBold: { fontSize: 10, bold: true },
+                    tableHeader: { fontSize: 10, bold: true, fillColor: '#f0f0f0', alignment: 'center' },
+                    tableCell: { fontSize: 10, alignment: 'center' },
+                    footer: { fontSize: 8, italics: true }
+                },
+                defaultStyle: { font: 'Roboto' }
+            };
+    
+            state.chartLine.options.plugins.customBackground = { color: document.body.classList.contains('dark-mode') ? '#212529' : '#ffffff' };
             state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
             state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
             state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
@@ -2673,217 +2782,118 @@ Naniesiesz te zmiany na ten kod:
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
             state.chartLine.update();
     
-            function getBase64ImageFromUrl(url) {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = this.width;
-                        canvas.height = this.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(this, 0, 0);
-                        const dataURL = canvas.toDataURL('image/png');
-                        const aspectRatio = this.height / this.width;
-                        resolve({ dataURL, aspectRatio });
-                    };
-                    img.onerror = reject;
-                    img.src = url;
-                });
-            }
-    
-            const generateDoc = (logoData) => {
-                const logoBase64 = logoData ? logoData.dataURL : null;
-                const aspectRatio = logoData ? logoData.aspectRatio : 1;
-                const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
-                const starText = hasStar ? "★ Zmiana oprocentowania.\n" : "";
-                const baseText = "** Opłata maksymalna za wcześniejszy wykup, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym razie opłata będzie do wartości narosłych odsetek.";
-                const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
-                const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
-    
-                const harmonogramContent = document.getElementById("harmonogramContent");
-                const isHarmonogramCollapsed = harmonogramContent.style.display === "none";
-    
-                const docDefinition = {
-                    pageSize: 'A4',
-                    pageMargins: [14.17, 60, 14.17, 20],
-                    defaultStyle: { font: 'Roboto' },
-                    background: function(currentPage, pageSize) {
-                        if (!logoBase64) return [];
-                        const watermark = [];
-                        const watermarkWidth = 40;
-                        const watermarkHeight = watermarkWidth * aspectRatio;
-                        const cols = 4;
-                        const rows = 7;
-                        const spacingX = (pageSize.width - cols * watermarkWidth) / (cols + 1);
-                        const spacingY = (pageSize.height - rows * watermarkHeight) / (rows + 1);
-    
-                        for (let row = 0; row < rows; row++) {
-                            for (let col = 0; col < cols; col++) {
-                                watermark.push({
-                                    image: logoBase64,
-                                    width: watermarkWidth,
-                                    height: watermarkHeight,
-                                    opacity: 0.1,
-                                    absolutePosition: {
-                                        x: spacingX + col * (watermarkWidth + spacingX),
-                                        y: spacingY + row * (watermarkHeight + spacingY)
-                                    }
-                                });
-                            }
-                        }
-                        return watermark;
-                    },
-                    header: logoBase64 ? {
-                        columns: [
-                            { image: logoBase64, width: 100, margin: [40, 30, 0, 10] },
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 40, 0] }
-                        ]
-                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [40, 30, 40, 0] },
-                    content: [
-                        { text: headerText, style: 'header', alignment: 'center' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [40, 10, 0, 5] },
-                        { ul: summary, margin: [40, 0, 0, 10] },
-                        ...(isHarmonogramCollapsed ? [] : [
-                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5], pageMargins: [14.17, 60, 14.17, 20] },
-                            {
-                                table: {
-                                    headerRows: 1,
-                                    widths: columnWidths,
-                                    body: [
-                                        headers.map(h => ({ text: h, style: 'tableHeader' })),
-                                        ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell' })))
-                                    ]
-                                },
-                                layout: {
-                                    fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                                    hLineWidth: function () { return 0.5; },
-                                    vLineWidth: function () { return 0.5; },
-                                    paddingLeft: function () { return 1; },
-                                    paddingRight: function () { return 1; },
-                                    paddingTop: function () { return 2; },
-                                    paddingBottom: function () { return 2; }
-                                },
-                                pageMargins: [14.17, 60, 65.19, 20], // 0,5 cm z lewej, 2,3 cm z prawej
-                                margin: [14.17, 0, 65.19, 0], // Ręczne ustawienie marginesów tabeli
-                                alignment: 'center'
-                            },
-                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10], pageMargins: [14.17, 60, 14.17, 20] }
-                        ]),
-                        {
-                            text: "Wykres liniowy wartości inwestycji w czasie",
-                            style: 'sectionHeader',
-                            alignment: 'center',
-                            margin: [0, 10, 0, 5],
-                            pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
-                        },
-                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
-                    ],
-                    styles: {
-                        header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
-                        subheader: { fontSize: 10, alignment: 'justify' },
-                        sectionHeader: { fontSize: 12, bold: true },
-                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                        listItemBold: { fontSize: 10, bold: true, margin: [0, 2, 0, 2] },
-                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280', margin: [0, 4, 0, 4] },
-                        tableCell: { fontSize: 8, alignment: 'center' },
-                        footerNote: { fontSize: 8, italics: true }
-                    }
-                };
-    
-                pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${nazwaObligacji.replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`);
-            };
-    
-            getBase64ImageFromUrl('cropped-logo-FB-1.png')
-                .then(logoData => generateDoc(logoData))
-                .catch(error => {
-                    console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
-                    generateDoc(null);
-                });
+            pdfMake.createPdf(docDefinition).download(`wynik_inwestycji_${nazwaObligacji.replace(/ /g, '_')}_${today.replace(/\//g, '-')}.pdf`);
+            console.log("PDF generated successfully");
+        }).catch(error => {
+            console.error("Błąd podczas generowania PDF:", error);
+            alert("Wystąpił błąd podczas generowania PDF. Spróbuj ponownie.");
+            state.chartLine.options.plugins.customBackground = { color: document.body.classList.contains('dark-mode') ? '#212529' : '#ffffff' };
+            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
+            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
+            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
+            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
+            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
+            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
+            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
+            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
+            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+            state.chartLine.update();
         });
     }
     
-// F U N K C J A      Z O O M
+    // F U N K C J E   Z O O M   I   T R Y B   C I E M N Y
+    let currentZoomLevel = 1;
+    function updateZoom(zoomIn) {
+        const zoomStep = 0.1;
+        const minZoom = 0.5;
+        const maxZoom = 2;
     
-    document.getElementById('siteLogo').addEventListener('click', () => {
-        window.open('https://finance-brothers.pl', '_blank');
-    });
-
-    let currentZoom = 1;
-    const zoomStep = 0.1;
-    const minZoom = 0.5;
-    const maxZoom = 2;
+        if (zoomIn) {
+            currentZoomLevel = Math.min(currentZoomLevel + zoomStep, maxZoom);
+        } else {
+            currentZoomLevel = Math.max(currentZoomLevel - zoomStep, minZoom);
+        }
     
-    function updateZoom() {
-        const container = document.querySelector('.container');
-        container.style.transform = `scale(${currentZoom})`;
-        container.style.transformOrigin = 'top center';
+        document.body.style.transform = `scale(${currentZoomLevel})`;
+        document.body.style.transformOrigin = 'top left';
+        document.body.style.width = `${100 / currentZoomLevel}%`;
+        document.body.style.height = `${100 / currentZoomLevel}%`;
+    
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        if (zoomLevelDisplay) {
+            zoomLevelDisplay.textContent = `${Math.round(currentZoomLevel * 100)}%`;
+        }
+    
+        localStorage.setItem('zoomLevel', currentZoomLevel);
     }
     
-    document.getElementById("zoomInBtn").addEventListener("click", () => {
-        if (currentZoom < maxZoom) {
-            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
-            updateZoom();
+    document.getElementById('zoomInBtn')?.addEventListener('click', () => updateZoom(true));
+    document.getElementById('zoomOutBtn')?.addEventListener('click', () => updateZoom(false));
+    document.getElementById('resetZoomBtn')?.addEventListener('click', () => {
+        currentZoomLevel = 1;
+        document.body.style.transform = 'scale(1)';
+        document.body.style.width = '100%';
+        document.body.style.height = '100%';
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        if (zoomLevelDisplay) {
+            zoomLevelDisplay.textContent = '100%';
         }
+        localStorage.setItem('zoomLevel', 1);
     });
-    
-    document.getElementById("zoomOutBtn").addEventListener("click", () => {
-        if (currentZoom > minZoom) {
-            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
-            updateZoom();
-        }
-    });
-
-    // D A R K     M O D E
     
     function toggleDarkMode() {
-        const body = document.body;
-        const isDarkMode = body.classList.contains('dark-mode');
-        
-        if (isDarkMode) {
-            body.classList.remove('dark-mode');
-            body.classList.add('light-mode');
-            localStorage.setItem('theme', 'light');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        } else {
-            body.classList.remove('light-mode');
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        const isDarkMode = document.body.classList.toggle('dark-mode');
+        const darkModeIcon = document.getElementById('darkModeIcon');
+        if (darkModeIcon) {
+            darkModeIcon.classList.toggle('bi-moon', !isDarkMode);
+            darkModeIcon.classList.toggle('bi-sun', isDarkMode);
         }
-    }
     
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        } else {
-            document.body.classList.add('light-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        }
-    }
+        localStorage.setItem('darkMode', isDarkMode);
     
-    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
-        toggleDarkMode();
         if (state.chartLine) {
-            const isDarkMode = document.body.classList.contains('dark-mode');
+            state.chartLine.options.plugins.customBackground = {
+                color: isDarkMode ? '#212529' : '#ffffff'
+            };
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
+            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#333333' : '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#333333' : '#333333';
             state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.update();
         }
+    }
+    
+    document.getElementById('darkModeBtn')?.addEventListener('click', toggleDarkMode);
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedZoomLevel = localStorage.getItem('zoomLevel');
+        if (savedZoomLevel) {
+            currentZoomLevel = parseFloat(savedZoomLevel);
+            document.body.style.transform = `scale(${currentZoomLevel})`;
+            document.body.style.transformOrigin = 'top left';
+            document.body.style.width = `${100 / currentZoomLevel}%`;
+            document.body.style.height = `${100 / currentZoomLevel}%`;
+            const zoomLevelDisplay = document.getElementById('zoomLevel');
+            if (zoomLevelDisplay) {
+                zoomLevelDisplay.textContent = `${Math.round(currentZoomLevel * 100)}%`;
+            }
+        }
+    
+        const savedDarkMode = localStorage.getItem('darkMode');
+        if (savedDarkMode === 'true') {
+            document.body.classList.add('dark-mode');
+            const darkModeIcon = document.getElementById('darkModeIcon');
+            if (darkModeIcon) {
+                darkModeIcon.classList.remove('bi-moon');
+                darkModeIcon.classList.add('bi-sun');
+            }
+        }
     });
-    
-    initializeTheme();
-    
 </script>
 </body>
 </html>
