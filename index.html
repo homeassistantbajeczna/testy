@@ -2068,7 +2068,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(this, 0, 0);
                         const dataURL = canvas.toDataURL('image/png');
-                        const aspectRatio = this.height / this.width; // Obliczenie proporcji oryginalnego logo
+                        const aspectRatio = this.height / this.width; // Proporcje oryginalnego logo
                         resolve({ dataURL, aspectRatio });
                     };
                     img.onerror = reject;
@@ -2078,33 +2078,41 @@
     
             const generateDoc = (logoData) => {
                 const logoBase64 = logoData ? logoData.dataURL : null;
-                const aspectRatio = logoData ? logoData.aspectRatio : 1; // Domyślna proporcja 1:1, jeśli brak logo
+                const aspectRatio = logoData ? logoData.aspectRatio : 1;
                 const hasStar = state.harmonogramData.some(row => row.zmianaOprocentowania);
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Wyśrodkowana siatka 4x7 wokół środka strony
-                const pageWidth = 595; // Szerokość A4 w punktach
-                const pageHeight = 842; // Wysokość A4 w punktach
-                const watermarkWidth = 30 * 4 + 40 * 3; // Szerokość siatki: 4 logo po 30 px + 3 odstępy po 40 px
-                const watermarkHeight = 20 * aspectRatio * 7 + 40 * 6; // Wysokość siatki: 7 logo proporcjonalnych + 6 odstępów po 40 px
-                const startX = (pageWidth - watermarkWidth) / 2; // Początkowa pozycja X dla wyśrodkowania
-                const startY = (pageHeight - watermarkHeight) / 2; // Początkowa pozycja Y dla wyśrodkowania
+                // Znaki wodne z marginesami: 3 cm (85 px) boki, 4 cm (113 px) góra/dół
+                const pageWidth = 595;
+                const pageHeight = 842;
+                const marginLeftRight = 85; // 3 cm
+                const marginTopBottom = 113; // 4 cm
+                const availableWidth = pageWidth - 2 * marginLeftRight; // 595 - 170 = 425 px
+                const availableHeight = pageHeight - 2 * marginTopBottom; // 842 - 226 = 616 px
+                const watermarkWidth = 30 * 4; // 120 px (4 logo po 30 px)
+                const watermarkHeight = 30 * aspectRatio * 7; // 7 logo proporcjonalnych
+                const spacingX = (availableWidth - watermarkWidth) / 3; // Odstępy poziome
+                const spacingY = (availableHeight - watermarkHeight) / 6; // Odstępy pionowe
     
                 const watermark = logoBase64 ? {
                     stack: [
                         ...Array.from({ length: 28 }, (_, i) => ({
                             image: logoBase64,
                             width: 30,
-                            height: 30 * aspectRatio, // Proporcjonalna wysokość
+                            height: 30 * aspectRatio,
                             absolutePosition: { 
-                                x: startX + (i % 4) * (30 + 40), // 30 px szerokości + 40 px odstęp
-                                y: startY + Math.floor(i / 4) * (30 * aspectRatio + 40) // Proporcjonalna wysokość + 40 px odstęp
+                                x: marginLeftRight + (i % 4) * (30 + spacingX),
+                                y: marginTopBottom + Math.floor(i / 4) * (30 * aspectRatio + spacingY)
                             },
                             opacity: 0.1
                         }))
                     ]
                 } : null;
+    
+                // Sprawdzenie, czy tabela jest zwinięta (przykładowo: klasa .collapsed na tabeli)
+                const tableElement = document.querySelector('#harmonogramTable'); // Dostosuj ID do swojego kodu
+                const isTableCollapsed = tableElement && tableElement.classList.contains('collapsed'); // Dostosuj warunek
     
                 const docDefinition = {
                     pageSize: 'A4',
@@ -2136,7 +2144,8 @@
                     }
                 };
     
-                if (kapitalizacja !== "naKoniec" && tableData.length > 0) {
+                // Dodanie harmonogramu tylko, jeśli tabela nie jest zwinięta
+                if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isTableCollapsed) {
                     docDefinition.content.push(
                         { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
                         {
