@@ -2583,7 +2583,7 @@
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
             const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const totalMargin = 0; // Brak marginesów bocznych dla tabelki
+            const totalMargin = 28.34; // 0,5 cm z każdej strony (14.17 * 2)
             const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
     
             // Oblicz maksymalne długości dla nagłówków i wierszy
@@ -2743,10 +2743,11 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                pageMargins: [0, 60, 0, 20], // Brak marginesów bocznych dla tabelki
-                                margin: [0, 0, 0, 0]
+                                pageMargins: [14.17, 60, 14.17, 20], // 0,5 cm z lewej i prawej
+                                margin: [0, 0, 0, 0],
+                                alignment: 'center'
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10], pageMargins: [14.17, 60, 14.17, 20] } // Przywrócenie marginesów
+                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10], pageMargins: [14.17, 60, 14.17, 20] }
                         ]),
                         {
                             text: "Wykres liniowy wartości inwestycji w czasie",
