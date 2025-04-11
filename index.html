@@ -902,7 +902,7 @@
     
     .harmonogram-legend {
         margin-top: 4px;
-        font-size: 0.35em;
+        font-size: clamp(0.25em, 0.8vw, 0.35em);        
         text-align: left;
         padding-left: 0.5cm;
     }
@@ -930,12 +930,11 @@
         vertical-align: middle;
     }
 
-    /*.harmonogram td:nth-child(3) {
+    .harmonogram td:nth-child(3) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: clamp(1px, 0.5vw, 10px);
-    }*/
+    }
 
     .star {
         font-size: 1em;
