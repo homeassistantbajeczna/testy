@@ -53,7 +53,7 @@
                                 <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> 
                             </div>
                             <div class="form-group">
-                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                                <label for="oprocentowanie" class="form-label">Oproc.</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="4">
                                     <span class="input-group-text">%</span>
@@ -865,8 +865,8 @@
     }
 
     .harmonogram th {
-        background: var(--input-group-bg);
-        color: #333333;
+        background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
         font-weight: 400;
         font-size: clamp(0.6em, 1.25vw, 0.85em);
         padding: clamp(1px, 0.5vw, 12px);
@@ -980,7 +980,6 @@
     }
     
     .dark-mode .harmonogram th {
-        background: #666666;
         color: var(--primary-text);
         border-bottom: 2px solid #666666;
         border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
@@ -1960,7 +1959,7 @@
                         headerRows: 1,
                         widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                         body: [
-                            ['Okres', 'Wartość lokaty', 'Oprocentowanie', 'Odsetki brutto', 'Suma odsetek', 'Podatek', 'Zysk netto', 'Suma netto'],
+                            ['Okres', 'Wartość lokaty', 'Oproc.', 'Odsetki brutto', 'Suma odsetek', 'Podatek', 'Zysk netto', 'Suma netto'],
                             ...state.harmonogramData.map(row => [
                                 row.okres,
                                 `${row.wartoscLokaty} zł`,
