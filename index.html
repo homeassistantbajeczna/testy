@@ -1519,6 +1519,18 @@
 <script>
 
     // D E F I N I C J E   Z M I E N N Y C H
+    const formatNumber = (num) => {
+        const formatted = parseFloat(num).toLocaleString('pl-PL', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true
+        });
+        // Dodaj spację dla liczb czterocyfrowych, jeśli jej brak
+        if (num >= 1000 && num < 10000 && !formatted.includes(' ')) {
+            return formatted.replace(/(\d)(\d{3},\d{2})/, '$1 $2');
+        }
+        return formatted;
+    };
     
     const elements = {
         formSection: document.getElementById("formSection"),
