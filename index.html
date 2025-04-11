@@ -1751,55 +1751,63 @@
         let aktualneOprocentowanie = oprocentowanie;
         let poprzednieOprocentowanie = oprocentowanie;
     
-        for (let okres = 1; okres <= liczbaOkresowTabela; okres++) {
-            if (zmienneOprocentowanie && kapitalizacja !== "naKoniec") {
-                let okresWJednostce;
-                if (kapitalizacja === "dzienna") okresWJednostce = jednostka === "dni" ? okres : Math.ceil(okres / (jednostka === "miesiace" ? 30.42 : 365));
-                else if (kapitalizacja === "miesieczna") okresWJednostce = jednostka === "miesiace" ? okres : Math.ceil(okres / (jednostka === "dni" ? 30.42 : 12));
-                else if (kapitalizacja === "roczna") okresWJednostce = jednostka === "lata" ? okres : Math.ceil(okres / (jednostka === "dni" ? 365 : 12));
-                else okresWJednostce = okres;
-    
-                const zmiana = state.variableRates.find(rate => rate.period === okresWJednostce);
-                if (zmiana) aktualneOprocentowanie = zmiana.value;
-            }
-    
-            let oprocentowanieOkresowe;
-            if (kapitalizacja === "naKoniec") {
-                const lata = dni / dniWRoku;
-                oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * lata;
-            } else {
-                const dniWOkresie = kapitalizacja === "dzienna" ? 1 : kapitalizacja === "miesieczna" ? 30.42 : 365;
-                oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
-            }
-    
-            const wartoscPoczatkowa = kapital;
-            const odsetkiBrutto = wartoscPoczatkowa * oprocentowanieOkresowe;
+        if (kapitalizacja === "naKoniec") {
+            // Dla "Na koniec okresu" obliczamy tylko końcowy wynik, bez harmonogramu
+            const lata = dni / dniWRoku;
+            const oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * lata;
+            const odsetkiBrutto = kwota * oprocentowanieOkresowe;
             const podatekOkresowy = odsetkiBrutto * (podatek / 100);
             const zyskNetto = odsetkiBrutto - podatekOkresowy;
     
-            let zmianaOprocentowania = false;
-            if (zmienneOprocentowanie && kapitalizacja !== "naKoniec" && aktualneOprocentowanie !== poprzednieOprocentowanie) {
-                zmianaOprocentowania = true;
-                poprzednieOprocentowanie = aktualneOprocentowanie;
+            sumaOdsetekBrutto = odsetkiBrutto;
+            sumaPodatku = podatekOkresowy;
+            sumaZyskuNetto = zyskNetto;
+            kapital = kwota + zyskNetto;
+        } else {
+            // Dla innych kapitalizacji generujemy pełny harmonogram
+            for (let okres = 1; okres <= liczbaOkresowTabela; okres++) {
+                if (zmienneOprocentowanie) {
+                    let okresWJednostce;
+                    if (kapitalizacja === "dzienna") okresWJednostce = jednostka === "dni" ? okres : Math.ceil(okres / (jednostka === "miesiace" ? 30.42 : 365));
+                    else if (kapitalizacja === "miesieczna") okresWJednostce = jednostka === "miesiace" ? okres : Math.ceil(okres / (jednostka === "dni" ? 30.42 : 12));
+                    else if (kapitalizacja === "roczna") okresWJednostce = jednostka === "lata" ? okres : Math.ceil(okres / (jednostka === "dni" ? 365 : 12));
+                    else okresWJednostce = okres;
+    
+                    const zmiana = state.variableRates.find(rate => rate.period === okresWJednostce);
+                    if (zmiana) aktualneOprocentowanie = zmiana.value;
+                }
+    
+                const dniWOkresie = kapitalizacja === "dzienna" ? 1 : kapitalizacja === "miesieczna" ? 30.42 : 365;
+                const oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
+    
+                const wartoscPoczatkowa = kapital;
+                const odsetkiBrutto = wartoscPoczatkowa * oprocentowanieOkresowe;
+                const podatekOkresowy = odsetkiBrutto * (podatek / 100);
+                const zyskNetto = odsetkiBrutto - podatekOkresowy;
+    
+                let zmianaOprocentowania = false;
+                if (zmienneOprocentowanie && aktualneOprocentowanie !== poprzednieOprocentowanie) {
+                    zmianaOprocentowania = true;
+                    poprzednieOprocentowanie = aktualneOprocentowanie;
+                }
+    
+                kapital += zyskNetto;
+                sumaOdsetekBrutto += odsetkiBrutto;
+                sumaPodatku += podatekOkresowy;
+                sumaZyskuNetto += zyskNetto;
+    
+                state.harmonogramData.push({
+                    okres: okres,
+                    wartoscLokaty: wartoscPoczatkowa.toFixed(2),
+                    oprocentowanie: aktualneOprocentowanie.toFixed(2),
+                    odsetkiBrutto: odsetkiBrutto.toFixed(2),
+                    sumaOdsetek: sumaOdsetekBrutto.toFixed(2),
+                    podatek: podatekOkresowy.toFixed(2),
+                    zyskNetto: zyskNetto.toFixed(2),
+                    sumaNetto: kapital.toFixed(2),
+                    zmianaOprocentowania: zmianaOprocentowania
+                });
             }
-    
-            // Zawsze zapisujemy dane do harmonogramu, nawet dla "Na koniec okresu"
-            kapital += zyskNetto;
-            sumaOdsetekBrutto += odsetkiBrutto;
-            sumaPodatku += podatekOkresowy;
-            sumaZyskuNetto += zyskNetto;
-    
-            state.harmonogramData.push({
-                okres: okres,
-                wartoscLokaty: wartoscPoczatkowa.toFixed(2),
-                oprocentowanie: aktualneOprocentowanie.toFixed(2),
-                odsetkiBrutto: odsetkiBrutto.toFixed(2),
-                sumaOdsetek: sumaOdsetekBrutto.toFixed(2),
-                podatek: podatekOkresowy.toFixed(2),
-                zyskNetto: zyskNetto.toFixed(2),
-                sumaNetto: kapital.toFixed(2),
-                zmianaOprocentowania: zmianaOprocentowania
-            });
         }
     
         const summaryBars = document.querySelector(".summary-bars");
@@ -1820,30 +1828,35 @@
         }
     
         const harmonogramContainer = document.querySelector(".harmonogram");
-        harmonogramContainer.style.display = "block"; // Zawsze pokazujemy harmonogram
-        elements.harmonogramTabela.innerHTML = "";
-        state.harmonogramData.forEach(row => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${row.okres}</td>
-                <td>${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</td>
-                <td>${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                <td>${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                <td>${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                <td>${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                <td>${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-            `;
-            elements.harmonogramTabela.appendChild(tr);
-        });
+        if (kapitalizacja === "naKoniec") {
+            harmonogramContainer.style.display = "none";
+            elements.harmonogramTabela.innerHTML = ""; // Czyścimy tabelkę
+        } else {
+            harmonogramContainer.style.display = "block";
+            elements.harmonogramTabela.innerHTML = "";
+            state.harmonogramData.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${row.okres}</td>
+                    <td>${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</td>
+                    <td>${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                `;
+                elements.harmonogramTabela.appendChild(tr);
+            });
     
-        let legenda = document.querySelector(".harmonogram-legend");
-        if (!legenda) {
-            legenda = document.createElement("div");
-            legenda.className = "harmonogram-legend";
-            document.getElementById("harmonogramContent").appendChild(legenda);
+            let legenda = document.querySelector(".harmonogram-legend");
+            if (!legenda) {
+                legenda = document.createElement("div");
+                legenda.className = "harmonogram-legend";
+                document.getElementById("harmonogramContent").appendChild(legenda);
+            }
+            legenda.innerHTML = zmienneOprocentowanie && state.harmonogramData.some(row => row.zmianaOprocentowania) ? '<span class="star">★</span> <span class="legend-text">Zmiana oprocentowania</span>' : '';
         }
-        legenda.innerHTML = zmienneOprocentowanie && state.harmonogramData.some(row => row.zmianaOprocentowania) ? '<span class="star">★</span> <span class="legend-text">Zmiana oprocentowania</span>' : '';
     
         const chartContainer = document.querySelector(".chart-container-line");
         if (state.chartLine) state.chartLine.destroy();
