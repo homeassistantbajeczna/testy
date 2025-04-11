@@ -2068,7 +2068,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(this, 0, 0);
                         const dataURL = canvas.toDataURL('image/png');
-                        const aspectRatio = this.height / this.width; // Proporcje oryginalnego logo
+                        const aspectRatio = this.height / this.width;
                         resolve({ dataURL, aspectRatio });
                     };
                     img.onerror = reject;
@@ -2083,15 +2083,15 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Znaki wodne z marginesami: 3 cm (85 px) boki, 4 cm (113 px) góra/dół
+                // Znaki wodne: powiększone 2x, marginesy 3 cm boki, 4 cm góra/dół
                 const pageWidth = 595;
                 const pageHeight = 842;
                 const marginLeftRight = 85; // 3 cm
                 const marginTopBottom = 113; // 4 cm
-                const availableWidth = pageWidth - 2 * marginLeftRight; // 595 - 170 = 425 px
-                const availableHeight = pageHeight - 2 * marginTopBottom; // 842 - 226 = 616 px
-                const watermarkWidth = 30 * 4; // 120 px (4 logo po 30 px)
-                const watermarkHeight = 30 * aspectRatio * 7; // 7 logo proporcjonalnych
+                const availableWidth = pageWidth - 2 * marginLeftRight; // 425 px
+                const availableHeight = pageHeight - 2 * marginTopBottom; // 616 px
+                const watermarkWidth = 60 * 4; // 240 px (4 logo po 60 px)
+                const watermarkHeight = 60 * aspectRatio * 7; // 7 logo proporcjonalnych
                 const spacingX = (availableWidth - watermarkWidth) / 3; // Odstępy poziome
                 const spacingY = (availableHeight - watermarkHeight) / 6; // Odstępy pionowe
     
@@ -2099,20 +2099,20 @@
                     stack: [
                         ...Array.from({ length: 28 }, (_, i) => ({
                             image: logoBase64,
-                            width: 30,
-                            height: 30 * aspectRatio,
+                            width: 60, // Powiększone 2x
+                            height: 60 * aspectRatio, // Proporcjonalna wysokość
                             absolutePosition: { 
-                                x: marginLeftRight + (i % 4) * (30 + spacingX),
-                                y: marginTopBottom + Math.floor(i / 4) * (30 * aspectRatio + spacingY)
+                                x: marginLeftRight + (i % 4) * (60 + spacingX),
+                                y: marginTopBottom + Math.floor(i / 4) * (60 * aspectRatio + spacingY)
                             },
                             opacity: 0.1
                         }))
                     ]
                 } : null;
     
-                // Sprawdzenie, czy tabela jest zwinięta (przykładowo: klasa .collapsed na tabeli)
-                const tableElement = document.querySelector('#harmonogramTable'); // Dostosuj ID do swojego kodu
-                const isTableCollapsed = tableElement && tableElement.classList.contains('collapsed'); // Dostosuj warunek
+                // Sprawdzenie, czy harmonogram jest zwinięty
+                const tableElement = document.querySelector('#harmonogramTable'); // Dostosuj ID
+                const isTableCollapsed = tableElement && (tableElement.style.display === 'none' || tableElement.classList.contains('collapsed')); // Rozszerzony warunek
     
                 const docDefinition = {
                     pageSize: 'A4',
@@ -2144,7 +2144,7 @@
                     }
                 };
     
-                // Dodanie harmonogramu tylko, jeśli tabela nie jest zwinięta
+                // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isTableCollapsed) {
                     docDefinition.content.push(
                         { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
