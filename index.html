@@ -2068,39 +2068,52 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(this, 0, 0);
                         const dataURL = canvas.toDataURL('image/png');
-                        resolve(dataURL);
+                        const aspectRatio = this.height / this.width; // Obliczenie proporcji oryginalnego logo
+                        resolve({ dataURL, aspectRatio });
                     };
                     img.onerror = reject;
                     img.src = url;
                 });
             }
     
-            const generateDoc = (logoBase64) => {
+            const generateDoc = (logoData) => {
+                const logoBase64 = logoData ? logoData.dataURL : null;
+                const aspectRatio = logoData ? logoData.aspectRatio : 1; // Domyślna proporcja 1:1, jeśli brak logo
                 const hasStar = state.harmonogramData.some(row => row.zmianaOprocentowania);
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Znaki wodne w siatce 4x7, rozmiar 30x20 px, mniej przezroczyste
+                // Wyśrodkowana siatka 4x7 wokół środka strony
+                const pageWidth = 595; // Szerokość A4 w punktach
+                const pageHeight = 842; // Wysokość A4 w punktach
+                const watermarkWidth = 30 * 4 + 40 * 3; // Szerokość siatki: 4 logo po 30 px + 3 odstępy po 40 px
+                const watermarkHeight = 20 * aspectRatio * 7 + 40 * 6; // Wysokość siatki: 7 logo proporcjonalnych + 6 odstępów po 40 px
+                const startX = (pageWidth - watermarkWidth) / 2; // Początkowa pozycja X dla wyśrodkowania
+                const startY = (pageHeight - watermarkHeight) / 2; // Początkowa pozycja Y dla wyśrodkowania
+    
                 const watermark = logoBase64 ? {
                     stack: [
                         ...Array.from({ length: 28 }, (_, i) => ({
                             image: logoBase64,
                             width: 30,
-                            height: 20,
-                            absolutePosition: { x: (i % 4) * 140 + 40, y: Math.floor(i / 4) * 110 + 40 },
-                            opacity: 0.1 // Mniej przezroczyste niż 0.05
+                            height: 30 * aspectRatio, // Proporcjonalna wysokość
+                            absolutePosition: { 
+                                x: startX + (i % 4) * (30 + 40), // 30 px szerokości + 40 px odstęp
+                                y: startY + Math.floor(i / 4) * (30 * aspectRatio + 40) // Proporcjonalna wysokość + 40 px odstęp
+                            },
+                            opacity: 0.1
                         }))
                     ]
                 } : null;
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [40, 80, 40, 40], // Górny margines zmniejszony do 80 px
+                    pageMargins: [40, 80, 40, 40],
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
-                        margin: [40, 20, 40, 0], // Marginesy boczne 40 px, górny 20 px
+                        margin: [40, 20, 40, 0],
                         columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 0, 0, 20] }, // Dolny margines dla logo
+                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 0, 0, 20] },
                             { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 20, 20] }
                         ]
                     } : { 
@@ -2160,7 +2173,7 @@
             };
     
             getBase64ImageFromUrl('cropped-logo-FB-1.png')
-                .then(logoBase64 => generateDoc(logoBase64))
+                .then(logoData => generateDoc(logoData))
                 .catch(error => {
                     console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
                     generateDoc(null);
