@@ -2511,7 +2511,12 @@
     // G E N E R O W A N I E   P L I K U   P D F
     
     function generatePdf() {
-        console.log("Starting generatePdf");
+        console.log("generatePdf wywołane");
+        console.log("pdfMake:", typeof pdfMake);
+        console.log("state.harmonogramData:", state.harmonogramData);
+        console.log("state.lastFormData:", state.lastFormData);
+        console.log("state.chartLine:", state.chartLine);
+    
         if (typeof pdfMake === "undefined") {
             console.error("Biblioteka PDFMake nie została załadowana.");
             alert("Błąd: Biblioteka PDFMake nie jest załadowana.");
@@ -2519,6 +2524,7 @@
         }
     
         if (!state.harmonogramData.length) {
+            console.warn("Brak danych w state.harmonogramData");
             alert("Najpierw oblicz wyniki inwestycji, klikając 'Oblicz'.");
             return;
         }
@@ -2527,6 +2533,11 @@
         const valueOdsetki = document.getElementById("valueOdsetki");
         const valuePodatek = document.getElementById("valuePodatek");
         const zyskNetto = document.getElementById("zyskNetto");
+    
+        console.log("valueKapital:", valueKapital?.textContent);
+        console.log("valueOdsetki:", valueOdsetki?.textContent);
+        console.log("valuePodatek:", valuePodatek?.textContent);
+        console.log("zyskNetto:", zyskNetto?.textContent);
     
         const typ = state.lastFormData.typObligacji;
         if (!typ) {
@@ -2595,6 +2606,7 @@
     
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
+        console.log("lineChartCanvas:", lineChartCanvas);
     
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
@@ -2658,13 +2670,11 @@
                 const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
                 const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
     
-                // Sprawdzamy, czy harmonogram jest zwinięty
                 const harmonogramContent = document.getElementById("harmonogramContent");
                 const isHarmonogramVisible = harmonogramContent.style.display !== "none";
     
-                // Przygotowujemy elementy listy "Podsumowanie" z pogrubionymi wartościami
                 const summaryItems = summary.map(item => {
-                    const [label, value] = item.split(/: (.*)/); // Dzielimy na etykietę i wartość
+                    const [label, value] = item.split(/: (.*)/);
                     return {
                         columns: [
                             { text: `${label}: `, style: 'listItem' },
@@ -2678,28 +2688,26 @@
                     pageSize: 'A4',
                     pageMargins: [14.17, 60, 14.17, 20],
                     defaultStyle: { font: 'Roboto' },
-                    // Znak wodny z logo
                     background: logoBase64 ? function(currentPage, pageSize) {
                         return {
                             image: logoBase64,
                             width: 300,
-                            opacity: 0.08, // 8% widoczności
+                            opacity: 0.08,
                             absolutePosition: { x: pageSize.width / 2 - 150, y: pageSize.height / 2 - 150 },
                             angle: 45
                         };
                     } : null,
                     header: logoBase64 ? {
                         columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 20, 0, 0] }, // Większy margines górny
+                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 20, 0, 0] },
                             { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] }
                         ]
                     } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
                     content: [
                         { text: headerText, style: 'header' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [20, 10, 20, 10] }, // Większe marginesy z lewej i prawej
+                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [20, 10, 20, 10] },
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
-                        { ul: summaryItems, margin: [0, 0, 0, 10] }, // Lista z pogrubionymi wartościami
-                        // Tabela pokazywana tylko, gdy harmonogram jest widoczny
+                        { ul: summaryItems, margin: [0, 0, 0, 10] },
                         ...(isHarmonogramVisible ? [{
                             table: {
                                 headerRows: 1,
@@ -2718,13 +2726,12 @@
                                 paddingTop: function () { return 2; },
                                 paddingBottom: function () { return 2; }
                             },
-                            width: 535, // 90% szerokości strony A4
-                            margin: ['auto', 10, 'auto', 10] // Wyśrodkowanie tabeli
+                            width: 535,
+                            margin: ['auto', 10, 'auto', 10]
                         }] : []),
                         { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
-                        // Wykres liniowy zawsze widoczny
                         { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 && isHarmonogramVisible ? 'before' : 'none' },
-                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] } // Wykres wyśrodkowany
+                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
