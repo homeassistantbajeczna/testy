@@ -1972,9 +1972,9 @@
     
         const summaryBars = document.querySelector(".summary-bars");
         const summaryItems = Array.from(summaryBars.children).map(bar => {
-            const label = bar.querySelector(".label").textContent;
+            const label = bar.querySelector(".label").textContent.replace("Całkowita kwota netto po zakończeniu:", "Kwota netto po zakończeniu:"); // Zmiana tekstu
             const value = bar.querySelector(".value").textContent;
-            return `${label} ${value}`;
+            return { label, value }; // Zwracamy obiekt, aby oddzielić etykietę i wartość
         });
     
         const headers = [
@@ -2083,7 +2083,7 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Znaki wodne: powiększone 2x, marginesy 3 cm boki, 4 cm góra/dół
+                // Znaki wodne: siatka 4x8
                 const pageWidth = 595;
                 const pageHeight = 842;
                 const marginLeftRight = 85; // 3 cm
@@ -2091,16 +2091,16 @@
                 const availableWidth = pageWidth - 2 * marginLeftRight; // 425 px
                 const availableHeight = pageHeight - 2 * marginTopBottom; // 616 px
                 const watermarkWidth = 60 * 4; // 240 px (4 logo po 60 px)
-                const watermarkHeight = 60 * aspectRatio * 7; // 7 logo proporcjonalnych
+                const watermarkHeight = 60 * aspectRatio * 8; // 8 logo proporcjonalnych
                 const spacingX = (availableWidth - watermarkWidth) / 3; // Odstępy poziome
-                const spacingY = (availableHeight - watermarkHeight) / 6; // Odstępy pionowe
+                const spacingY = (availableHeight - watermarkHeight) / 7; // Odstępy pionowe (7, bo 8 rzędów)
     
                 const watermark = logoBase64 ? {
                     stack: [
-                        ...Array.from({ length: 28 }, (_, i) => ({
+                        ...Array.from({ length: 32 }, (_, i) => ({ // 4x8 = 32 elementy
                             image: logoBase64,
-                            width: 60, // Powiększone 2x
-                            height: 60 * aspectRatio, // Proporcjonalna wysokość
+                            width: 60,
+                            height: 60 * aspectRatio,
                             absolutePosition: { 
                                 x: marginLeftRight + (i % 4) * (60 + spacingX),
                                 y: marginTopBottom + Math.floor(i / 4) * (60 * aspectRatio + spacingY)
@@ -2112,7 +2112,7 @@
     
                 // Sprawdzenie, czy harmonogram jest zwinięty
                 const tableElement = document.querySelector('#harmonogramTable'); // Dostosuj ID
-                const isTableCollapsed = tableElement && (tableElement.style.display === 'none' || tableElement.classList.contains('collapsed')); // Rozszerzony warunek
+                const isTableCollapsed = tableElement && (tableElement.style.display === 'none' || tableElement.classList.contains('collapsed') || getComputedStyle(tableElement).display === 'none'); // Rozszerzony warunek
     
                 const docDefinition = {
                     pageSize: 'A4',
@@ -2132,7 +2132,15 @@
                     content: [
                         { text: 'Podsumowanie wyników lokaty', style: 'header' },
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 30, 0, 15] },
-                        { ul: summaryItems.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 30] }
+                        { 
+                            ul: summaryItems.map(item => ({
+                                text: [
+                                    { text: item.label + " ", style: 'listItem' }, // Etykieta bez pogrubienia
+                                    { text: item.value, style: 'listItem', bold: true } // Wartość pogrubiona
+                                ]
+                            })), 
+                            margin: [0, 0, 0, 30] 
+                        }
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
