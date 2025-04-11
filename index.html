@@ -2801,99 +2801,85 @@
         });
     }
     
-    // F U N K C J E   Z O O M   I   T R Y B   C I E M N Y
-    let currentZoomLevel = 1;
-    function updateZoom(zoomIn) {
-        const zoomStep = 0.1;
-        const minZoom = 0.5;
-        const maxZoom = 2;
+    // F U N K C J A      Z O O M
     
-        if (zoomIn) {
-            currentZoomLevel = Math.min(currentZoomLevel + zoomStep, maxZoom);
-        } else {
-            currentZoomLevel = Math.max(currentZoomLevel - zoomStep, minZoom);
-        }
+    document.getElementById('siteLogo').addEventListener('click', () => {
+        window.open('https://finance-brothers.pl', '_blank');
+    });
+
+    let currentZoom = 1;
+    const zoomStep = 0.1;
+    const minZoom = 0.5;
+    const maxZoom = 2;
     
-        document.body.style.transform = `scale(${currentZoomLevel})`;
-        document.body.style.transformOrigin = 'top left';
-        document.body.style.width = `${100 / currentZoomLevel}%`;
-        document.body.style.height = `${100 / currentZoomLevel}%`;
-    
-        const zoomLevelDisplay = document.getElementById('zoomLevel');
-        if (zoomLevelDisplay) {
-            zoomLevelDisplay.textContent = `${Math.round(currentZoomLevel * 100)}%`;
-        }
-    
-        localStorage.setItem('zoomLevel', currentZoomLevel);
+    function updateZoom() {
+        const container = document.querySelector('.container');
+        container.style.transform = `scale(${currentZoom})`;
+        container.style.transformOrigin = 'top center';
     }
     
-    document.getElementById('zoomInBtn')?.addEventListener('click', () => updateZoom(true));
-    document.getElementById('zoomOutBtn')?.addEventListener('click', () => updateZoom(false));
-    document.getElementById('resetZoomBtn')?.addEventListener('click', () => {
-        currentZoomLevel = 1;
-        document.body.style.transform = 'scale(1)';
-        document.body.style.width = '100%';
-        document.body.style.height = '100%';
-        const zoomLevelDisplay = document.getElementById('zoomLevel');
-        if (zoomLevelDisplay) {
-            zoomLevelDisplay.textContent = '100%';
+    document.getElementById("zoomInBtn").addEventListener("click", () => {
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+            updateZoom();
         }
-        localStorage.setItem('zoomLevel', 1);
     });
+    
+    document.getElementById("zoomOutBtn").addEventListener("click", () => {
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+            updateZoom();
+        }
+    });
+
+    // D A R K     M O D E
     
     function toggleDarkMode() {
-        const isDarkMode = document.body.classList.toggle('dark-mode');
-        const darkModeIcon = document.getElementById('darkModeIcon');
-        if (darkModeIcon) {
-            darkModeIcon.classList.toggle('bi-moon', !isDarkMode);
-            darkModeIcon.classList.toggle('bi-sun', isDarkMode);
-        }
-    
-        localStorage.setItem('darkMode', isDarkMode);
-    
-        if (state.chartLine) {
-            state.chartLine.options.plugins.customBackground = {
-                color: isDarkMode ? '#212529' : '#ffffff'
-            };
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#333333' : '#e0e0e0';
-            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#333333' : '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#333333' : '#333333';
-            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.update();
+        const body = document.body;
+        const isDarkMode = body.classList.contains('dark-mode');
+        
+        if (isDarkMode) {
+            body.classList.remove('dark-mode');
+            body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        } else {
+            body.classList.remove('light-mode');
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         }
     }
     
-    document.getElementById('darkModeBtn')?.addEventListener('click', toggleDarkMode);
-    
-    window.addEventListener('DOMContentLoaded', () => {
-        const savedZoomLevel = localStorage.getItem('zoomLevel');
-        if (savedZoomLevel) {
-            currentZoomLevel = parseFloat(savedZoomLevel);
-            document.body.style.transform = `scale(${currentZoomLevel})`;
-            document.body.style.transformOrigin = 'top left';
-            document.body.style.width = `${100 / currentZoomLevel}%`;
-            document.body.style.height = `${100 / currentZoomLevel}%`;
-            const zoomLevelDisplay = document.getElementById('zoomLevel');
-            if (zoomLevelDisplay) {
-                zoomLevelDisplay.textContent = `${Math.round(currentZoomLevel * 100)}%`;
-            }
-        }
-    
-        const savedDarkMode = localStorage.getItem('darkMode');
-        if (savedDarkMode === 'true') {
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
-            const darkModeIcon = document.getElementById('darkModeIcon');
-            if (darkModeIcon) {
-                darkModeIcon.classList.remove('bi-moon');
-                darkModeIcon.classList.add('bi-sun');
-            }
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        } else {
+            document.body.classList.add('light-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        }
+    }
+    
+    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
+        toggleDarkMode();
+        if (state.chartLine) {
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.update();
         }
     });
+    
+    initializeTheme();
 </script>
 </body>
 </html>
