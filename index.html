@@ -2583,7 +2583,7 @@
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
             const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const totalMargin = 28.34; // Suma marginesów bocznych (14.17 * 2)
+            const totalMargin = 0; // Brak marginesów bocznych dla tabelki
             const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
     
             // Oblicz maksymalne długości dla nagłówków i wierszy
@@ -2593,14 +2593,16 @@
                 return maxLength;
             });
     
-            // Weź pod uwagę zarówno nagłówki, jak i zawartość
+            // Weź pod uwagę zarówno nagłówki, jak i zawartość, z minimalną szerokością
             const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
-    
-            // Oblicz proporcje szerokości
             const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
+    
+            // Ustaw minimalną szerokość kolumny
+            const minWidth = 40; // Minimalna szerokość kolumny, aby nagłówki mogły się zawijać
             const columnWidths = maxLengths.map(length => {
                 const proportion = length / totalLength;
-                return proportion * availableWidth;
+                const calculatedWidth = proportion * availableWidth;
+                return Math.max(minWidth, calculatedWidth); // Zapewnia minimalną szerokość
             });
     
             // Upewnij się, że suma szerokości kolumn dokładnie odpowiada dostępnej szerokości
@@ -2610,12 +2612,6 @@
         };
     
         const columnWidths = calculateColumnWidths();
-        const totalTableWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-        const pageWidth = 595.28;
-        const totalMargin = 28.34;
-        const availableWidth = pageWidth - totalMargin;
-        const tableMarginLeft = (availableWidth - totalTableWidth) / 2; // Dynamiczny margines do wyśrodkowania
-    
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
     
         const originalColors = {
@@ -2728,7 +2724,7 @@
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [40, 10, 0, 5] },
                         { ul: summary, margin: [40, 0, 0, 10] },
                         ...(isHarmonogramCollapsed ? [] : [
-                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
+                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5], pageMargins: [14.17, 60, 14.17, 20] },
                             {
                                 table: {
                                     headerRows: 1,
@@ -2747,9 +2743,10 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                margin: [tableMarginLeft + 14.17, 0, tableMarginLeft + 14.17, 0] // Dynamiczne marginesy do wyśrodkowania
+                                pageMargins: [0, 60, 0, 20], // Brak marginesów bocznych dla tabelki
+                                margin: [0, 0, 0, 0]
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10] }
+                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10], pageMargins: [14.17, 60, 14.17, 20] } // Przywrócenie marginesów
                         ]),
                         {
                             text: "Wykres liniowy wartości inwestycji w czasie",
