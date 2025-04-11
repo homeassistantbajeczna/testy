@@ -2547,7 +2547,6 @@
             return isNaN(number) ? 0 : number;
         };
     
-        // Pogrubione wartości w podsumowaniu
         const summary = [
             [{ text: "Kapitał: ", style: 'listItem' }, { text: `${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }],
             [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }],
@@ -2656,7 +2655,6 @@
                 const ikeIkzeText = state.isIkeIkzeMode ? "\n*** Podatek wyniesie 0 zł po osiągnięciu wieku emerytalnego i 55 roku życia lub 60 roku życia w przypadku IKE oraz 10 % zryczałtowanego podatku po osiągnięciu 65 roku życia w przypadku IKZE." : "";
                 const footerNoteText = `${starText}${baseText}${ikeIkzeText}`;
     
-                // Sprawdzanie, czy harmonogram jest zwinięty
                 const harmonogramContent = document.getElementById("harmonogramContent");
                 const isHarmonogramCollapsed = harmonogramContent.style.display === "none";
     
@@ -2664,12 +2662,11 @@
                     pageSize: 'A4',
                     pageMargins: [14.17, 60, 14.17, 20],
                     defaultStyle: { font: 'Roboto' },
-                    // Znaki wodne z logo w układzie 4x7
                     background: function(currentPage, pageSize) {
                         if (!logoBase64) return [];
                         const watermark = [];
-                        const watermarkWidth = 50; // Proporcjonalnie mniejszy znak wodny
-                        const watermarkHeight = 50;
+                        const watermarkWidth = 60; // Taki sam rozmiar jak w Twoim kodzie
+                        const watermarkHeight = 60;
                         const cols = 4;
                         const rows = 7;
                         const spacingX = (pageSize.width - cols * watermarkWidth) / (cols + 1);
@@ -2693,44 +2690,41 @@
                     },
                     header: logoBase64 ? {
                         columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 30, 0, 10] }, // Większy margines dla logo
+                            { image: logoBase64, width: 100, margin: [40, 30, 0, 10] }, // Margines po lewej dla logo
                             { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 20, 0] }
                         ]
-                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 20, 0] },
+                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [40, 30, 20, 0] },
                     content: [
                         { text: headerText, style: 'header', alignment: 'center' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] }, // Większe marginesy dla opisu
-                        { text: "Podsumowanie:", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
-                        {
-                            columns: [
-                                { width: '*', text: '' },
-                                { width: 'auto', ul: summary, margin: [0, 0, 0, 10] },
-                                { width: '*', text: '' }
-                            ]
-                        }, // Wyśrodkowanie podsumowania
+                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] }, // Opis z marginesami
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [40, 10, 0, 5] }, // Zrównane z opisem po lewej
+                        { ul: summary, margin: [40, 0, 0, 10] }, // Podsumowanie po lewej, bez wyśrodkowania
                         // Tabelka tylko jeśli harmonogram jest rozwinięty
-                        ...(isHarmonogramCollapsed ? [] : [{
-                            table: {
-                                headerRows: 1,
-                                widths: columnWidths,
-                                body: [
-                                    headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
-                                    ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
-                                ]
+                        ...(isHarmonogramCollapsed ? [] : [
+                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] }, // Nagłówek nad tabelką
+                            {
+                                table: {
+                                    headerRows: 1,
+                                    widths: columnWidths,
+                                    body: [
+                                        headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
+                                        ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
+                                    ]
+                                },
+                                layout: {
+                                    fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
+                                    hLineWidth: function () { return 0.5; },
+                                    vLineWidth: function () { return 0.5; },
+                                    paddingLeft: function () { return 1; },
+                                    paddingRight: function () { return 1; },
+                                    paddingTop: function () { return 2; },
+                                    paddingBottom: function () { return 2; }
+                                },
+                                alignment: 'center', // Tabelka zawsze wyśrodkowana
+                                margin: [40, 0, 40, 0] // Marginesy zgodne z tekstem poniżej
                             },
-                            layout: {
-                                fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                                hLineWidth: function () { return 0.5; },
-                                vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 1; },
-                                paddingRight: function () { return 1; },
-                                paddingTop: function () { return 2; },
-                                paddingBottom: function () { return 2; }
-                            },
-                            alignment: 'center', // Wyśrodkowana tabelka
-                            margin: [40, 10, 40, 10] // Większe marginesy boczne
-                        }]),
-                        { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
+                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10] } // Tekst pod tabelką równo z tabelką
+                        ]),
                         {
                             text: "Wykres liniowy wartości inwestycji w czasie",
                             style: 'sectionHeader',
@@ -2738,7 +2732,7 @@
                             margin: [0, 10, 0, 5],
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         },
-                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] } // Wyśrodkowany wykres
+                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
