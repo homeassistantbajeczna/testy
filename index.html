@@ -2583,10 +2583,14 @@
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
             const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const leftMargin = 22.67; // 0,8 cm z lewej (zwiększone o 3 mm)
-            const rightMargin = 48.18; // 1,7 cm z prawej (zwiększone o 7 mm)
+            const leftMargin = 22.67; // 0,8 cm z lewej
+            const rightMargin = 48.18; // 1,7 cm z prawej
             const totalMargin = leftMargin + rightMargin; // Suma marginesów bocznych
             const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
+    
+            console.log(`Lewy margines: ${leftMargin} punktów (0,8 cm)`);
+            console.log(`Prawy margines: ${rightMargin} punktów (1,7 cm)`);
+            console.log(`Dostępna szerokość: ${availableWidth} punktów`);
     
             // Oblicz maksymalne długości dla nagłówków i wierszy
             const headerLengths = headers.map(header => header.length);
@@ -2746,7 +2750,7 @@
                                     paddingBottom: function () { return 2; }
                                 },
                                 pageMargins: [22.67, 60, 48.18, 20], // 0,8 cm z lewej, 1,7 cm z prawej
-                                margin: [0, 0, 0, 0],
+                                margin: [22.67, 0, 48.18, 0], // Ręczne ustawienie marginesów tabeli
                                 alignment: 'center'
                             },
                             { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10], pageMargins: [14.17, 60, 14.17, 20] }
