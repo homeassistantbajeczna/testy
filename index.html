@@ -1809,11 +1809,11 @@
     
         const summaryBars = document.querySelector(".summary-bars");
         summaryBars.innerHTML = `
-            <div class="summary-bar" data-tooltip="${kwota.toFixed(2).replace('.', ',')} zł"><span class="label">Kwota lokaty:</span> <span class="value">${kwota.toFixed(2).replace('.', ',')} zł</span></div>
-            <div class="summary-bar" data-tooltip="${sumaOdsetekBrutto.toFixed(2).replace('.', ',')} zł"><span class="label">Odsetki brutto:</span> <span class="value">${sumaOdsetekBrutto.toFixed(2).replace('.', ',')} zł</span></div>
-            <div class="summary-bar" data-tooltip="${sumaPodatku.toFixed(2).replace('.', ',')} zł"><span class="label">Podatek:</span> <span class="value">${sumaPodatku.toFixed(2).replace('.', ',')} zł</span></div>
-            <div class="summary-bar" data-tooltip="${sumaZyskuNetto.toFixed(2).replace('.', ',')} zł"><span class="label">Odsetki netto:</span> <span class="value">${sumaZyskuNetto.toFixed(2).replace('.', ',')} zł</span></div>
-            <div class="summary-bar" data-tooltip="${kapital.toFixed(2).replace('.', ',')} zł"><span class="label">Całkowita kwota po zakończeniu:</span> <span class="value">${kapital.toFixed(2).replace('.', ',')} zł</span></div>
+            <div class="summary-bar" data-tooltip="${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Kwota lokaty:</span> <span class="value">${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
+            <div class="summary-bar" data-tooltip="${sumaOdsetekBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Odsetki brutto:</span> <span class="value">${sumaOdsetekBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
+            <div class="summary-bar" data-tooltip="${sumaPodatku.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Podatek:</span> <span class="value">${sumaPodatku.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
+            <div class="summary-bar" data-tooltip="${sumaZyskuNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Odsetki netto:</span> <span class="value">${sumaZyskuNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
+            <div class="summary-bar" data-tooltip="${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Całkowita kwota po zakończeniu:</span> <span class="value">${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
             <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}"><span class="label">Data zakończenia:</span> <span class="value">${dataZakonczenia.toLocaleDateString('pl-PL')}</span></div>
         `;
     
@@ -1828,19 +1828,18 @@
         if (kapitalizacja === "naKoniec") {
             harmonogramContainer.style.display = "none";
         } else {
-            harmonogramContainer.style.display = "block";
             elements.harmonogramTabela.innerHTML = "";
             state.harmonogramData.forEach(row => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td>${row.okres}</td>
-                    <td>${row.wartoscLokaty} zł</td>
-                    <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${row.oprocentowanie}%</td>
-                    <td>${row.odsetkiBrutto} zł</td>
-                    <td>${row.sumaOdsetek} zł</td>
-                    <td>${row.podatek} zł</td>
-                    <td>${row.zyskNetto} zł</td>
-                    <td>${row.sumaNetto} zł</td>
+                    <td>${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</td>
+                    <td>${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                    <td>${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
                 `;
                 elements.harmonogramTabela.appendChild(tr);
             });
@@ -1953,11 +1952,11 @@
         const docDefinition = {
             content: [
                 { text: 'Kalkulator Lokat - Podsumowanie', style: 'header' },
-                { text: `Kwota lokaty: ${parseFloat(elements.kwota.value).toFixed(2)} zł` },
-                { text: `Odsetki brutto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.odsetkiBrutto), 0).toFixed(2)} zł` },
-                { text: `Podatek: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.podatek), 0).toFixed(2)} zł` },
-                { text: `Odsetki netto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.zyskNetto), 0).toFixed(2)} zł` },
-                { text: `Całkowita kwota po zakończeniu: ${state.harmonogramData[state.harmonogramData.length - 1].sumaNetto} zł` },
+                { text: `Kwota lokaty: ${parseFloat(elements.kwota.value).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
+                { text: `Odsetki brutto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.odsetkiBrutto), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
+                { text: `Podatek: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.podatek), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
+                { text: `Odsetki netto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.zyskNetto), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
+                { text: `Całkowita kwota po zakończeniu: ${state.harmonogramData[state.harmonogramData.length - 1].sumaNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
                 { text: `Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}` },
                 { text: '\nHarmonogram odsetek:', style: 'subheader' },
                 {
@@ -1968,13 +1967,13 @@
                             ['Okres', 'Wartość lokaty', 'Oprocentowanie', 'Odsetki brutto', 'Suma odsetek', 'Podatek', 'Zysk netto', 'Suma netto'],
                             ...state.harmonogramData.map(row => [
                                 row.okres,
-                                `${row.wartoscLokaty} zł`,
-                                `${row.oprocentowanie}%`,
-                                `${row.odsetkiBrutto} zł`,
-                                `${row.sumaOdsetek} zł`,
-                                `${row.podatek} zł`,
-                                `${row.zyskNetto} zł`,
-                                `${row.sumaNetto} zł`
+                                `${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                                `${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`,
+                                `${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                                `${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                                `${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                                `${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                                `${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`
                             ])
                         ]
                     }
