@@ -887,6 +887,8 @@
         background: var(--harmonogram-bg);
         color: var(--primary-text);
         font-size: clamp(0.55em, 1.2vw, 0.8em);
+        line-height: 1; 
+        vertical-align: middle;
     }
 
     .harmonogram th:last-child,
@@ -902,7 +904,7 @@
         margin-top: 4px;
         font-size: 0.35em;
         text-align: left;
-        padding-left: 1cm;
+        padding-left: 0.5cm;
     }
 
     .harmonogram td .star {
@@ -911,6 +913,7 @@
         vertical-align: middle;
         margin-right: 2px;
         line-height: 1;
+        display: inline-block;
     }
     
     .harmonogram-legend .star {
@@ -928,11 +931,11 @@
         vertical-align: middle;
     }
 
-    .harmonogram td:nth-child(3)
+    .harmonogram td:nth-child(3) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 8px;
+        padding: clamp(1px, 0.5vw, 10px);
     }
 
     .star {
