@@ -1526,12 +1526,6 @@ Naniesiesz te zmiany na ten kod:
             maximumFractionDigits: 2,
             useGrouping: true
         });
-        // Dodaj spację dla liczb czterocyfrowych, jeśli jej brak
-        if (num >= 1000 && num < 10000 && !formatted.includes(' ')) {
-            return formatted.replace(/(\d)(\d{3},\d{2})/, '$1 $2');
-        }
-        return formatted;
-    };
     
     const elements = {
         formSection: document.getElementById("formSection"),
