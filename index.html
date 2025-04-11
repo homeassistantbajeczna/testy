@@ -31,7 +31,7 @@
                             <div class="form-group">
                                 <label for="kwota" class="form-label">Kwota lokaty</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="kwota" value="10 000,00">
+                                    <input type="number" class="form-control" id="kwota" min="1" max="10000000" value="10000">
                                     <span class="input-group-text">zł</span>
                                 </div>
                                 <input type="range" class="form-range" id="kwotaRange" min="1" max="10000000" value="10000">
@@ -1194,14 +1194,6 @@
     }
 </style>
 <script>
-    function formatNumber(value) {
-        return parseFloat(value).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-    
-    function parseFormattedNumber(value) {
-        return parseFloat(value.replace(/\s/g, '').replace(',', '.')) || 0;
-    }
-    
     const elements = {
         formSection: document.getElementById("formSection"),
         resultSection: document.getElementById("resultSection"),
@@ -1248,8 +1240,7 @@
         elements.resultSection.style.display = "none";
         updateDlugoscUmowyRange();
         updateKapitalizacjaOptions();
-        updateZmienneOprocentowanieVisibility();
-        elements.kwota.value = formatNumber(elements.kwotaRange.value);
+        updateZmienneOprocentowanieVisibility(); // Dodajemy inicjalizację widoczności
     });
     
     elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
@@ -1261,20 +1252,20 @@
             value = 1;
             elements.kwotaRange.value = value;
         }
-        elements.kwota.value = formatNumber(value);
+        elements.kwota.value = value;
     });
-    
     elements.kwota.addEventListener("input", () => {
-        let rawValue = parseFormattedNumber(elements.kwota.value);
+        let value = parseFloat(elements.kwota.value);
         const maxValue = parseFloat(elements.kwotaRange.max);
-        if (isNaN(rawValue) || rawValue < 1) {
-            rawValue = 1;
+        if (isNaN(value) || value < 1) {
+            value = 1;
+            elements.kwota.value = value;
         }
-        if (rawValue > maxValue) {
-            rawValue = maxValue;
+        if (value > maxValue) {
+            value = maxValue;
+            elements.kwota.value = value;
         }
-        elements.kwota.value = formatNumber(rawValue);
-        elements.kwotaRange.value = rawValue;
+        elements.kwotaRange.value = value;
     });
     
     // Synchronizacja suwaka i pola liczbowego dla "Oprocentowanie"
@@ -1723,7 +1714,7 @@
         if (state.isCalculating) return;
         state.isCalculating = true;
     
-        const kwota = parseFormattedNumber(elements.kwota.value) || 10000;
+        const kwota = parseFloat(elements.kwota.value) || 10000;
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
         const oprocentowanie = parseFloat(elements.oprocentowanie.value) || 4;
