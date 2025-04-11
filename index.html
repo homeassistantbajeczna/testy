@@ -1972,8 +1972,11 @@
     
         const summaryBars = document.querySelector(".summary-bars");
         const summaryItems = Array.from(summaryBars.children).map(bar => {
-            const label = bar.querySelector(".label").textContent.replace("Całkowita kwota netto po zakończeniu:", "Kwota netto po zakończeniu:");
-            const value = bar.querySelector(".value").textContent;
+            const labelElement = bar.querySelector(".label");
+            const valueElement = bar.querySelector(".value");
+            const label = labelElement ? labelElement.textContent.replace("Całkowita kwota netto po zakończeniu:", "Kwota netto po zakończeniu:") : "Brak etykiety";
+            const value = valueElement ? valueElement.textContent : "Brak wartości";
+            console.log("Summary item - label:", label, "value:", value); // Diagnostyka
             return { label, value };
         });
     
@@ -2083,7 +2086,7 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Znaki wodne: siatka 4x8, marginesy 2 cm góra/dół, obrót 45° w lewo
+                // Znaki wodne: siatka 4x8, marginesy 2 cm góra/dół, obrót -45°
                 const pageWidth = 595;
                 const pageHeight = 842;
                 const marginLeftRight = 85; // 3 cm
@@ -2111,19 +2114,21 @@
                     ]
                 } : null;
     
-                // Sprawdzenie zwinięcia tabeli
+                // Sprawdzenie zwinięcia tabeli z diagnostyką
                 const tableElement = document.querySelector('#harmonogramTable'); // Dostosuj ID
                 const isTableCollapsed = tableElement && (
                     tableElement.style.display === 'none' || 
                     getComputedStyle(tableElement).display === 'none' || 
                     tableElement.classList.contains('collapsed') || 
-                    tableElement.classList.contains('hidden') ||
-                    !tableElement.offsetParent // Sprawdza, czy element jest widoczny w DOM
+                    tableElement.classList.contains('hidden') || 
+                    !tableElement.offsetParent
                 );
+                console.log("Table element:", tableElement); // Diagnostyka
+                console.log("Is table collapsed?", isTableCollapsed); // Diagnostyka
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [20, 80, 20, 40], // Zmniejszone boczne marginesy z 40 na 20 px
+                    pageMargins: [20, 80, 20, 40],
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         margin: [40, 20, 40, 0],
@@ -2201,7 +2206,7 @@
                         width: 500, 
                         height: 250, 
                         alignment: 'center', 
-                        margin: [0, 0, 0, 20] // Bez dodatkowych marginesów bocznych
+                        margin: [0, 0, 0, 20]
                     }
                 );
     
