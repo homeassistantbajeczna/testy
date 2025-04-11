@@ -2583,8 +2583,8 @@
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
             const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const leftMargin = 14.17; // 0,5 cm z lewej
-            const rightMargin = 28.34; // 1 cm z prawej
+            const leftMargin = 5.67; // 0,2 cm z lewej (zmniejszone o 3 mm)
+            const rightMargin = 8.50; // 0,3 cm z prawej (zmniejszone o 7 mm)
             const totalMargin = leftMargin + rightMargin; // Suma marginesów bocznych
             const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
     
@@ -2745,7 +2745,7 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                pageMargins: [14.17, 60, 28.34, 20], // 0,5 cm z lewej, 1 cm z prawej
+                                pageMargins: [5.67, 60, 8.50, 20], // 0,2 cm z lewej, 0,3 cm z prawej
                                 margin: [0, 0, 0, 0],
                                 alignment: 'center'
                             },
