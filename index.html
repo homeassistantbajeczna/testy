@@ -1783,28 +1783,23 @@
                 poprzednieOprocentowanie = aktualneOprocentowanie;
             }
     
-            if (kapitalizacja !== "naKoniec" || (kapitalizacja === "naKoniec" && okres === liczbaOkresowTabela)) {
-                kapital += zyskNetto;
-                sumaOdsetekBrutto += odsetkiBrutto;
-                sumaPodatku += podatekOkresowy;
-                sumaZyskuNetto += zyskNetto;
+            // Zawsze zapisujemy dane do harmonogramu, nawet dla "Na koniec okresu"
+            kapital += zyskNetto;
+            sumaOdsetekBrutto += odsetkiBrutto;
+            sumaPodatku += podatekOkresowy;
+            sumaZyskuNetto += zyskNetto;
     
-                state.harmonogramData.push({
-                    okres: okres,
-                    wartoscLokaty: wartoscPoczatkowa.toFixed(2),
-                    oprocentowanie: aktualneOprocentowanie.toFixed(2),
-                    odsetkiBrutto: odsetkiBrutto.toFixed(2),
-                    sumaOdsetek: sumaOdsetekBrutto.toFixed(2),
-                    podatek: podatekOkresowy.toFixed(2),
-                    zyskNetto: zyskNetto.toFixed(2),
-                    sumaNetto: kapital.toFixed(2),
-                    zmianaOprocentowania: zmianaOprocentowania
-                });
-            } else {
-                sumaOdsetekBrutto += odsetkiBrutto;
-                sumaPodatku += podatekOkresowy;
-                sumaZyskuNetto += zyskNetto;
-            }
+            state.harmonogramData.push({
+                okres: okres,
+                wartoscLokaty: wartoscPoczatkowa.toFixed(2),
+                oprocentowanie: aktualneOprocentowanie.toFixed(2),
+                odsetkiBrutto: odsetkiBrutto.toFixed(2),
+                sumaOdsetek: sumaOdsetekBrutto.toFixed(2),
+                podatek: podatekOkresowy.toFixed(2),
+                zyskNetto: zyskNetto.toFixed(2),
+                sumaNetto: kapital.toFixed(2),
+                zmianaOprocentowania: zmianaOprocentowania
+            });
         }
     
         const summaryBars = document.querySelector(".summary-bars");
@@ -1825,33 +1820,30 @@
         }
     
         const harmonogramContainer = document.querySelector(".harmonogram");
-        if (kapitalizacja === "naKoniec") {
-            harmonogramContainer.style.display = "none";
-        } else {
-            elements.harmonogramTabela.innerHTML = "";
-            state.harmonogramData.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${row.okres}</td>
-                    <td>${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</td>
-                    <td>${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                    <td>${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                `;
-                elements.harmonogramTabela.appendChild(tr);
-            });
-        
-            let legenda = document.querySelector(".harmonogram-legend");
-            if (!legenda) {
-                legenda = document.createElement("div");
-                legenda.className = "harmonogram-legend";
-                document.getElementById("harmonogramContent").appendChild(legenda); // Umieszczenie w #harmonogramContent
-            }
-            legenda.innerHTML = zmienneOprocentowanie && state.harmonogramData.some(row => row.zmianaOprocentowania) ? '<span class="star">★</span> <span class="legend-text">Zmiana oprocentowania</span>' : '';
+        harmonogramContainer.style.display = "block"; // Zawsze pokazujemy harmonogram
+        elements.harmonogramTabela.innerHTML = "";
+        state.harmonogramData.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${row.okres}</td>
+                <td>${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%</td>
+                <td>${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                <td>${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+            `;
+            elements.harmonogramTabela.appendChild(tr);
+        });
+    
+        let legenda = document.querySelector(".harmonogram-legend");
+        if (!legenda) {
+            legenda = document.createElement("div");
+            legenda.className = "harmonogram-legend";
+            document.getElementById("harmonogramContent").appendChild(legenda);
         }
+        legenda.innerHTML = zmienneOprocentowanie && state.harmonogramData.some(row => row.zmianaOprocentowania) ? '<span class="star">★</span> <span class="legend-text">Zmiana oprocentowania</span>' : '';
     
         const chartContainer = document.querySelector(".chart-container-line");
         if (state.chartLine) state.chartLine.destroy();
@@ -1899,7 +1891,7 @@
             }
         });
     
-        updateZmienneOprocentowanieVisibility(); // Wywołanie funkcji po obliczeniach
+        updateZmienneOprocentowanieVisibility();
         elements.formSection.style.display = "none";
         elements.resultSection.style.display = "block";
         state.isCalculating = false;
