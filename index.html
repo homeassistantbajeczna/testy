@@ -2512,7 +2512,6 @@
     
     function generatePdf() {
         console.log("generatePdf wywołane");
-        console.log("pdfMake:", typeof pdfMake);
         console.log("state.harmonogramData:", state.harmonogramData);
         console.log("state.lastFormData:", state.lastFormData);
         console.log("state.chartLine:", state.chartLine);
@@ -2606,7 +2605,6 @@
     
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
-        console.log("lineChartCanvas:", lineChartCanvas);
     
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
