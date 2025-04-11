@@ -1974,9 +1974,8 @@
         const summaryItems = Array.from(summaryBars.children).map(bar => {
             const labelElement = bar.querySelector(".label");
             const valueElement = bar.querySelector(".value");
-            const label = labelElement ? labelElement.textContent.replace("Całkowita kwota netto po zakończeniu:", "Kwota netto po zakończeniu:") : "Brak etykiety";
+            const label = labelElement ? labelElement.textContent.replace("Całkowita kwota po zakończeniu:", "Kwota netto po zakończeniu:") : "Brak etykiety";
             const value = valueElement ? valueElement.textContent : "Brak wartości";
-            console.log("Summary item - label:", label, "value:", value); // Diagnostyka
             return { label, value };
         });
     
@@ -2108,23 +2107,15 @@
                                 x: marginLeftRight + (i % 4) * (60 + spacingX),
                                 y: marginTopBottom + Math.floor(i / 4) * (60 * aspectRatio + spacingY)
                             },
-                            opacity: 0.1,
+                            opacity: 0.15, // Zwiększona widoczność
                             rotation: -45 // Obrót o 45° w lewo
                         }))
                     ]
                 } : null;
     
-                // Sprawdzenie zwinięcia tabeli z diagnostyką
-                const tableElement = document.querySelector('#harmonogramTable'); // Dostosuj ID
-                const isTableCollapsed = tableElement && (
-                    tableElement.style.display === 'none' || 
-                    getComputedStyle(tableElement).display === 'none' || 
-                    tableElement.classList.contains('collapsed') || 
-                    tableElement.classList.contains('hidden') || 
-                    !tableElement.offsetParent
-                );
-                console.log("Table element:", tableElement); // Diagnostyka
-                console.log("Is table collapsed?", isTableCollapsed); // Diagnostyka
+                // Sprawdzenie zwinięcia harmonogramu
+                const harmonogramContent = document.getElementById("harmonogramContent");
+                const isHarmonogramCollapsed = harmonogramContent.style.display === "none";
     
                 const docDefinition = {
                     pageSize: 'A4',
@@ -2165,7 +2156,7 @@
                 };
     
                 // Harmonogram tylko, jeśli nie jest zwinięty
-                if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isTableCollapsed) {
+                if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
                         { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
                         {
@@ -2199,7 +2190,7 @@
                         style: 'sectionHeader', 
                         alignment: 'center', 
                         margin: [0, 20, 0, 10], 
-                        pageBreak: tableData.length > 10 && !isTableCollapsed ? 'before' : 'none' 
+                        pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
                     },
                     { 
                         image: lineChartImage, 
