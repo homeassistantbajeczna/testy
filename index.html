@@ -2268,7 +2268,7 @@
         }
     
         const valueKapital = document.getElementById("valueKapital");
-        if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         const legendKapital = document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box');
         if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
     
@@ -2363,19 +2363,19 @@
                 let rowHTML = `
                     <tr>
                         <td>${wiersz.okres}</td>
-                        <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
                         <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
-                        <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}</td>
-                        <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**</td>
+                        <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}</td>
+                        <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł**</td>
                 `;
                 if (!["OTS", "TOS"].includes(typ)) {
                     rowHTML += `<td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.stopaRefLubInflacja}</td>`;
                 }
                 rowHTML += `
-                        <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł</td>
+                        <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
                     </tr>
                 `;
                 tabela.innerHTML += rowHTML;
@@ -2458,19 +2458,22 @@
                             borderColor: isDarkMode ? '#333333' : '#333333'
                         }
                     },
-                    y: { 
-                        title: { 
-                            display: true, 
-                            text: 'Wartość (PLN)', 
-                            font: { size: titleFontSize }, // Dynamiczny rozmiar
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Wartość (PLN)',
+                            font: { size: titleFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }, 
-                        min: yMin, 
-                        max: yMax, 
-                        ticks: { 
-                            stepSize: stepSize, 
-                            font: { size: tickFontSize }, // Dynamiczny rozmiar
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
+                        },
+                        min: yMin,
+                        max: yMax,
+                        ticks: {
+                            stepSize: stepSize,
+                            font: { size: tickFontSize },
+                            color: isDarkMode ? '#e0e0e0' : '#333333',
+                            callback: function(value) {
+                                return value.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+                            }
                         },
                         grid: {
                             color: isDarkMode ? '#333333' : '#e0e0e0',
@@ -2548,11 +2551,11 @@
         };
     
         const summary = [
-            { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: `${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
-            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
-            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: `${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`, style: 'listItemBold' }] },
+            { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: `${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
+            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
+            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: `${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`, style: 'listItemBold' }] },
             { text: [{ text: "Okres inwestycji: ", style: 'listItem' }, { text: `${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'listItemBold' }] },
-            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }] }
+            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] }
         ];
     
         const headers = ["OTS", "ROR", "DOR"].includes(typ)
@@ -2565,18 +2568,18 @@
         const tableData = state.harmonogramData.map(wiersz => {
             const row = [
                 (wiersz.okres || 0).toString(),
-                `${safeParseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
+                `${safeParseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
                 `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl || '0%'}`,
-                `${safeParseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                state.isIkeIkzeMode ? "0,00 zł***" : `${safeParseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł**`
+                `${safeParseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                `${safeParseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                state.isIkeIkzeMode ? "0,00 zł***" : `${safeParseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                `${safeParseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                `${safeParseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł**`
             ];
             if (!["OTS", "TOS"].includes(typ)) {
                 row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja || '0%'}`);
             }
-            row.push(`${safeParseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+            row.push(`${safeParseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
             return row;
         });
     
