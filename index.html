@@ -1974,13 +1974,13 @@
         const summaryItems = Array.from(summaryBars.children).map(bar => {
             const label = bar.querySelector(".label").textContent;
             const value = bar.querySelector(".value").textContent;
-            return [label, value];
+            return `${label} ${value}`;
         });
     
         const headers = [
             kapitalizacja === "dzienna" ? "Dzień" : kapitalizacja === "miesieczna" ? "Miesiąc" : "Rok",
             "Wartość lokaty",
-            "Oproc.", // Zmiana z "Oprocentowanie" na "Oproc."
+            "Oproc.",
             "Odsetki brutto",
             "Suma odsetek",
             "Podatek",
@@ -1990,13 +1990,13 @@
     
         const tableData = kapitalizacja !== "naKoniec" ? state.harmonogramData.map(row => [
             row.okres.toString(),
-            `${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `${row.zmianaOprocentowania ? '★ ' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}%`,
-            `${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`,
-            `${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`
+            `${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+            `${row.zmianaOprocentowania ? '★ ' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`,
+            `${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+            `${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+            `${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+            `${parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+            `${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`
         ]) : [];
     
         const calculateColumnWidths = () => {
@@ -2083,32 +2083,14 @@
                         ]
                     } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
                     content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header' }, // Zmiana nagłówka
-                        {
-                            table: {
-                                widths: ['auto', '*'],
-                                body: summaryItems.map(([label, value]) => [
-                                    { text: label, style: 'summaryLabel' },
-                                    { text: value, style: 'summaryValue' }
-                                ])
-                            },
-                            layout: {
-                                fillColor: () => '#C2B280', // Złote tło dla pasków
-                                hLineWidth: () => 0,
-                                vLineWidth: () => 0,
-                                paddingLeft: () => 8,
-                                paddingRight: () => 8,
-                                paddingTop: () => 4,
-                                paddingBottom: () => 4
-                            },
-                            margin: [0, 10, 0, 20]
-                        }
+                        { text: 'Podsumowanie wyników lokaty', style: 'header' },
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
+                        { ul: summaryItems.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 10] } // Powrót do listy podsumowania
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
                         sectionHeader: { fontSize: 12, bold: true },
-                        summaryLabel: { fontSize: 10, bold: true, color: '#000000' },
-                        summaryValue: { fontSize: 10, color: '#000000', alignment: 'right' },
+                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
                         tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
                         tableCell: { fontSize: 8, alignment: 'center' },
                         footerNote: { fontSize: 8, italics: true }
@@ -2117,7 +2099,7 @@
     
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0) {
                     docDefinition.content.push(
-                        { text: "Harmonogram odsetek", style: 'sectionHeader', margin: [0, 10, 0, 5] },
+                        { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] }, // Wyśrodkowanie nagłówka
                         {
                             table: {
                                 headerRows: 1,
@@ -2131,20 +2113,20 @@
                                 fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
                                 hLineWidth: function () { return 0.5; },
                                 vLineWidth: function () { return 0.5; },
-                                paddingLeft: function () { return 4; }, // Zwiększone paddingi dla lepszego wyśrodkowania
+                                paddingLeft: function () { return 4; },
                                 paddingRight: function () { return 4; },
                                 paddingTop: function () { return 2; },
                                 paddingBottom: function () { return 2; }
                             },
                             alignment: 'center', // Wyśrodkowanie tabeli
-                            margin: [40, 10, 40, 10] // Marginesy boczne dla wyśrodkowania
+                            margin: [40, 10, 40, 10]
                         },
                         { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] }
                     );
                 }
     
                 docDefinition.content.push(
-                    { text: "Wykres liniowy wartości lokaty w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
+                    { text: "Wykres liniowy wartości lokaty w czasie", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' }, // Wyśrodkowanie nagłówka
                     { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
                 );
     
