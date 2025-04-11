@@ -1950,6 +1950,8 @@
         const dataZakonczenia = new Date(elements.dataRozpoczecia.value);
         const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
         const jednostka = elements.jednostkaOkresu.value;
+        const kapitalizacja = elements.kapitalizacja.value;
+    
         if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
         else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
         else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
@@ -1957,23 +1959,57 @@
         const docDefinition = {
             content: [
                 { text: 'Kalkulator Lokat - Podsumowanie', style: 'header' },
-                { text: `Kwota lokaty: ${parseFloat(elements.kwota.value).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
-                { text: `Odsetki brutto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.odsetkiBrutto), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
-                { text: `Podatek: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.podatek), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
-                { text: `Odsetki netto: ${state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.zyskNetto), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
-                { text: `Całkowita kwota po zakończeniu: ${state.harmonogramData[state.harmonogramData.length - 1].sumaNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł` },
-                { text: `Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}` },
-                { text: '\nHarmonogram odsetek:', style: 'subheader' },
+                {
+                    style: 'summaryTable',
+                    table: {
+                        widths: ['auto', '*'],
+                        body: [
+                            ['Kwota lokaty:', `${parseFloat(elements.kwota.value).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`],
+                            ['Odsetki brutto:', `${state.harmonogramData.length > 0 ? state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.odsetkiBrutto), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : (kapital - parseFloat(elements.kwota.value)).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`],
+                            ['Podatek:', `${state.harmonogramData.length > 0 ? state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.podatek), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : (state.harmonogramData.length === 0 ? (kapital - parseFloat(elements.kwota.value)) * (parseFloat(elements.podatek.value) / 100) / (1 - parseFloat(elements.podatek.value) / 100) : 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`],
+                            ['Odsetki netto:', `${state.harmonogramData.length > 0 ? state.harmonogramData.reduce((sum, row) => sum + parseFloat(row.zyskNetto), 0).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : (kapital - parseFloat(elements.kwota.value)).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`],
+                            ['Całkowita kwota po zakończeniu:', `${state.harmonogramData.length > 0 ? state.harmonogramData[state.harmonogramData.length - 1].sumaNetto : kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`],
+                            ['Data zakończenia:', `${dataZakonczenia.toLocaleDateString('pl-PL')}`]
+                        ]
+                    },
+                    layout: 'noBorders'
+                }
+            ],
+            styles: {
+                header: { fontSize: 18, bold: true, margin: [0, 0, 0, 20], alignment: 'center' },
+                subheader: { fontSize: 14, bold: true, margin: [0, 20, 0, 10] },
+                summaryTable: { margin: [0, 10, 0, 20] },
+                tableHeader: { bold: true, fontSize: 12, color: 'black', fillColor: '#c2b280' }
+            },
+            defaultStyle: {
+                fontSize: 10,
+                lineHeight: 1.2
+            }
+        };
+    
+        // Dodajemy harmonogram tylko dla kapitalizacji innej niż "Na koniec okresu"
+        if (kapitalizacja !== "naKoniec" && state.harmonogramData.length > 0) {
+            docDefinition.content.push(
+                { text: 'Harmonogram odsetek', style: 'subheader' },
                 {
                     table: {
                         headerRows: 1,
                         widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
                         body: [
-                            ['Okres', 'Wartość lokaty', 'Oprocentowanie', 'Odsetki brutto', 'Suma odsetek', 'Podatek', 'Zysk netto', 'Suma netto'],
+                            [
+                                { text: 'Okres', style: 'tableHeader' },
+                                { text: 'Wartość lokaty', style: 'tableHeader' },
+                                { text: 'Oprocentowanie', style: 'tableHeader' },
+                                { text: 'Odsetki brutto', style: 'tableHeader' },
+                                { text: 'Suma odsetek', style: 'tableHeader' },
+                                { text: 'Podatek', style: 'tableHeader' },
+                                { text: 'Zysk netto', style: 'tableHeader' },
+                                { text: 'Suma netto', style: 'tableHeader' }
+                            ],
                             ...state.harmonogramData.map(row => [
                                 row.okres,
                                 `${parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                                `${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`,
+                                `${row.zmianaOprocentowania ? '★ ' : ''}${parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`,
                                 `${parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
                                 `${parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
                                 `${parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
@@ -1981,14 +2017,31 @@
                                 `${parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`
                             ])
                         ]
+                    },
+                    layout: {
+                        hLineWidth: (i, node) => (i === 0 || i === node.table.body.length) ? 1 : 0.5,
+                        vLineWidth: () => 0.5,
+                        hLineColor: () => '#666666',
+                        vLineColor: () => '#666666',
+                        paddingLeft: () => 4,
+                        paddingRight: () => 4,
+                        paddingTop: () => 2,
+                        paddingBottom: () => 2
                     }
                 }
-            ],
-            styles: {
-                header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
-                subheader: { fontSize: 14, bold: true, margin: [0, 10, 0, 5] }
+            );
+    
+            // Dodajemy legendę, jeśli jest zmienne oprocentowanie
+            if (elements.zmienneOprocentowanieBtn.checked && state.harmonogramData.some(row => row.zmianaOprocentowania)) {
+                docDefinition.content.push({
+                    text: '★ Zmiana oprocentowania',
+                    fontSize: 8,
+                    italics: true,
+                    margin: [0, 5, 0, 0]
+                });
             }
-        };
+        }
+    
         pdfMake.createPdf(docDefinition).download('Kalkulator_Lokat_Podsumowanie.pdf');
     }
     
