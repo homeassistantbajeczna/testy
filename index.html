@@ -1988,16 +1988,24 @@
             "Suma netto"
         ];
     
-        // Poprawa formatowania liczb w tabeli
+        // Poprawa formatowania liczb
+        const formatNumber = (num) => {
+            return parseFloat(num).toLocaleString('pl-PL', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true // Wymuszenie separatorów tysięcy
+            });
+        };
+    
         const tableData = kapitalizacja !== "naKoniec" ? state.harmonogramData.map(row => [
             row.okres.toString(),
-            parseFloat(row.wartoscLokaty).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł",
-            (row.zmianaOprocentowania ? '★ ' : '') + parseFloat(row.oprocentowanie).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%",
-            parseFloat(row.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł",
-            parseFloat(row.sumaOdsetek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł",
-            parseFloat(row.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł",
-            parseFloat(row.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł",
-            parseFloat(row.sumaNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"
+            formatNumber(row.wartoscLokaty) + " zł",
+            (row.zmianaOprocentowania ? '★ ' : '') + formatNumber(row.oprocentowanie) + "%",
+            formatNumber(row.odsetkiBrutto) + " zł",
+            formatNumber(row.sumaOdsetek) + " zł",
+            formatNumber(row.podatek) + " zł",
+            formatNumber(row.zyskNetto) + " zł",
+            formatNumber(row.sumaNetto) + " zł"
         ]) : [];
     
         const calculateColumnWidths = () => {
@@ -2073,27 +2081,34 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
+                // Funkcja generująca znaki wodne w siatce
+                const watermark = logoBase64 ? {
+                    stack: [
+                        ...Array.from({ length: 12 }, (_, i) => ({
+                            image: logoBase64,
+                            width: 50,
+                            height: 50,
+                            absolutePosition: { x: (i % 4) * 150 + 50, y: Math.floor(i / 4) * 200 + 50 },
+                            opacity: 0.05
+                        }))
+                    ]
+                } : null;
+    
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [14.17, 60, 14.17, 20],
+                    pageMargins: [40, 80, 40, 40], // Zwiększone marginesy strony
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 20, 0, 20] }, // Marginesy dla logo
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 20, 20, 20] }
+                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 30, 0, 30] }, // Większe marginesy dla logo
+                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 20, 30] }
                         ]
-                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 20, 20, 20] },
-                    background: logoBase64 ? { // Znak wodny z logo
-                        image: logoBase64,
-                        width: 300,
-                        height: 300,
-                        absolutePosition: { x: 150, y: 250 },
-                        opacity: 0.1
-                    } : null,
+                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 20, 30] },
+                    background: watermark, // Znaki wodne w siatce
                     content: [
                         { text: 'Podsumowanie wyników lokaty', style: 'header' },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 20, 0, 10] }, // Marginesy dla podsumowania
-                        { ul: summaryItems.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 20] }
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 30, 0, 15] }, // Większe marginesy dla podsumowania
+                        { ul: summaryItems.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 30] }
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
@@ -2129,7 +2144,7 @@
                             alignment: 'center',
                             margin: [40, 10, 40, 10]
                         },
-                        { text: footerNoteText, style: 'footerNote', margin: [40, 5, 0, 10] } // Przesunięcie tekstu pod tabelą
+                        { text: footerNoteText, style: 'footerNote', margin: [40, 5, 0, 10] }
                     );
                 }
     
