@@ -1816,10 +1816,10 @@
             <div class="summary-bar" data-tooltip="${sumaOdsetekBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Odsetki brutto:</span> <span class="value">${sumaOdsetekBrutto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
             <div class="summary-bar" data-tooltip="${sumaPodatku.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Podatek:</span> <span class="value">${sumaPodatku.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
             <div class="summary-bar" data-tooltip="${sumaZyskuNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Odsetki netto:</span> <span class="value">${sumaZyskuNetto.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
-            <div class="summary-bar" data-tooltip="${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Całkowita kwota po zakończeniu:</span> <span class="value">${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
+            <div class="summary-bar" data-tooltip="${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł"><span class="label">Kwota netto po zakończeniu:</span> <span class="value">${kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</span></div>
             <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}"><span class="label">Data zakończenia:</span> <span class="value">${dataZakonczenia.toLocaleDateString('pl-PL')}</span></div>
         `;
-    
+            
         const naglowekOkres = document.getElementById("pierwszaKolumnaNaglowek");
         if (kapitalizacja === "naKoniec") {
             naglowekOkres.textContent = jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok";
@@ -1974,8 +1974,9 @@
         const summaryItems = Array.from(summaryBars.children).map(bar => {
             const labelElement = bar.querySelector(".label");
             const valueElement = bar.querySelector(".value");
-            const label = labelElement ? labelElement.textContent.replace("Całkowita kwota po zakończeniu:", "Kwota netto po zakończeniu:") : "Brak etykiety";
+            const label = labelElement ? labelElement.textContent : "Brak etykiety"; // Usunięto .replace, bo tekst jest już poprawny
             const value = valueElement ? valueElement.textContent : "Brak wartości";
+            console.log("Summary item - label:", label, "value:", value); // Diagnostyka
             return { label, value };
         });
     
@@ -2071,6 +2072,7 @@
                         ctx.drawImage(this, 0, 0);
                         const dataURL = canvas.toDataURL('image/png');
                         const aspectRatio = this.height / this.width;
+                        console.log("Watermark loaded - width:", this.width, "height:", this.height); // Diagnostyka
                         resolve({ dataURL, aspectRatio });
                     };
                     img.onerror = reject;
@@ -2107,7 +2109,7 @@
                                 x: marginLeftRight + (i % 4) * (60 + spacingX),
                                 y: marginTopBottom + Math.floor(i / 4) * (60 * aspectRatio + spacingY)
                             },
-                            opacity: 0.15, // Zwiększona widoczność
+                            opacity: 0.1, // Wrócono do 0.1
                             rotation: -45 // Obrót o 45° w lewo
                         }))
                     ]
@@ -2155,7 +2157,6 @@
                     }
                 };
     
-                // Harmonogram tylko, jeśli nie jest zwinięty
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
                         { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
