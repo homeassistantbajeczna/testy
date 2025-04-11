@@ -850,9 +850,11 @@
 
 
     .harmonogram table {
-        width: 100%;
+        width: 95%;
+        max-width: 95%;
+        margin: 0 auto;
         border-collapse: collapse;
-        font-size: 0.9em;
+        font-size: 0.99em;
         color: var(--primary-text);
         margin-bottom: 0;
     }
@@ -864,9 +866,14 @@
     }
 
     .harmonogram th {
-        background: var(--input-group-bg);
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
+        font-size: 1em;
         font-weight: 700;
         text-transform: uppercase;
+        padding: 8px;
+        text-align: center;
+        border: 1px solid var(--border-color);
     }
 
     .harmonogram td .star {
@@ -951,6 +958,11 @@
     .dark-mode .star,
     .dark-mode .harmonogram-legend .star {
         color: var(--accent-color, #8b7d47) !important;
+    }
+
+    .dark-mode .harmonogram th {
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--primary-text);
     }
 
     @media (max-width: 576px) {
