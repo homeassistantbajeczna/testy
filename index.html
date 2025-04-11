@@ -1972,9 +1972,9 @@
     
         const summaryBars = document.querySelector(".summary-bars");
         const summaryItems = Array.from(summaryBars.children).map(bar => {
-            const label = bar.querySelector(".label").textContent.replace("Całkowita kwota netto po zakończeniu:", "Kwota netto po zakończeniu:"); // Zmiana tekstu
+            const label = bar.querySelector(".label").textContent.replace("Całkowita kwota netto po zakończeniu:", "Kwota netto po zakończeniu:");
             const value = bar.querySelector(".value").textContent;
-            return { label, value }; // Zwracamy obiekt, aby oddzielić etykietę i wartość
+            return { label, value };
         });
     
         const headers = [
@@ -2083,21 +2083,21 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Znaki wodne: siatka 4x8
+                // Znaki wodne: siatka 4x8, marginesy 2 cm góra/dół
                 const pageWidth = 595;
                 const pageHeight = 842;
                 const marginLeftRight = 85; // 3 cm
-                const marginTopBottom = 113; // 4 cm
+                const marginTopBottom = 57; // 2 cm (56.7 px ≈ 57 px)
                 const availableWidth = pageWidth - 2 * marginLeftRight; // 425 px
-                const availableHeight = pageHeight - 2 * marginTopBottom; // 616 px
-                const watermarkWidth = 60 * 4; // 240 px (4 logo po 60 px)
-                const watermarkHeight = 60 * aspectRatio * 8; // 8 logo proporcjonalnych
+                const availableHeight = pageHeight - 2 * marginTopBottom; // 728 px
+                const watermarkWidth = 60 * 4; // 240 px
+                const watermarkHeight = 60 * aspectRatio * 8; // 8 rzędów
                 const spacingX = (availableWidth - watermarkWidth) / 3; // Odstępy poziome
-                const spacingY = (availableHeight - watermarkHeight) / 7; // Odstępy pionowe (7, bo 8 rzędów)
+                const spacingY = (availableHeight - watermarkHeight) / 7; // Odstępy pionowe
     
                 const watermark = logoBase64 ? {
                     stack: [
-                        ...Array.from({ length: 32 }, (_, i) => ({ // 4x8 = 32 elementy
+                        ...Array.from({ length: 32 }, (_, i) => ({
                             image: logoBase64,
                             width: 60,
                             height: 60 * aspectRatio,
@@ -2110,9 +2110,14 @@
                     ]
                 } : null;
     
-                // Sprawdzenie, czy harmonogram jest zwinięty
+                // Sprawdzenie zwinięcia tabeli
                 const tableElement = document.querySelector('#harmonogramTable'); // Dostosuj ID
-                const isTableCollapsed = tableElement && (tableElement.style.display === 'none' || tableElement.classList.contains('collapsed') || getComputedStyle(tableElement).display === 'none'); // Rozszerzony warunek
+                const isTableCollapsed = tableElement && (
+                    tableElement.style.display === 'none' || 
+                    getComputedStyle(tableElement).display === 'none' || 
+                    tableElement.classList.contains('collapsed') || 
+                    tableElement.classList.contains('hidden') // Dodatkowa klasa
+                );
     
                 const docDefinition = {
                     pageSize: 'A4',
@@ -2135,8 +2140,8 @@
                         { 
                             ul: summaryItems.map(item => ({
                                 text: [
-                                    { text: item.label + " ", style: 'listItem' }, // Etykieta bez pogrubienia
-                                    { text: item.value, style: 'listItem', bold: true } // Wartość pogrubiona
+                                    { text: item.label + " ", style: 'listItem' },
+                                    { text: item.value, style: 'listItem', bold: true }
                                 ]
                             })), 
                             margin: [0, 0, 0, 30] 
@@ -2182,8 +2187,20 @@
                 }
     
                 docDefinition.content.push(
-                    { text: "Wykres liniowy wartości lokaty w czasie", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 ? 'before' : 'none' },
-                    { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
+                    { 
+                        text: "Wykres liniowy wartości lokaty w czasie", 
+                        style: 'sectionHeader', 
+                        alignment: 'center', 
+                        margin: [0, 20, 0, 10], // Większy margines górny dla wyśrodkowania pionowego
+                        pageBreak: tableData.length > 10 && !isTableCollapsed ? 'before' : 'none' 
+                    },
+                    { 
+                        image: lineChartImage, 
+                        width: 500, 
+                        height: 250, 
+                        alignment: 'center', 
+                        margin: [0, 0, 0, 20] // Symetryczne marginesy wokół wykresu
+                    }
                 );
     
                 pdfMake.createPdf(docDefinition).download(`Podsumowanie_Lokaty_${today.replace(/\./g, '-')}.pdf`);
