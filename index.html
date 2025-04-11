@@ -1974,9 +1974,9 @@
         const summaryItems = Array.from(summaryBars.children).map(bar => {
             const labelElement = bar.querySelector(".label");
             const valueElement = bar.querySelector(".value");
-            const label = labelElement ? labelElement.textContent : "Brak etykiety"; // Usunięto .replace, bo tekst jest już poprawny
+            const label = labelElement ? labelElement.textContent : "Brak etykiety";
             const value = valueElement ? valueElement.textContent : "Brak wartości";
-            console.log("Summary item - label:", label, "value:", value); // Diagnostyka
+            console.log("Summary item - label:", label, "value:", value);
             return { label, value };
         });
     
@@ -2072,7 +2072,7 @@
                         ctx.drawImage(this, 0, 0);
                         const dataURL = canvas.toDataURL('image/png');
                         const aspectRatio = this.height / this.width;
-                        console.log("Watermark loaded - width:", this.width, "height:", this.height); // Diagnostyka
+                        console.log("Watermark loaded - width:", this.width, "height:", this.height);
                         resolve({ dataURL, aspectRatio });
                     };
                     img.onerror = reject;
@@ -2099,7 +2099,7 @@
                 const spacingX = (availableWidth - watermarkWidth) / 3;
                 const spacingY = (availableHeight - watermarkHeight) / 7;
     
-                const watermark = logoBase64 ? {
+                const watermarkLayer = logoBase64 ? {
                     stack: [
                         ...Array.from({ length: 32 }, (_, i) => ({
                             image: logoBase64,
@@ -2109,10 +2109,11 @@
                                 x: marginLeftRight + (i % 4) * (60 + spacingX),
                                 y: marginTopBottom + Math.floor(i / 4) * (60 * aspectRatio + spacingY)
                             },
-                            opacity: 0.1, // Wrócono do 0.1
+                            opacity: 0.1,
                             rotation: -45 // Obrót o 45° w lewo
                         }))
-                    ]
+                    ],
+                    unbreakable: true // Zapobiega dzieleniu warstwy między strony
                 } : null;
     
                 // Sprawdzenie zwinięcia harmonogramu
@@ -2133,20 +2134,10 @@
                         margin: [40, 20, 40, 0], 
                         text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 20, 20] 
                     },
-                    background: watermark,
-                    content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header' },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 30, 0, 15] },
-                        { 
-                            ul: summaryItems.map(item => ({
-                                text: [
-                                    { text: item.label + " ", style: 'listItem' },
-                                    { text: item.value, style: 'listItem', bold: true }
-                                ]
-                            })), 
-                            margin: [0, 0, 0, 30] 
-                        }
-                    ],
+                    background: function() {
+                        return { canvas: [] }; // Puste tło, znaki wodne przeniesione do content
+                    },
+                    content: [],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
                         sectionHeader: { fontSize: 12, bold: true },
@@ -2157,6 +2148,25 @@
                     }
                 };
     
+                // Strona 1: Podsumowanie
+                if (watermarkLayer) {
+                    docDefinition.content.push(watermarkLayer);
+                }
+                docDefinition.content.push(
+                    { text: 'Podsumowanie wyników lokaty', style: 'header' },
+                    { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 30, 0, 15] },
+                    { 
+                        ul: summaryItems.map(item => ({
+                            text: [
+                                { text: item.label + " ", style: 'listItem' },
+                                { text: item.value, style: 'listItem', bold: true }
+                            ]
+                        })), 
+                        margin: [0, 0, 0, 30] 
+                    }
+                );
+    
+                // Harmonogram (jeśli nie zwinięty)
                 if (kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed) {
                     docDefinition.content.push(
                         { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
@@ -2185,13 +2195,19 @@
                     );
                 }
     
+                // Strona 2: Wykres
+                if (watermarkLayer) {
+                    docDefinition.content.push(
+                        { ...watermarkLayer, pageBreak: 'before' } // Znaki wodne na nowej stronie
+                    );
+                }
                 docDefinition.content.push(
                     { 
                         text: "Wykres liniowy wartości lokaty w czasie", 
                         style: 'sectionHeader', 
                         alignment: 'center', 
-                        margin: [0, 20, 0, 10], 
-                        pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none' 
+                        margin: [0, 20, 0, 10],
+                        pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                     },
                     { 
                         image: lineChartImage, 
