@@ -866,7 +866,7 @@
 
     .harmonogram th {
         background: var(--input-group-bg);
-        color: #000000;
+        color: var(--primary-text);
         font-weight: 400;
         font-size: clamp(0.55em, 1.15vw, 0.75em);
         padding: clamp(1px, 0.5vw, 12px);
@@ -973,11 +973,6 @@
         color: #e0e0e0;
     }
 
-    .dark-mode .star,
-    .dark-mode .harmonogram-legend .star {
-        color: var(--accent-color, #8b7d47) !important;
-    }
-
     .dark-mode .harmonogram table {
         background: #404040;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -986,7 +981,7 @@
     
     .dark-mode .harmonogram th {
         background: #666666;
-        color: #ffffff;
+        color: var(--primary-text);
         border-bottom: 2px solid #666666;
         border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
     }
