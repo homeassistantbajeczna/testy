@@ -2533,10 +2533,11 @@
         const valuePodatek = document.getElementById("valuePodatek");
         const zyskNetto = document.getElementById("zyskNetto");
     
-        console.log("valueKapital:", valueKapital?.textContent);
-        console.log("valueOdsetki:", valueOdsetki?.textContent);
-        console.log("valuePodatek:", valuePodatek?.textContent);
-        console.log("zyskNetto:", zyskNetto?.textContent);
+        if (!valueKapital || !valueOdsetki || !valuePodatek || !zyskNetto) {
+            console.error("Nie znaleziono elementów podsumowania w DOM.");
+            alert("Błąd: Brak elementów podsumowania.");
+            return;
+        }
     
         const typ = state.lastFormData.typObligacji;
         if (!typ) {
@@ -2605,6 +2606,20 @@
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
     
+        if (!lineChartCanvas || !state.chartLine) {
+            console.warn("Wykres liniowy nie jest dostępny. Generowanie PDF bez wykresu.");
+            requestAnimationFrame(() => {
+                const lineChartImage = null;
+                getBase64ImageFromUrl('cropped-logo-FB-1.png')
+                    .then(logoBase64 => generateDoc(logoBase64))
+                    .catch(error => {
+                        console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
+                        generateDoc(null);
+                    });
+            });
+            return;
+        }
+    
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2670,13 +2685,12 @@
                 const harmonogramContent = document.getElementById("harmonogramContent");
                 const isHarmonogramVisible = harmonogramContent.style.display !== "none";
     
-                // 6. Wartości w podsumowaniu pogrubione
                 const summaryItems = summary.map(item => {
                     const [label, value] = item.split(/: (.*)/);
                     return {
                         columns: [
                             { text: `${label}: `, style: 'listItem' },
-                            { text: value, style: 'listItemBold' } // Pogrubienie wartości
+                            { text: value, style: 'listItemBold' }
                         ],
                         margin: [0, 2, 0, 2]
                     };
@@ -2686,7 +2700,6 @@
                     pageSize: 'A4',
                     pageMargins: [14.17, 60, 14.17, 20],
                     defaultStyle: { font: 'Roboto' },
-                    // 2. Znak wodny z logo
                     background: logoBase64 ? function(currentPage, pageSize) {
                         return {
                             image: logoBase64,
@@ -2696,20 +2709,17 @@
                             angle: 45
                         };
                     } : null,
-                    // 5. Logo z większym marginesem
                     header: logoBase64 ? {
                         columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 30, 0, 20] }, // Zwiększony margines
+                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 30, 0, 20] },
                             { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] }
                         ]
                     } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 10, 20, 0] },
                     content: [
                         { text: headerText, style: 'header' },
-                        // 7. Opis obligacji z większym marginesem
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] }, // Zwiększone marginesy z lewej i prawej
+                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] },
                         { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 10, 0, 5] },
                         { ul: summaryItems, margin: [0, 0, 0, 10] },
-                        // 1. Tabela tylko, gdy widoczna; 4. Tabelka wyśrodkowana
                         ...(isHarmonogramVisible ? [{
                             table: {
                                 headerRows: 1,
@@ -2729,19 +2739,18 @@
                                 paddingBottom: function () { return 2; }
                             },
                             width: 535,
-                            margin: ['auto', 10, 'auto', 10] // Wyśrodkowanie tabeli
+                            margin: ['auto', 10, 'auto', 10]
                         }] : []),
                         { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] },
-                        // 3. Wykres wyśrodkowany
                         { text: "Wykres liniowy wartości inwestycji w czasie", style: 'sectionHeader', margin: [0, 10, 0, 5], pageBreak: tableData.length > 10 && isHarmonogramVisible ? 'before' : 'none' },
-                        { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] }
+                        lineChartImage ? { image: lineChartImage, width: 500, height: 250, alignment: 'center', margin: [0, 5, 0, 0] } : { text: "Wykres niedostępny", style: 'subheader', alignment: 'center' }
                     ],
                     styles: {
                         header: { fontSize: 16, bold: true, alignment: 'center', margin: [0, 20, 0, 10] },
                         subheader: { fontSize: 10, alignment: 'justify' },
                         sectionHeader: { fontSize: 12, bold: true },
                         listItem: { fontSize: 10 },
-                        listItemBold: { fontSize: 10, bold: true }, // Styl dla pogrubionych wartości
+                        listItemBold: { fontSize: 10, bold: true },
                         tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
                         tableCell: { fontSize: 8, alignment: 'center' },
                         footerNote: { fontSize: 8, italics: true }
