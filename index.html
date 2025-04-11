@@ -1988,12 +1988,11 @@
             "Suma netto"
         ];
     
-        // Poprawa formatowania liczb
         const formatNumber = (num) => {
             return parseFloat(num).toLocaleString('pl-PL', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
-                useGrouping: true // Wymuszenie separatorów tysięcy
+                useGrouping: true
             });
         };
     
@@ -2081,14 +2080,14 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                // Funkcja generująca znaki wodne w siatce
+                // Znaki wodne w siatce 4x7, rozmiar 20x30 px
                 const watermark = logoBase64 ? {
                     stack: [
-                        ...Array.from({ length: 12 }, (_, i) => ({
+                        ...Array.from({ length: 28 }, (_, i) => ({
                             image: logoBase64,
-                            width: 50,
-                            height: 50,
-                            absolutePosition: { x: (i % 4) * 150 + 50, y: Math.floor(i / 4) * 200 + 50 },
+                            width: 20,
+                            height: 30,
+                            absolutePosition: { x: (i % 4) * 140 + 40, y: Math.floor(i / 4) * 110 + 40 },
                             opacity: 0.05
                         }))
                     ]
@@ -2096,18 +2095,22 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [40, 80, 40, 40], // Zwiększone marginesy strony
+                    pageMargins: [40, 100, 40, 40], // Zwiększony górny margines do 100 px
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
+                        margin: [0, 40, 0, 0], // Dodatkowy margines w headerze
                         columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 30, 0, 30] }, // Większe marginesy dla logo
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 20, 30] }
+                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 0, 0, 40] }, // Margines dolny dla logo
+                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 20, 40] }
                         ]
-                    } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 20, 30] },
-                    background: watermark, // Znaki wodne w siatce
+                    } : { 
+                        margin: [0, 40, 0, 0], 
+                        text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 20, 40] 
+                    },
+                    background: watermark,
                     content: [
                         { text: 'Podsumowanie wyników lokaty', style: 'header' },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 30, 0, 15] }, // Większe marginesy dla podsumowania
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [0, 30, 0, 15] },
                         { ul: summaryItems.map(item => ({ text: item, style: 'listItem' })), margin: [0, 0, 0, 30] }
                     ],
                     styles: {
