@@ -2547,12 +2547,13 @@
             return isNaN(number) ? 0 : number;
         };
     
+        // Wartości obok tekstu w jednej linii
         const summary = [
-            [{ text: "Kapitał: ", style: 'listItem' }, { text: `${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }],
-            [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }],
-            [{ text: "Podatek: ", style: 'listItem' }, { text: `${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`, style: 'listItemBold' }],
-            [{ text: "Okres inwestycji: ", style: 'listItem' }, { text: `${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'listItemBold' }],
-            [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItemBold' }]
+            { text: `Kapitał: ${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItem' },
+            { text: `Odsetki: ${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItem' },
+            { text: `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 }) + " zł"}`, style: 'listItem' },
+            { text: `Okres inwestycji: ${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'listItem' },
+            { text: `Zysk netto: ${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`, style: 'listItem' }
         ];
     
         const headers = ["OTS", "ROR", "DOR"].includes(typ)
@@ -2582,10 +2583,16 @@
     
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
+            const pageWidth = 595.28; // Szerokość strony A4 w punktach
+            const totalMargin = 28.34; // Suma marginesów bocznych (14.17 * 2)
+            const availableWidth = pageWidth - totalMargin;
+            const totalContentWidth = headers.length * 30; // Minimalna szerokość kolumny: 30
             const columnWidths = headers.map((_, colIndex) => {
                 const maxLength = Math.max(...allRows.map(row => row[colIndex] ? row[colIndex].length : 0));
                 const baseWidth = maxLength * 4;
-                return Math.min(Math.max(baseWidth, 30), 100);
+                const minWidth = Math.min(Math.max(baseWidth, 30), 100);
+                // Jeśli tabela jest szersza niż dostępna szerokość, skaluj proporcjonalnie
+                return totalContentWidth > availableWidth ? (minWidth * availableWidth / totalContentWidth) : minWidth;
             });
             return columnWidths;
         };
@@ -2665,7 +2672,7 @@
                     background: function(currentPage, pageSize) {
                         if (!logoBase64) return [];
                         const watermark = [];
-                        const watermarkWidth = 60; // Taki sam rozmiar jak w Twoim kodzie
+                        const watermarkWidth = 60;
                         const watermarkHeight = 60;
                         const cols = 4;
                         const rows = 7;
@@ -2690,18 +2697,17 @@
                     },
                     header: logoBase64 ? {
                         columns: [
-                            { image: logoBase64, width: 100, margin: [40, 30, 0, 10] }, // Margines po lewej dla logo
+                            { image: logoBase64, width: 100, margin: [40, 30, 0, 10] },
                             { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 30, 20, 0] }
                         ]
                     } : { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [40, 30, 20, 0] },
                     content: [
                         { text: headerText, style: 'header', alignment: 'center' },
-                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] }, // Opis z marginesami
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [40, 10, 0, 5] }, // Zrównane z opisem po lewej
-                        { ul: summary, margin: [40, 0, 0, 10] }, // Podsumowanie po lewej, bez wyśrodkowania
-                        // Tabelka tylko jeśli harmonogram jest rozwinięty
+                        { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] },
+                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [40, 10, 0, 5] },
+                        { ul: summary, margin: [40, 0, 0, 10] },
                         ...(isHarmonogramCollapsed ? [] : [
-                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] }, // Nagłówek nad tabelką
+                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
                             {
                                 table: {
                                     headerRows: 1,
@@ -2721,9 +2727,9 @@
                                     paddingBottom: function () { return 2; }
                                 },
                                 alignment: 'center', // Tabelka zawsze wyśrodkowana
-                                margin: [40, 0, 40, 0] // Marginesy zgodne z tekstem poniżej
+                                margin: [0, 0, 0, 0] // Brak marginesów bocznych, jeśli tabela jest szersza
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10] } // Tekst pod tabelką równo z tabelką
+                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10] }
                         ]),
                         {
                             text: "Wykres liniowy wartości inwestycji w czasie",
@@ -2739,7 +2745,6 @@
                         subheader: { fontSize: 10, alignment: 'justify' },
                         sectionHeader: { fontSize: 12, bold: true },
                         listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                        listItemBold: { fontSize: 10, bold: true, margin: [0, 2, 0, 2] },
                         tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
                         tableCell: { fontSize: 8, alignment: 'center' },
                         footerNote: { fontSize: 8, italics: true }
