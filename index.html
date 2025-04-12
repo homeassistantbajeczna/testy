@@ -728,7 +728,7 @@
 
     .harmonogram td .star,
     #harmonogramOpis .star {
-        color: #8b7d47;
+        color: #c2b280;
     }
 
     .data-container {
@@ -2263,11 +2263,13 @@
         let liczbaCykli = ["OTS", "ROR", "DOR"].includes(typ) ? miesiace : miesiace / 12;
         let changes = inflacjaZmienna ? state.variableInflation : (stopaZmienna ? state.variableReferenceRates : []);
         let poprzedniaStopaLubInflacja = null;
+        let poprzednieOprocentowanieRoczne = null; // Nowa zmienna do śledzenia oprocentowania rocznego
+    
         for (let i = 1; i <= liczbaCykli; i++) {
             let okresWiersz = i;
             let changeApplied = false;
             let stopaRefLubInflacja = "-";
-        
+    
             let oprocentowanieRoczne;
             if (inflacjaZmienna || stopaZmienna) {
                 // Pobieramy wartość z górnego panelu jako domyślną
@@ -2295,29 +2297,35 @@
             } else {
                 oprocentowanieRoczne = config.oprocentowanie / 100;
             }
-        
+    
+            // Sprawdzamy, czy oprocentowanie roczne się zmieniło w porównaniu z poprzednim cyklem
+            if (poprzednieOprocentowanieRoczne !== null && oprocentowanieRoczne !== poprzednieOprocentowanieRoczne) {
+                changeApplied = true;
+            }
+            poprzednieOprocentowanieRoczne = oprocentowanieRoczne;
+    
             let oprocentowanieMiesieczne = oprocentowanieRoczne / 12;
             let miesiecyWCyklu = ["OTS", "ROR", "DOR"].includes(typ) ? 1 : 12;
             let odsetkiCykl = kapital * oprocentowanieMiesieczne * miesiecyWCyklu;
-        
+    
             let podatekCykl = odsetkiCykl * podatekBelki;
             let odsetkiNettoCykl = state.isIkeIkzeMode ? odsetkiCykl : (odsetkiCykl - podatekCykl);
-        
+    
             odsetkiCalkowite += odsetkiCykl;
             skumulowaneOdsetki += odsetkiCykl;
             zyskNettoCalkowity += odsetkiNettoCykl;
-        
+    
             let wartoscInwestycji = kwota;
             if (config.kapitalizacja) {
                 kapital += odsetkiCykl;
                 wartoscInwestycji = kapital;
             }
-        
+    
             let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) : 
                 (config.kapitalizacja ? (wartoscInwestycji - skumulowaneOdsetki * 0.19) : kwota + zyskNettoCalkowity);
-        
+    
             let oplataZaWykup = i < liczbaCykli ? kwota * config.oplataWykup : 0;
-        
+    
             state.harmonogramData.push({
                 okres: okresWiersz,
                 wartoscInwestycji: wartoscInwestycji.toFixed(2),
