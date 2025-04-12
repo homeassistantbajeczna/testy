@@ -2124,20 +2124,21 @@
     function formatNumber(value) {
         const number = parseFloat(value);
         if (isNaN(number)) return "0,00";
-        
-        // Formatowanie z dwoma miejscami po przecinku
-        let formatted = number.toLocaleString('pl-PL', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-            useGrouping: number < 10000 // Spacje tylko dla liczb < 10000
-        });
-        
-        // Dla liczb >= 10000 usuwamy spacje
-        if (number >= 10000) {
-            formatted = formatted.replace(/\s/g, '');
+    
+        if (number < 10000) {
+            // Dla liczb < 10000 używamy toLocaleString z grupowaniem (spacje)
+            return number.toLocaleString('pl-PL', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true
+            });
+        } else {
+            // Dla liczb >= 10000 ręcznie formatujemy bez spacji
+            const fixed = number.toFixed(2); // Zapewnia 2 miejsca po przecinku
+            const [integerPart, decimalPart] = fixed.split('.');
+            // Zwracamy liczbę bez separatorów tysięcy, z przecinkiem jako separatorem dziesiętnym
+            return `${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '')},${decimalPart}`;
         }
-        
-        return formatted;
     }
     
     function obliczObligacje() {
