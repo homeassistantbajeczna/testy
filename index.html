@@ -2101,25 +2101,11 @@
         state.chartLine.canvas.width = chartWidth;
         state.chartLine.canvas.height = chartHeight;
     
-        // Dodanie paddingu, aby zmieścić etykiety i legendę
-        const originalPadding = state.chartLine.options.layout.padding || {};
-        state.chartLine.options.layout.padding = {
-            left: 50, // Padding z lewej dla etykiet osi Y
-            right: 20, // Padding z prawej
-            top: 30, // Padding u góry dla legendy
-            bottom: 20 // Padding na dole dla etykiet osi X
-        };
-    
-        // Ustawienie zakresu danych na osi X
-        const originalScales = state.chartLine.options.scales;
-        const dataLength = state.harmonogramData.length;
-        state.chartLine.options.scales.x = {
-            ...state.chartLine.options.scales.x,
-            min: -0.5, // Zaczynamy pół jednostki przed pierwszym okresem
-            max: dataLength - 0.5, // Kończymy pół jednostki po ostatnim okresie
-            offset: false // Wyłączamy offset, aby precyzyjnie kontrolować zakres
-        };
-    
+        // Zapisywanie oryginalnych wartości
+        const originalPadding = JSON.parse(JSON.stringify(state.chartLine.options.layout.padding || {}));
+        const originalMinX = state.chartLine.options.scales.x.min;
+        const originalMaxX = state.chartLine.options.scales.x.max;
+        const originalOffsetX = state.chartLine.options.scales.x.offset;
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2133,6 +2119,21 @@
         };
         console.log("Original Colors:", originalColors); // Debug: Sprawdź wartości
     
+        // Modyfikacja opcji
+        state.chartLine.options.layout.padding = {
+            left: 50, // Padding z lewej dla etykiet osi Y
+            right: 20, // Padding z prawej
+            top: 30, // Padding u góry dla legendy
+            bottom: 20 // Padding na dole dla etykiet osi X
+        };
+    
+        // Modyfikacja tylko konkretnych właściwości osi X, bez nadpisywania całego obiektu
+        const dataLength = state.harmonogramData.length;
+        state.chartLine.options.scales.x.min = -0.5;
+        state.chartLine.options.scales.x.max = dataLength - 0.5;
+        state.chartLine.options.scales.x.offset = false;
+    
+        // Ustawianie kolorów
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
         state.chartLine.options.scales.y.grid.color = '#e0e0e0';
         state.chartLine.options.scales.x.grid.borderColor = '#333333';
@@ -2147,7 +2148,7 @@
         requestAnimationFrame(() => {
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
-            // Przywracanie oryginalnych ustawień Chart.js z wartościami domyślnymi
+            // Przywracanie oryginalnych ustawień Chart.js
             state.chartLine.options.scales.x.grid.color = originalColors.xGridColor ?? '#e0e0e0';
             state.chartLine.options.scales.y.grid.color = originalColors.yGridColor ?? '#e0e0e0';
             state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor ?? '#333333';
@@ -2158,7 +2159,9 @@
             state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor ?? '#333333';
             state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor ?? '#333333';
             state.chartLine.options.layout.padding = originalPadding;
-            state.chartLine.options.scales = originalScales;
+            state.chartLine.options.scales.x.min = originalMinX;
+            state.chartLine.options.scales.x.max = originalMaxX;
+            state.chartLine.options.scales.x.offset = originalOffsetX;
             state.chartLine.options.responsive = true;
             state.chartLine.options.maintainAspectRatio = true;
             state.chartLine.update();
