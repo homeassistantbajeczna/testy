@@ -2121,6 +2121,17 @@
     }
 
     // L O G I K A   O B L I C Z E Ń
+
+    function formatNumberPL(number) {
+        // Zaokrąglamy do dwóch miejsc po przecinku
+        const rounded = Number(number).toFixed(2);
+        // Dzielimy na część całkowitą i dziesiętną
+        const [integerPart, decimalPart] = rounded.split('.');
+        // Formatujemy część całkowitą z separatorem spacji co 3 cyfry
+        const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+        // Zwracamy pełną liczbę z przecinkiem jako separatorem dziesiętnym
+        return `${formattedInteger},${decimalPart}`;
+    }
     
     function obliczObligacje() {
         console.log("Starting obliczObligacje");
@@ -2267,21 +2278,21 @@
         }
     
         const valueKapital = document.getElementById("valueKapital");
-        if (valueKapital) valueKapital.textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        if (valueKapital) valueKapital.textContent = `${formatNumberPL(kwota)} zł`;
         const legendKapital = document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box');
-        if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-    
+        if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${formatNumberPL(kwota)} zł`);
+        
         const valueOdsetki = document.getElementById("valueOdsetki");
-        if (valueOdsetki) valueOdsetki.textContent = `${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        if (valueOdsetki) valueOdsetki.textContent = `${formatNumberPL(odsetkiCalkowite)} zł`;
         const legendOdsetki = document.querySelector('.result-wrapper-chart .legend-item[data-index="1"] .color-box');
-        if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${odsetkiCalkowite.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
-    
+        if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${formatNumberPL(odsetkiCalkowite)} zł`);
+        
         const podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
         const valuePodatek = document.getElementById("valuePodatek");
-        if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : `${formatNumberPL(podatekCalkowity)} zł`;
         const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
-        if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : podatekCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`);
-
+        if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : formatNumberPL(podatekCalkowity) + " zł"}`);
+        
         document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
         document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
         document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
@@ -2293,9 +2304,9 @@
         if (highlightYellow) highlightYellow.setAttribute('data-hover', `${miesiace} ${jednostkaOkresu}`);
     
         const zyskNettoSpan = document.querySelector('.summary-footer .highlight.green');
-        if (zyskNettoSpan) zyskNettoSpan.textContent = `Zysk netto: ${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        if (zyskNettoSpan) zyskNettoSpan.textContent = `Zysk netto: ${formatNumberPL(zyskNettoCalkowity)} zł`;
         const highlightGreen = document.querySelector('.result-wrapper-chart .highlight.green');
-        if (highlightGreen) highlightGreen.setAttribute('data-hover', `${zyskNettoCalkowity.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+        if (highlightGreen) highlightGreen.setAttribute('data-hover', `${formatNumberPL(zyskNettoCalkowity)} zł`);
     
         if (state.chart) state.chart.destroy();
         if (state.chartLine) state.chartLine.destroy();
@@ -2362,19 +2373,19 @@
                 let rowHTML = `
                     <tr>
                         <td>${wiersz.okres}</td>
-                        <td>${parseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                        <td>${formatNumberPL(wiersz.wartoscInwestycji)} zł</td>
                         <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
-                        <td>${parseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : parseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}</td>
-                        <td>${parseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
-                        <td>${parseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł**</td>
+                        <td>${formatNumberPL(wiersz.odsetkiBrutto)} zł</td>
+                        <td>${formatNumberPL(wiersz.skumulowaneOdsetki)} zł</td>
+                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : formatNumberPL(wiersz.podatek) + " zł"}</td>
+                        <td>${formatNumberPL(wiersz.zyskNetto)} zł</td>
+                        <td>${formatNumberPL(wiersz.oplataZaWykup)} zł**</td>
                 `;
                 if (!["OTS", "TOS"].includes(typ)) {
                     rowHTML += `<td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.stopaRefLubInflacja}</td>`;
                 }
                 rowHTML += `
-                        <td>${parseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł</td>
+                        <td>${formatNumberPL(wiersz.kwotaPoZakonczeniuCyklu)} zł</td>
                     </tr>
                 `;
                 tabela.innerHTML += rowHTML;
@@ -2471,9 +2482,9 @@
                             font: { size: tickFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333',
                             callback: function(value) {
-                                return value.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+                                return formatNumberPL(value) + ' zł';
                             }
-                        },
+                        }
                         grid: {
                             color: isDarkMode ? '#333333' : '#e0e0e0',
                             borderColor: isDarkMode ? '#333333' : '#333333'
@@ -2548,37 +2559,30 @@
             const number = parseFloat(cleaned);
             return isNaN(number) ? 0 : number;
         };
-    
+        
         const summary = [
-            { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: `${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
-            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
-            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: `${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`, style: 'listItemBold' }] },
+            { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: `${formatNumberPL(state.lastFormData.kwota)} zł`, style: 'listItemBold' }] },
+            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: `${formatNumberPL(parseNumber(valueOdsetki.textContent))} zł`, style: 'listItemBold' }] },
+            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: `${state.isIkeIkzeMode ? "0,00 zł***" : formatNumberPL(parseNumber(valuePodatek.textContent)) + " zł"}`, style: 'listItemBold' }] },
             { text: [{ text: "Okres inwestycji: ", style: 'listItem' }, { text: `${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'listItemBold' }] },
-            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] }
+            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${formatNumberPL(parseNumber(zyskNetto.textContent))} zł`, style: 'listItemBold' }] }
         ];
-    
-        const headers = ["OTS", "ROR", "DOR"].includes(typ)
-            ? ["Miesiąc", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Stopa Ref. NBP", "Suma netto"]
-            : ["Rok", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Inflacja", "Suma netto"];
-        if (["OTS", "TOS"].includes(typ)) headers.splice(8, 1);
-    
-        const safeParseFloat = (value) => isNaN(parseFloat(value)) ? 0 : parseFloat(value);
-    
+        
         const tableData = state.harmonogramData.map(wiersz => {
             const row = [
                 (wiersz.okres || 0).toString(),
-                `${safeParseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
+                `${formatNumberPL(wiersz.wartoscInwestycji)} zł`,
                 `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl || '0%'}`,
-                `${safeParseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                state.isIkeIkzeMode ? "0,00 zł***" : `${safeParseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł**`
+                `${formatNumberPL(wiersz.odsetkiBrutto)} zł`,
+                `${formatNumberPL(wiersz.skumulowaneOdsetki)} zł`,
+                state.isIkeIkzeMode ? "0,00 zł***" : `${formatNumberPL(wiersz.podatek)} zł`,
+                `${formatNumberPL(wiersz.zyskNetto)} zł`,
+                `${formatNumberPL(wiersz.oplataZaWykup)} zł**`
             ];
             if (!["OTS", "TOS"].includes(typ)) {
                 row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja || '0%'}`);
             }
-            row.push(`${safeParseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+            row.push(`${formatNumberPL(wiersz.kwotaPoZakonczeniuCyklu)} zł`);
             return row;
         });
     
