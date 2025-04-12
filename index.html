@@ -2131,6 +2131,7 @@
             yTicksColor: state.chartLine.options.scales.y.ticks.color,
             legendColor: state.chartLine.options.plugins.legend.labels.color
         };
+        console.log("Original Colors:", originalColors); // Debug: Sprawdź wartości
     
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
         state.chartLine.options.scales.y.grid.color = '#e0e0e0';
@@ -2146,16 +2147,16 @@
         requestAnimationFrame(() => {
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
-            // Przywracanie oryginalnych ustawień Chart.js
-            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
-            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
-            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
-            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
-            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
-            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
-            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
-            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
-            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+            // Przywracanie oryginalnych ustawień Chart.js z wartościami domyślnymi
+            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor ?? '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor ?? '#e0e0e0';
+            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor ?? '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor ?? '#333333';
+            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor ?? '#333333';
+            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor ?? '#333333';
+            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor ?? '#333333';
+            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor ?? '#333333';
+            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor ?? '#333333';
             state.chartLine.options.layout.padding = originalPadding;
             state.chartLine.options.scales = originalScales;
             state.chartLine.options.responsive = true;
