@@ -1633,11 +1633,11 @@
     });
     
     elements.kwota.addEventListener("input", () => { 
-        let value = parseFloat(elements.kwota.value) || 0; // Domyślnie 0, jeśli niepoprawna wartość
+        let value = parseFloat(elements.kwota.value.replace(",", ".")) || 0;
         if (value < 100) value = 100;
         if (value > 10000000) value = 10000000;
-        elements.kwota.value = value;
-        elements.kwotaRange.value = value; // Synchronizacja suwaka
+        elements.kwota.value = formatCurrency(value, false); // Wyświetl sformatowaną wartość bez "zł"
+        elements.kwotaRange.value = value;
         updateIloscObligacji();
     });
     
@@ -2037,10 +2037,10 @@
                 });
     
                 rateInput.addEventListener("input", () => {
-                    let value = parseFloat(rateInput.value) || 0;
-                    if (value < 0.1) value = 0.1; // Minimalna wartość 0,1
+                    let value = parseFloat(rateInput.value.replace(",", ".")) || 0;
+                    if (value < 0.1) value = 0.1;
                     if (value > (isInflacjaZmienna ? 50 : 20)) value = isInflacjaZmienna ? 50 : 20;
-                    rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2); // Zachowaj precyzję
+                    rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2);
                     rateRange.value = value;
                     changes[index].value = value;
                     updateVariableData();
@@ -2122,16 +2122,17 @@
 
     // L O G I K A   O B L I C Z E Ń
 
-    function formatCurrency(value) {
+    function formatCurrency(value, includeCurrencySymbol = true) {
         const num = parseFloat(value);
         if (isNaN(num)) return "0,00 zł";
         
-        // Używamy Intl.NumberFormat dla spójnego formatowania
         const formatter = new Intl.NumberFormat('pl-PL', {
             minimumFractionDigits: 2,
-            maximumFractionDigits: 2
+            maximumFractionDigits: 2,
+            useGrouping: true
         });
-        return formatter.format(num) + " zł";
+        
+        return includeCurrencySymbol ? `${formatter.format(num)} zł` : formatter.format(num);
     }
     
     function obliczObligacje() {
@@ -2265,15 +2266,15 @@
         
             state.harmonogramData.push({
                 okres: okresWiersz,
-                wartoscInwestycji: wartoscInwestycji.toFixed(2),
-                oprocentowanieNaCykl: (oprocentowanieRoczne * 100).toFixed(2) + "%",
-                odsetkiBrutto: odsetkiCykl.toFixed(2),
-                skumulowaneOdsetki: skumulowaneOdsetki.toFixed(2),
-                podatek: podatekCykl.toFixed(2),
-                zyskNetto: odsetkiNettoCykl.toFixed(2),
-                oplataZaWykup: oplataZaWykup.toFixed(2),
+                wartoscInwestycji: formatCurrency(wartoscInwestycji),
+                oprocentowanieNaCykl: formatCurrency(oprocentowanieRoczne * 100, false) + "%",
+                odsetkiBrutto: formatCurrency(odsetkiCykl),
+                skumulowaneOdsetki: formatCurrency(skumulowaneOdsetki),
+                podatek: formatCurrency(podatekCykl),
+                zyskNetto: formatCurrency(odsetkiNettoCykl),
+                oplataZaWykup: formatCurrency(oplataZaWykup),
                 stopaRefLubInflacja: stopaRefLubInflacja,
-                kwotaPoZakonczeniuCyklu: kwotaPoCyklu.toFixed(2),
+                kwotaPoZakonczeniuCyklu: formatCurrency(kwotaPoCyklu),
                 changeApplied: changeApplied
             });
         }
@@ -2374,19 +2375,19 @@
                 let rowHTML = `
                     <tr>
                         <td>${wiersz.okres}</td>
-                        <td>${formatCurrency(wiersz.wartoscInwestycji)}</td>
+                        <td>${wiersz.wartoscInwestycji}</td>
                         <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
-                        <td>${formatCurrency(wiersz.odsetkiBrutto)}</td>
-                        <td>${formatCurrency(wiersz.skumulowaneOdsetki)}</td>
-                        <td>${state.isIkeIkzeMode ? formatCurrency(0) + "***" : formatCurrency(wiersz.podatek)}</td>
-                        <td>${formatCurrency(wiersz.zyskNetto)}</td>
-                        <td>${formatCurrency(wiersz.oplataZaWykup)}**</td>
+                        <td>${wiersz.odsetkiBrutto}</td>
+                        <td>${wiersz.skumulowaneOdsetki}</td>
+                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : wiersz.podatek}</td>
+                        <td>${wiersz.zyskNetto}</td>
+                        <td>${wiersz.oplataZaWykup}**</td>
                 `;
                 if (!["OTS", "TOS"].includes(typ)) {
                     rowHTML += `<td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.stopaRefLubInflacja}</td>`;
                 }
                 rowHTML += `
-                        <td>${formatCurrency(wiersz.kwotaPoZakonczeniuCyklu)}</td>
+                        <td>${wiersz.kwotaPoZakonczeniuCyklu}</td>
                     </tr>
                 `;
                 tabela.innerHTML += rowHTML;
@@ -2483,7 +2484,7 @@
                             font: { size: tickFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333',
                             callback: function(value) {
-                                return formatCurrency(value).replace(" zł", "");
+                                return formatCurrency(value, false); // Bez symbolu "zł"
                             }
                         },
                         grid: {
@@ -2579,18 +2580,18 @@
         const tableData = state.harmonogramData.map(wiersz => {
             const row = [
                 (wiersz.okres || 0).toString(),
-                formatCurrency(wiersz.wartoscInwestycji),
-                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl || '0%'}`,
-                formatCurrency(wiersz.odsetkiBrutto),
-                formatCurrency(wiersz.skumulowaneOdsetki),
-                state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(wiersz.podatek),
-                formatCurrency(wiersz.zyskNetto),
-                formatCurrency(wiersz.oplataZaWykup) + "**"
+                wiersz.wartoscInwestycji,
+                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}`,
+                wiersz.odsetkiBrutto,
+                wiersz.skumulowaneOdsetki,
+                state.isIkeIkzeMode ? "0,00 zł***" : wiersz.podatek,
+                wiersz.zyskNetto,
+                wiersz.oplataZaWykup + "**"
             ];
             if (!["OTS", "TOS"].includes(typ)) {
-                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja || '0%'}`);
+                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`);
             }
-            row.push(formatCurrency(wiersz.kwotaPoZakonczeniuCyklu));
+            row.push(wiersz.kwotaPoZakonczeniuCyklu);
             return row;
         });
     
