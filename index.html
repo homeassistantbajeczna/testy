@@ -1545,8 +1545,8 @@
         chartLine: null,
         harmonogramData: [],
         isIkeIkzeMode: false,
-        variableInflation: [], // Tablica dla danych "Zmienna inflacja"
-        variableReferenceRates: [], // Tablica dla danych "Zmienne stopy referencyjne NBP"
+        variableInflation: [],
+        variableReferenceRates: [],
         lastFormData: {
             kwota: 10000,
             typObligacji: "OTS",
@@ -1564,6 +1564,7 @@
             inflacjaZmienna: false,
             stopaZmienna: false,
         },
+        previousTypObligacji: "OTS", // Nowe pole do śledzenia poprzedniego typu
         isCalculating: false
     };
 
@@ -1688,7 +1689,8 @@
     function updateDynamicRateField() {
         state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
         const select = elements.typObligacji;
-        const previousTyp = select.value;
+        const previousTyp = state.previousTypObligacji; // Pobieramy poprzedni typ
+        const currentTyp = select.value; // Pobieramy bieżący typ
     
         select.innerHTML = state.isIkeIkzeMode ? `
             <option value="ROR">12-miesięczne (ROR)</option>
@@ -1708,20 +1710,25 @@
         `;
     
         const availableOptions = Array.from(select.options).map(opt => opt.value);
-        select.value = availableOptions.includes(previousTyp) ? previousTyp : (state.isIkeIkzeMode ? "TOS" : "OTS");
+        select.value = availableOptions.includes(currentTyp) ? currentTyp : (state.isIkeIkzeMode ? "TOS" : "OTS");
     
         const typ = select.value;
         const config = obligacjeConfig[typ];
     
-        // Wyłączanie "Zmienna Stopa Ref. NBP" i "Zmienna Inflacja" przy każdej zmianie typu
-        if (elements.stopaZmiennaBtn.checked || elements.inflacjaZmiennaBtn.checked) {
-            elements.stopaZmiennaBtn.checked = false;
-            elements.inflacjaZmiennaBtn.checked = false;
-            state.lastFormData.stopaZmienna = false;
-            state.lastFormData.inflacjaZmienna = false;
-            state.variableReferenceRates = [];
-            state.variableInflation = [];
+        // Resetuj checkboxy tylko, jeśli typ obligacji się zmienił
+        if (typ !== previousTyp) {
+            if (elements.stopaZmiennaBtn.checked || elements.inflacjaZmiennaBtn.checked) {
+                elements.stopaZmiennaBtn.checked = false;
+                elements.inflacjaZmiennaBtn.checked = false;
+                state.lastFormData.stopaZmienna = false;
+                state.lastFormData.inflacjaZmienna = false;
+                state.variableReferenceRates = [];
+                state.variableInflation = [];
+            }
         }
+    
+        // Aktualizuj poprzedni typ w stanie
+        state.previousTypObligacji = typ;
     
         elements.okres.value = config.okres;
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
@@ -1775,9 +1782,9 @@
             ikeIkzeContainer.style.display = "block";
         } else {
             ikeIkzeContainer.style.display = "none";
-            elements.ikeIkzeBtn.checked = false; // Odznaczamy checkbox
-            state.isIkeIkzeMode = false; // Resetujemy stan
-            state.lastFormData.ikeIkze = false; // Aktualizujemy zapisany stan
+            elements.ikeIkzeBtn.checked = false;
+            state.isIkeIkzeMode = false;
+            state.lastFormData.ikeIkze = false;
         }
     
         updateVariableInputs();
