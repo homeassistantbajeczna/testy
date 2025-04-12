@@ -2450,20 +2450,20 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)',
-                            font: { size: titleFontSize },
+                    x: { 
+                        title: { 
+                            display: true, 
+                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
+                            font: { size: titleFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333'
-                        },
-                        ticks: {
-                            font: { size: tickFontSize },
+                        }, 
+                        ticks: { 
+                            font: { size: tickFontSize }, // Dynamiczny rozmiar
                             color: isDarkMode ? '#e0e0e0' : '#333333',
-                            maxRotation: 45,
+                            maxRotation: 45, // Obrót etykiet dla małych ekranów
                             minRotation: 0,
-                            autoSkip: true,
-                            maxTicksLimit: 10
+                            autoSkip: true, // Automatyczne pomijanie etykiet
+                            maxTicksLimit: 10 // Ograniczenie liczby etykiet
                         },
                         grid: {
                             color: isDarkMode ? '#333333' : '#e0e0e0',
@@ -2484,7 +2484,7 @@
                             font: { size: tickFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333',
                             callback: function(value) {
-                                return formatCurrency(value, false); // Bez symbolu "zł"
+                                return value.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
                             }
                         },
                         grid: {
