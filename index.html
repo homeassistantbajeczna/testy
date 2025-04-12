@@ -2178,8 +2178,8 @@
             ikeIkze: state.isIkeIkzeMode,
             inflacjaZmienna: inflacjaZmienna,
             stopaZmienna: stopaZmienna,
-            variableInflacjaChanges: [...state.variableInflation], // Zapisujemy aktualne dane inflacji
-            variableStopaChanges: [...state.variableReferenceRates] // Zapisujemy aktualne dane stóp referencyjnych
+            variableInflacjaChanges: [...state.variableInflation],
+            variableStopaChanges: [...state.variableReferenceRates]
         };
     
         if (kwota < 100 || miesiace <= 0 || (["ROR", "DOR", "COI", "EDO", "ROS", "ROD"].includes(typ) && (!dynamicRate || dynamicRate < 0))) {
@@ -2213,10 +2213,9 @@
             let okresWiersz = i;
             let changeApplied = false;
             let stopaRefLubInflacja = "-";
-        
+    
             let oprocentowanieRoczne;
             if (inflacjaZmienna || stopaZmienna) {
-                // Pobieramy wartość z górnego panelu jako domyślną
                 let dynamicValue = (state.lastFormData.dynamicRates[typ] || (inflacjaZmienna ? 4.90 : 5.75)) / 100;
                 for (const change of changes) {
                     if (i >= change.period) {
@@ -2241,29 +2240,29 @@
             } else {
                 oprocentowanieRoczne = config.oprocentowanie / 100;
             }
-        
+    
             let oprocentowanieMiesieczne = oprocentowanieRoczne / 12;
             let miesiecyWCyklu = ["OTS", "ROR", "DOR"].includes(typ) ? 1 : 12;
             let odsetkiCykl = kapital * oprocentowanieMiesieczne * miesiecyWCyklu;
-        
+    
             let podatekCykl = odsetkiCykl * podatekBelki;
             let odsetkiNettoCykl = state.isIkeIkzeMode ? odsetkiCykl : (odsetkiCykl - podatekCykl);
-        
+    
             odsetkiCalkowite += odsetkiCykl;
             skumulowaneOdsetki += odsetkiCykl;
             zyskNettoCalkowity += odsetkiNettoCykl;
-        
+    
             let wartoscInwestycji = kwota;
             if (config.kapitalizacja) {
                 kapital += odsetkiCykl;
                 wartoscInwestycji = kapital;
             }
-        
+    
             let kwotaPoCyklu = state.isIkeIkzeMode ? (config.kapitalizacja ? wartoscInwestycji : kwota + zyskNettoCalkowity) : 
                 (config.kapitalizacja ? (wartoscInwestycji - skumulowaneOdsetki * 0.19) : kwota + zyskNettoCalkowity);
-        
+    
             let oplataZaWykup = i < liczbaCykli ? kwota * config.oplataWykup : 0;
-        
+    
             state.harmonogramData.push({
                 okres: okresWiersz,
                 wartoscInwestycji: formatCurrency(wartoscInwestycji),
@@ -2279,22 +2278,26 @@
             });
         }
     
+        // Zapisz zmienne do state
+        state.odsetkiCalkowite = odsetkiCalkowite;
+        state.podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
+        state.zyskNettoCalkowity = zyskNettoCalkowity;
+    
         const valueKapital = document.getElementById("valueKapital");
         if (valueKapital) valueKapital.textContent = formatCurrency(kwota);
         const legendKapital = document.querySelector('.result-wrapper-chart .legend-item[data-index="0"] .color-box');
         if (legendKapital) legendKapital.setAttribute('data-tooltip', `Kapitał: ${formatCurrency(kwota)}`);
-        
+    
         const valueOdsetki = document.getElementById("valueOdsetki");
         if (valueOdsetki) valueOdsetki.textContent = formatCurrency(odsetkiCalkowite);
         const legendOdsetki = document.querySelector('.result-wrapper-chart .legend-item[data-index="1"] .color-box');
         if (legendOdsetki) legendOdsetki.setAttribute('data-tooltip', `Odsetki: ${formatCurrency(odsetkiCalkowite)}`);
-        
-        const podatekCalkowity = odsetkiCalkowite * (state.isIkeIkzeMode ? 0 : 0.19);
+    
         const valuePodatek = document.getElementById("valuePodatek");
-        if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(podatekCalkowity);
+        if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(state.podatekCalkowity);
         const legendPodatek = document.querySelector('.result-wrapper-chart .legend-item[data-index="2"] .color-box');
-        if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(podatekCalkowity)}`);
-        
+        if (legendPodatek) legendPodatek.setAttribute('data-tooltip', `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(state.podatekCalkowity)}`);
+    
         document.querySelector('#legendKapital').setAttribute('data-tooltip', 'Kapitał');
         document.querySelector('#legendOdsetki').setAttribute('data-tooltip', 'Odsetki');
         document.querySelector('#legendPodatek').setAttribute('data-tooltip', 'Podatek');
@@ -2309,7 +2312,7 @@
         if (zyskNettoSpan) zyskNettoSpan.textContent = `Zysk netto: ${formatCurrency(zyskNettoCalkowity)}`;
         const highlightGreen = document.querySelector('.result-wrapper-chart .highlight.green');
         if (highlightGreen) highlightGreen.setAttribute('data-hover', formatCurrency(zyskNettoCalkowity));
-        
+    
         if (state.chart) state.chart.destroy();
         if (state.chartLine) state.chartLine.destroy();
     
@@ -2324,7 +2327,7 @@
             data: {
                 labels: ['Kapitał', 'Odsetki', 'Podatek'],
                 datasets: [{
-                    data: [kwota, odsetkiCalkowite, podatekCalkowity],
+                    data: [kwota, odsetkiCalkowite, state.podatekCalkowity],
                     backgroundColor: ['#28a745', '#007bff', '#dc3545'],
                     borderWidth: 1,
                     hoverOffset: 20
@@ -2351,11 +2354,11 @@
                     if (idx === index) {
                         if (idx === 0) value.textContent = `Kapitał: ${formatCurrency(kwota)}`;
                         if (idx === 1) value.textContent = `Odsetki: ${formatCurrency(odsetkiCalkowite)}`;
-                        if (idx === 2) value.textContent = `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(podatekCalkowity)}`;
+                        if (idx === 2) value.textContent = `Podatek: ${state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(state.podatekCalkowity)}`;
                     }
                 });
             });
-        
+    
             item.addEventListener('mouseleave', function() {
                 const index = parseInt(this.getAttribute('data-index'));
                 state.chart.setActiveElements([]);
@@ -2364,7 +2367,7 @@
                 if (currentLegend) currentLegend.style.opacity = 1;
                 if (valueKapital) valueKapital.textContent = formatCurrency(kwota);
                 if (valueOdsetki) valueOdsetki.textContent = formatCurrency(odsetkiCalkowite);
-                if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(podatekCalkowity);
+                if (valuePodatek) valuePodatek.textContent = state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(state.podatekCalkowity);
             });
         });
     
@@ -2399,12 +2402,15 @@
             const hasStar = state.harmonogramData.some(wiersz => wiersz.changeApplied);
             const starText = hasStar ? '<span class="star">★</span><strong> Zmiana oprocentowania.</strong><br>' : "";
             const baseText = "** <strong>Opłata maksymalna za wcześniejszy wykup</strong>, jeżeli wartość narosłych odsetek jest większa od opłaty za wcześniejszy wykup, w przeciwnym wypadku opłata będzie do wartości narosłych odsetek.";
-            const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>." : "";
+            const ikeIkzeText = state.isIkeIkzeMode ? "<br>*** Podatek wyniesie <strong>0 zł</strong> po osiągnięciu <strong>wieku emerytalnego</strong> i <strong>55 roku życia</strong> lub <strong>60 roku życia</strong> w przypadku <strong>IKE</strong> oraz <strong>10 % zryczałtowanego podatku</strong> po osiągnięciu <strong>65 roku życia</strong> w przypadku <strong>IKZE</strong>.";
             harmonogramOpis.innerHTML = `${starText}${baseText}${ikeIkzeText}`;
             harmonogramOpis.style.display = "block";
         }
     
-        const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)));
+        const maxKwotaPoCyklu = Math.max(...state.harmonogramData.map(wiersz => {
+            const cleanedValue = wiersz.kwotaPoZakonczeniuCyklu.replace(/[^\d,.]/g, "").replace(",", ".");
+            return parseFloat(cleanedValue) || 0;
+        }));
         const minKwota = kwota;
         const range = maxKwotaPoCyklu - minKwota;
         const padding = range * 0.1;
@@ -2414,13 +2420,12 @@
     
         const ctxLine = elements.obligacjeChartLine.getContext("2d");
         const isDarkMode = document.body.classList.contains('dark-mode');
-        
-        // Dynamiczne ustawienie rozmiaru czcionek w zależności od szerokości ekranu
+    
         const screenWidth = window.innerWidth;
-        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14; // Mobile: 10px, Tablet: 12px, Desktop: 14px
-        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;  // Mobile: 8px, Tablet: 10px, Desktop: 12px
-        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12; // Mobile: 8px, Tablet: 10px, Desktop: 12px
-        
+        const titleFontSize = screenWidth <= 480 ? 10 : screenWidth <= 768 ? 12 : 14;
+        const tickFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
+        const legendFontSize = screenWidth <= 480 ? 8 : screenWidth <= 768 ? 10 : 12;
+    
         state.chartLine = new Chart(ctxLine, {
             type: 'line',
             data: {
@@ -2437,7 +2442,10 @@
                     },
                     {
                         label: 'Kwota po zakończeniu cyklu',
-                        data: state.harmonogramData.map(wiersz => parseFloat(wiersz.kwotaPoZakonczeniuCyklu)),
+                        data: state.harmonogramData.map(wiersz => {
+                            const cleanedValue = wiersz.kwotaPoZakonczeniuCyklu.replace(/[^\d,.]/g, "").replace(",", ".");
+                            return parseFloat(cleanedValue) || 0;
+                        }),
                         borderColor: '#D4C791',
                         backgroundColor: 'rgba(212, 199, 145, 0.2)',
                         fill: true,
@@ -2450,20 +2458,20 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { 
-                        title: { 
-                            display: true, 
-                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)', 
-                            font: { size: titleFontSize }, // Dynamiczny rozmiar
+                    x: {
+                        title: {
+                            display: true,
+                            text: ["OTS", "ROR", "DOR"].includes(typ) ? 'Okres (miesiące)' : 'Okres (lata)',
+                            font: { size: titleFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }, 
-                        ticks: { 
-                            font: { size: tickFontSize }, // Dynamiczny rozmiar
+                        },
+                        ticks: {
+                            font: { size: tickFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333',
-                            maxRotation: 45, // Obrót etykiet dla małych ekranów
+                            maxRotation: 45,
                             minRotation: 0,
-                            autoSkip: true, // Automatyczne pomijanie etykiet
-                            maxTicksLimit: 10 // Ograniczenie liczby etykiet
+                            autoSkip: true,
+                            maxTicksLimit: 10
                         },
                         grid: {
                             color: isDarkMode ? '#333333' : '#e0e0e0',
@@ -2477,14 +2485,14 @@
                             font: { size: titleFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333'
                         },
-                        min: yMin,
-                        max: yMax,
+                        min: Math.floor(yMin / 100) * 100,
+                        max: Math.ceil(yMax / 100) * 100,
                         ticks: {
-                            stepSize: stepSize,
+                            stepSize: Math.ceil(stepSize / 100) * 100,
                             font: { size: tickFontSize },
                             color: isDarkMode ? '#e0e0e0' : '#333333',
                             callback: function(value) {
-                                return value.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' zł';
+                                return formatCurrency(value, false);
                             }
                         },
                         grid: {
@@ -2512,17 +2520,6 @@
         console.log("ObliczObligacje completed");
     }
 
-    const backgroundPlugin = {
-        id: 'customBackground',
-        beforeDraw: (chart, args, options) => {
-            const ctx = chart.ctx;
-            ctx.save();
-            ctx.fillStyle = options.color || '#ffffff'; // Domyślnie białe tło
-            ctx.fillRect(0, 0, chart.width, chart.height);
-            ctx.restore();
-        }
-    };
-
      // G E N E R O W A N I E   P L I K U   P D F
     
     function generatePdf() {
@@ -2538,11 +2535,6 @@
             return;
         }
     
-        const valueKapital = document.getElementById("valueKapital");
-        const valueOdsetki = document.getElementById("valueOdsetki");
-        const valuePodatek = document.getElementById("valuePodatek");
-        const zyskNetto = document.getElementById("zyskNetto");
-    
         const typ = state.lastFormData.typObligacji;
         if (!typ) {
             console.error("Brak typu obligacji w state.lastFormData.typObligacji");
@@ -2556,18 +2548,12 @@
         const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
         const today = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
     
-        const parseNumber = (text) => {
-            const cleaned = text.replace(/[^\d,.]/g, "").replace(",", ".");
-            const number = parseFloat(cleaned);
-            return isNaN(number) ? 0 : number;
-        };
-    
         const summary = [
-            { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: `${parseFloat(state.lastFormData.kwota).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
-            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: `${parseNumber(valueOdsetki.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] },
-            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: `${state.isIkeIkzeMode ? "0,00 zł***" : parseNumber(valuePodatek.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł"}`, style: 'listItemBold' }] },
+            { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: formatCurrency(state.lastFormData.kwota), style: 'listItemBold' }] },
+            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: formatCurrency(state.odsetkiCalkowite), style: 'listItemBold' }] },
+            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: state.isIkeIkzeMode ? formatCurrency(0) + "***" : formatCurrency(state.podatekCalkowity), style: 'listItemBold' }] },
             { text: [{ text: "Okres inwestycji: ", style: 'listItem' }, { text: `${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'listItemBold' }] },
-            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: `${parseNumber(zyskNetto.textContent).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`, style: 'listItemBold' }] }
+            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: formatCurrency(state.zyskNettoCalkowity), style: 'listItemBold' }] }
         ];
     
         const headers = ["OTS", "ROR", "DOR"].includes(typ)
@@ -2575,58 +2561,52 @@
             : ["Rok", "Wartość inwestycji", "Oproc.", "Odsetki", "Suma odsetek", "Podatek", state.isIkeIkzeMode ? "Zysk" : "Zysk netto", "Opłata za wykup", "Inflacja", "Suma netto"];
         if (["OTS", "TOS"].includes(typ)) headers.splice(8, 1);
     
-        const safeParseFloat = (value) => isNaN(parseFloat(value)) ? 0 : parseFloat(value);
-    
         const tableData = state.harmonogramData.map(wiersz => {
             const row = [
                 (wiersz.okres || 0).toString(),
-                `${safeParseFloat(wiersz.wartoscInwestycji).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl || '0%'}`,
-                `${safeParseFloat(wiersz.odsetkiBrutto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.skumulowaneOdsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                state.isIkeIkzeMode ? "0,00 zł***" : `${safeParseFloat(wiersz.podatek).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.zyskNetto).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`,
-                `${safeParseFloat(wiersz.oplataZaWykup).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł**`
+                wiersz.wartoscInwestycji,
+                `${wiersz.changeApplied ? '★ ' : ''}${wiersz.oprocentowanieNaCykl}`,
+                wiersz.odsetkiBrutto,
+                wiersz.skumulowaneOdsetki,
+                state.isIkeIkzeMode ? "0,00 zł***" : wiersz.podatek,
+                wiersz.zyskNetto,
+                wiersz.oplataZaWykup + "**"
             ];
             if (!["OTS", "TOS"].includes(typ)) {
-                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja || '0%'}`);
+                row.push(`${wiersz.changeApplied ? '★ ' : ''}${wiersz.stopaRefLubInflacja}`);
             }
-            row.push(`${safeParseFloat(wiersz.kwotaPoZakonczeniuCyklu).toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+            row.push(wiersz.kwotaPoZakonczeniuCyklu);
             return row;
         });
     
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
-            const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const leftMargin = 14.17; // 0,5 cm z lewej (bez zmian)
-            const rightMargin = 65.19; // 2,3 cm z prawej (zwiększone o 4 mm)
-            const totalMargin = leftMargin + rightMargin; // Suma marginesów bocznych
-            const availableWidth = pageWidth - totalMargin; // Dostępna szerokość strony
+            const pageWidth = 595.28;
+            const leftMargin = 14.17;
+            const rightMargin = 65.19;
+            const totalMargin = leftMargin + rightMargin;
+            const availableWidth = pageWidth - totalMargin;
     
             console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
             console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
             console.log(`Dostępna szerokość: ${availableWidth} punktów`);
     
-            // Oblicz maksymalne długości dla nagłówków i wierszy
             const headerLengths = headers.map(header => header.length);
             const contentLengths = headers.map((_, colIndex) => {
                 const maxLength = Math.max(...allRows.slice(1).map(row => row[colIndex] ? row[colIndex].length : 0));
                 return maxLength;
             });
     
-            // Weź pod uwagę zarówno nagłówki, jak i zawartość, z minimalną szerokością
             const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
             const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
     
-            // Ustaw minimalną szerokość kolumny
-            const minWidth = 40; // Minimalna szerokość kolumny, aby nagłówki mogły się zawijać
+            const minWidth = 40;
             const columnWidths = maxLengths.map(length => {
                 const proportion = length / totalLength;
                 const calculatedWidth = proportion * availableWidth;
-                return Math.max(minWidth, calculatedWidth); // Zapewnia minimalną szerokość
+                return Math.max(minWidth, calculatedWidth);
             });
     
-            // Upewnij się, że suma szerokości kolumn dokładnie odpowiada dostępnej szerokości
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
             const adjustmentFactor = availableWidth / totalCalculatedWidth;
             return columnWidths.map(width => width * adjustmentFactor);
@@ -2764,8 +2744,8 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                pageMargins: [14.17, 60, 65.19, 20], // 0,5 cm z lewej, 2,3 cm z prawej
-                                margin: [14.17, 0, 65.19, 0], // Ręczne ustawienie marginesów tabeli
+                                pageMargins: [14.17, 60, 65.19, 20],
+                                margin: [14.17, 0, 65.19, 0],
                                 alignment: 'center'
                             },
                             { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10], pageMargins: [14.17, 60, 14.17, 20] }
