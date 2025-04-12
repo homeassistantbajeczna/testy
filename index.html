@@ -2820,8 +2820,7 @@
         }
     });
 
-    // D A R K     M O D E
-    
+    // D A R K   M O D E
     function toggleDarkMode() {
         const body = document.body;
         const isDarkMode = body.classList.contains('dark-mode');
@@ -2837,23 +2836,10 @@
             localStorage.setItem('theme', 'dark');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         }
-    }
     
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        } else {
-            document.body.classList.add('light-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        }
-    }
-    
-    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
-        toggleDarkMode();
+        // Aktualizacja wykresu
         if (state.chartLine) {
-            const isDarkMode = document.body.classList.contains('dark-mode');
+            const isDarkMode = body.classList.contains('dark-mode');
             state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
@@ -2865,11 +2851,47 @@
             state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
             state.chartLine.update();
         }
-    });
-    
-    initializeTheme();
-
     }
+    
+    function initializeTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            body.classList.remove('light-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        } else {
+            body.classList.add('light-mode');
+            body.classList.remove('dark-mode');
+            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        }
+    
+        // Inicjalizacja wykresu
+        if (state.chartLine) {
+            const isDarkMode = body.classList.contains('dark-mode');
+            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
+            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
+            state.chartLine.update();
+        }
+    }
+    
+    // Inicjalizacja po załadowaniu DOM
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleButton = document.getElementById('toggleDarkModeBtn');
+        if (toggleButton) {
+            toggleButton.addEventListener('click', toggleDarkMode);
+        } else {
+            console.warn("Przycisk #toggleDarkModeBtn nie znaleziony w DOM.");
+        }
+        initializeTheme();
+    });
         
 </script>
 </body>
