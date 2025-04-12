@@ -2053,13 +2053,13 @@
         const calculateColumnWidths = () => {
             const allRows = tableData.length ? [headers, ...tableData] : [headers];
             const pageWidth = 595.28;
-            const leftMargin = 14.17;
-            const rightMargin = 65.19;
+            const leftMargin = 29.17; // Nowy margines lewy
+            const rightMargin = 29.17; // Nowy margines prawy
             const totalMargin = leftMargin + rightMargin;
             const availableWidth = pageWidth - totalMargin;
     
-            console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
-            console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
+            console.log(`Lewy margines: ${leftMargin} punktów`);
+            console.log(`Prawy margines: ${rightMargin} punktów`);
             console.log(`Dostępna szerokość: ${availableWidth} punktów`);
     
             const headerLengths = headers.map(header => header.length);
@@ -2071,11 +2071,12 @@
             const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
             const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
     
-            const minWidth = 40;
+            const minWidth = 40; // Minimalna szerokość kolumny
+            const maxWidth = 100; // Maksymalna szerokość kolumny
             const columnWidths = maxLengths.map(length => {
                 const proportion = length / totalLength;
                 const calculatedWidth = proportion * availableWidth;
-                return Math.max(minWidth, calculatedWidth);
+                return Math.min(maxWidth, Math.max(minWidth, calculatedWidth));
             });
     
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
@@ -2234,7 +2235,7 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [14.17, 80, 65.19, 40], // Domyślne marginesy dla całej strony
+                    pageMargins: [29.17, 80, 29.17, 40], // Symetryczne marginesy dla całej strony
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         margin: [40, 20, 40, 0],
@@ -2279,11 +2280,11 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                width: 515.92,
-                                margin: [14.17, 0, 65.19, 0],
+                                width: 536.94, // Dostępna szerokość przy marginesach [29.17, 29.17]
+                                margin: [0, 0, 0, 0], // Brak dodatkowych marginesów, bo pageMargins już to kontroluje
                                 alignment: 'center'
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
+                            { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] }
                         ] : []),
                         {
                             stack: [
@@ -2295,13 +2296,13 @@
                                 },
                                 { 
                                     image: lineChartImage, 
-                                    width: 536.94, // Dostępna szerokość przy nowych marginesach [29.17, 29.17]
+                                    width: 536.94, // Dostępna szerokość przy marginesach [29.17, 29.17]
                                     height: 250, 
                                     alignment: 'center',
                                     margin: [0, 0, 0, 10] // Marginesy wewnętrzne w stack
                                 }
                             ],
-                            pageMargins: [29.17, 80, 29.17, 40], // Zwiększone marginesy dla sekcji wykresu (symetryczne)
+                            pageMargins: [29.17, 80, 29.17, 40], // Symetryczne marginesy dla sekcji wykresu
                             margin: [0, 0, 0, 0], // Brak dodatkowych marginesów zewnętrznych
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
