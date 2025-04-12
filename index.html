@@ -1624,22 +1624,41 @@
     });
     
     // Zaktualizowane zdarzenia dla kwota i kwotaRange
-    elements.kwotaRange.addEventListener("input", () => { 
+    elements.dynamicRate.addEventListener("input", () => { 
+        let value = parseFloat(elements.dynamicRate.value) || 0;
+        if (value < 0.1) value = 0.1; // Minimalna wartość 0,1
+        elements.dynamicRate.value = value;
+        elements.dynamicRateRange.value = value; // Synchronizacja suwaka
+        const typ = elements.typObligacji.value;
+        state.lastFormData.dynamicRates[typ] = value;
+    });
+    
+    // Punkt 3: Nowe zdarzenia dla kwota i kwotaRange
+    // Zdarzenie `input` dla kwota - tylko ograniczenie znaków
+    elements.kwota.addEventListener("input", (e) => {
+        restrictInputToNumbers(e);
+    });
+    
+    // Zdarzenie `blur` dla kwota - walidacja i zaokrąglanie po opuszczeniu pola
+    elements.kwota.addEventListener("blur", () => {
+        validateAndRoundKwota();
+    });
+    
+    // Zdarzenie `change` dla kwota - dodatkowe zabezpieczenie
+    elements.kwota.addEventListener("change", () => {
+        validateAndRoundKwota();
+    });
+    
+    // Zdarzenie `input` dla kwotaRange - synchronizacja z polem kwota
+    elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        if (value < 100) value = 100;
-        if (value > 10000000) value = 10000000;
-        elements.kwota.value = value;
-        elements.kwotaRange.value = value; // Synchronizacja suwaka
+        elements.kwota.value = value; // Synchronizacja pola tekstowego
         updateIloscObligacji();
     });
     
-    elements.kwota.addEventListener("input", () => { 
-        let value = parseFloat(elements.kwota.value) || 0; // Domyślnie 0, jeśli niepoprawna wartość
-        if (value < 100) value = 100;
-        if (value > 10000000) value = 10000000;
-        elements.kwota.value = value;
-        elements.kwotaRange.value = value; // Synchronizacja suwaka
-        updateIloscObligacji();
+    // Zdarzenie `change` dla kwotaRange - walidacja i zaokrąglanie po zakończeniu przesuwania suwaka
+    elements.kwotaRange.addEventListener("change", () => {
+        validateAndRoundKwota();
     });
     
     elements.typObligacji.addEventListener("change", updateDynamicRateField);
@@ -1670,7 +1689,13 @@
         updateVariableInputs(); 
     });
     
-    elements.obliczBtn.addEventListener("click", () => { console.log("Oblicz clicked"); obliczObligacje(); });
+    // Punkt 4: Nowe zdarzenie dla obliczBtn
+    elements.obliczBtn.addEventListener("click", () => {
+        console.log("Oblicz clicked");
+        validateAndRoundKwota(); // Walidacja i zaokrąglanie przed obliczeniami
+        obliczObligacje();
+    });
+    
     elements.addVariableBtn.addEventListener("click", () => { console.log("AddVariable clicked"); addVariableChange(); });
     elements.generatePdfBtn.addEventListener("click", () => { console.log("GeneratePdf clicked"); generatePdf(); });
 
@@ -1791,6 +1816,25 @@
     }
 
     // F U N K C J E   P O M O C N I C Z E
+
+    function restrictInputToNumbers(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Pozwalamy tylko na cyfry
+    }
+
+    function validateAndRoundKwota() {
+        let value = parseFloat(elements.kwota.value) || 0;
+        if (value < 100) {
+            value = 100; // Minimalna wartość
+        }
+        if (value > 10000000) {
+            value = 10000000; // Maksymalna wartość
+        }
+        value = Math.round(value / 100) * 100; // Zaokrąglanie do pełnych 100
+        elements.kwota.value = value;
+        elements.kwotaRange.value = value; // Synchronizacja suwaka
+        state.lastFormData.kwota = value; // Aktualizacja stanu
+        updateIloscObligacji(); // Aktualizacja ilości obligacji
+    }
     
     // Funkcja updateIloscObligacji pozostaje bez zmian
     function updateIloscObligacji() {
@@ -1889,7 +1933,7 @@
         elements.resultSection.style.display = "none";
     
         elements.kwota.value = state.lastFormData.kwota;
-        elements.kwotaRange.value = state.lastFormData.kwota;
+        validateAndRoundKwota(); // Upewniamy się, że wartość jest zaokrąglona
         elements.okres.value = state.lastFormData.okres;
         elements.oprocentowanie.value = state.lastFormData.oprocentowanie;
         elements.ikeIkzeBtn.checked = state.lastFormData.ikeIkze;
@@ -1903,7 +1947,7 @@
         updateLata();
         updateOprocentowanieInfo();
         updateOpisObligacji();
-        updateVariableInputs(); // Aktualizujemy pola zmiennych na podstawie danych z state
+        updateVariableInputs();
     }
 
     function updateVariableInputs() {
