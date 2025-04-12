@@ -2090,7 +2090,7 @@
         const lineChartCanvas = document.getElementById("lokatyChartLine");
     
         // Ustawienie szerokości canvasu dla wykresu
-        const chartWidth = 566.94; // Dostępna szerokość strony przy nowych marginesach [14.17, 14.17]
+        const chartWidth = 536.94; // Dostępna szerokość strony przy nowych marginesach [29.17, 29.17]
         const chartHeight = 250;
         lineChartCanvas.width = chartWidth;
         lineChartCanvas.height = chartHeight;
@@ -2106,6 +2106,7 @@
         const originalMinX = state.chartLine.options.scales.x.min;
         const originalMaxX = state.chartLine.options.scales.x.max;
         const originalOffsetX = state.chartLine.options.scales.x.offset;
+        const originalTicksX = JSON.parse(JSON.stringify(state.chartLine.options.scales.x.ticks || {}));
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2121,17 +2122,25 @@
     
         // Modyfikacja opcji
         state.chartLine.options.layout.padding = {
-            left: 50, // Padding z lewej dla etykiet osi Y
-            right: 20, // Padding z prawej
+            left: 70, // Zwiększony padding z lewej dla etykiet osi Y
+            right: 40, // Zwiększony padding z prawej dla ostatniego punktu
             top: 30, // Padding u góry dla legendy
             bottom: 20 // Padding na dole dla etykiet osi X
         };
     
-        // Modyfikacja tylko konkretnych właściwości osi X, bez nadpisywania całego obiektu
+        // Modyfikacja tylko konkretnych właściwości osi X
         const dataLength = state.harmonogramData.length;
-        state.chartLine.options.scales.x.min = -0.5;
-        state.chartLine.options.scales.x.max = dataLength - 0.5;
+        state.chartLine.options.scales.x.min = -0.7; // Dodajemy więcej miejsca na początku
+        state.chartLine.options.scales.x.max = dataLength - 0.3; // Dodajemy więcej miejsca na końcu
         state.chartLine.options.scales.x.offset = false;
+    
+        // Ustawienie etykiet osi X, aby wyświetlały wszystkie wartości
+        state.chartLine.options.scales.x.ticks = {
+            ...state.chartLine.options.scales.x.ticks,
+            stepSize: 1, // Krok co 1, aby wyświetlić każdą wartość
+            autoSkip: false, // Wyłączamy pomijanie etykiet
+            maxTicksLimit: dataLength // Maksymalna liczba etykiet równa liczbie danych
+        };
     
         // Ustawianie kolorów
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
@@ -2162,6 +2171,7 @@
             state.chartLine.options.scales.x.min = originalMinX;
             state.chartLine.options.scales.x.max = originalMaxX;
             state.chartLine.options.scales.x.offset = originalOffsetX;
+            state.chartLine.options.scales.x.ticks = originalTicksX;
             state.chartLine.options.responsive = true;
             state.chartLine.options.maintainAspectRatio = true;
             state.chartLine.update();
@@ -2285,13 +2295,13 @@
                                 },
                                 { 
                                     image: lineChartImage, 
-                                    width: 566.94, // Dostępna szerokość przy nowych marginesach [14.17, 14.17]
+                                    width: 536.94, // Dostępna szerokość przy nowych marginesach [29.17, 29.17]
                                     height: 250, 
                                     alignment: 'center',
                                     margin: [0, 0, 0, 10] // Marginesy wewnętrzne w stack
                                 }
                             ],
-                            pageMargins: [14.17, 80, 14.17, 40], // Nowe marginesy dla sekcji wykresu (symetryczne)
+                            pageMargins: [29.17, 80, 29.17, 40], // Zwiększone marginesy dla sekcji wykresu (symetryczne)
                             margin: [0, 0, 0, 0], // Brak dodatkowych marginesów zewnętrznych
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
