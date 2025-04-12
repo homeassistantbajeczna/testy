@@ -2125,7 +2125,7 @@
         const number = parseFloat(value);
         if (isNaN(number)) return "0,00";
     
-        if (number < 10000) {
+        if (number <= 100000000) {
             // Dla liczb < 10000 używamy toLocaleString z grupowaniem (spacje)
             return number.toLocaleString('pl-PL', {
                 minimumFractionDigits: 2,
