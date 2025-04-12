@@ -2378,7 +2378,7 @@
                         <td>${wiersz.changeApplied ? '<span class="star">★</span>' : ''}${wiersz.oprocentowanieNaCykl}</td>
                         <td>${formatCurrency(wiersz.odsetkiBrutto)}</td>
                         <td>${formatCurrency(wiersz.skumulowaneOdsetki)}</td>
-                        <td>${state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(wiersz.podatek)}</td>
+                        <td>${state.isIkeIkzeMode ? formatCurrency(0) + "***" : formatCurrency(wiersz.podatek)}</td>
                         <td>${formatCurrency(wiersz.zyskNetto)}</td>
                         <td>${formatCurrency(wiersz.oplataZaWykup)}**</td>
                 `;
@@ -2563,10 +2563,10 @@
         
         const summary = [
             { text: [{ text: "Kapitał: ", style: 'listItem' }, { text: formatCurrency(state.lastFormData.kwota), style: 'listItemBold' }] },
-            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: formatCurrency(parseNumber(valueOdsetki.textContent)), style: 'listItemBold' }] },
-            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: state.isIkeIkzeMode ? "0,00 zł***" : formatCurrency(parseNumber(valuePodatek.textContent)), style: 'listItemBold' }] },
+            { text: [{ text: "Odsetki: ", style: 'listItem' }, { text: formatCurrency(odsetkiCalkowite), style: 'listItemBold' }] },
+            { text: [{ text: "Podatek: ", style: 'listItem' }, { text: state.isIkeIkzeMode ? formatCurrency(0) + "***" : formatCurrency(podatekCalkowity), style: 'listItemBold' }] },
             { text: [{ text: "Okres inwestycji: ", style: 'listItem' }, { text: `${state.lastFormData.okres} ${jednostkaOkresu}`, style: 'listItemBold' }] },
-            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: formatCurrency(parseNumber(zyskNetto.textContent)), style: 'listItemBold' }] }
+            { text: [{ text: "Zysk netto: ", style: 'listItem' }, { text: formatCurrency(zyskNettoCalkowity), style: 'listItemBold' }] }
         ];
     
         const headers = ["OTS", "ROR", "DOR"].includes(typ)
