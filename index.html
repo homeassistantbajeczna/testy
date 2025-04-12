@@ -2503,7 +2503,8 @@
         }
     };
 
-    // G E N E R O W A N I E   P L I K U   P D F
+    //F U N K C J A     G E N E R O W A N I A     P D F
+    
     function generatePdf() {
         console.log("Starting generatePdf");
         if (typeof pdfMake === "undefined") {
@@ -2540,7 +2541,6 @@
             return isNaN(number) ? 0 : number;
         };
     
-        // Oblicz zysk netto z harmonogramu, aby uniknąć zależności od DOM
         const zyskNettoCalkowity = state.harmonogramData.reduce((sum, wiersz) => sum + parseFloat(wiersz.zyskNetto), 0);
     
         const summary = [
@@ -2569,7 +2569,6 @@
             return row;
         });
     
-        // Definicja nagłówków tabeli
         const headers = ["Okres", "Wartość inwestycji", "Oprocentowanie", "Odsetki brutto", "Skumulowane odsetki", "Podatek", "Zysk netto", "Opłata za wykup"];
         if (!["OTS", "TOS"].includes(typ)) {
             headers.push("Inflacja/Stopa Ref.");
@@ -2578,15 +2577,11 @@
     
         const calculateColumnWidths = () => {
             const allRows = [headers, ...tableData];
-            const pageWidth = 595.28; // Szerokość strony A4 w punktach
-            const leftMargin = 14.17; // 0,5 cm z lewej
-            const rightMargin = 65.19; // 2,3 cm z prawej
+            const pageWidth = 595.28;
+            const leftMargin = 14.17;
+            const rightMargin = 65.19;
             const totalMargin = leftMargin + rightMargin;
             const availableWidth = pageWidth - totalMargin;
-    
-            console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
-            console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
-            console.log(`Dostępna szerokość: ${availableWidth} punktów`);
     
             const headerLengths = headers.map(header => header.length);
             const contentLengths = headers.map((_, colIndex) => {
@@ -2611,6 +2606,12 @@
     
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("obligacjeChartLine");
+    
+        if (!state.chartLine || !lineChartCanvas) {
+            console.error("Brak wykresu liniowego lub canvasa. Wykonaj najpierw obliczenia.");
+            alert("Błąd: Wykres liniowy nie jest dostępny. Wykonaj obliczenia ponownie.");
+            return;
+        }
     
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
@@ -2708,7 +2709,7 @@
                             { text: opis.replace(/<[^>]+>/g, ""), style: 'subheader', margin: [40, 10, 40, 10] },
                             { text: "Podsumowanie:", style: 'sectionHeader', margin: [40, 10, 0, 5] },
                             { ul: summary, margin: [40, 0, 0, 10] },
-                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5], pageMargins: [14.17, 60, 14.17, 20] },
+                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [0, 10, 0, 5] },
                             {
                                 table: {
                                     headerRows: 1,
@@ -2727,11 +2728,10 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                pageMargins: [14.17, 60, 65.19, 20],
                                 margin: [14.17, 0, 65.19, 0],
                                 alignment: 'center'
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10], pageMargins: [14.17, 60, 14.17, 20] },
+                            { text: footerNoteText, style: 'footerNote', margin: [40, 5, 40, 10] },
                             {
                                 text: "Wykres liniowy wartości inwestycji w czasie",
                                 style: 'sectionHeader',
@@ -2756,7 +2756,6 @@
                     pdfMake.createPdf(docDefinition).download(`Wynik_inwestycji_${nazwaObligacji.replace(/\s+/g, "_")}_${today.replace(/\./g, '-')}.pdf`);
                 };
     
-                // Weryfikacja ścieżki do logo – upewnij się, że plik istnieje w folderze publicznym lub podaj pełny URL
                 getBase64ImageFromUrl('cropped-logo-FB-1.png')
                     .then(logoData => generateDoc(logoData))
                     .catch(error => {
@@ -2765,29 +2764,20 @@
                     });
             });
         } finally {
-            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
-            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
-            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
-            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
-            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
-            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
-            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
-            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
-            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.update();
+            if (state.chartLine) {
+                state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
+                state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
+                state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
+                state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
+                state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
+                state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
+                state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
+                state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
+                state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
+                state.chartLine.update();
+            }
         }
     }
-    
-    const backgroundPlugin = {
-        id: 'customBackground',
-        beforeDraw: (chart, args, options) => {
-            const ctx = chart.ctx;
-            ctx.save();
-            ctx.fillStyle = options.color || '#ffffff';
-            ctx.fillRect(0, 0, chart.width, chart.height);
-            ctx.restore();
-        }
-    };
     
     // F U N K C J A      Z O O M
 
