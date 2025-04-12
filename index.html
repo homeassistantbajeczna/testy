@@ -2125,7 +2125,13 @@
     function formatCurrency(value) {
         const num = parseFloat(value);
         if (isNaN(num)) return "0,00 zł";
-        return num.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+        
+        // Używamy Intl.NumberFormat dla spójnego formatowania
+        const formatter = new Intl.NumberFormat('pl-PL', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        return formatter.format(num) + " zł";
     }
     
     function obliczObligacje() {
