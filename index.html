@@ -684,16 +684,16 @@
             document.body.appendChild(calculatorBox);
             calculatorBox.classList.add('dragging');
 
-            // Oblicz aktualną pozycję kalkulatora
+            // Oblicz aktualną pozycję kalkulatora z uwzględnieniem zoomu
             const calcRect = calculatorBox.getBoundingClientRect();
-            const currentX = calcRect.left + window.scrollX;
-            const currentY = calcRect.top + window.scrollY;
+            const currentX = (calcRect.left + window.scrollX) / currentZoom;
+            const currentY = (calcRect.top + window.scrollY) / currentZoom;
 
             calculatorBox.style.left = currentX + 'px';
             calculatorBox.style.top = currentY + 'px';
 
-            initialX = e.clientX - currentX;
-            initialY = e.clientY - currentY;
+            initialX = e.clientX / currentZoom - currentX;
+            initialY = e.clientY / currentZoom - currentY;
             calculatorBox.style.cursor = 'grabbing';
             e.preventDefault();
         }
@@ -702,13 +702,13 @@
     document.addEventListener('mousemove', (e) => {
         if (isDragging) {
             e.preventDefault();
-            const newX = e.clientX - initialX;
-            const newY = e.clientY - initialY;
+            const newX = (e.clientX / currentZoom) - initialX;
+            const newY = (e.clientY / currentZoom) - initialY;
 
-            const windowWidth = window.innerWidth;
+            const windowWidth = window.innerWidth / currentZoom;
             const calcWidth = calculatorBox.offsetWidth;
             const calcHeight = calculatorBox.offsetHeight;
-            const documentHeight = document.documentElement.scrollHeight;
+            const documentHeight = document.documentElement.scrollHeight / currentZoom;
 
             const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
             const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
@@ -732,17 +732,17 @@
             document.body.appendChild(calculatorBox);
             calculatorBox.classList.add('dragging');
 
-            // Oblicz aktualną pozycję kalkulatora
+            // Oblicz aktualną pozycję kalkulatora z uwzględnieniem zoomu
             const calcRect = calculatorBox.getBoundingClientRect();
-            const currentX = calcRect.left + window.scrollX;
-            const currentY = calcRect.top + window.scrollY;
+            const currentX = (calcRect.left + window.scrollX) / currentZoom;
+            const currentY = (calcRect.top + window.scrollY) / currentZoom;
 
             calculatorBox.style.left = currentX + 'px';
             calculatorBox.style.top = currentY + 'px';
 
             const touch = e.touches[0];
-            initialX = touch.clientX - currentX;
-            initialY = touch.clientY - currentY;
+            initialX = (touch.clientX / currentZoom) - currentX;
+            initialY = (touch.clientY / currentZoom) - currentY;
             e.preventDefault();
         }
     });
@@ -751,13 +751,13 @@
         if (isDragging) {
             e.preventDefault();
             const touch = e.touches[0];
-            const newX = touch.clientX - initialX;
-            const newY = touch.clientY - initialY;
+            const newX = (touch.clientX / currentZoom) - initialX;
+            const newY = (touch.clientY / currentZoom) - initialY;
 
-            const windowWidth = window.innerWidth;
+            const windowWidth = window.innerWidth / currentZoom;
             const calcWidth = calculatorBox.offsetWidth;
             const calcHeight = calculatorBox.offsetHeight;
-            const documentHeight = document.documentElement.scrollHeight;
+            const documentHeight = document.documentElement.scrollHeight / currentZoom;
 
             const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
             const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
@@ -789,8 +789,8 @@
             const zoomRatio = previousZoom / currentZoom;
             const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
             const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
-            calculatorBox.style.left = newX + 'px';
-            calculatorBox.style.top = newY + 'px';
+            calculatorBox.style.left = (newX / currentZoom) + 'px';
+            calculatorBox.style.top = (newY / currentZoom) + 'px';
         }
     }
 </script>
