@@ -66,37 +66,9 @@
 
         <!-- Sekcja prawa - Kalkulator, Praca, Pozostałe -->
         <section class="sidebar right-sidebar">
-            <!-- Okienko Kalkulator -->
-            <div class="sidebar-box draggable" id="calculatorBox">
+            <!-- Placeholder dla kalkulatora -->
+            <div id="calculatorPlaceholder" class="sidebar-box placeholder">
                 <h3 class="sidebar-header">Kalkulator</h3>
-                <div class="calculator">
-                    <input type="text" id="calcDisplay" readonly>
-                    <div class="calc-buttons">
-                        <button class="calc-btn calc-clear">C</button>
-                        <button class="calc-btn calc-operation">±</button>
-                        <button class="calc-btn calc-operation">%</button>
-                        <button class="calc-btn calc-operation">/</button>
-
-                        <button class="calc-btn calc-number">7</button>
-                        <button class="calc-btn calc-number">8</button>
-                        <button class="calc-btn calc-number">9</button>
-                        <button class="calc-btn calc-operation">*</button>
-
-                        <button class="calc-btn calc-number">4</button>
-                        <button class="calc-btn calc-number">5</button>
-                        <button class="calc-btn calc-number">6</button>
-                        <button class="calc-btn calc-operation">-</button>
-
-                        <button class="calc-btn calc-number">1</button>
-                        <button class="calc-btn calc-number">2</button>
-                        <button class="calc-btn calc-number">3</button>
-                        <button class="calc-btn calc-operation">+</button>
-
-                        <button class="calc-btn calc-number calc-zero">0</button>
-                        <button class="calc-btn calc-number">.</button>
-                        <button class="calc-btn calc-equals">=</button>
-                    </div>
-                </div>
             </div>
             <!-- Okienko Praca -->
             <div class="sidebar-box">
@@ -117,6 +89,39 @@
                 </div>
             </div>
         </section>
+
+        <!-- Kalkulator jako osobny element przeciągalny -->
+        <div class="sidebar-box draggable" id="calculatorBox">
+            <h3 class="sidebar-header">Kalkulator</h3>
+            <div class="calculator">
+                <input type="text" id="calcDisplay" readonly>
+                <div class="calc-buttons">
+                    <button class="calc-btn calc-clear">C</button>
+                    <button class="calc-btn calc-operation">±</button>
+                    <button class="calc-btn calc-operation">%</button>
+                    <button class="calc-btn calc-operation">/</button>
+
+                    <button class="calc-btn calc-number">7</button>
+                    <button class="calc-btn calc-number">8</button>
+                    <button class="calc-btn calc-number">9</button>
+                    <button class="calc-btn calc-operation">*</button>
+
+                    <button class="calc-btn calc-number">4</button>
+                    <button class="calc-btn calc-number">5</button>
+                    <button class="calc-btn calc-number">6</button>
+                    <button class="calc-btn calc-operation">-</button>
+
+                    <button class="calc-btn calc-number">1</button>
+                    <button class="calc-btn calc-number">2</button>
+                    <button class="calc-btn calc-number">3</button>
+                    <button class="calc-btn calc-operation">+</button>
+
+                    <button class="calc-btn calc-number calc-zero">0</button>
+                    <button class="calc-btn calc-number">.</button>
+                    <button class="calc-btn calc-equals">=</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 <style>
@@ -219,7 +224,7 @@
     .main-container {
         display: flex;
         flex-wrap: wrap;
-        max-width: 1400px;
+        max-width: 1200px; /* Zmniejszona maksymalna szerokość, aby były przestrzenie po bokach */
         margin: 0 auto;
         gap: 20px;
     }
@@ -227,8 +232,8 @@
     /* Sekcje boczne (lewa i prawa) */
     .sidebar {
         flex: 1;
-        min-width: 250px;
-        max-width: 300px;
+        min-width: 200px; /* Zmniejszona minimalna szerokość */
+        max-width: 250px; /* Zmniejszona maksymalna szerokość */
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -245,7 +250,7 @@
     /* Sekcja środkowa */
     .content-section {
         flex: 2;
-        min-width: 400px;
+        min-width: 350px; /* Zmniejszona minimalna szerokość */
         order: 2;
     }
 
@@ -255,7 +260,7 @@
         border-radius: 10px;
         box-shadow: 0 2px 4px var(--shadow-color);
         padding: 15px;
-        position: relative; /* Ważne dla pozycjonowania przeciągalnych elementów */
+        position: relative;
     }
 
     .sidebar-header {
@@ -265,13 +270,14 @@
         margin: -15px -15px 15px -15px;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        font-size: 1.1em;
+        font-size: 1em; /* Zmniejszona czcionka nagłówka */
         font-weight: 700;
         text-align: center;
     }
 
     .sidebar-content {
         padding: 5px 0;
+        font-size: 0.85em; /* Zmniejszona czcionka w treści */
     }
 
     .sidebar-content p {
@@ -391,6 +397,11 @@
         cursor: move;
         z-index: 1000;
         user-select: none;
+    }
+
+    /* Placeholder dla kalkulatora */
+    .placeholder {
+        visibility: hidden; /* Placeholder jest niewidoczny, ale zajmuje miejsce */
     }
 
     /* Responsywność */
@@ -614,11 +625,14 @@
 
     // Logika przeciągania kalkulatora
     const calculatorBox = document.getElementById('calculatorBox');
+    const calculatorPlaceholder = document.getElementById('calculatorPlaceholder');
     let isDragging = false;
     let currentX;
     let currentY;
     let initialX;
     let initialY;
+    let homeX; // Początkowa pozycja X
+    let homeY; // Początkowa pozycja Y
 
     calculatorBox.addEventListener('mousedown', (e) => {
         if (e.target.classList.contains('sidebar-header')) {
@@ -649,16 +663,23 @@
     });
 
     document.addEventListener('mouseup', () => {
-        isDragging = false;
+        if (isDragging) {
+            // Po puszczeniu myszy kalkulator wraca do początkowej pozycji
+            currentX = homeX;
+            currentY = homeY;
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
+            isDragging = false;
+        }
     });
 
     // Inicjalizacja pozycji kalkulatora
     function initializeCalculatorPosition() {
-        const rightSidebar = document.querySelector('.right-sidebar');
-        const sidebarBox = rightSidebar.querySelector('.sidebar-box');
-        const rect = sidebarBox.getBoundingClientRect();
-        currentX = rect.left;
-        currentY = rect.top;
+        const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
+        homeX = placeholderRect.left;
+        homeY = placeholderRect.top;
+        currentX = homeX;
+        currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
         calculatorBox.style.top = currentY + 'px';
     }
