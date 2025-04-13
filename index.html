@@ -2289,21 +2289,22 @@
                         {
                             stack: [
                                 { 
-                                    text: "Wykres liniowy wartości lokaty w czasie", 
-                                    style: 'sectionHeader', 
-                                    alignment: 'center', 
-                                    margin: [0, 20, 0, 10] // Marginesy wewnętrzne w stack
+                                    text: footerNoteText, 
+                                    style: 'footerNote', 
+                                    margin: [14.17, 5, 65.19, 10], // Wyrównanie z tabelą: lewy margines 14.17, prawy 65.19
+                                    pageMargins: [14.17, 60, 14.17, 20] 
                                 },
                                 { 
                                     image: lineChartImage, 
-                                    width: 536.94, // Dostępna szerokość przy marginesach [29.17, 29.17]
+                                    width: 500, 
                                     height: 250, 
-                                    alignment: 'center',
-                                    margin: [0, 0, 0, 10] // Marginesy wewnętrzne w stack
+                                    alignment: 'center', 
+                                    margin: [0, 5, 0, 0]
+                                    
                                 }
                             ],
-                            pageMargins: [29.17, 80, 29.17, 40], // Symetryczne marginesy dla sekcji wykresu
-                            margin: [0, 0, 0, 0], // Brak dodatkowych marginesów zewnętrznych
+                            pageMargins: [14.17, 60, 65.19, 20], // Marginesy tabeli
+                            margin: [14.17, 0, 65.19, 0], // Marginesy tabeli
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
                     ],
