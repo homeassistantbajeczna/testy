@@ -12,7 +12,21 @@
     <div class="logo-container">
         <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
         <div class="zoom-controls">
-            <button id="calcToggleBtn" class="btn btn-sm" aria-label="Otwórz kalkulator">🧮</button>
+            <button id="calcToggleBtn" class="btn btn-sm" aria-label="Otwórz kalkulator">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <rect x="6" y="6" width="12" height="4"/>
+                    <circle cx="7" cy="13" r="1"/>
+                    <circle cx="12" cy="13" r="1"/>
+                    <circle cx="17" cy="13" r="1"/>
+                    <circle cx="7" cy="16" r="1"/>
+                    <circle cx="12" cy="16" r="1"/>
+                    <circle cx="17" cy="16" r="1"/>
+                    <circle cx="7" cy="19" r="1"/>
+                    <circle cx="12" cy="19" r="1"/>
+                    <circle cx="17" cy="19" r="1"/>
+                </svg>
+            </button>
             <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
             <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
             <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
@@ -53,7 +67,7 @@
         <section class="content-section">
             <div class="content-box">
                 <h2>Witaj na Portalu Finansowym!</h2>
-                <p>Znajdziesz tutaj narzędzia i informacje, które pomogą Ci zarządzać finansami. Wybierz opcję z menu po lewej stronie lub skorzystaj z kalkulatora, klikając przycisk 🧮 u góry.</p>
+                <p>Znajdziesz tutaj narzędzia i informacje, które pomogą Ci zarządzać finansami. Wybierz opcję z menu po lewej stronie lub skorzystaj z kalkulatora, klikając przycisk z ikoną kalkulatora u góry.</p>
                 <h3>Przykładowy artykuł</h3>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                 <p><a href="#czytaj-wiecej">Czytaj więcej</a></p>
@@ -206,6 +220,12 @@
     .zoom-controls .btn:hover {
         background: var(--accent-gradient-end);
         transform: translateY(-1px);
+    }
+
+    .zoom-controls .btn svg {
+        width: 16px;
+        height: 16px;
+        stroke: var(--button-text);
     }
 
     .logo, #siteLogo {
