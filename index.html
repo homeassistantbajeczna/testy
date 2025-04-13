@@ -744,15 +744,12 @@
         const mainContainer = document.querySelector('.main-container');
         const containerRect = mainContainer.getBoundingClientRect();
 
-        // Oblicz pozycję placeholder'a względem dokumentu, uwzględniając zoom
         const placeholderX = placeholderRect.left + window.scrollX;
         const placeholderY = placeholderRect.top + window.scrollY;
 
-        // Oblicz pozycję względem kontenera .main-container, uwzględniając zoom
         const containerX = containerRect.left + window.scrollX;
         const containerY = containerRect.top + window.scrollY;
 
-        // Pozycja względem kontenera z uwzględnieniem zoomu
         homeX = (placeholderX - containerX) / currentZoom + containerX / currentZoom;
         homeY = (placeholderY - containerY) / currentZoom + containerY / currentZoom;
 
@@ -764,20 +761,26 @@
 
     // Inicjalizacja pozycji kalkulatora
     function initializeCalculatorPosition() {
+        // Poczekaj, aż DOM i obrazy zostaną w pełni załadowane
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
         const mainContainer = document.querySelector('.main-container');
         const containerRect = mainContainer.getBoundingClientRect();
 
+        // Oblicz pozycję placeholder'a względem dokumentu
         const placeholderX = placeholderRect.left + window.scrollX;
         const placeholderY = placeholderRect.top + window.scrollY;
 
+        // Oblicz pozycję kontenera .main-container względem dokumentu
         const containerX = containerRect.left + window.scrollX;
         const containerY = containerRect.top + window.scrollY;
 
-        homeX = (placeholderX - containerX) / currentZoom + containerX / currentZoom;
-        homeY = (placeholderY - containerY) / currentZoom + containerY / currentZoom;
+        // Ustaw pozycję początkową, uwzględniając zoom
+        homeX = placeholderX;
+        homeY = placeholderY;
+
         currentX = homeX;
         currentY = homeY;
+
         calculatorBox.style.left = currentX + 'px';
         calculatorBox.style.top = currentY + 'px';
     }
@@ -805,7 +808,10 @@
         homeY = (placeholderY - containerY) / currentZoom + containerY / currentZoom;
     }
 
-    window.addEventListener('load', initializeCalculatorPosition);
+    // Uruchom inicjalizację pozycji po pełnym załadowaniu strony i zasobów
+    window.addEventListener('load', () => {
+        setTimeout(initializeCalculatorPosition, 0); // Opóźnienie 0ms, aby upewnić się, że DOM jest w pełni gotowy
+    });
     window.addEventListener('resize', initializeCalculatorPosition);
 </script>
 </body>
