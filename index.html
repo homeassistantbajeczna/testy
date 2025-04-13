@@ -741,18 +741,14 @@
     // Funkcja obliczająca pozycję początkową
     function calculateHomePosition() {
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-        const mainContainer = document.querySelector('.main-container');
-        const containerRect = mainContainer.getBoundingClientRect();
-
+        
+        // Oblicz pozycję placeholder'a względem dokumentu
         const placeholderX = placeholderRect.left + window.scrollX;
         const placeholderY = placeholderRect.top + window.scrollY;
 
-        const containerX = containerRect.left + window.scrollX;
-        const containerY = containerRect.top + window.scrollY;
-
-        // Oblicz pozycję względem dokumentu, uwzględniając zoom
-        homeX = (placeholderX - containerX) + containerX;
-        homeY = (placeholderY - containerY) + containerY;
+        // Ustaw pozycję początkową
+        homeX = placeholderX;
+        homeY = placeholderY;
 
         return { homeX, homeY };
     }
