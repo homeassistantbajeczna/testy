@@ -64,7 +64,43 @@
         <!-- Sekcja prawa - Kalkulator, Praca, Pozostałe -->
         <section class="sidebar right-sidebar">
             <!-- Placeholder dla kalkulatora -->
-            <div id="calculatorPlaceholder" class="sidebar-box placeholder"></div>
+            <div id="calculatorPlaceholder" class="sidebar-box placeholder">
+                <!-- Kalkulator będzie osadzony bezpośrednio w placeholderze -->
+                <div class="sidebar-box draggable" id="calculatorBox">
+                    <h3 class="sidebar-header">
+                        Kalkulator
+                        <button id="resetPositionBtn" class="reset-btn" title="Wróć do miejsca">↩️</button>
+                    </h3>
+                    <div class="calculator">
+                        <input type="text" id="calcDisplay" readonly>
+                        <div class="calc-buttons">
+                            <button class="calc-btn calc-clear">C</button>
+                            <button class="calc-btn calc-operation">±</button>
+                            <button class="calc-btn calc-operation">%</button>
+                            <button class="calc-btn calc-operation">/</button>
+
+                            <button class="calc-btn calc-number">7</button>
+                            <button class="calc-btn calc-number">8</button>
+                            <button class="calc-btn calc-number">9</button>
+                            <button class="calc-btn calc-operation">*</button>
+
+                            <button class="calc-btn calc-number">4</button>
+                            <button class="calc-btn calc-number">5</button>
+                            <button class="calc-btn calc-number">6</button>
+                            <button class="calc-btn calc-operation">-</button>
+
+                            <button class="calc-btn calc-number">1</button>
+                            <button class="calc-btn calc-number">2</button>
+                            <button class="calc-btn calc-number">3</button>
+                            <button class="calc-btn calc-operation">+</button>
+
+                            <button class="calc-btn calc-number calc-zero">0</button>
+                            <button class="calc-btn calc-number">.</button>
+                            <button class="calc-btn calc-equals">=</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Okienko Praca -->
             <div class="sidebar-box">
                 <h3 class="sidebar-header">Praca</h3>
@@ -84,42 +120,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Kalkulator jako osobny element przeciągalny -->
-        <div class="sidebar-box draggable" id="calculatorBox">
-            <h3 class="sidebar-header">
-                Kalkulator
-                <button id="resetPositionBtn" class="reset-btn" title="Wróć do miejsca">↩️</button>
-            </h3>
-            <div class="calculator">
-                <input type="text" id="calcDisplay" readonly>
-                <div class="calc-buttons">
-                    <button class="calc-btn calc-clear">C</button>
-                    <button class="calc-btn calc-operation">±</button>
-                    <button class="calc-btn calc-operation">%</button>
-                    <button class="calc-btn calc-operation">/</button>
-
-                    <button class="calc-btn calc-number">7</button>
-                    <button class="calc-btn calc-number">8</button>
-                    <button class="calc-btn calc-number">9</button>
-                    <button class="calc-btn calc-operation">*</button>
-
-                    <button class="calc-btn calc-number">4</button>
-                    <button class="calc-btn calc-number">5</button>
-                    <button class="calc-btn calc-number">6</button>
-                    <button class="calc-btn calc-operation">-</button>
-
-                    <button class="calc-btn calc-number">1</button>
-                    <button class="calc-btn calc-number">2</button>
-                    <button class="calc-btn calc-number">3</button>
-                    <button class="calc-btn calc-operation">+</button>
-
-                    <button class="calc-btn calc-number calc-zero">0</button>
-                    <button class="calc-btn calc-number">.</button>
-                    <button class="calc-btn calc-equals">=</button>
-                </div>
-            </div>
-        </div>
     </div>
 
 <style>
@@ -411,17 +411,18 @@
 
     /* Styl dla przeciągalnego kalkulatora */
     .draggable {
-        position: absolute;
+        position: static; /* Domyślnie statyczny, zmieniany na absolutny podczas przeciągania */
         cursor: move;
         z-index: 1000;
         user-select: none;
-        width: 250px;
+        width: 100%; /* Dopasowanie szerokości do placeholder'a */
         touch-action: none;
     }
 
     /* Placeholder dla kalkulatora */
     .placeholder {
-        height: 320px;
+        padding: 0; /* Usunięcie paddingu, aby kalkulator idealnie pasował */
+        height: auto; /* Wysokość dopasowana do zawartości */
     }
 
     /* Responsywność */
@@ -441,7 +442,7 @@
         }
 
         .draggable {
-            width: 250px;
+            width: 100%;
         }
     }
 
@@ -463,10 +464,6 @@
 
         .calculator {
             width: 160px;
-        }
-
-        .placeholder {
-            height: 300px;
         }
     }
 </style>
@@ -662,12 +659,18 @@
     let currentY = 0;
     let initialX = 0;
     let initialY = 0;
-    let homeX = 0;
-    let homeY = 0;
 
     calculatorBox.addEventListener('mousedown', (e) => {
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
+            // Przenieś kalkulator do body i ustaw pozycję absolutną
+            document.body.appendChild(calculatorBox);
+            calculatorBox.style.position = 'absolute';
+            const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
+            currentX = (placeholderRect.left + window.scrollX) / currentZoom;
+            currentY = (placeholderRect.top + window.scrollY) / currentZoom;
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
             initialX = e.clientX - (currentX * currentZoom);
             initialY = e.clientY - (currentY * currentZoom);
             calculatorBox.style.cursor = 'grabbing';
@@ -705,6 +708,14 @@
     calculatorBox.addEventListener('touchstart', (e) => {
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
+            // Przenieś kalkulator do body i ustaw pozycję absolutną
+            document.body.appendChild(calculatorBox);
+            calculatorBox.style.position = 'absolute';
+            const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
+            currentX = (placeholderRect.left + window.scrollX) / currentZoom;
+            currentY = (placeholderRect.top + window.scrollY) / currentZoom;
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
             const touch = e.touches[0];
             initialX = touch.clientX - (currentX * currentZoom);
             initialY = touch.clientY - (currentY * currentZoom);
@@ -738,62 +749,25 @@
         }
     });
 
-    // Funkcja obliczająca pozycję początkową
-    function calculateHomePosition() {
-        const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-        
-        // Oblicz pozycję placeholder'a względem dokumentu, kompensując zoom
-        const placeholderX = (placeholderRect.left + window.scrollX) / currentZoom;
-        const placeholderY = (placeholderRect.top + window.scrollY) / currentZoom;
-
-        // Ustaw pozycję początkową
-        homeX = placeholderX;
-        homeY = placeholderY;
-
-        return { homeX, homeY };
-    }
-
     // Przycisk powrotu do początkowej pozycji
     resetPositionBtn.addEventListener('click', () => {
-        const { homeX: newHomeX, homeY: newHomeY } = calculateHomePosition();
-        homeX = newHomeX;
-        homeY = newHomeY;
-        currentX = homeX;
-        currentY = homeY;
-        calculatorBox.style.left = currentX + 'px';
-        calculatorBox.style.top = currentY + 'px';
+        // Przywróć kalkulator do placeholder'a
+        calculatorPlaceholder.appendChild(calculatorBox);
+        calculatorBox.style.position = 'static';
+        calculatorBox.style.left = '';
+        calculatorBox.style.top = '';
     });
-
-    // Inicjalizacja pozycji kalkulatora
-    function initializeCalculatorPosition() {
-        const { homeX: newHomeX, homeY: newHomeY } = calculateHomePosition();
-        homeX = newHomeX;
-        homeY = newHomeY;
-        currentX = homeX;
-        currentY = homeY;
-        calculatorBox.style.left = currentX + 'px';
-        calculatorBox.style.top = currentY + 'px';
-    }
 
     // Funkcja aktualizująca pozycję kalkulatora po zmianie zoomu
     function updateCalculatorPosition(previousZoom) {
-        const zoomRatio = previousZoom / currentZoom;
-        currentX = currentX * zoomRatio;
-        currentY = currentY * zoomRatio;
-        calculatorBox.style.left = currentX + 'px';
-        calculatorBox.style.top = currentY + 'px';
-
-        // Aktualizuj pozycję początkową (homeX, homeY) z uwzględnieniem nowego zoomu
-        const { homeX: newHomeX, homeY: newHomeY } = calculateHomePosition();
-        homeX = newHomeX;
-        homeY = newHomeY;
+        if (calculatorBox.style.position === 'absolute') {
+            const zoomRatio = previousZoom / currentZoom;
+            currentX = currentX * zoomRatio;
+            currentY = currentY * zoomRatio;
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
+        }
     }
-
-    // Uruchom inicjalizację pozycji po pełnym załadowaniu strony i zasobów
-    window.addEventListener('load', () => {
-        setTimeout(initializeCalculatorPosition, 0); // Opóźnienie 0ms, aby upewnić się, że DOM jest w pełni gotowy
-    });
-    window.addEventListener('resize', initializeCalculatorPosition);
 </script>
 </body>
 </html>
