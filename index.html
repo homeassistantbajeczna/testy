@@ -225,7 +225,6 @@
         max-width: 1200px;
         margin: 0 auto;
         gap: 20px;
-        position: relative; /* Dodano, aby kalkulator mógł być pozycjonowany względem tego kontenera */
     }
 
     /* Sekcje boczne (lewa i prawa) */
@@ -416,7 +415,7 @@
         z-index: 1000;
         user-select: none;
         width: 250px;
-        touch-action: none; /* Zapobiega domyślnemu zachowaniu na urządzeniach dotykowych */
+        touch-action: none;
     }
 
     /* Placeholder dla kalkulatora */
@@ -482,7 +481,8 @@
         const container = document.querySelector('.main-container');
         container.style.transform = `scale(${currentZoom})`;
         container.style.transformOrigin = 'top center';
-        updateCalculatorPosition(); // Aktualizuj pozycję kalkulatora po zmianie zoomu
+        // Po zmianie zoomu przeliczamy pozycję kalkulatora
+        updateCalculatorPosition();
     }
 
     document.getElementById("zoomInBtn").addEventListener("click", () => {
@@ -667,8 +667,9 @@
     calculatorBox.addEventListener('mousedown', (e) => {
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
-            initialX = e.clientX - currentX;
-            initialY = e.clientY - currentY;
+            const zoomFactor = 1 / currentZoom;
+            initialX = (e.clientX * zoomFactor) - currentX;
+            initialY = (e.clientY * zoomFactor) - currentY;
             calculatorBox.style.cursor = 'grabbing';
             e.preventDefault();
         }
@@ -677,14 +678,15 @@
     document.addEventListener('mousemove', (e) => {
         if (isDragging) {
             e.preventDefault();
-            const zoomFactor = 1 / currentZoom; // Uwzględniamy zoom podczas przesuwania
-            currentX = (e.clientX - initialX + window.scrollX) * zoomFactor;
-            currentY = (e.clientY - initialY + window.scrollY) * zoomFactor;
+            const zoomFactor = 1 / currentZoom;
+            currentX = (e.clientX * zoomFactor) - initialX + window.scrollX;
+            currentY = (e.clientY * zoomFactor) - initialY + window.scrollY;
 
-            const windowWidth = window.innerWidth * zoomFactor;
-            const calcWidth = calculatorBox.offsetWidth * zoomFactor;
-            const calcHeight = calculatorBox.offsetHeight * zoomFactor;
-            const documentHeight = document.documentElement.scrollHeight * zoomFactor;
+            // Oblicz granice z uwzględnieniem zoomu
+            const windowWidth = document.documentElement.scrollWidth;
+            const calcWidth = calculatorBox.offsetWidth;
+            const calcHeight = calculatorBox.offsetHeight;
+            const documentHeight = document.documentElement.scrollHeight;
 
             currentX = Math.max(0, Math.min(currentX, windowWidth - calcWidth));
             currentY = Math.max(0, Math.min(currentY, documentHeight - calcHeight));
@@ -706,8 +708,9 @@
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
             const touch = e.touches[0];
-            initialX = touch.clientX - currentX;
-            initialY = touch.clientY - currentY;
+            const zoomFactor = 1 / currentZoom;
+            initialX = (touch.clientX * zoomFactor) - currentX;
+            initialY = (touch.clientY * zoomFactor) - currentY;
             e.preventDefault();
         }
     });
@@ -717,13 +720,13 @@
             e.preventDefault();
             const touch = e.touches[0];
             const zoomFactor = 1 / currentZoom;
-            currentX = (touch.clientX - initialX + window.scrollX) * zoomFactor;
-            currentY = (touch.clientY - initialY + window.scrollY) * zoomFactor;
+            currentX = (touch.clientX * zoomFactor) - initialX + window.scrollX;
+            currentY = (touch.clientY * zoomFactor) - initialY + window.scrollY;
 
-            const windowWidth = window.innerWidth * zoomFactor;
-            const calcWidth = calculatorBox.offsetWidth * zoomFactor;
-            const calcHeight = calculatorBox.offsetHeight * zoomFactor;
-            const documentHeight = document.documentElement.scrollHeight * zoomFactor;
+            const windowWidth = document.documentElement.scrollWidth;
+            const calcWidth = calculatorBox.offsetWidth;
+            const calcHeight = calculatorBox.offsetHeight;
+            const documentHeight = document.documentElement.scrollHeight;
 
             currentX = Math.max(0, Math.min(currentX, windowWidth - calcWidth));
             currentY = Math.max(0, Math.min(currentY, documentHeight - calcHeight));
@@ -743,8 +746,8 @@
     resetPositionBtn.addEventListener('click', () => {
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
         const zoomFactor = 1 / currentZoom;
-        homeX = (placeholderRect.left + window.scrollX) * zoomFactor;
-        homeY = (placeholderRect.top + window.scrollY) * zoomFactor;
+        homeX = (placeholderRect.left * zoomFactor) + window.scrollX;
+        homeY = (placeholderRect.top * zoomFactor) + window.scrollY;
         currentX = homeX;
         currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
@@ -755,8 +758,8 @@
     function initializeCalculatorPosition() {
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
         const zoomFactor = 1 / currentZoom;
-        homeX = (placeholderRect.left + window.scrollX) * zoomFactor;
-        homeY = (placeholderRect.top + window.scrollY) * zoomFactor;
+        homeX = (placeholderRect.left * zoomFactor) + window.scrollX;
+        homeY = (placeholderRect.top * zoomFactor) + window.scrollY;
         currentX = homeX;
         currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
@@ -766,14 +769,15 @@
     // Funkcja aktualizująca pozycję kalkulatora po zmianie zoomu
     function updateCalculatorPosition() {
         const zoomFactor = 1 / currentZoom;
-        currentX = currentX * zoomFactor;
-        currentY = currentY * zoomFactor;
+        const prevZoomFactor = 1 / (currentZoom / (1 + zoomStep)); // Poprzedni zoom do korekcji pozycji
+        currentX = currentX * (zoomFactor / prevZoomFactor);
+        currentY = currentY * (zoomFactor / prevZoomFactor);
         calculatorBox.style.left = currentX + 'px';
         calculatorBox.style.top = currentY + 'px';
 
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-        homeX = (placeholderRect.left + window.scrollX) * zoomFactor;
-        homeY = (placeholderRect.top + window.scrollY) * zoomFactor;
+        homeX = (placeholderRect.left * zoomFactor) + window.scrollX;
+        homeY = (placeholderRect.top * zoomFactor) + window.scrollY;
     }
 
     window.addEventListener('load', initializeCalculatorPosition);
