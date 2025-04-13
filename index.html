@@ -321,7 +321,7 @@
         padding: 20px;
     }
 
-    .content-box h2, .content minimal-box h3 {
+    .content-box h2, .content-box h3 {
         color: var(--primary-text);
         margin-bottom: 15px;
     }
@@ -369,9 +369,9 @@
         color: #fff;
         border: none;
         border-radius: 50%;
-        width: 40px; /* Zmniejszone przyciski */
+        width: 40px;
         height: 40px;
-        font-size: 1em; /* Zmniejszona czcionka */
+        font-size: 1em;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -404,22 +404,22 @@
 
     .calc-zero {
         grid-column: span 2;
-        border-radius: 20px; /* Zmniejszony promień */
-        width: 90px; /* Zmniejszona szerokość przycisku 0 */
+        border-radius: 20px;
+        width: 90px;
     }
 
     /* Styl dla przeciągalnego kalkulatora */
     .draggable {
-        position: absolute;
+        position: fixed; /* Zmieniono na fixed, aby pozycja była względem okna przeglądarki */
         cursor: move;
         z-index: 1000;
         user-select: none;
-        width: 250px; /* Taka sama szerokość jak sekcje boczne */
+        width: 200px; /* Zmniejszona szerokość kalkulatora */
     }
 
     /* Placeholder dla kalkulatora */
     .placeholder {
-        height: 260px; /* Dopasowana wysokość do mniejszych przycisków */
+        height: 300px; /* Zwiększona wysokość, aby kalkulator nie zakrywał sekcji Praca */
     }
 
     /* Responsywność */
@@ -439,14 +439,13 @@
         }
 
         .draggable {
-            width: 100%;
-            max-width: 250px;
+            width: 200px; /* Zachowana zmniejszona szerokość na mniejszych ekranach */
         }
     }
 
     @media (max-width: 576px) {
         .calc-btn {
-            width: 35px; /* Jeszcze mniejsze przyciski na małych ekranach */
+            width: 35px;
             height: 35px;
             font-size: 0.9em;
         }
@@ -465,7 +464,7 @@
         }
 
         .placeholder {
-            height: 240px;
+            height: 280px; /* Dopasowana wysokość na mniejszych ekranach */
         }
     }
 </style>
@@ -704,10 +703,9 @@
 
     // Inicjalizacja pozycji kalkulatora
     function initializeCalculatorPosition() {
-        const rightSidebar = document.querySelector('.right-sidebar');
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-        homeX = placeholderRect.left + window.scrollX; // Uwzględniamy przewijanie
-        homeY = placeholderRect.top + window.scrollY;
+        homeX = placeholderRect.left;
+        homeY = placeholderRect.top;
         currentX = homeX;
         currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
@@ -716,7 +714,7 @@
 
     window.addEventListener('load', initializeCalculatorPosition);
     window.addEventListener('resize', initializeCalculatorPosition);
-    window.addEventListener('scroll', initializeCalculatorPosition); // Aktualizacja pozycji przy przewijaniu
+    // Usunięto zdarzenie 'scroll', aby kalkulator nie wracał podczas przewijania
 </script>
 </body>
 </html>
