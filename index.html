@@ -14,6 +14,7 @@
         <div class="zoom-controls">
             <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
             <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
+            <button id="calcToggleBtn" class="btn btn-sm" aria-label="Otwórz kalkulator">🖩</button>
             <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
         </div>
     </div>
@@ -52,7 +53,7 @@
         <section class="content-section">
             <div class="content-box">
                 <h2>Witaj na Portalu Finansowym!</h2>
-                <p>Znajdziesz tutaj narzędzia i informacje, które pomogą Ci zarządzać finansami. Wybierz opcję z menu po lewej stronie lub skorzystaj z kalkulatora po prawej.</p>
+                <p>Znajdziesz tutaj narzędzia i informacje, które pomogą Ci zarządzać finansami. Wybierz opcję z menu po lewej stronie lub skorzystaj z kalkulatora, klikając przycisk 🖩 u góry.</p>
                 <h3>Przykładowy artykuł</h3>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
                 <p><a href="#czytaj-wiecej">Czytaj więcej</a></p>
@@ -61,46 +62,8 @@
             </div>
         </section>
 
-        <!-- Sekcja prawa - Kalkulator, Praca, Pozostałe -->
+        <!-- Sekcja prawa - Praca, Pozostałe -->
         <section class="sidebar right-sidebar">
-            <!-- Placeholder dla kalkulatora -->
-            <div id="calculatorPlaceholder" class="sidebar-box placeholder">
-                <!-- Kalkulator będzie osadzony bezpośrednio w placeholderze -->
-                <div class="sidebar-box draggable" id="calculatorBox">
-                    <h3 class="sidebar-header">
-                        Kalkulator
-                        <button id="resetPositionBtn" class="reset-btn" title="Wróć do miejsca">↩️</button>
-                    </h3>
-                    <div class="calculator">
-                        <input type="text" id="calcDisplay" readonly>
-                        <div class="calc-buttons">
-                            <button class="calc-btn calc-clear">C</button>
-                            <button class="calc-btn calc-operation">±</button>
-                            <button class="calc-btn calc-operation">%</button>
-                            <button class="calc-btn calc-operation">/</button>
-
-                            <button class="calc-btn calc-number">7</button>
-                            <button class="calc-btn calc-number">8</button>
-                            <button class="calc-btn calc-number">9</button>
-                            <button class="calc-btn calc-operation">*</button>
-
-                            <button class="calc-btn calc-number">4</button>
-                            <button class="calc-btn calc-number">5</button>
-                            <button class="calc-btn calc-number">6</button>
-                            <button class="calc-btn calc-operation">-</button>
-
-                            <button class="calc-btn calc-number">1</button>
-                            <button class="calc-btn calc-number">2</button>
-                            <button class="calc-btn calc-number">3</button>
-                            <button class="calc-btn calc-operation">+</button>
-
-                            <button class="calc-btn calc-number calc-zero">0</button>
-                            <button class="calc-btn calc-number">.</button>
-                            <button class="calc-btn calc-equals">=</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <!-- Okienko Praca -->
             <div class="sidebar-box">
                 <h3 class="sidebar-header">Praca</h3>
@@ -120,6 +83,42 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- Kalkulator (ukryty domyślnie) -->
+    <div class="sidebar-box draggable" id="calculatorBox" style="display: none;">
+        <h3 class="sidebar-header">
+            Kalkulator
+            <button id="closeCalcBtn" class="close-btn" title="Zamknij kalkulator">×</button>
+        </h3>
+        <div class="calculator">
+            <input type="text" id="calcDisplay" readonly>
+            <div class="calc-buttons">
+                <button class="calc-btn calc-clear">C</button>
+                <button class="calc-btn calc-operation">±</button>
+                <button class="calc-btn calc-operation">%</button>
+                <button class="calc-btn calc-operation">/</button>
+
+                <button class="calc-btn calc-number">7</button>
+                <button class="calc-btn calc-number">8</button>
+                <button class="calc-btn calc-number">9</button>
+                <button class="calc-btn calc-operation">*</button>
+
+                <button class="calc-btn calc-number">4</button>
+                <button class="calc-btn calc-number">5</button>
+                <button class="calc-btn calc-number">6</button>
+                <button class="calc-btn calc-operation">-</button>
+
+                <button class="calc-btn calc-number">1</button>
+                <button class="calc-btn calc-number">2</button>
+                <button class="calc-btn calc-number">3</button>
+                <button class="calc-btn calc-operation">+</button>
+
+                <button class="calc-btn calc-number calc-zero">0</button>
+                <button class="calc-btn calc-number">.</button>
+                <button class="calc-btn calc-equals">=</button>
+            </div>
+        </div>
     </div>
 
 <style>
@@ -279,7 +278,7 @@
         align-items: center;
     }
 
-    .reset-btn {
+    .close-btn {
         position: absolute;
         right: 10px;
         background: none;
@@ -290,7 +289,7 @@
         transition: transform 0.2s ease;
     }
 
-    .reset-btn:hover {
+    .close-btn:hover {
         transform: scale(1.2);
     }
 
@@ -411,28 +410,16 @@
 
     /* Styl dla przeciągalnego kalkulatora */
     .draggable {
-        position: static; /* Domyślnie statyczny, zmieniany na absolutny podczas przeciągania */
+        position: absolute;
         cursor: move;
         z-index: 1000;
         user-select: none;
-        width: 100%; /* Dopasowanie szerokości do placeholder'a */
+        width: 250px;
+        max-width: 250px;
         touch-action: none;
-        background: var(--secondary-bg); /* Zapewniamy stałe tło, nawet po przeniesieniu */
+        background: var(--secondary-bg);
         border-radius: 10px;
         box-shadow: 0 2px 4px var(--shadow-color);
-    }
-
-    /* Styl podczas przeciągania */
-    .draggable.dragging {
-        position: absolute;
-        width: 250px; /* Stała szerokość podczas przeciągania */
-        max-width: 250px;
-    }
-
-    /* Placeholder dla kalkulatora */
-    .placeholder {
-        padding: 0; /* Usunięcie paddingu, aby kalkulator idealnie pasował */
-        height: auto; /* Wysokość dopasowana do zawartości */
     }
 
     /* Responsywność */
@@ -449,15 +436,6 @@
 
         .left-sidebar, .right-sidebar, .content-section {
             order: initial;
-        }
-
-        .draggable {
-            width: 100%;
-        }
-
-        .draggable.dragging {
-            width: 250px;
-            max-width: 250px;
         }
     }
 
@@ -481,7 +459,7 @@
             width: 160px;
         }
 
-        .draggable.dragging {
+        .draggable {
             width: 200px;
             max-width: 200px;
         }
@@ -670,21 +648,38 @@
 
     updateDisplay();
 
-    // Logika przeciągania kalkulatora
+    // Logika pokazywania/ukrywania i przeciągania kalkulatora
     const calculatorBox = document.getElementById('calculatorBox');
-    const calculatorPlaceholder = document.getElementById('calculatorPlaceholder');
-    const resetPositionBtn = document.getElementById('resetPositionBtn');
+    const calcToggleBtn = document.getElementById('calcToggleBtn');
+    const closeCalcBtn = document.getElementById('closeCalcBtn');
     let isDragging = false;
     let initialX = 0;
     let initialY = 0;
 
-    calculatorBox.addEventListener('mousedown', (e) => {
-        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
-            isDragging = true;
-            document.body.appendChild(calculatorBox);
-            calculatorBox.classList.add('dragging');
+    function toggleCalculator() {
+        const isVisible = calculatorBox.style.display === 'block';
+        if (isVisible) {
+            calculatorBox.style.display = 'none';
+        } else {
+            calculatorBox.style.display = 'block';
+            // Ustaw domyślną pozycję w centrum strony
+            const windowWidth = window.innerWidth / currentZoom;
+            const windowHeight = window.innerHeight / currentZoom;
+            const calcWidth = calculatorBox.offsetWidth;
+            const calcHeight = calculatorBox.offsetHeight;
+            calculatorBox.style.left = ((windowWidth - calcWidth) / 2) + 'px';
+            calculatorBox.style.top = ((windowHeight - calcHeight) / 2) + 'px';
+        }
+    }
 
-            // Oblicz aktualną pozycję kalkulatora z uwzględnieniem zoomu
+    calcToggleBtn.addEventListener('click', toggleCalculator);
+    closeCalcBtn.addEventListener('click', () => {
+        calculatorBox.style.display = 'none';
+    });
+
+    calculatorBox.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
+            isDragging = true;
             const calcRect = calculatorBox.getBoundingClientRect();
             const currentX = (calcRect.left + window.scrollX) / currentZoom;
             const currentY = (calcRect.top + window.scrollY) / currentZoom;
@@ -692,8 +687,8 @@
             calculatorBox.style.left = currentX + 'px';
             calculatorBox.style.top = currentY + 'px';
 
-            initialX = e.clientX / currentZoom - currentX;
-            initialY = e.clientY / currentZoom - currentY;
+            initialX = (e.clientX / currentZoom) - currentX;
+            initialY = (e.clientY / currentZoom) - currentY;
             calculatorBox.style.cursor = 'grabbing';
             e.preventDefault();
         }
@@ -727,12 +722,8 @@
 
     // Obsługa dotyku dla urządzeń mobilnych
     calculatorBox.addEventListener('touchstart', (e) => {
-        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
+        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
             isDragging = true;
-            document.body.appendChild(calculatorBox);
-            calculatorBox.classList.add('dragging');
-
-            // Oblicz aktualną pozycję kalkulatora z uwzględnieniem zoomu
             const calcRect = calculatorBox.getBoundingClientRect();
             const currentX = (calcRect.left + window.scrollX) / currentZoom;
             const currentY = (calcRect.top + window.scrollY) / currentZoom;
@@ -773,18 +764,9 @@
         }
     });
 
-    // Przycisk powrotu do początkowej pozycji
-    resetPositionBtn.addEventListener('click', () => {
-        calculatorPlaceholder.appendChild(calculatorBox);
-        calculatorBox.classList.remove('dragging');
-        calculatorBox.style.position = 'static';
-        calculatorBox.style.left = '';
-        calculatorBox.style.top = '';
-    });
-
     // Funkcja aktualizująca pozycję kalkulatora po zmianie zoomu
     function updateCalculatorPosition(previousZoom) {
-        if (calculatorBox.classList.contains('dragging')) {
+        if (calculatorBox.style.display === 'block') {
             const calcRect = calculatorBox.getBoundingClientRect();
             const zoomRatio = previousZoom / currentZoom;
             const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
