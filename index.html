@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Lokat</title>
+    <title>Portal Finansowy</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Sekcja nagłówka z logo i kontrolkami -->
     <div class="logo-container">
         <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
         <div class="zoom-controls">
@@ -19,147 +17,108 @@
             <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
         </div>
     </div>
-    <div class="container">
-        <div class="form-section" id="formSection">
-            <div class="header-row">
-                <h4>Kalkulator Lokat</h4>
-            </div>
-            <div class="form-container">
-                <div class="form-wrapper">
-                    <form id="lokatyForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="kwota" class="form-label">Kwota lokaty</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="kwota" min="1" max="10000000" value="10000">
-                                    <span class="input-group-text">zł</span>
-                                </div>
-                                <input type="range" class="form-range" id="kwotaRange" min="1" max="10000000" value="10000">
-                            </div>
-                            <div class="form-group">
-                                <label for="dlugoscUmowy" class="form-label">Długość umowy</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="dlugoscUmowy" min="1" value="3">
-                                    <div class="select-wrapper">
-                                        <select class="form-control select-hidden" id="jednostkaOkresu">
-                                            <option value="dni">dzień</option>
-                                            <option value="miesiace" selected>miesiąc</option>
-                                            <option value="lata">rok</option>
-                                        </select>
-                                        <span class="select-display" id="jednostkaOkresuDisplay">miesiąc ▼</span>
-                                    </div>
-                                </div>
-                                <input type="range" class="form-range" id="dlugoscUmowyRange" min="1" max="36" step="1" value="3">
-                                <div class="info-text">Możesz wybrać: DZIEŃ, MIESIĄC, ROK</div> 
-                            </div>
-                            <div class="form-group">
-                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="4">
-                                    <span class="input-group-text">%</span>
-                                </div>
-                                <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="4">
-                                <div class="info-text">Roczne oprocentowanie</div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="podatek" class="form-label">Podatek</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="podatek" min="0" max="50" step="0.1" value="19">
-                                    <span class="input-group-text">%</span>
-                                </div>
-                                <input type="range" class="form-range" id="podatekRange" min="0" max="50" step="0.1" value="19">
-                            </div>
-                            <div class="form-group">
-                                <label for="kapitalizacja" class="form-label">Kapitalizacja odsetek</label>
-                                <div class="select-wrapper">
-                                    <select class="form-control select-hidden" id="kapitalizacja">
-                                        <option value="naKoniec" selected>Na koniec okresu</option>
-                                        <option value="dzienna">Dzienna</option>
-                                        <option value="miesieczna">Miesięczna</option>
-                                        <option value="roczna">Roczna</option>
-                                    </select>
-                                    <span class="select-display" id="kapitalizacjaDisplay">Na koniec okresu ▼</span>
-                                </div>
-                                <div class="info-text">Możesz dokonać wyboru</div>
-                            </div>
-                            <div class="form-group">
-                                <label for="dataRozpoczecia" class="form-label">Data rozpoczęcia</label>
-                                <div class="input-group">
-                                    <input type="date" class="form-control" id="dataRozpoczecia">
-                                </div>
-                                <div class="info-text" id="dataZakonczenia">Data zakończenia: 09.07.2025</div>
-                            </div>
-                        </div>
-                        <div class="variable-rate-container">
-                            <div class="checkbox-row" id="variableCheckboxRow">
-                                <label class="checkbox-label" id="zmienneOprocentowanieLabel">
-                                    <input type="checkbox" id="zmienneOprocentowanieBtn">
-                                    <span class="checkbox-custom"></span>
-                                    <b>Zmienne Oprocentowanie</b>
-                                </label>
-                            </div>
-                            <div class="variable-inputs" id="variableInputs">
-                                <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki lokaty">Oblicz</button>
-                        </div>
-                    </form>
+
+    <!-- Główny kontener portalu -->
+    <div class="main-container">
+        <!-- Sekcja lewa - Kredyty, Oszczędności, Biznesowe -->
+        <section class="sidebar left-sidebar">
+            <!-- Okienko Kredyty -->
+            <div class="sidebar-box">
+                <h3 class="sidebar-header">Kredyty</h3>
+                <div class="sidebar-content">
+                    <p><a href="#kalkulator-kredytow-hipotecznych">Kalkulator kredytów hipotecznych</a></p>
+                    <p><a href="#kalkulator-kredytow-gotowkowych">Kalkulator kredytów gotówkowych</a></p>
+                    <p><a href="#porownywarka-kredytow">Porównywarka kredytów</a></p>
                 </div>
             </div>
-        </div>
-        <div class="result-section" id="resultSection" style="display: none;">
-            <div class="pdf-button-container">
-                <button id="generatePdfBtn" class="btn btn-primary btn-sm" aria-label="Generuj PDF z wynikami">Generuj PDF</button>
+            <!-- Okienko Oszczędności -->
+            <div class="sidebar-box">
+                <h3 class="sidebar-header">Oszczędności</h3>
+                <div class="sidebar-content">
+                    <p><a href="#kalkulator-obligacji">Kalkulator obligacji</a></p>
+                    <p><a href="#kalkulator-lokat">Kalkulator lokat</a></p>
+                    <p><a href="#porownywarka-kont-oszczednosciowych">Porównywarka kont oszczędnościowych</a></p>
+                </div>
             </div>
-            <div class="result-header">
-                <h4 id="resultHeader">Podsumowanie wyników lokaty</h4>
+            <!-- Okienko Biznesowe -->
+            <div class="sidebar-box">
+                <h3 class="sidebar-header">Biznesowe</h3>
+                <div class="sidebar-content">
+                    <p><a href="#kalkulator-leasingu">Kalkulator leasingu</a></p>
+                    <p><a href="#analiza-finansowa-firmy">Analiza finansowa firmy</a></p>
+                    <p><a href="#porownywarka-kont-firmowych">Porównywarka kont firmowych</a></p>
+                </div>
             </div>
-            <button class="btn btn-secondary mb-3" onclick="showForm()" aria-label="Powrót do edycji formularza">Powrót do edycji</button>
-            <div class="result-container">
-                <div class="result-wrapper-chart">
-                    <div class="summary-bars">
+        </section>
+
+        <!-- Sekcja środkowa - Kontener na treści -->
+        <section class="content-section">
+            <div class="content-box">
+                <h2>Witaj na Portalu Finansowym!</h2>
+                <p>Znajdziesz tutaj narzędzia i informacje, które pomogą Ci zarządzać finansami. Wybierz opcję z menu po lewej stronie lub skorzystaj z kalkulatora po prawej.</p>
+                <h3>Przykładowy artykuł</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <p><a href="#czytaj-wiecej">Czytaj więcej</a></p>
+                <h3>Przykładowy film</h3>
+                <iframe width="100%" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <!-- Sekcja prawa - Kalkulator, Praca, Pozostałe -->
+        <section class="sidebar right-sidebar">
+            <!-- Okienko Kalkulator -->
+            <div class="sidebar-box">
+                <h3 class="sidebar-header">Kalkulator</h3>
+                <div class="calculator">
+                    <input type="text" id="calcDisplay" readonly>
+                    <div class="calc-buttons">
+                        <button class="calc-btn calc-clear">C</button>
+                        <button class="calc-btn calc-operation">±</button>
+                        <button class="calc-btn calc-operation">%</button>
+                        <button class="calc-btn calc-operation">/</button>
+
+                        <button class="calc-btn calc-number">7</button>
+                        <button class="calc-btn calc-number">8</button>
+                        <button class="calc-btn calc-number">9</button>
+                        <button class="calc-btn calc-operation">*</button>
+
+                        <button class="calc-btn calc-number">4</button>
+                        <button class="calc-btn calc-number">5</button>
+                        <button class="calc-btn calc-number">6</button>
+                        <button class="calc-btn calc-operation">-</button>
+
+                        <button class="calc-btn calc-number">1</button>
+                        <button class="calc-btn calc-number">2</button>
+                        <button class="calc-btn calc-number">3</button>
+                        <button class="calc-btn calc-operation">+</button>
+
+                        <button class="calc-btn calc-number calc-zero">0</button>
+                        <button class="calc-btn calc-number">.</button>
+                        <button class="calc-btn calc-equals">=</button>
                     </div>
                 </div>
             </div>
-            <div class="harmonogram-container">
-                <div class="result-wrapper-harmonogram">
-                    <div class="harmonogram-chart-container">
-                        <div class="harmonogram">
-                            <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')" aria-label="Przełącz widoczność harmonogramu odsetek">Harmonogram odsetek ▼</h5>
-                            <div id="harmonogramContent">
-                                <table class="table table-striped">
-                                    <thead id="harmonogramNaglowek">
-                                        <tr>
-                                            <th id="pierwszaKolumnaNaglowek">Okres</th>
-                                            <th>Wartość lokaty</th>
-                                            <th>Oproc.</th>
-                                            <th>Odsetki brutto</th>
-                                            <th>Suma odsetek</th>
-                                            <th>Podatek</th>
-                                            <th>Zysk netto</th>
-                                            <th>Suma netto</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="harmonogramTabela"></tbody>
-                                </table>
-                                <div class="harmonogram-legend"></div>
-                            </div>
-                        </div>
-                        <div class="chart-container-line">
-                            <div class="chart-line">
-                                <canvas id="lokatyChartLine" aria-label="Wykres liniowy wartości lokaty w czasie"></canvas>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Okienko Praca -->
+            <div class="sidebar-box">
+                <h3 class="sidebar-header">Praca</h3>
+                <div class="sidebar-content">
+                    <p><a href="#oferty-pracy-w-finansach">Oferty pracy w finansach</a></p>
+                    <p><a href="#porady-kariera">Porady dotyczące kariery</a></p>
+                    <p><a href="#cv-i-list-motywacyjny">Jak napisać CV i list motywacyjny</a></p>
                 </div>
             </div>
-        </div>
+            <!-- Okienko Pozostałe -->
+            <div class="sidebar-box">
+                <h3 class="sidebar-header">Pozostałe</h3>
+                <div class="sidebar-content">
+                    <p><a href="#kursy-walut">Kursy walut</a></p>
+                    <p><a href="#aktualnosci-finansowe">Aktualności finansowe</a></p>
+                    <p><a href="#kontakt">Kontakt</a></p>
+                </div>
+            </div>
+        </section>
     </div>
+
 <style>
     :root {
         --primary-bg: #f5f6f5;
@@ -169,18 +128,10 @@
         --accent-gradient-start: #c2b280;
         --accent-gradient-end: #b0a070;
         --border-color: #e0e0e0;
-        --border-color-rgb: 102, 102, 102;
         --shadow-color: rgba(0, 0, 0, 0.1);
         --logo-bg: #e9ecef;
-        --input-bg: #fff;
-        --input-group-bg: #f5f5f5;
-        --harmonogram-bg: #f9f9f9;
-        --small-font-size: 0.7em;
-        --border-radius: 5px;
-        --range-bg: #e5e5e5;
         --button-bg: #c2b280;
         --button-text: #333333;
-        --tooltip-color: #000000;
     }
 
     .dark-mode {
@@ -190,17 +141,11 @@
         --accent-color: #8b7d47;
         --accent-gradient-start: #8b7d47;
         --accent-gradient-end: #70673b;
-        --border-color: #f5f5f5;
-        --border-color-rgb: 245, 245, 245;
+        --border-color: #666666;
         --shadow-color: rgba(0, 0, 0, 0.5);
         --logo-bg: #3a3a3a;
-        --input-bg: #3a3a3a;
-        --input-group-bg: #666666;
-        --harmonogram-bg: #404040;
-        --range-bg: #333333;
         --button-bg: #8b7d47;
         --button-text: #e0e0e0;
-        --tooltip-color: #ffffff;
     }
 
     *, ::after, ::before {
@@ -211,26 +156,13 @@
         margin: 0;
         background-color: var(--primary-bg);
         font-family: 'Montserrat', sans-serif;
-        font-size: var(--bs-body-font-size, 1rem);
-        font-weight: var(--bs-body-font-weight, 400);
-        line-height: var(--bs-body-line-height, 1.5);
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
         color: var(--primary-text);
-        text-align: var(--bs-body-text-align, left);
         padding: 10px;
         -webkit-text-size-adjust: 100%;
         -webkit-tap-highlight-color: transparent;
-    }
-
-    .container {
-        --bs-gutter-x: 1.5rem;
-        --bs-gutter-y: 0;
-        width: 100%;
-        padding: 15px calc(var(--bs-gutter-x) * 0.5);
-        margin: 30px auto 0;
-        max-width: 1200px;
-        background: var(--secondary-bg);
-        border-radius: 10px;
-        box-shadow: 0 4px 6px var(--shadow-color);
     }
 
     .logo-container {
@@ -283,2029 +215,237 @@
         margin-right: auto;
     }
 
-    .header-row, .result-header {
-        display: block;
-        margin-bottom: 15px;
-        text-align: center;
-    }
-
-    .header-row h4, .result-header h4 {
-        font-weight: 700;
-        font-size: 1.2em;
-        margin: 0;
-    }
-
-    #resultHeader {
-        margin: 0;
-    }
-
-    .pdf-button-container {
-        text-align: right;
-        margin-bottom: 10px;
-        width: 100%;
-    }
-
-    #generatePdfBtn {
-        display: inline-block;
-        margin: 0;
-        text-align: center;
-    }
-
-    .result-section .pdf-button-container #generatePdfBtn.btn-primary {
-        display: inline-block !important;
-        margin-left: auto;
-        margin-right: 0;
-    }
-
-    .checkbox-label {
+    /* Główny layout portalu */
+    .main-container {
         display: flex;
-        align-items: center;
-        font-size: clamp(0.65em, 1vw, var(--small-font-size));
-        cursor: pointer;
-        position: relative;
-        margin: 5px 0;
-        justify-content: center;
-    }
-
-    .checkbox-label input {
-        position: absolute;
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-
-    .checkbox-custom {
-        width: 16px;
-        height: 16px;
-        border: 2px solid var(--border-color);
-        background-color: var(--input-bg);
-        margin-right: 5px;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-
-    .checkbox-label input:checked + .checkbox-custom {
-        background-color: var(--accent-color);
-        border-color: var(--accent-color);
-    }
-
-    .checkbox-custom::after {
-        content: "✔";
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 12px;
-        color: #000000;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-
-    .checkbox-label input:checked + .checkbox-custom::after {
-        opacity: 1;
-    }
-
-    .form-section {
-        display: block;
-        padding: 10px;
-        position: relative;
-    }
-
-    .result-section {
-        display: none;
-        padding: 10px;
-        position: relative;
-    }
-
-    .form-row, .checkbox-row, .fields-wrapper {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        margin-bottom: 20px;
-        gap: 13px;
         flex-wrap: wrap;
-        text-align: left;
-    }
-
-    .form-row:first-child {
-        margin-bottom: 35px;
-    }
-
-    .form-group {
-        flex: 1;
-        min-width: 150px;
-        max-width: 150px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        text-align: left;
-        margin: 0 5px;
-    }
-
-    .form-label {
-        font-size: var(--small-font-size);
-        text-transform: uppercase;
-        margin-bottom: 5px;
-        text-align: left;
-        width: 100%;
-    }
-
-    .form-control {
-        height: 22px;
-        font-size: var(--small-font-size);
-        padding: 2px;
-        text-align: center;
-        background: var(--input-bg);
-        color: var(--primary-text);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-sizing: border-box;
-        line-height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    #dlugoscUmowy {
-        width: 70px;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-        border-right: none;
-    }
-
-    .select-wrapper {
-        position: relative;
-    }
-
-    .select-hidden {
-        opacity: 0;
-        position: absolute;
-        width: 100%;
-        height: 22px;
-        z-index: 2;
-        cursor: pointer;
-    }
-
-    .form-group:has(#dlugoscUmowy) .select-wrapper {
-        position: relative;
-        width: 80px;
-        max-width: 80px;
-    }
-
-    .form-group:has(#dlugoscUmowy) .select-display {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 22px;
-        font-size: var(--small-font-size);
-        padding: 2px 8px 2px 5px;
-        text-align: center;
-        background: var(--input-bg);
-        color: var(--primary-text);
-        border: 1px solid var(--border-color);
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-top-right-radius: var(--border-radius);
-        border-bottom-right-radius: var(--border-radius);
-        box-sizing: border-box;
-        line-height: 18px;
-        width: 100%;
-        cursor: pointer;
-        z-index: 1;
-    }
-
-    .form-group:has(#kapitalizacja) .select-wrapper {
-        position: relative;
-        width: 150px;
-        max-width: 150px;
-    }
-
-    .form-group:has(#kapitalizacja) .select-display {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 22px;
-        font-size: var(--small-font-size);
-        padding: 2px 8px 2px 5px;
-        text-align: center;
-        background: var(--input-bg);
-        color: var(--primary-text);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-sizing: border-box;
-        line-height: 18px;
-        width: 100%;
-        cursor: pointer;
-        z-index: 1;
-    }
-
-    .form-control:focus {
-        outline: none !important;
-        box-shadow: 0 0 4px var(--accent-color);
-        border-color: var(--border-color);
-        background: var(--input-bg);
-        color: var(--primary-text);
-    }
-
-    .input-group-text {
-        height: 22px;
-        font-size: var(--small-font-size);
-        padding: 2px 5px;
-        text-align: center;
-        background: var(--input-group-bg);
-        color: var(--primary-text);
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        box-sizing: border-box;
-        line-height: 18px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .input-group {
-        width: 150px;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap: 0;
-    }
-
-    input[type="range"].form-range {
-        margin-top: 5px;
-        height: 6px;
-        background: var(--input-group-bg);
-        border: 2px solid var(--border-color);
-        border-radius: var(--border-radius);
-        -webkit-appearance: none !important;
-        appearance: none !important;
-        width: 150px;
-        margin-left: auto;
-        margin-right: auto;
-        outline: none !important;
-        box-shadow: none !important;
-    }
-
-    input[type="range"].form-range:focus,
-    input[type="range"].form-range:active {
-        outline: none !important;
-        box-shadow: none !important;
-        -webkit-appearance: none !important;
-        appearance: none !important;
-    }
-
-    input[type="range"].form-range::-webkit-slider-runnable-track {
-        background: var(--input-group-bg);
-        height: 6px;
-        border-radius: var(--border-radius);
-        -webkit-appearance: none !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    input[type="range"].form-range:focus::-webkit-slider-runnable-track,
-    input[type="range"].form-range:active::-webkit-slider-runnable-track {
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    input[type="range"].form-range::-webkit-slider-thumb {
-        background: var(--accent-gradient-start);
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-        -webkit-appearance: none !important;
-        appearance: none !important;
-        transform: translateY(2px);
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    input[type="range"].form-range::-webkit-slider-thumb:focus,
-    input[type="range"].form-range::-webkit-slider-thumb:active {
-        outline: none !important;
-        box-shadow: none !important;
-        -webkit-appearance: none !important;
-    }
-
-    input[type="range"].form-range::-moz-range-track {
-        background: var(--input-group-bg);
-        height: 6px;
-        border-radius: var(--border-radius);
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    input[type="range"].form-range::-moz-range-thumb {
-        background: var(--accent-gradient-start);
-        width: 11px;
-        height: 11px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-    input[type="range"].form-range::-moz-range-thumb:focus,
-    input[type="range"].form-range::-moz-range-thumb:active {
-        outline: none !important;
-        box-shadow: none !important;
-    }
-
-    .info-text {
-        font-size: 0.40em;
-        color: var(--primary-text);
-        margin-top: 5px;
-        text-align: left;
-        width: 100%;
-    }
-
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: none;
-    }
-
-    .dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
-        filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
-    }
-
-    .result-container, .form-container {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
-        position: relative;
-    }
-
-    .harmonogram-container {
-        display: block;
-        width: 100%;
-    }
-
-    .btn-primary, .btn-secondary, #addVariableBtn, #generatePdfBtn {
-        background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
-        border: none !important;
-        color: var(--primary-text) !important;
-        box-shadow: 0 4px 6px var(--shadow-color);
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
-        border-radius: 25px;
-        display: block;
+        max-width: 1400px;
         margin: 0 auto;
-        transform: translateY(0);
+        gap: 20px;
     }
 
-    .btn-primary:hover, .btn-secondary:hover, #addVariableBtn:hover, #generatePdfBtn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px var(--shadow-color);
-        background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
+    /* Sekcje boczne (lewa i prawa) */
+    .sidebar {
+        flex: 1;
+        min-width: 250px;
+        max-width: 300px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
-    .btn-primary, .btn-secondary {
-        font-size: 0.9em;
-        padding: 8px 20px;
-        margin: 25px auto 0;
+    .left-sidebar {
+        order: 1;
     }
 
-    #addVariableBtn {
-        font-size: var(--small-font-size);
-        padding: 3px 10px;
-        border-radius: 15px;
+    .right-sidebar {
+        order: 3;
     }
 
-    .variable-rate-container {
-        margin-top: 15px;
+    /* Sekcja środkowa */
+    .content-section {
+        flex: 2;
+        min-width: 400px;
+        order: 2;
+    }
+
+    /* Stylizacja okienek w sekcjach bocznych */
+    .sidebar-box {
+        background: var(--secondary-bg);
+        border-radius: 10px;
+        box-shadow: 0 2px 4px var(--shadow-color);
+        padding: 15px;
+    }
+
+    .sidebar-header {
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+        color: var(--button-text);
+        padding: 10px;
+        margin: -15px -15px 15px -15px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        font-size: 1.2em;
+        font-weight: 700;
         text-align: center;
     }
 
-    .variable-inputs {
-        margin-top: 10px;
-        display: none;
+    .sidebar-content {
+        padding: 5px 0;
     }
 
-    .variable-input-group {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 10px;
-        align-items: center;
-        width: auto;
+    .sidebar-content p {
+        margin: 5px 0;
     }
 
-    .variable-inputs-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        width: auto;
+    .sidebar-content a {
+        color: var(--primary-text);
+        text-decoration: none;
+        transition: color 0.3s ease;
     }
 
-    .variable-input-group .form-group {
-        width: 150px;
-        min-width: 0;
-        max-width: none;
-        flex: none;
-        align-items: center;
-        margin: 0 5px;
+    .sidebar-content a:hover {
+        color: var(--accent-color);
+        text-decoration: underline;
     }
 
-    .variable-input-group .form-group .form-label {
-        text-align: left;
+    /* Stylizacja sekcji środkowej */
+    .content-box {
+        background: var(--secondary-bg);
+        border-radius: 10px;
+        box-shadow: 0 2px 4px var(--shadow-color);
+        padding: 20px;
     }
 
-    .variable-input-group .input-group {
-        display: flex;
-        max-width: 150px;
-        width: 150px;
-        justify-content: center;
+    .content-box h2, .content-box h3 {
+        color: var(--primary-text);
+        margin-bottom: 15px;
     }
 
-    .variable-input-group .btn-danger {
-        font-size: var(--small-font-size);
-        padding: 2px 8px;
-        height: 22px;
-        line-height: 18px;
-        background: #dc3545;
+    .content-box p {
+        margin-bottom: 15px;
+    }
+
+    .content-box iframe {
+        border-radius: 10px;
+        margin-bottom: 15px;
+    }
+
+    /* Stylizacja kalkulatora */
+    .calculator {
+        background: #000;
+        border-radius: 20px;
+        padding: 15px;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    #calcDisplay {
+        width: 100%;
+        height: 50px;
+        background: #000;
+        color: #fff;
+        font-size: 2em;
+        text-align: right;
+        padding: 10px;
         border: none;
-        border-radius: var(--border-radius);
+        outline: none;
+        margin-bottom: 10px;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .calc-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+
+    .calc-btn {
+        background: #333;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 1.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .calc-btn:hover {
+        background: #555;
+    }
+
+    .calc-number {
+        background: #505050;
+    }
+
+    .calc-operation {
+        background: #ff9500;
         color: #fff;
     }
 
-    .remove-btn-wrapper {
-        display: flex;
-        justify-content: center;
-        margin-top: 5px;
-        align-self: center;
-        width: 100%;
+    .calc-clear {
+        background: #a5a5a5;
+        color: #000;
     }
 
-    .remove-first-btn-wrapper {
-        display: flex;
-        justify-content: center;
-        margin-top: 5px;
-        align-self: center;
-        width: 100%;
+    .calc-equals {
+        background: #ff9500;
+        color: #fff;
     }
 
-    .result-wrapper-chart {
-        width: 100%;
-        max-width: none;
+    .calc-zero {
+        grid-column: span 2;
+        border-radius: 30px;
+        width: 130px;
     }
 
-    .summary-bars {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .summary-bar {
-        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        color: var(--primary-text);
-        padding: 6px 20px;
-        margin: 5px 0;
-        border-radius: var(--border-radius);
-        text-align: center;
-        font-size: 0.9em;
-        position: relative;
-        cursor: pointer;
-        transition: color 0.3s ease;
-        width: 90%;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .summary-bar .label {
-        font-weight: normal;
-        color: var(--primary-text);
-        transition: opacity 0.1s ease;
-    }
-
-    .summary-bar .value {
-        font-weight: bold;
-        color: var(--primary-text);
-        transition: opacity 0.1s ease;
-    }
-
-    .summary-bar:hover .label, .summary-bar:hover .value {
-        opacity: 0;
-    }
-
-    .summary-bar:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: var(--tooltip-color);
-        font-weight: bold;
-        font-size: 1.1em;
-        z-index: 1;
-    }
-
-    .result-wrapper-harmonogram {
-        display: block;
-        width: 100%;
-    }
-
-    .harmonogram-chart-container {
-        background: var(--harmonogram-bg);
-        padding: 15px;
-        border-radius: var(--border-radius);
-        box-shadow: 0 2px 4px var(--shadow-color);
-        width: 90%;
-        margin: 30px auto 0 auto;
-    }
-
-    .harmonogram {
-        margin-top: 0;
-        background: none;
-        padding: 0;
-        box-shadow: none;
-    }
-
-    .harmonogram h5 {
-        margin: 0;
-        font-size: 1em;
-        cursor: pointer;
-        color: var(--primary-text);
-    }
-
-    .harmonogram h5.btn-toggle {
-        margin: 0 auto;
-        text-align: center;
-        font-size: 0.65em;
-        font-weight: 700;
-        cursor: pointer;
-        color: var(--primary-text);
-        text-decoration: underline;
-        padding-bottom: 10px;
-        display: block;
-        width: fit-content;
-    }
-
-
-    .harmonogram table {
-        width: 97%;
-        max-width: 97%;
-        margin: 0 auto;
-        display: table;
-        border-collapse: collapse;
-        border-spacing: 0;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px var(--shadow-color);
-        background: var(--harmonogram-bg);
-        font-size: clamp(0.55em, 1.2vw, 0.8em);
-        table-layout: auto;
-    }
-
-    .harmonogram th {
-        background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        color: var(--primary-text);
-        font-weight: 400;
-        font-size: clamp(0.6em, 1.25vw, 0.85em);
-        padding: clamp(1px, 0.5vw, 12px);
-        text-align: center;
-        vertical-align: middle;
-        border-bottom: 2px solid var(--border-color);
-        border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
-        border: 1px solid var(--border-color); 
-        border-top: none;
-    }
-
-    .harmonogram td {
-        padding: clamp(1px, 0.5vw, 10px);
-        font-weight: 400;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
-        border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
-        background: var(--harmonogram-bg);
-        color: var(--primary-text);
-        font-size: clamp(0.55em, 1.2vw, 0.8em);
-        line-height: 1; 
-        vertical-align: middle;
-    }
-
-    .harmonogram th:last-child,
-    .harmonogram td:last-child {
-        border-right: none;
-    }
-
-    .harmonogram .table-striped tbody tr:nth-of-type(odd) {
-        background-color: rgba(0, 0, 0, 0.05);
-    }
-    
-    .harmonogram-legend {
-        margin-top: 4px;
-        font-size: clamp(0.25em, 0.8vw, 0.35em);        
-        text-align: left;
-        padding-left: 0.5cm;
-    }
-
-    .harmonogram td .star {
-        color: #c2b280 !important;
-        font-size: 1em;
-        vertical-align: middle;
-        margin-right: 2px;
-        line-height: 1;
-    }
-    
-    .harmonogram-legend .star {
-        color: #c2b280 !important;
-        font-size: 1.8em;
-        vertical-align: middle;
-        margin-right: 2px;
-        line-height: 1;
-    }
-
-    .harmonogram-legend .legend-text {
-        font-size: 1em;
-        color: var(--primary-text);
-        font-weight: bold;
-        vertical-align: middle;
-    }
-
-    .harmonogram td:nth-child(3) {
-        align-items: center;
-        justify-content: center;
-    }
-
-    .star {
-        font-size: 1em;
-        vertical-align: middle;
-        line-height: 1;
-    }
-    
-    .legend-text {
-        color: #333333;
-        font-weight: bold;
-        vertical-align: middle;
-    }
-
-    .chart-container-line {
-        margin-top: 20px;
-        width: 100%;
-        height: 300px;
-        position: relative;
-    }
-
-    .chart-container-line.hidden {
-        display: none;
-    }
-
-    .chart-line {
-        width: 100%;
-        height: 100%;
-    }
-
-    .chart-line canvas {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    .dark-mode .harmonogram .table-striped tbody tr:nth-of-type(odd) {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .dark-mode .legend-text {
-        color: #e0e0e0;
-    }
-
-    .dark-mode .harmonogram table {
-        background: #666666;
-        color: #e0e0e0;
-        border-bottom: 2px solid #666666;
-        border-right: none; /*1px solid rgba(var(--border-color-rgb), 0.3);*/
-        border: 1px solid #666666;
-    }
-
-    .dark-mode .harmonogram th {
-        color: var(--primary-text);
-        border-bottom: 2px solid #666666;
-        border-right: 1px solid #666666;
-        border-top: none;
-    }
-    
-    .dark-mode .harmonogram td {
-        background: #404040;
-        border-bottom: 1px solid #666666;
-        border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
-        color: var(--primary-text);
-    }
-
-    .dark-mode .harmonogram td .star,
-    .dark-mode .harmonogram-legend .star {
-        color: #c2b280;
-    }
-
-
-    @media (max-width: 768px) {
-        .harmonogram table {
-            font-size: clamp(0.5em, 1.1vw, 0.75em);
+    /* Responsywność */
+    @media (max-width: 1200px) {
+        .sidebar {
+            flex: 1 1 100%;
+            max-width: 100%;
         }
-        .harmonogram th {
-            font-size: clamp(0.55em, 1.15vw, 0.8em);
+
+        .content-section {
+            flex: 1 1 100%;
+            min-width: 100%;
         }
-        .harmonogram td {
-            font-size: clamp(0.5em, 1.1vw, 0.75em);
+
+        .left-sidebar, .right-sidebar, .content-section {
+            order: initial;
         }
     }
-    
 
     @media (max-width: 576px) {
-        .form-row, .checkbox-row, .fields-wrapper, .variable-inputs-wrapper {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
+        .calc-btn {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2em;
         }
 
-        .form-group, .input-group {
-            width: 200px;
-            max-width: 200px;
-            min-width: 200px;
-            margin: 5px 0;
-            align-self: flex-start;
+        .calc-zero {
+            width: 110px;
         }
 
-        .form-control, .select-display {
-            height: 26px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        #dlugoscUmowy {
-            width: 120px;
-        }
-
-        .input-group-text {
-            height: 26px;
-            width: 80px;
-            padding: 4px 8px;
-            line-height: 20px;
-        }
-
-        .form-group:has(#dlugoscUmowy) .select-wrapper {
-            width: 80px;
-            max-width: 80px;
-        }
-
-        .form-group:has(#dlugoscUmowy) .select-display {
-            width: 80px;
-            height: 26px;
-            line-height: 20px;
-        }
-
-        .form-group:has(#dlugoscUmowy) .form-range {
-            width: 200px;
-            align-self: flex-start;
-        }
-
-        .form-group:has(#kapitalizacja) .select-wrapper {
-            width: 200px;
-            max-width: 200px;
-        }
-
-        .form-group:has(#kapitalizacja) .select-display {
-            width: 200px;
-            height: 26px;
-            line-height: 20px;
-        }
-
-        input[type="range"].form-range {
-            width: 200px;
-            align-self: flex-start;
-            -webkit-appearance: none !important;
-            appearance: none !important;
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        input[type="range"].form-range:focus,
-        input[type="range"].form-range:active {
-            outline: none !important;
-            box-shadow: none !important;
-            -webkit-appearance: none !important;
-            appearance: none !important;
-        }
-
-        input[type="range"].form-range::-webkit-slider-runnable-track {
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        input[type="range"].form-range:focus::-webkit-slider-runnable-track,
-        input[type="range"].form-range:active::-webkit-slider-runnable-track {
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        input[type="range"].form-range::-webkit-slider-thumb {
-            -webkit-appearance: none !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        input[type="range"].form-range::-webkit-slider-thumb:focus,
-        input[type="range"].form-range::-webkit-slider-thumb:active {
-            outline: none !important;
-            box-shadow: none !important;
-            -webkit-appearance: none !important;
-        }
-
-        input[type="range"].form-range::-moz-range-track {
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        input[type="range"].form-range::-moz-range-thumb {
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        input[type="range"].form-range::-moz-range-thumb:focus,
-        input[type="range"].form-range::-moz-range-thumb:active {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        .harmonogram table {
-            font-size: clamp(0.45em, 1vw, 0.7em);
-        }
-        .harmonogram th {
-            font-size: clamp(0.5em, 1.05vw, 0.75em);
-        }
-        .harmonogram td {
-            font-size: clamp(0.45em, 1vw, 0.7em);
-        }
-
-        .chart-container-line {
-            height: 200px;
-        }
-
-        .variable-input-group {
-            align-items: flex-start;
-            width: 100%;
-        }
-
-        .variable-inputs-wrapper {
-            align-items: flex-start;
-            width: 100%;
-        }
-
-        .variable-input-group .form-group {
-            width: 200px;
-            margin: 5px 0;
-            align-self: flex-start;
-            align-items: flex-start;
-        }
-
-        .variable-input-group .input-group {
-            width: 200px;
-            max-width: 200px;
-            justify-content: flex-start;
-        }
-
-        .remove-btn-wrapper {
-            justify-content: center;
-        }
-
-        .remove-first-btn-wrapper {
-            justify-content: center;
-        }
-
-        .logo-container {
-            display: flex !important;
-            justify-content: flex-start !important;
-            text-align: left !important;
-            flex-wrap: wrap;
-        }
-
-        .logo,
-        #siteLogo {
-            margin: 0 !important;
-            padding: 10px 0;
-            max-width: 150px;
+        #calcDisplay {
+            font-size: 1.5em;
+            height: 40px;
         }
     }
 </style>
+
 <script>
-
-    const formatNumber = (num) => {
-        return parseFloat(num).toLocaleString('pl-PL', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-            useGrouping: true // Wymuszenie separatora tysięcy
-        });
-    };
-    
-    const elements = {
-        formSection: document.getElementById("formSection"),
-        resultSection: document.getElementById("resultSection"),
-        kwota: document.getElementById("kwota"),
-        kwotaRange: document.getElementById("kwotaRange"),
-        dlugoscUmowy: document.getElementById("dlugoscUmowy"),
-        dlugoscUmowyRange: document.getElementById("dlugoscUmowyRange"),
-        jednostkaOkresu: document.getElementById("jednostkaOkresu"),
-        oprocentowanie: document.getElementById("oprocentowanie"),
-        oprocentowanieRange: document.getElementById("oprocentowanieRange"),
-        dataRozpoczecia: document.getElementById("dataRozpoczecia"),
-        zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
-        podatek: document.getElementById("podatek"),
-        podatekRange: document.getElementById("podatekRange"),
-        kapitalizacja: document.getElementById("kapitalizacja"),
-        obliczBtn: document.getElementById("obliczBtn"),
-        addVariableBtn: document.getElementById("addVariableBtn"),
-        resultHeader: document.getElementById("resultHeader"),
-        lokatyChartLine: document.getElementById("lokatyChartLine"),
-        generatePdfBtn: document.getElementById("generatePdfBtn"),
-        harmonogramTabela: document.getElementById("harmonogramTabela"),
-        dataZakonczenia: document.getElementById("dataZakonczenia")
-    };
-    
-    const state = {
-        chartLine: null,
-        harmonogramData: [],
-        variableRates: [],
-        lastFormData: {
-            kwota: 10000,
-            dlugoscUmowy: 3,
-            jednostkaOkresu: "miesiace",
-            oprocentowanie: 4,
-            dataRozpoczecia: new Date().toISOString().split('T')[0],
-            podatek: 19,
-            kapitalizacja: "naKoniec",
-            zmienneOprocentowanie: false
-        },
-        isCalculating: false
-    };
-    
-    window.addEventListener("load", () => {
-        elements.formSection.style.display = "block";
-        elements.resultSection.style.display = "none";
-        updateDlugoscUmowyRange();
-        updateKapitalizacjaOptions();
-        updateZmienneOprocentowanieVisibility(); // Dodajemy inicjalizację widoczności
-    });
-    
-    elements.dataRozpoczecia.value = new Date().toISOString().split('T')[0];
-    
-    // Synchronizacja suwaka i pola liczbowego dla "Kwota"
-    elements.kwotaRange.addEventListener("input", () => {
-        let value = parseFloat(elements.kwotaRange.value);
-        if (value < 1) {
-            value = 1;
-            elements.kwotaRange.value = value;
-        }
-        elements.kwota.value = value;
-    });
-    elements.kwota.addEventListener("input", () => {
-        let value = parseFloat(elements.kwota.value);
-        const maxValue = parseFloat(elements.kwotaRange.max);
-        if (isNaN(value) || value < 1) {
-            value = 1;
-            elements.kwota.value = value;
-        }
-        if (value > maxValue) {
-            value = maxValue;
-            elements.kwota.value = value;
-        }
-        elements.kwotaRange.value = value;
-    });
-    
-    // Synchronizacja suwaka i pola liczbowego dla "Oprocentowanie"
-    elements.oprocentowanieRange.addEventListener("input", () => {
-        let value = parseFloat(elements.oprocentowanieRange.value) || 0.1;
-        if (value < 0.1) {
-            value = 0.1;
-            elements.oprocentowanieRange.value = value;
-        }
-        elements.oprocentowanie.value = value;
-    });
-    elements.oprocentowanie.addEventListener("input", () => {
-        let value = parseFloat(elements.oprocentowanie.value);
-        const maxValue = parseFloat(elements.oprocentowanieRange.max);
-        if (isNaN(value) || value < 0.1) {
-            value = 0.1;
-            elements.oprocentowanie.value = value.toFixed(1);
-        }
-        if (value > maxValue) {
-            value = maxValue;
-            elements.oprocentowanie.value = value.toFixed(1);
-        }
-        elements.oprocentowanieRange.value = value;
-    });
-    
-    // Synchronizacja suwaka i pola liczbowego dla "Podatek"
-    elements.podatekRange.addEventListener("input", () => {
-        elements.podatek.value = elements.podatekRange.value;
-    });
-    elements.podatek.addEventListener("input", () => {
-        elements.podatekRange.value = elements.podatek.value;
-    });
-    
-    // Synchronizacja suwaka i pola liczbowego dla "Długość umowy"
-    elements.dlugoscUmowyRange.addEventListener("input", () => {
-        let value = parseInt(elements.dlugoscUmowyRange.value) || 1;
-        if (value < 1) {
-            value = 1;
-            elements.dlugoscUmowyRange.value = value;
-        }
-        elements.dlugoscUmowy.value = value;
-        updateInfoTexts();
-        updateVariableInputs();
-        updateKapitalizacjaOptions(); // Aktualizacja opcji kapitalizacji
-    });
-    
-    elements.dlugoscUmowy.addEventListener("input", () => {
-        let value = parseInt(elements.dlugoscUmowy.value);
-        const maxValue = parseInt(elements.dlugoscUmowyRange.max);
-        if (isNaN(value) || value < 1) {
-            value = 1;
-            elements.dlugoscUmowy.value = value;
-        }
-        if (value > maxValue) {
-            value = maxValue;
-            elements.dlugoscUmowy.value = value;
-        }
-        elements.dlugoscUmowyRange.value = value;
-        updateInfoTexts();
-        updateVariableInputs();
-        updateKapitalizacjaOptions(); // Aktualizacja opcji kapitalizacji
-    });
-    
-    function updateDlugoscUmowyRange() {
-        const jednostka = elements.jednostkaOkresu.value;
-        let maxValue;
-        if (jednostka === "dni") {
-            maxValue = 365;
-        } else if (jednostka === "miesiace") {
-            maxValue = 36;
-        } else if (jednostka === "lata") {
-            maxValue = 10;
-        }
-        elements.dlugoscUmowyRange.min = 1;
-        elements.dlugoscUmowyRange.max = maxValue;
-        elements.dlugoscUmowyRange.step = 1;
-        let currentValue = parseInt(elements.dlugoscUmowy.value) || 1;
-        if (currentValue > maxValue) {
-            currentValue = maxValue;
-            elements.dlugoscUmowy.value = currentValue;
-        }
-        elements.dlugoscUmowyRange.value = currentValue;
-        updateInfoTexts();
-        updateVariableInputs();
-    }
-    
-    function updateSelectDisplay(selectElement, displayElement) {
-        const selectedOption = selectElement.options[selectElement.selectedIndex].text;
-        displayElement.textContent = `${selectedOption} ▼`;
-    }
-    
-    const jednostkaOkresuSelect = document.getElementById("jednostkaOkresu");
-    const jednostkaOkresuDisplay = document.getElementById("jednostkaOkresuDisplay");
-    updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
-    
-    const kapitalizacjaSelect = document.getElementById("kapitalizacja");
-    const kapitalizacjaDisplay = document.getElementById("kapitalizacjaDisplay");
-    updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
-    
-    jednostkaOkresuSelect.addEventListener("change", () => {
-        updateSelectDisplay(jednostkaOkresuSelect, jednostkaOkresuDisplay);
-        updateDlugoscUmowyRange();
-        updateKapitalizacjaOptions(); // Aktualizacja opcji kapitalizacji
-    });
-    
-    kapitalizacjaSelect.addEventListener("change", () => {
-        updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
-    });
-    
-    jednostkaOkresuDisplay.addEventListener("click", () => {
-        jednostkaOkresuSelect.focus();
-        jednostkaOkresuSelect.click();
-    });
-    
-    kapitalizacjaDisplay.addEventListener("click", () => {
-        kapitalizacjaSelect.focus();
-        kapitalizacjaSelect.click();
-    });
-    
-    function updateKapitalizacjaOptions() {
-        const jednostka = elements.jednostkaOkresu.value;
-        const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-        const kapitalizacjaSelect = elements.kapitalizacja;
-        const kapitalizacjaDisplay = document.getElementById("kapitalizacjaDisplay");
-    
-        const currentValue = kapitalizacjaSelect.value;
-        kapitalizacjaSelect.innerHTML = "";
-    
-        let options = [];
-        if (jednostka === "dni") {
-            if (dlugoscUmowy === 1) {
-                options = [{ value: "naKoniec", text: "Na koniec okresu" }];
-            } else {
-                options = [
-                    { value: "naKoniec", text: "Na koniec okresu" },
-                    { value: "dzienna", text: "Dzienna" }
-                ];
-            }
-        } else if (jednostka === "miesiace") {
-            if (dlugoscUmowy === 1) {
-                options = [
-                    { value: "naKoniec", text: "Na koniec okresu" },
-                    { value: "dzienna", text: "Dzienna" }
-                ];
-            } else if (dlugoscUmowy >= 24) {
-                options = [
-                    { value: "naKoniec", text: "Na koniec okresu" },
-                    { value: "dzienna", text: "Dzienna" },
-                    { value: "miesieczna", text: "Miesięczna" },
-                    { value: "roczna", text: "Roczna" }
-                ];
-            } else {
-                options = [
-                    { value: "naKoniec", text: "Na koniec okresu" },
-                    { value: "dzienna", text: "Dzienna" },
-                    { value: "miesieczna", text: "Miesięczna" }
-                ];
-            }
-        } else if (jednostka === "lata") {
-            if (dlugoscUmowy === 1) {
-                options = [
-                    { value: "naKoniec", text: "Na koniec okresu" },
-                    { value: "dzienna", text: "Dzienna" },
-                    { value: "miesieczna", text: "Miesięczna" }
-                ];
-            } else {
-                options = [
-                    { value: "naKoniec", text: "Na koniec okresu" },
-                    { value: "dzienna", text: "Dzienna" },
-                    { value: "miesieczna", text: "Miesięczna" },
-                    { value: "roczna", text: "Roczna" }
-                ];
-            }
-        }
-    
-        options.forEach(option => {
-            const opt = document.createElement("option");
-            opt.value = option.value;
-            opt.text = option.text;
-            if (option.value === "naKoniec") opt.selected = true;
-            kapitalizacjaSelect.appendChild(opt);
-        });
-    
-        if (options.some(opt => opt.value === currentValue)) {
-            kapitalizacjaSelect.value = currentValue;
-        } else {
-            kapitalizacjaSelect.value = "naKoniec";
-        }
-    
-        updateSelectDisplay(kapitalizacjaSelect, kapitalizacjaDisplay);
-    }
-    
-    function updateInfoTexts() {
-        const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-        const jednostka = elements.jednostkaOkresu.value;
-        const dataRozpoczecia = new Date(elements.dataRozpoczecia.value);
-        const dataZakonczenia = new Date(dataRozpoczecia);
-        if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
-        else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
-        else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
-        elements.dataZakonczenia.textContent = `Data zakończenia: ${dataZakonczenia.toLocaleDateString('pl-PL')}`;
-    }
-    
-    updateInfoTexts();
-    updateVariableInputs();
-    
-    elements.dataRozpoczecia.addEventListener("change", updateInfoTexts);
-    
-    elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-        state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-        if (!elements.zmienneOprocentowanieBtn.checked) {
-            state.variableRates = [];
-        } else {
-            const defaultValue = parseFloat(elements.oprocentowanie.value) || 4;
-            state.variableRates = [];
-            state.variableRates.push({ value: defaultValue, period: 2 });
-        }
-        updateVariableInputs();
-    });
-    
-    elements.obliczBtn.addEventListener("click", obliczLokate);
-    elements.addVariableBtn.addEventListener("click", addVariableChange);
-    elements.generatePdfBtn.addEventListener("click", generatePDF);
-    
-    function updateVariableInputs() {
-        const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-        const variableInputs = document.getElementById("variableInputs");
-        const variableCheckboxRow = document.getElementById("variableCheckboxRow");
-        const addVariableBtn = elements.addVariableBtn;
-        const wrapper = document.getElementById("variableInputsWrapper");
-        const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-        const jednostka = elements.jednostkaOkresu.value;
-        const kapitalizacja = elements.kapitalizacja.value;
-    
-        let maxCykl = dlugoscUmowy;
-    
-        // Jeśli kapitalizacja to "Na koniec okresu", kontener jest już ukryty przez updateZmienneOprocentowanieVisibility
-        if (kapitalizacja === "naKoniec") {
-            return; // Nie robimy nic, bo kontener jest ukryty
-        }
-    
-        if (dlugoscUmowy === 1) {
-            variableCheckboxRow.style.display = "none";
-            elements.zmienneOprocentowanieBtn.checked = false;
-            state.lastFormData.zmienneOprocentowanie = false;
-            state.variableRates = [];
-            variableInputs.style.display = "none";
-            addVariableBtn.style.display = "none";
-            wrapper.innerHTML = "";
-            return;
-        } else {
-            variableCheckboxRow.style.display = "block";
-        }
-    
-        state.variableRates = state.variableRates.filter(change => change.period <= maxCykl);
-    
-        if (isZmienneOprocentowanie) {
-            variableInputs.style.display = "block";
-            addVariableBtn.style.display = "block";
-    
-            const maxChanges = maxCykl - 1;
-            const data = state.variableRates;
-    
-            if (data.length === 0 && data.length < maxChanges) {
-                data.push({ value: parseFloat(elements.oprocentowanie.value) || 4, period: 2 });
-            }
-    
-            wrapper.innerHTML = "";
-            const changes = state.variableRates;
-    
-            changes.forEach((change, index) => {
-                const inputGroup = document.createElement("div");
-                inputGroup.className = "variable-input-group";
-    
-                const fieldsWrapper = document.createElement("div");
-                fieldsWrapper.className = "fields-wrapper";
-    
-                const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
-    
-                const cyklGroup = document.createElement("div");
-                cyklGroup.className = "form-group";
-                cyklGroup.innerHTML = `
-                    <label class="form-label">Od</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
-                        <span class="input-group-text">${jednostka === "dni" ? "dnia" : jednostka === "miesiace" ? "miesiąca" : "roku"}</span>
-                    </div>
-                    <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
-                `;
-    
-                const rateGroup = document.createElement("div");
-                rateGroup.className = "form-group";
-                rateGroup.innerHTML = `
-                    <label class="form-label">Oprocentowanie</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="${change.value}">
-                        <span class="input-group-text">%</span>
-                    </div>
-                    <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.1" value="${change.value}">
-                `;
-    
-                fieldsWrapper.appendChild(cyklGroup);
-                fieldsWrapper.appendChild(rateGroup);
-                inputGroup.appendChild(fieldsWrapper);
-    
-                if (index === 0 && changes.length === 1) {
-                    const removeFirstBtnWrapper = document.createElement("div");
-                    removeFirstBtnWrapper.className = "remove-first-btn-wrapper";
-                    const removeFirstBtn = document.createElement("button");
-                    removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
-                    removeFirstBtn.textContent = "Usuń";
-                    removeFirstBtn.onclick = () => {
-                        state.variableRates = [];
-                        elements.zmienneOprocentowanieBtn.checked = false;
-                        state.lastFormData.zmienneOprocentowanie = false;
-                        variableInputs.style.display = "none";
-                        addVariableBtn.style.display = "none";
-                        wrapper.innerHTML = "";
-                    };
-                    removeFirstBtnWrapper.appendChild(removeFirstBtn);
-                    inputGroup.appendChild(removeFirstBtnWrapper);
-                }
-    
-                if (index === changes.length - 1 && changes.length > 1) {
-                    const removeBtnWrapper = document.createElement("div");
-                    removeBtnWrapper.className = "remove-btn-wrapper";
-                    const removeBtn = document.createElement("button");
-                    removeBtn.className = "btn btn-danger btn-sm";
-                    removeBtn.textContent = "Usuń";
-                    removeBtn.onclick = () => removeVariableChange(index);
-                    removeBtnWrapper.appendChild(removeBtn);
-                    inputGroup.appendChild(removeBtnWrapper);
-                }
-    
-                wrapper.appendChild(inputGroup);
-    
-                const cyklInput = inputGroup.querySelector(".variable-cykl");
-                const cyklRange = inputGroup.querySelector(".variable-cykl-range");
-                const rateInput = inputGroup.querySelector(".variable-rate");
-                const rateRange = inputGroup.querySelector(".variable-rate-range");
-    
-                cyklInput.addEventListener("input", () => {
-                    let value = parseInt(cyklInput.value);
-                    if (value < minPeriod) {
-                        value = minPeriod;
-                        cyklInput.value = value;
-                    }
-                    if (value > maxCykl) {
-                        value = maxCykl;
-                        cyklInput.value = value;
-                    }
-                    cyklRange.value = value;
-                    changes[index].period = value;
-                    for (let i = changes.length - 1; i > index; i--) {
-                        if (changes[i].period <= value) {
-                            changes.splice(i, 1);
-                        }
-                    }
-                    updateVariableData();
-                    updateVariableInputs();
-                });
-    
-                cyklRange.addEventListener("change", () => {
-                    let value = Math.round(parseFloat(cyklRange.value));
-                    if (value < minPeriod) value = minPeriod;
-                    if (value > maxCykl) value = maxCykl;
-                    cyklRange.value = value;
-                    cyklInput.value = value;
-                    changes[index].period = value;
-                    for (let i = changes.length - 1; i > index; i--) {
-                        if (changes[i].period <= value) {
-                            changes.splice(i, 1);
-                        }
-                    }
-                    updateVariableData();
-                    updateVariableInputs();
-                });
-    
-                rateInput.addEventListener("input", () => {
-                    let value = parseFloat(rateInput.value);
-                    if (isNaN(value) || value < 0.1) {
-                        value = 0.1;
-                        rateInput.value = value.toFixed(1);
-                    }
-                    if (value > 25) {
-                        value = 25;
-                        rateInput.value = value.toFixed(1);
-                    }
-                    rateRange.value = value;
-                    changes[index].value = value;
-                    updateVariableData();
-                });
-    
-                rateRange.addEventListener("input", () => {
-                    let value = parseFloat(rateRange.value) || 0.1;
-                    if (value < 0.1) {
-                        value = 0.1;
-                        rateRange.value = value;
-                    }
-                    rateInput.value = value;
-                    changes[index].value = value;
-                    updateVariableData();
-                });
-            });
-    
-            const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-            const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-            const remainingPeriods = lastChange ? maxCykl - lastChange.period : maxCykl - 1;
-            addVariableBtn.style.display = (!isMaxPeriodReached && remainingPeriods > 0) ? "block" : "none";
-        } else {
-            variableInputs.style.display = "none";
-            addVariableBtn.style.display = "none";
-            wrapper.innerHTML = "";
-        }
-    }
-    
-    function addVariableChange() {
-        const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-        const jednostka = elements.jednostkaOkresu.value;
-        let maxCykl = dlugoscUmowy;
-        const changes = state.variableRates;
-    
-        const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-        const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-    
-        if (changes.length > 0 && !isMaxPeriodReached) {
-            const lastPeriod = changes[changes.length - 1].period;
-            const newPeriod = Math.min(lastPeriod + 1, maxCykl);
-            changes.push({ value: parseFloat(elements.oprocentowanie.value) || 4, period: newPeriod });
-            updateVariableData();
-            updateVariableInputs();
-        }
-    }
-    
-    function removeVariableChange(index) {
-        state.variableRates.splice(index, 1);
-        updateVariableData();
-        updateVariableInputs();
-    }
-    
-    function updateVariableData() {
-        state.variableRates.sort((a, b) => a.period - b.period);
-    }
-    
-    function obliczLokate() {
-        if (state.isCalculating) return;
-        state.isCalculating = true;
-    
-        const kwota = parseFloat(elements.kwota.value) || 10000;
-        const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-        const jednostka = elements.jednostkaOkresu.value;
-        const oprocentowanie = parseFloat(elements.oprocentowanie.value) || 4;
-        const dataRozpoczecia = new Date(elements.dataRozpoczecia.value);
-        const podatek = parseFloat(elements.podatek.value) || 19;
-        const kapitalizacja = elements.kapitalizacja.value;
-        const zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-    
-        let dni;
-        if (jednostka === "dni") dni = dlugoscUmowy;
-        else if (jednostka === "miesiace") dni = Math.round(dlugoscUmowy * 30.42);
-        else dni = dlugoscUmowy * 365;
-    
-        const dataZakonczenia = new Date(dataRozpoczecia);
-        if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
-        else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
-        else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
-    
-        let kapital = kwota;
-        let sumaOdsetekBrutto = 0;
-        let sumaPodatku = 0;
-        let sumaZyskuNetto = 0;
-        state.harmonogramData = [];
-    
-        let liczbaOkresowTabela;
-        if (kapitalizacja === "dzienna") liczbaOkresowTabela = dni;
-        else if (kapitalizacja === "miesieczna") liczbaOkresowTabela = jednostka === "miesiace" ? dlugoscUmowy : Math.ceil(dni / 30.42);
-        else if (kapitalizacja === "roczna") liczbaOkresowTabela = jednostka === "lata" ? dlugoscUmowy : Math.ceil(dni / 365);
-        else liczbaOkresowTabela = 1;
-    
-        const liczbaOkresowWykres = jednostka === "dni" ? dlugoscUmowy : jednostka === "miesiace" ? dlugoscUmowy : dlugoscUmowy;
-        const dniWRoku = 365;
-    
-        let aktualneOprocentowanie = oprocentowanie;
-        let poprzednieOprocentowanie = oprocentowanie;
-    
-        if (kapitalizacja === "naKoniec") {
-            const lata = dni / dniWRoku;
-            const oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * lata;
-            const odsetkiBrutto = kwota * oprocentowanieOkresowe;
-            const podatekOkresowy = odsetkiBrutto * (podatek / 100);
-            const zyskNetto = odsetkiBrutto - podatekOkresowy;
-    
-            sumaOdsetekBrutto = odsetkiBrutto;
-            sumaPodatku = podatekOkresowy;
-            sumaZyskuNetto = zyskNetto;
-            kapital = kwota + zyskNetto;
-        } else {
-            for (let okres = 1; okres <= liczbaOkresowTabela; okres++) {
-                if (zmienneOprocentowanie) {
-                    let okresWJednostce;
-                    if (kapitalizacja === "dzienna") okresWJednostce = jednostka === "dni" ? okres : Math.ceil(okres / (jednostka === "miesiace" ? 30.42 : 365));
-                    else if (kapitalizacja === "miesieczna") okresWJednostce = jednostka === "miesiace" ? okres : Math.ceil(okres / (jednostka === "dni" ? 30.42 : 12));
-                    else if (kapitalizacja === "roczna") okresWJednostce = jednostka === "lata" ? okres : Math.ceil(okres / (jednostka === "dni" ? 365 : 12));
-                    else okresWJednostce = okres;
-    
-                    const zmiana = state.variableRates.find(rate => rate.period === okresWJednostce);
-                    if (zmiana) aktualneOprocentowanie = zmiana.value;
-                }
-    
-                const dniWOkresie = kapitalizacja === "dzienna" ? 1 : kapitalizacja === "miesieczna" ? 30.42 : 365;
-                const oprocentowanieOkresowe = (aktualneOprocentowanie / 100) * (dniWOkresie / dniWRoku);
-    
-                const wartoscPoczatkowa = kapital;
-                const odsetkiBrutto = wartoscPoczatkowa * oprocentowanieOkresowe;
-                const podatekOkresowy = odsetkiBrutto * (podatek / 100);
-                const zyskNetto = odsetkiBrutto - podatekOkresowy;
-    
-                let zmianaOprocentowania = false;
-                if (zmienneOprocentowanie && aktualneOprocentowanie !== poprzednieOprocentowanie) {
-                    zmianaOprocentowania = true;
-                    poprzednieOprocentowanie = aktualneOprocentowanie;
-                }
-    
-                kapital += zyskNetto;
-                sumaOdsetekBrutto += odsetkiBrutto;
-                sumaPodatku += podatekOkresowy;
-                sumaZyskuNetto += zyskNetto;
-    
-                state.harmonogramData.push({
-                    okres: okres,
-                    wartoscLokaty: wartoscPoczatkowa.toFixed(2),
-                    oprocentowanie: aktualneOprocentowanie.toFixed(2),
-                    odsetkiBrutto: odsetkiBrutto.toFixed(2),
-                    sumaOdsetek: sumaOdsetekBrutto.toFixed(2),
-                    podatek: podatekOkresowy.toFixed(2),
-                    zyskNetto: zyskNetto.toFixed(2),
-                    sumaNetto: kapital.toFixed(2),
-                    zmianaOprocentowania: zmianaOprocentowania
-                });
-            }
-        }
-    
-        const summaryBars = document.querySelector(".summary-bars");
-        summaryBars.innerHTML = `
-            <div class="summary-bar" data-tooltip="${formatNumber(kwota)} zł"><span class="label">Kwota lokaty:</span> <span class="value">${formatNumber(kwota)} zł</span></div>
-            <div class="summary-bar" data-tooltip="${formatNumber(sumaOdsetekBrutto)} zł"><span class="label">Odsetki brutto:</span> <span class="value">${formatNumber(sumaOdsetekBrutto)} zł</span></div>
-            <div class="summary-bar" data-tooltip="${formatNumber(sumaPodatku)} zł"><span class="label">Podatek:</span> <span class="value">${formatNumber(sumaPodatku)} zł</span></div>
-            <div class="summary-bar" data-tooltip="${formatNumber(sumaZyskuNetto)} zł"><span class="label">Odsetki netto:</span> <span class="value">${formatNumber(sumaZyskuNetto)} zł</span></div>
-            <div class="summary-bar" data-tooltip="${formatNumber(kapital)} zł"><span class="label">Kwota netto po zakończeniu:</span> <span class="value">${formatNumber(kapital)} zł</span></div>
-            <div class="summary-bar" data-tooltip="${dataZakonczenia.toLocaleDateString('pl-PL')}"><span class="label">Data zakończenia:</span> <span class="value">${dataZakonczenia.toLocaleDateString('pl-PL')}</span></div>
-        `;
-    
-        const naglowekOkres = document.getElementById("pierwszaKolumnaNaglowek");
-        if (kapitalizacja === "naKoniec") {
-            naglowekOkres.textContent = jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok";
-        } else {
-            naglowekOkres.textContent = kapitalizacja === "dzienna" ? "Dzień" : kapitalizacja === "miesieczna" ? "Miesiąc" : "Rok";
-        }
-    
-        const harmonogramContainer = document.querySelector(".harmonogram");
-        if (kapitalizacja === "naKoniec") {
-            harmonogramContainer.style.display = "none";
-            elements.harmonogramTabela.innerHTML = "";
-        } else {
-            harmonogramContainer.style.display = "block";
-            elements.harmonogramTabela.innerHTML = "";
-            state.harmonogramData.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${row.okres}</td>
-                    <td>${formatNumber(row.wartoscLokaty)} zł</td>
-                    <td>${row.zmianaOprocentowania ? '<span class="star">★</span>' : ''}${formatNumber(row.oprocentowanie)}%</td>
-                    <td>${formatNumber(row.odsetkiBrutto)} zł</td>
-                    <td>${formatNumber(row.sumaOdsetek)} zł</td>
-                    <td>${formatNumber(row.podatek)} zł</td>
-                    <td>${formatNumber(row.zyskNetto)} zł</td>
-                    <td>${formatNumber(row.sumaNetto)} zł</td>
-                `;
-                elements.harmonogramTabela.appendChild(tr);
-            });
-    
-            let legenda = document.querySelector(".harmonogram-legend");
-            if (!legenda) {
-                legenda = document.createElement("div");
-                legenda.className = "harmonogram-legend";
-                document.getElementById("harmonogramContent").appendChild(legenda);
-            }
-            legenda.innerHTML = zmienneOprocentowanie && state.harmonogramData.some(row => row.zmianaOprocentowania) ? '<span class="star">★</span> <span class="legend-text">Zmiana oprocentowania</span>' : '';
-        }
-    
-        const chartContainer = document.querySelector(".chart-container-line");
-        if (state.chartLine) state.chartLine.destroy();
-        chartContainer.style.display = "block";
-    
-        const daneWykres = [];
-        if (kapitalizacja === "naKoniec") {
-            for (let i = 0; i < liczbaOkresowWykres; i++) {
-                daneWykres.push({
-                    okres: i + 1,
-                    sumaNetto: i < liczbaOkresowWykres - 1 ? kwota : kapital
-                });
-            }
-        } else {
-            const krok = Math.floor(state.harmonogramData.length / liczbaOkresowWykres) || 1;
-            for (let i = 0; i < liczbaOkresowWykres; i++) {
-                const index = Math.min(i * krok, state.harmonogramData.length - 1);
-                daneWykres.push({
-                    okres: i + 1,
-                    sumaNetto: parseFloat(state.harmonogramData[index].sumaNetto)
-                });
-            }
-        }
-    
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        state.chartLine = new Chart(elements.lokatyChartLine, {
-            type: 'line',
-            data: {
-                labels: daneWykres.map(row => `${jednostka === "dni" ? "Dzień" : jednostka === "miesiace" ? "Miesiąc" : "Rok"} ${row.okres}`),
-                datasets: [{
-                    label: 'Wartość lokaty',
-                    data: daneWykres.map(row => row.sumaNetto),
-                    borderColor: '#c2b280',
-                    backgroundColor: 'rgba(194, 178, 128, 0.2)',
-                    fill: true,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { 
-                        beginAtZero: false, 
-                        title: { 
-                            display: true, 
-                            text: 'Wartość (zł)', 
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        },
-                        ticks: {
-                            color: isDarkMode ? '#e0e0e0' : '#333333',
-                            callback: function(value) {
-                                return formatNumber(value) + ' zł'; // Dodajemy formatowanie i ' zł'
-                            }
-                        },
-                        grid: {
-                            color: isDarkMode ? '#666666' : '#e0e0e0',
-                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
-                        }
-                    },
-                    x: { 
-                        title: { 
-                            display: true, 
-                            text: jednostka === "dni" ? "Dni" : jednostka === "miesiace" ? "Miesiące" : "Lata",
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        },
-                        ticks: {
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        },
-                        grid: {
-                            color: isDarkMode ? '#666666' : '#e0e0e0',
-                            borderColor: isDarkMode ? '#e0e0e0' : '#333333'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: isDarkMode ? '#e0e0e0' : '#333333'
-                        }
-                    }
-                }
-            }
-        });
-    
-        updateZmienneOprocentowanieVisibility();
-        elements.formSection.style.display = "none";
-        elements.resultSection.style.display = "block";
-        state.isCalculating = false;
-    }
-
-    function updateZmienneOprocentowanieVisibility() {
-        const kapitalizacja = elements.kapitalizacja.value;
-        const variableRateContainer = document.querySelector(".variable-rate-container"); // Poprawny kontener
-        if (kapitalizacja === "naKoniec") {
-            variableRateContainer.style.display = "none";
-        } else {
-            variableRateContainer.style.display = "block";
-            updateVariableInputs(); // Upewniamy się, że widoczność sekcji zmiennych jest zgodna z checkboxem
-        }
-    }
-    
-    // Podpięcie zdarzeń
-    elements.kapitalizacja.addEventListener("change", () => {
-        updateKapitalizacjaOptions();
-        updateZmienneOprocentowanieVisibility();
-    });
-    elements.dlugoscUmowy.addEventListener("input", updateZmienneOprocentowanieVisibility); // Aktualizacja przy zmianie długości
-    elements.jednostkaOkresu.addEventListener("change", updateZmienneOprocentowanieVisibility); // Aktualizacja przy zmianie jednostki
-    
-    function showForm() {
-        elements.formSection.style.display = "block";
-        elements.resultSection.style.display = "none";
-    }
-    
-    function toggleHarmonogram(contentId) {
-        const content = document.getElementById(contentId);
-        const toggleBtn = content.previousElementSibling;
-        if (content.style.display === "none" || !content.style.display) {
-            content.style.display = "block";
-            toggleBtn.innerHTML = "Harmonogram odsetek ▼";
-        } else {
-            content.style.display = "none";
-            toggleBtn.innerHTML = "Harmonogram odsetek ►";
-        }
-    }
-    
-    function generatePDF() {
-        console.log("Starting generatePDF");
-        if (typeof pdfMake === "undefined") {
-            console.error("Biblioteka PDFMake nie została załadowana.");
-            alert("Błąd: Biblioteka PDFMake nie jest załadowana.");
-            return;
-        }
-    
-        if (!state.harmonogramData.length && elements.kapitalizacja.value !== "naKoniec") {
-            alert("Najpierw oblicz wyniki lokaty, klikając 'Oblicz'.");
-            return;
-        }
-    
-        const kapitalizacja = elements.kapitalizacja.value;
-        const kwota = parseFloat(elements.kwota.value) || 10000;
-        const dlugoscUmowy = parseInt(elements.dlugoscUmowy.value) || 1;
-        const jednostka = elements.jednostkaOkresu.value;
-        const today = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    
-        const dataZakonczenia = new Date(elements.dataRozpoczecia.value);
-        if (jednostka === "dni") dataZakonczenia.setDate(dataZakonczenia.getDate() + dlugoscUmowy);
-        else if (jednostka === "miesiace") dataZakonczenia.setMonth(dataZakonczenia.getMonth() + dlugoscUmowy);
-        else dataZakonczenia.setFullYear(dataZakonczenia.getFullYear() + dlugoscUmowy);
-    
-        const summaryBars = document.querySelector(".summary-bars");
-    
-        const summaryItems = Array.from(summaryBars.children).map(bar => {
-            const labelElement = bar.querySelector(".label");
-            const valueElement = bar.querySelector(".value");
-            const label = labelElement ? labelElement.textContent.replace("Całkowita kwota po zakończeniu:", "Kwota netto po zakończeniu:") : "Brak etykiety";
-            let value = valueElement ? valueElement.textContent : "Brak wartości";
-            value = value.replace(" zł", "").replace(/\s/g, "").replace(",", ".");
-            const parsedValue = parseFloat(value);
-            value = isNaN(parsedValue) ? "Brak wartości" : `${formatNumber(parsedValue)} zł`;
-            return { label, value };
-        });
-    
-        const headers = [
-            kapitalizacja === "dzienna" ? "Dzień" : kapitalizacja === "miesieczna" ? "Miesiąc" : "Rok",
-            "Wartość lokaty",
-            "Oproc.",
-            "Odsetki brutto",
-            "Suma odsetek",
-            "Podatek",
-            "Zysk netto",
-            "Suma netto"
-        ];
-    
-        const tableData = kapitalizacja !== "naKoniec" ? state.harmonogramData.map(row => [
-            row.okres.toString(),
-            formatNumber(row.wartoscLokaty) + " zł",
-            (row.zmianaOprocentowania ? '★ ' : '') + formatNumber(row.oprocentowanie) + "%",
-            formatNumber(row.odsetkiBrutto) + " zł",
-            formatNumber(row.sumaOdsetek) + " zł",
-            formatNumber(row.podatek) + " zł",
-            formatNumber(row.zyskNetto) + " zł",
-            formatNumber(row.sumaNetto) + " zł"
-        ]) : [];
-    
-        const calculateColumnWidths = () => {
-            const allRows = tableData.length ? [headers, ...tableData] : [headers];
-            const pageWidth = 595.28;
-            const leftMargin = 14.17;
-            const rightMargin = 65.19;
-            const totalMargin = leftMargin + rightMargin;
-            const availableWidth = pageWidth - totalMargin;
-    
-            console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
-            console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
-            console.log(`Dostępna szerokość: ${availableWidth} punktów`);
-    
-            const headerLengths = headers.map(header => header.length);
-            const contentLengths = headers.map((_, colIndex) => {
-                const maxLength = Math.max(...allRows.slice(1).map(row => row[colIndex] ? row[colIndex].length : 0));
-                return maxLength;
-            });
-    
-            const maxLengths = headerLengths.map((headerLength, i) => Math.max(headerLength, contentLengths[i]));
-            const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
-    
-            const minWidth = 40;
-            const columnWidths = maxLengths.map(length => {
-                const proportion = length / totalLength;
-                const calculatedWidth = proportion * availableWidth;
-                return Math.max(minWidth, calculatedWidth);
-            });
-    
-            const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-            const adjustmentFactor = availableWidth / totalCalculatedWidth;
-            const adjustedWidths = columnWidths.map(width => width * adjustmentFactor);
-    
-            console.log(`Suma szerokości kolumn po dostosowaniu: ${adjustedWidths.reduce((sum, width) => sum + width, 0)} punktów`);
-            return adjustedWidths;
-        };
-    
-        const columnWidths = calculateColumnWidths();
-        const lineChartCanvas = document.getElementById("lokatyChartLine");
-    
-        const originalColors = {
-            xGridColor: state.chartLine.options.scales.x.grid.color,
-            yGridColor: state.chartLine.options.scales.y.grid.color,
-            xGridBorderColor: state.chartLine.options.scales.x.grid.borderColor,
-            yGridBorderColor: state.chartLine.options.scales.y.grid.borderColor,
-            xTitleColor: state.chartLine.options.scales.x.title.color,
-            yTitleColor: state.chartLine.options.scales.y.title.color,
-            xTicksColor: state.chartLine.options.scales.x.ticks.color,
-            yTicksColor: state.chartLine.options.scales.y.ticks.color,
-            legendColor: state.chartLine.options.plugins.legend.labels.color
-        };
-    
-        state.chartLine.options.scales.x.grid.color = '#e0e0e0';
-        state.chartLine.options.scales.y.grid.color = '#e0e0e0';
-        state.chartLine.options.scales.x.grid.borderColor = '#333333';
-        state.chartLine.options.scales.y.grid.borderColor = '#333333';
-        state.chartLine.options.scales.x.title.color = '#333333';
-        state.chartLine.options.scales.y.title.color = '#333333';
-        state.chartLine.options.scales.x.ticks.color = '#333333';
-        state.chartLine.options.scales.y.ticks.color = '#333333';
-        state.chartLine.options.plugins.legend.labels.color = '#333333';
-        state.chartLine.update();
-    
-        requestAnimationFrame(() => {
-            const lineChartImage = lineChartCanvas.toDataURL("image/png");
-    
-            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
-            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
-            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
-            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
-            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
-            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
-            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
-            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
-            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
-            state.chartLine.update();
-    
-            function getBase64ImageFromUrl(url) {
-                return new Promise((resolve, reject) => {
-                    const img = new Image();
-                    img.crossOrigin = "Anonymous";
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        canvas.width = this.width;
-                        canvas.height = this.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(this, 0, 0);
-                        const dataURL = canvas.toDataURL('image/png');
-                        const aspectRatio = this.height / this.width;
-                        resolve({ dataURL, aspectRatio });
-                    };
-                    img.onerror = reject;
-                    img.src = url;
-                });
-            }
-    
-            const generateDoc = (logoData) => {
-                const logoBase64 = logoData ? logoData.dataURL : null;
-                const aspectRatio = logoData ? logoData.aspectRatio : 1;
-                const hasStar = state.harmonogramData.some(row => row.zmianaOprocentowania);
-                const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
-                const footerNoteText = `${starText}`;
-    
-                const pageWidth = 595;
-                const pageHeight = 842;
-                const marginLeftRight = 85;
-                const marginTopBottom = 57;
-                const availableWidth = pageWidth - 2 * marginLeftRight;
-                const availableHeight = pageHeight - 2 * marginTopBottom;
-                const watermarkWidth = 60 * 4;
-                const watermarkHeight = 60 * aspectRatio * 8;
-                const spacingX = (availableWidth - watermarkWidth) / 3;
-                const spacingY = (availableHeight - watermarkHeight) / 7;
-    
-                const watermark = logoBase64 ? {
-                    stack: [
-                        ...Array.from({ length: 32 }, (_, i) => ({
-                            image: logoBase64,
-                            width: 60,
-                            height: 60 * aspectRatio,
-                            absolutePosition: { 
-                                x: marginLeftRight + (i % 4) * (60 + spacingX),
-                                y: marginTopBottom + Math.floor(i / 4) * (60 * aspectRatio + spacingY)
-                            },
-                            opacity: 0.08,
-                            rotation: -45
-                        }))
-                    ]
-                } : null;
-    
-                const harmonogramContent = document.getElementById("harmonogramContent");
-                const isHarmonogramCollapsed = harmonogramContent.style.display === "none";
-    
-                const docDefinition = {
-                    pageSize: 'A4',
-                    pageMargins: [14.17, 80, 65.19, 40],
-                    defaultStyle: { font: 'Roboto' },
-                    header: logoBase64 ? {
-                        margin: [40, 20, 40, 0],
-                        columns: [
-                            { image: logoBase64, width: 100, alignment: 'center', margin: [0, 0, 0, 20] },
-                            { text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20] }
-                        ]
-                    } : { 
-                        margin: [40, 20, 40, 0], 
-                        text: `Data: ${today}`, alignment: 'right', fontSize: 8, margin: [0, 0, 0, 20]
-                    },
-                    background: watermark,
-                    content: [
-                        { text: 'Podsumowanie wyników lokaty', style: 'header', margin: [56.68, 20, 0, 10], alignment: 'center' },
-                        { text: "Podsumowanie:", style: 'sectionHeader', margin: [28.35, 30, 0, 15] },
-                        { 
-                            ul: summaryItems.map(item => ({
-                                text: [
-                                    { text: item.label + " ", style: 'listItem' },
-                                    { text: item.value, style: 'listItem', bold: true }
-                                ]
-                            })), 
-                            margin: [28.35, 0, 0, 30]
-                        },
-                        ...(kapitalizacja !== "naKoniec" && tableData.length > 0 && !isHarmonogramCollapsed ? [
-                            { text: "Harmonogram odsetek", style: 'sectionHeader', alignment: 'center', margin: [56.68, 10, 0, 5] },
-                            {
-                                table: {
-                                    headerRows: 1,
-                                    widths: columnWidths,
-                                    body: [
-                                        headers.map(h => ({ text: h, style: 'tableHeader', noWrap: false })),
-                                        ...tableData.map(row => row.map(cell => ({ text: cell, style: 'tableCell', noWrap: false })))
-                                    ]
-                                },
-                                layout: {
-                                    fillColor: function (rowIndex) { return (rowIndex === 0) ? '#C2B280' : (rowIndex % 2 === 0 ? '#F5F5F5' : null); },
-                                    hLineWidth: function () { return 0.5; },
-                                    vLineWidth: function () { return 0.5; },
-                                    paddingLeft: function () { return 1; },
-                                    paddingRight: function () { return 1; },
-                                    paddingTop: function () { return 2; },
-                                    paddingBottom: function () { return 2; }
-                                },
-                                width: 515.92,
-                                margin: [14.17, 0, 65.19, 0],
-                                alignment: 'center'
-                            },
-                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
-                        ] : []),
-                        {
-                            stack: [
-                                { 
-                                    text: "Wykres liniowy wartości lokaty w czasie", 
-                                    style: 'sectionHeader', 
-                                    alignment: 'center', 
-                                    margin: [0, 10, 0, 5] 
-                                },
-                                { 
-                                    image: lineChartImage, 
-                                    width: 515.92, 
-                                    height: 250, 
-                                    alignment: 'center',
-                                    margin: [0, 0, 0, 5]
-                                }
-                            ],
-                            margin: [70, 5, 50, 10],
-                            pageBreak: tableData.length > 20 && !isHarmonogramCollapsed ? 'before' : 'none'
-                        }
-                    ],
-                    styles: {
-                        header: { fontSize: 16, bold: true, alignment: 'center' },
-                        sectionHeader: { fontSize: 12, bold: true },
-                        listItem: { fontSize: 10, margin: [0, 2, 0, 2] },
-                        tableHeader: { fontSize: 8, bold: true, alignment: 'center', color: '#000000', fillColor: '#C2B280' },
-                        tableCell: { fontSize: 8, alignment: 'center' },
-                        footerNote: { fontSize: 8, italics: true }
-                    }
-                };
-    
-                pdfMake.createPdf(docDefinition).download(`Podsumowanie_Lokaty_${today.replace(/\./g, '-')}.pdf`);
-            };
-    
-            getBase64ImageFromUrl('cropped-logo-FB-1.png')
-                .then(logoData => generateDoc(logoData))
-                .catch(error => {
-                    console.warn("Logo nie załadowane, generowanie PDF bez logo:", error);
-                    generateDoc(null);
-                });
-        });
-    }
-    
-    document.getElementById('siteLogo').addEventListener('click', () => {
-        window.open('https://finance-brothers.pl', '_blank');
-    });
-    
+    // Funkcje zoom i tryb ciemny z Twojego kodu
     let currentZoom = 1;
     const zoomStep = 0.1;
     const minZoom = 0.5;
     const maxZoom = 2;
-    
+
     function updateZoom() {
-        const container = document.querySelector('.container');
+        const container = document.querySelector('.main-container');
         container.style.transform = `scale(${currentZoom})`;
         container.style.transformOrigin = 'top center';
     }
-    
+
     document.getElementById("zoomInBtn").addEventListener("click", () => {
         if (currentZoom < maxZoom) {
             currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
             updateZoom();
         }
     });
-    
+
     document.getElementById("zoomOutBtn").addEventListener("click", () => {
         if (currentZoom > minZoom) {
             currentZoom = Math.max(minZoom, currentZoom - zoomStep);
             updateZoom();
         }
     });
-    
+
     function toggleDarkMode() {
         const body = document.body;
         const isDarkMode = body.classList.contains('dark-mode');
@@ -2322,36 +462,143 @@
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         }
     }
-    
+
     function initializeTheme() {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         } else {
-                     document.body.classList.add('light-mode');
+            document.body.classList.add('light-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '🌙';
         }
     }
-    
-    document.getElementById('toggleDarkModeBtn').addEventListener('click', () => {
-        toggleDarkMode();
-        if (state.chartLine) {
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            state.chartLine.options.scales.x.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.title.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.ticks.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.plugins.legend.labels.color = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.x.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = isDarkMode ? '#666666' : '#e0e0e0';
-            state.chartLine.options.scales.x.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = isDarkMode ? '#e0e0e0' : '#333333';
-            state.chartLine.update();
-        }
-    });
-    
+
+    document.getElementById('toggleDarkModeBtn').addEventListener('click', toggleDarkMode);
     initializeTheme();
-</script>    
+
+    document.getElementById('siteLogo').addEventListener('click', () => {
+        window.open('https://finance-brothers.pl', '_blank');
+    });
+
+    // Logika kalkulatora
+    const calcDisplay = document.getElementById('calcDisplay');
+    let currentInput = '0';
+    let previousInput = '';
+    let operation = null;
+    let shouldResetDisplay = false;
+
+    function updateDisplay() {
+        calcDisplay.value = currentInput;
+    }
+
+    function clearCalculator() {
+        currentInput = '0';
+        previousInput = '';
+        operation = null;
+        shouldResetDisplay = false;
+        updateDisplay();
+    }
+
+    function toggleSign() {
+        if (currentInput === '0') return;
+        currentInput = (parseFloat(currentInput) * -1).toString();
+        updateDisplay();
+    }
+
+    function percent() {
+        currentInput = (parseFloat(currentInput) / 100).toString();
+        updateDisplay();
+    }
+
+    function appendNumber(number) {
+        if (shouldResetDisplay) {
+            currentInput = number;
+            shouldResetDisplay = false;
+        } else {
+            currentInput = currentInput === '0' ? number : currentInput + number;
+        }
+        updateDisplay();
+    }
+
+    function appendDecimal() {
+        if (!currentInput.includes('.')) {
+            currentInput += '.';
+        }
+        updateDisplay();
+    }
+
+    function setOperation(op) {
+        if (currentInput === '') return;
+        if (previousInput !== '') {
+            calculate();
+        }
+        operation = op;
+        previousInput = currentInput;
+        shouldResetDisplay = true;
+    }
+
+    function calculate() {
+        if (previousInput === '' || currentInput === '' || operation === null) return;
+        let result;
+        const prev = parseFloat(previousInput);
+        const curr = parseFloat(currentInput);
+
+        switch (operation) {
+            case '+':
+                result = prev + curr;
+                break;
+            case '-':
+                result = prev - curr;
+                break;
+            case '*':
+                result = prev * curr;
+                break;
+            case '/':
+                if (curr === 0) {
+                    alert("Nie można dzielić przez zero!");
+                    clearCalculator();
+                    return;
+                }
+                result = prev / curr;
+                break;
+            default:
+                return;
+        }
+
+        currentInput = result.toString();
+        operation = null;
+        previousInput = '';
+        shouldResetDisplay = true;
+        updateDisplay();
+    }
+
+    // Obsługa przycisków kalkulatora
+    document.querySelectorAll('.calc-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const value = button.textContent;
+
+            if (button.classList.contains('calc-number')) {
+                appendNumber(value);
+            } else if (button.classList.contains('calc-operation')) {
+                if (value === '±') {
+                    toggleSign();
+                } else if (value === '%') {
+                    percent();
+                } else {
+                    setOperation(value);
+                }
+            } else if (button.classList.contains('calc-clear')) {
+                clearCalculator();
+            } else if (button.classList.contains('calc-equals')) {
+                calculate();
+            } else if (value === '.') {
+                appendDecimal();
+            }
+        });
+    });
+
+    updateDisplay();
+</script>
 </body>
 </html>
