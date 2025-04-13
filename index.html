@@ -22,7 +22,6 @@
     <div class="main-container">
         <!-- Sekcja lewa - Kredyty, Oszczędności, Biznesowe -->
         <section class="sidebar left-sidebar">
-            <!-- Okienko Kredyty -->
             <div class="sidebar-box">
                 <h3 class="sidebar-header">Kredyty</h3>
                 <div class="sidebar-content">
@@ -31,7 +30,6 @@
                     <p><a href="#porownywarka-kredytow">Porównywarka kredytów</a></p>
                 </div>
             </div>
-            <!-- Okienko Oszczędności -->
             <div class="sidebar-box">
                 <h3 class="sidebar-header">Oszczędności</h3>
                 <div class="sidebar-content">
@@ -40,7 +38,6 @@
                     <p><a href="#porownywarka-kont-oszczednosciowych">Porównywarka kont oszczędnościowych</a></p>
                 </div>
             </div>
-            <!-- Okienko Biznesowe -->
             <div class="sidebar-box">
                 <h3 class="sidebar-header">Biznesowe</h3>
                 <div class="sidebar-content">
@@ -67,9 +64,7 @@
         <!-- Sekcja prawa - Kalkulator, Praca, Pozostałe -->
         <section class="sidebar right-sidebar">
             <!-- Placeholder dla kalkulatora -->
-            <div id="calculatorPlaceholder" class="sidebar-box placeholder">
-                <h3 class="sidebar-header">Kalkulator</h3>
-            </div>
+            <div id="calculatorPlaceholder" class="sidebar-box placeholder"></div>
             <!-- Okienko Praca -->
             <div class="sidebar-box">
                 <h3 class="sidebar-header">Praca</h3>
@@ -92,7 +87,10 @@
 
         <!-- Kalkulator jako osobny element przeciągalny -->
         <div class="sidebar-box draggable" id="calculatorBox">
-            <h3 class="sidebar-header">Kalkulator</h3>
+            <h3 class="sidebar-header">
+                Kalkulator
+                <button id="resetPositionBtn" class="reset-btn" title="Wróć do miejsca">↩️</button>
+            </h3>
             <div class="calculator">
                 <input type="text" id="calcDisplay" readonly>
                 <div class="calc-buttons">
@@ -224,7 +222,7 @@
     .main-container {
         display: flex;
         flex-wrap: wrap;
-        max-width: 1200px; /* Zmniejszona maksymalna szerokość, aby były przestrzenie po bokach */
+        max-width: 1200px;
         margin: 0 auto;
         gap: 20px;
     }
@@ -232,8 +230,8 @@
     /* Sekcje boczne (lewa i prawa) */
     .sidebar {
         flex: 1;
-        min-width: 200px; /* Zmniejszona minimalna szerokość */
-        max-width: 250px; /* Zmniejszona maksymalna szerokość */
+        min-width: 200px;
+        max-width: 250px;
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -250,7 +248,7 @@
     /* Sekcja środkowa */
     .content-section {
         flex: 2;
-        min-width: 350px; /* Zmniejszona minimalna szerokość */
+        min-width: 350px;
         order: 2;
     }
 
@@ -261,6 +259,7 @@
         box-shadow: 0 2px 4px var(--shadow-color);
         padding: 15px;
         position: relative;
+        width: 100%; /* Okienka mają taką samą szerokość jak sekcja */
     }
 
     .sidebar-header {
@@ -270,14 +269,33 @@
         margin: -15px -15px 15px -15px;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        font-size: 1em; /* Zmniejszona czcionka nagłówka */
+        font-size: 1em;
         font-weight: 700;
         text-align: center;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .reset-btn {
+        position: absolute;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 1em;
+        cursor: pointer;
+        color: var(--button-text);
+        transition: transform 0.2s ease;
+    }
+
+    .reset-btn:hover {
+        transform: scale(1.2);
     }
 
     .sidebar-content {
         padding: 5px 0;
-        font-size: 0.85em; /* Zmniejszona czcionka w treści */
+        font-size: 0.85em;
     }
 
     .sidebar-content p {
@@ -322,8 +340,7 @@
         background: #000;
         border-radius: 20px;
         padding: 10px;
-        width: 100%;
-        max-width: 250px;
+        width: 100%; /* Kalkulator ma pełną szerokość swojego kontenera */
         margin: 0 auto;
     }
 
@@ -397,11 +414,12 @@
         cursor: move;
         z-index: 1000;
         user-select: none;
+        width: 250px; /* Taka sama szerokość jak sekcje boczne */
     }
 
     /* Placeholder dla kalkulatora */
     .placeholder {
-        visibility: hidden; /* Placeholder jest niewidoczny, ale zajmuje miejsce */
+        height: 280px; /* Przybliżona wysokość kalkulatora, aby zachować przestrzeń */
     }
 
     /* Responsywność */
@@ -418,6 +436,11 @@
 
         .left-sidebar, .right-sidebar, .content-section {
             order: initial;
+        }
+
+        .draggable {
+            width: 100%; /* Na mniejszych ekranach kalkulator dostosowuje się do szerokości sekcji */
+            max-width: 250px;
         }
     }
 
@@ -438,7 +461,7 @@
         }
 
         .calculator {
-            max-width: 200px;
+            max-width: 100%;
         }
     }
 </style>
@@ -493,7 +516,7 @@
             document.body.classList.add('dark-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         } else {
-            document.body.classList.add('light-mode');
+            body.classList.add('light-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '🌙';
         }
     }
@@ -626,6 +649,7 @@
     // Logika przeciągania kalkulatora
     const calculatorBox = document.getElementById('calculatorBox');
     const calculatorPlaceholder = document.getElementById('calculatorPlaceholder');
+    const resetPositionBtn = document.getElementById('resetPositionBtn');
     let isDragging = false;
     let currentX;
     let currentY;
@@ -635,7 +659,7 @@
     let homeY; // Początkowa pozycja Y
 
     calculatorBox.addEventListener('mousedown', (e) => {
-        if (e.target.classList.contains('sidebar-header')) {
+        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
             initialX = e.clientX - currentX;
             initialY = e.clientY - currentY;
@@ -663,14 +687,15 @@
     });
 
     document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            // Po puszczeniu myszy kalkulator wraca do początkowej pozycji
-            currentX = homeX;
-            currentY = homeY;
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
-            isDragging = false;
-        }
+        isDragging = false;
+    });
+
+    // Przycisk powrotu do początkowej pozycji
+    resetPositionBtn.addEventListener('click', () => {
+        currentX = homeX;
+        currentY = homeY;
+        calculatorBox.style.left = currentX + 'px';
+        calculatorBox.style.top = currentY + 'px';
     });
 
     // Inicjalizacja pozycji kalkulatora
