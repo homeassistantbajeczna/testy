@@ -67,7 +67,7 @@
         <!-- Sekcja prawa - Kalkulator, Praca, Pozostałe -->
         <section class="sidebar right-sidebar">
             <!-- Okienko Kalkulator -->
-            <div class="sidebar-box">
+            <div class="sidebar-box draggable" id="calculatorBox">
                 <h3 class="sidebar-header">Kalkulator</h3>
                 <div class="calculator">
                     <input type="text" id="calcDisplay" readonly>
@@ -255,16 +255,17 @@
         border-radius: 10px;
         box-shadow: 0 2px 4px var(--shadow-color);
         padding: 15px;
+        position: relative; /* Ważne dla pozycjonowania przeciągalnych elementów */
     }
 
     .sidebar-header {
         background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
         color: var(--button-text);
-        padding: 10px;
+        padding: 8px;
         margin: -15px -15px 15px -15px;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
-        font-size: 1.2em;
+        font-size: 1.1em;
         font-weight: 700;
         text-align: center;
     }
@@ -314,30 +315,30 @@
     .calculator {
         background: #000;
         border-radius: 20px;
-        padding: 15px;
+        padding: 10px;
         width: 100%;
-        max-width: 300px;
+        max-width: 250px;
         margin: 0 auto;
     }
 
     #calcDisplay {
         width: 100%;
-        height: 50px;
+        height: 40px;
         background: #000;
         color: #fff;
-        font-size: 2em;
+        font-size: 1.5em;
         text-align: right;
-        padding: 10px;
+        padding: 5px;
         border: none;
         outline: none;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         font-family: 'Arial', sans-serif;
     }
 
     .calc-buttons {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 5px;
+        gap: 4px;
     }
 
     .calc-btn {
@@ -345,9 +346,9 @@
         color: #fff;
         border: none;
         border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        font-size: 1.5em;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2em;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -380,8 +381,16 @@
 
     .calc-zero {
         grid-column: span 2;
-        border-radius: 30px;
-        width: 130px;
+        border-radius: 25px;
+        width: 110px;
+    }
+
+    /* Styl dla przeciągalnego kalkulatora */
+    .draggable {
+        position: absolute;
+        cursor: move;
+        z-index: 1000;
+        user-select: none;
     }
 
     /* Responsywność */
@@ -403,24 +412,28 @@
 
     @media (max-width: 576px) {
         .calc-btn {
-            width: 50px;
-            height: 50px;
-            font-size: 1.2em;
+            width: 40px;
+            height: 40px;
+            font-size: 1em;
         }
 
         .calc-zero {
-            width: 110px;
+            width: 90px;
         }
 
         #calcDisplay {
-            font-size: 1.5em;
-            height: 40px;
+            font-size: 1.2em;
+            height: 35px;
+        }
+
+        .calculator {
+            max-width: 200px;
         }
     }
 </style>
 
 <script>
-    // Funkcje zoom i tryb ciemny z Twojego kodu
+    // Funkcje zoom i tryb ciemny
     let currentZoom = 1;
     const zoomStep = 0.1;
     const minZoom = 0.5;
@@ -573,7 +586,6 @@
         updateDisplay();
     }
 
-    // Obsługa przycisków kalkulatora
     document.querySelectorAll('.calc-btn').forEach(button => {
         button.addEventListener('click', () => {
             const value = button.textContent;
@@ -599,6 +611,60 @@
     });
 
     updateDisplay();
+
+    // Logika przeciągania kalkulatora
+    const calculatorBox = document.getElementById('calculatorBox');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+
+    calculatorBox.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('sidebar-header')) {
+            isDragging = true;
+            initialX = e.clientX - currentX;
+            initialY = e.clientY - currentY;
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const calcWidth = calculatorBox.offsetWidth;
+            const calcHeight = calculatorBox.offsetHeight;
+
+            currentX = Math.max(0, Math.min(currentX, windowWidth - calcWidth));
+            currentY = Math.max(0, Math.min(currentY, windowHeight - calcHeight));
+
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    // Inicjalizacja pozycji kalkulatora
+    function initializeCalculatorPosition() {
+        const rightSidebar = document.querySelector('.right-sidebar');
+        const sidebarBox = rightSidebar.querySelector('.sidebar-box');
+        const rect = sidebarBox.getBoundingClientRect();
+        currentX = rect.left;
+        currentY = rect.top;
+        calculatorBox.style.left = currentX + 'px';
+        calculatorBox.style.top = currentY + 'px';
+    }
+
+    window.addEventListener('load', initializeCalculatorPosition);
+    window.addEventListener('resize', initializeCalculatorPosition);
 </script>
 </body>
 </html>
