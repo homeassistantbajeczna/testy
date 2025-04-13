@@ -675,32 +675,22 @@
     const calculatorPlaceholder = document.getElementById('calculatorPlaceholder');
     const resetPositionBtn = document.getElementById('resetPositionBtn');
     let isDragging = false;
-    let currentX = 0;
-    let currentY = 0;
     let initialX = 0;
     let initialY = 0;
 
     calculatorBox.addEventListener('mousedown', (e) => {
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
-            // Przenieś kalkulator do body i ustaw pozycję absolutną
             document.body.appendChild(calculatorBox);
             calculatorBox.classList.add('dragging');
 
-            // Ustaw pozycję początkową na podstawie aktualnej pozycji kalkulatora
-            let calcRect = calculatorBox.getBoundingClientRect();
-            if (calculatorBox.style.position === 'absolute' && calculatorBox.style.left && calculatorBox.style.top) {
-                // Jeśli kalkulator jest już w trybie przeciągania, użyj jego aktualnej pozycji
-                currentX = parseFloat(calculatorBox.style.left);
-                currentY = parseFloat(calculatorBox.style.top);
-            } else {
-                // Jeśli dopiero zaczynamy przeciąganie, ustaw pozycję na podstawie placeholder'a
-                const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-                currentX = placeholderRect.left + window.scrollX;
-                currentY = placeholderRect.top + window.scrollY;
-                calculatorBox.style.left = currentX + 'px';
-                calculatorBox.style.top = currentY + 'px';
-            }
+            // Oblicz aktualną pozycję kalkulatora
+            const calcRect = calculatorBox.getBoundingClientRect();
+            const currentX = calcRect.left + window.scrollX;
+            const currentY = calcRect.top + window.scrollY;
+
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
 
             initialX = e.clientX - currentX;
             initialY = e.clientY - currentY;
@@ -712,19 +702,19 @@
     document.addEventListener('mousemove', (e) => {
         if (isDragging) {
             e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
+            const newX = e.clientX - initialX;
+            const newY = e.clientY - initialY;
 
             const windowWidth = window.innerWidth;
             const calcWidth = calculatorBox.offsetWidth;
             const calcHeight = calculatorBox.offsetHeight;
             const documentHeight = document.documentElement.scrollHeight;
 
-            currentX = Math.max(0, Math.min(currentX, windowWidth - calcWidth));
-            currentY = Math.max(0, Math.min(currentY, documentHeight - calcHeight));
+            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
+            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
 
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
+            calculatorBox.style.left = boundedX + 'px';
+            calculatorBox.style.top = boundedY + 'px';
         }
     });
 
@@ -739,24 +729,16 @@
     calculatorBox.addEventListener('touchstart', (e) => {
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
-            // Przenieś kalkulator do body i ustaw pozycję absolutną
             document.body.appendChild(calculatorBox);
             calculatorBox.classList.add('dragging');
 
-            // Ustaw pozycję początkową na podstawie aktualnej pozycji kalkulatora
-            let calcRect = calculatorBox.getBoundingClientRect();
-            if (calculatorBox.style.position === 'absolute' && calculatorBox.style.left && calculatorBox.style.top) {
-                // Jeśli kalkulator jest już w trybie przeciągania, użyj jego aktualnej pozycji
-                currentX = parseFloat(calculatorBox.style.left);
-                currentY = parseFloat(calculatorBox.style.top);
-            } else {
-                // Jeśli dopiero zaczynamy przeciąganie, ustaw pozycję na podstawie placeholder'a
-                const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-                currentX = placeholderRect.left + window.scrollX;
-                currentY = placeholderRect.top + window.scrollY;
-                calculatorBox.style.left = currentX + 'px';
-                calculatorBox.style.top = currentY + 'px';
-            }
+            // Oblicz aktualną pozycję kalkulatora
+            const calcRect = calculatorBox.getBoundingClientRect();
+            const currentX = calcRect.left + window.scrollX;
+            const currentY = calcRect.top + window.scrollY;
+
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
 
             const touch = e.touches[0];
             initialX = touch.clientX - currentX;
@@ -769,19 +751,19 @@
         if (isDragging) {
             e.preventDefault();
             const touch = e.touches[0];
-            currentX = touch.clientX - initialX;
-            currentY = touch.clientY - initialY;
+            const newX = touch.clientX - initialX;
+            const newY = touch.clientY - initialY;
 
             const windowWidth = window.innerWidth;
             const calcWidth = calculatorBox.offsetWidth;
             const calcHeight = calculatorBox.offsetHeight;
             const documentHeight = document.documentElement.scrollHeight;
 
-            currentX = Math.max(0, Math.min(currentX, windowWidth - calcWidth));
-            currentY = Math.max(0, Math.min(currentY, documentHeight - calcHeight));
+            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
+            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
 
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
+            calculatorBox.style.left = boundedX + 'px';
+            calculatorBox.style.top = boundedY + 'px';
         }
     }, { passive: false });
 
@@ -793,7 +775,6 @@
 
     // Przycisk powrotu do początkowej pozycji
     resetPositionBtn.addEventListener('click', () => {
-        // Przywróć kalkulator do placeholder'a
         calculatorPlaceholder.appendChild(calculatorBox);
         calculatorBox.classList.remove('dragging');
         calculatorBox.style.position = 'static';
@@ -804,11 +785,12 @@
     // Funkcja aktualizująca pozycję kalkulatora po zmianie zoomu
     function updateCalculatorPosition(previousZoom) {
         if (calculatorBox.classList.contains('dragging')) {
+            const calcRect = calculatorBox.getBoundingClientRect();
             const zoomRatio = previousZoom / currentZoom;
-            currentX = (currentX + window.scrollX) * zoomRatio - window.scrollX;
-            currentY = (currentY + window.scrollY) * zoomRatio - window.scrollY;
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
+            const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
+            const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
+            calculatorBox.style.left = newX + 'px';
+            calculatorBox.style.top = newY + 'px';
         }
     }
 </script>
