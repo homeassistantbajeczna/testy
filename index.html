@@ -410,7 +410,7 @@
 
     /* Styl dla przeciągalnego kalkulatora */
     .draggable {
-        position: fixed;
+        position: absolute; /* Zmieniono na absolute, aby poruszał się razem ze stroną */
         cursor: move;
         z-index: 1000;
         user-select: none;
@@ -674,16 +674,16 @@
     document.addEventListener('mousemove', (e) => {
         if (isDragging) {
             e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
+            currentX = e.clientX - initialX + window.scrollX;
+            currentY = e.clientY - initialY + window.scrollY;
 
             const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
             const calcWidth = calculatorBox.offsetWidth;
             const calcHeight = calculatorBox.offsetHeight;
+            const documentHeight = document.documentElement.scrollHeight;
 
             currentX = Math.max(0, Math.min(currentX, windowWidth - calcWidth));
-            currentY = Math.max(0, Math.min(currentY, windowHeight - calcHeight));
+            currentY = Math.max(0, Math.min(currentY, documentHeight - calcHeight));
 
             calculatorBox.style.left = currentX + 'px';
             calculatorBox.style.top = currentY + 'px';
@@ -700,8 +700,8 @@
     // Przycisk powrotu do początkowej pozycji
     resetPositionBtn.addEventListener('click', () => {
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-        homeX = placeholderRect.left;
-        homeY = placeholderRect.top;
+        homeX = placeholderRect.left + window.scrollX;
+        homeY = placeholderRect.top + window.scrollY;
         currentX = homeX;
         currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
@@ -711,8 +711,8 @@
     // Inicjalizacja pozycji kalkulatora
     function initializeCalculatorPosition() {
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-        homeX = placeholderRect.left;
-        homeY = placeholderRect.top;
+        homeX = placeholderRect.left + window.scrollX;
+        homeY = placeholderRect.top + window.scrollY;
         currentX = homeX;
         currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
