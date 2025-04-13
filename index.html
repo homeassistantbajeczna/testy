@@ -259,7 +259,7 @@
         box-shadow: 0 2px 4px var(--shadow-color);
         padding: 15px;
         position: relative;
-        width: 100%; /* Okienka mają taką samą szerokość jak sekcja */
+        width: 100%;
     }
 
     .sidebar-header {
@@ -321,7 +321,7 @@
         padding: 20px;
     }
 
-    .content-box h2, .content-box h3 {
+    .content-box h2, .content minimal-box h3 {
         color: var(--primary-text);
         margin-bottom: 15px;
     }
@@ -340,7 +340,7 @@
         background: #000;
         border-radius: 20px;
         padding: 10px;
-        width: 100%; /* Kalkulator ma pełną szerokość swojego kontenera */
+        width: 100%;
         margin: 0 auto;
     }
 
@@ -369,9 +369,9 @@
         color: #fff;
         border: none;
         border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        font-size: 1.2em;
+        width: 40px; /* Zmniejszone przyciski */
+        height: 40px;
+        font-size: 1em; /* Zmniejszona czcionka */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -404,8 +404,8 @@
 
     .calc-zero {
         grid-column: span 2;
-        border-radius: 25px;
-        width: 110px;
+        border-radius: 20px; /* Zmniejszony promień */
+        width: 90px; /* Zmniejszona szerokość przycisku 0 */
     }
 
     /* Styl dla przeciągalnego kalkulatora */
@@ -419,7 +419,7 @@
 
     /* Placeholder dla kalkulatora */
     .placeholder {
-        height: 280px; /* Przybliżona wysokość kalkulatora, aby zachować przestrzeń */
+        height: 260px; /* Dopasowana wysokość do mniejszych przycisków */
     }
 
     /* Responsywność */
@@ -439,20 +439,20 @@
         }
 
         .draggable {
-            width: 100%; /* Na mniejszych ekranach kalkulator dostosowuje się do szerokości sekcji */
+            width: 100%;
             max-width: 250px;
         }
     }
 
     @media (max-width: 576px) {
         .calc-btn {
-            width: 40px;
-            height: 40px;
-            font-size: 1em;
+            width: 35px; /* Jeszcze mniejsze przyciski na małych ekranach */
+            height: 35px;
+            font-size: 0.9em;
         }
 
         .calc-zero {
-            width: 90px;
+            width: 80px;
         }
 
         #calcDisplay {
@@ -462,6 +462,10 @@
 
         .calculator {
             max-width: 100%;
+        }
+
+        .placeholder {
+            height: 240px;
         }
     }
 </style>
@@ -516,7 +520,7 @@
             document.body.classList.add('dark-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         } else {
-            body.classList.add('light-mode');
+            document.body.classList.add('light-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '🌙';
         }
     }
@@ -661,8 +665,8 @@
     calculatorBox.addEventListener('mousedown', (e) => {
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
-            initialX = e.clientX - currentX;
-            initialY = e.clientY - currentY;
+            initialX = e.clientX - (currentX || 0);
+            initialY = e.clientY - (currentY || 0);
             e.preventDefault();
         }
     });
@@ -700,9 +704,10 @@
 
     // Inicjalizacja pozycji kalkulatora
     function initializeCalculatorPosition() {
+        const rightSidebar = document.querySelector('.right-sidebar');
         const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
-        homeX = placeholderRect.left;
-        homeY = placeholderRect.top;
+        homeX = placeholderRect.left + window.scrollX; // Uwzględniamy przewijanie
+        homeY = placeholderRect.top + window.scrollY;
         currentX = homeX;
         currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
@@ -711,6 +716,7 @@
 
     window.addEventListener('load', initializeCalculatorPosition);
     window.addEventListener('resize', initializeCalculatorPosition);
+    window.addEventListener('scroll', initializeCalculatorPosition); // Aktualizacja pozycji przy przewijaniu
 </script>
 </body>
 </html>
