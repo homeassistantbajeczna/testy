@@ -2053,13 +2053,13 @@
         const calculateColumnWidths = () => {
             const allRows = tableData.length ? [headers, ...tableData] : [headers];
             const pageWidth = 595.28;
-            const leftMargin = 29.17; // Ujednolicone marginesy
-            const rightMargin = 29.17;
+            const leftMargin = 14.17;
+            const rightMargin = 65.19;
             const totalMargin = leftMargin + rightMargin;
             const availableWidth = pageWidth - totalMargin;
     
-            console.log(`Lewy margines: ${leftMargin} punktów`);
-            console.log(`Prawy margines: ${rightMargin} punktów`);
+            console.log(`Lewy margines: ${leftMargin} punktów (0,5 cm)`);
+            console.log(`Prawy margines: ${rightMargin} punktów (2,3 cm)`);
             console.log(`Dostępna szerokość: ${availableWidth} punktów`);
     
             const headerLengths = headers.map(header => header.length);
@@ -2072,11 +2072,10 @@
             const totalLength = maxLengths.reduce((sum, length) => sum + length, 0);
     
             const minWidth = 40;
-            const maxWidth = 100;
             const columnWidths = maxLengths.map(length => {
                 const proportion = length / totalLength;
                 const calculatedWidth = proportion * availableWidth;
-                return Math.min(maxWidth, Math.max(minWidth, calculatedWidth));
+                return Math.max(minWidth, calculatedWidth);
             });
     
             const totalCalculatedWidth = columnWidths.reduce((sum, width) => sum + width, 0);
@@ -2090,35 +2089,6 @@
         const columnWidths = calculateColumnWidths();
         const lineChartCanvas = document.getElementById("lokatyChartLine");
     
-        // Aktualizacja danych wykresu przed generowaniem PDF
-        const dataLength = state.harmonogramData.length;
-        const labels = Array.from({ length: dataLength }, (_, i) => i.toString());
-        const chartData = state.harmonogramData.map(row => row.wartoscLokaty);
-    
-        state.chartLine.data.labels = labels;
-        state.chartLine.data.datasets[0].data = chartData;
-        state.chartLine.data.datasets[0].label = "Wartość lokaty";
-    
-        // Ustawienie szerokości canvasu dla wykresu
-        const chartWidth = 536.94; // Dopasowane do marginesów [29.17, 29.17]
-        const chartHeight = 250;
-        lineChartCanvas.width = chartWidth;
-        lineChartCanvas.height = chartHeight;
-    
-        // Aktualizacja opcji Chart.js
-        state.chartLine.options.responsive = false;
-        state.chartLine.options.maintainAspectRatio = false;
-        state.chartLine.canvas.width = chartWidth;
-        state.chartLine.canvas.height = chartHeight;
-    
-        // Zapisywanie oryginalnych wartości
-        const originalPadding = JSON.parse(JSON.stringify(state.chartLine.options.layout.padding || {}));
-        const originalMinX = state.chartLine.options.scales.x.min;
-        const originalMaxX = state.chartLine.options.scales.x.max;
-        const originalOffsetX = state.chartLine.options.scales.x.offset;
-        const originalTicksX = JSON.parse(JSON.stringify(state.chartLine.options.scales.x.ticks || {}));
-        const originalMinY = state.chartLine.options.scales.y.min;
-        const originalMaxY = state.chartLine.options.scales.y.max;
         const originalColors = {
             xGridColor: state.chartLine.options.scales.x.grid.color,
             yGridColor: state.chartLine.options.scales.y.grid.color,
@@ -2130,35 +2100,7 @@
             yTicksColor: state.chartLine.options.scales.y.ticks.color,
             legendColor: state.chartLine.options.plugins.legend.labels.color
         };
-        console.log("Original Colors:", originalColors);
     
-        // Modyfikacja opcji
-        state.chartLine.options.layout.padding = {
-            left: 70,
-            right: 40,
-            top: 30,
-            bottom: 20
-        };
-    
-        // Konfiguracja osi X - Stały zakres niezależny od liczby danych
-        const maxPeriods = 12; // Maksymalna liczba okresów (np. 12 miesięcy)
-        state.chartLine.options.scales.x.min = -0.7;
-        state.chartLine.options.scales.x.max = maxPeriods - 0.3; // Stały zakres do 12 okresów
-        state.chartLine.options.scales.x.offset = false;
-        state.chartLine.options.scales.x.ticks = {
-            ...state.chartLine.options.scales.x.ticks,
-            stepSize: 1,
-            autoSkip: false,
-            maxTicksLimit: maxPeriods
-        };
-    
-        // Konfiguracja osi Y
-        const minValue = Math.min(...chartData) * 0.995;
-        const maxValue = Math.max(...chartData) * 1.005;
-        state.chartLine.options.scales.y.min = minValue;
-        state.chartLine.options.scales.y.max = maxValue;
-    
-        // Ustawianie kolorów
         state.chartLine.options.scales.x.grid.color = '#e0e0e0';
         state.chartLine.options.scales.y.grid.color = '#e0e0e0';
         state.chartLine.options.scales.x.grid.borderColor = '#333333';
@@ -2173,25 +2115,15 @@
         requestAnimationFrame(() => {
             const lineChartImage = lineChartCanvas.toDataURL("image/png");
     
-            // Przywracanie oryginalnych ustawień Chart.js
-            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor ?? '#e0e0e0';
-            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor ?? '#e0e0e0';
-            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor ?? '#333333';
-            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor ?? '#333333';
-            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor ?? '#333333';
-            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor ?? '#333333';
-            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor ?? '#333333';
-            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor ?? '#333333';
-            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor ?? '#333333';
-            state.chartLine.options.layout.padding = originalPadding;
-            state.chartLine.options.scales.x.min = originalMinX;
-            state.chartLine.options.scales.x.max = originalMaxX;
-            state.chartLine.options.scales.x.offset = originalOffsetX;
-            state.chartLine.options.scales.x.ticks = originalTicksX;
-            state.chartLine.options.scales.y.min = originalMinY;
-            state.chartLine.options.scales.y.max = originalMaxY;
-            state.chartLine.options.responsive = true;
-            state.chartLine.options.maintainAspectRatio = true;
+            state.chartLine.options.scales.x.grid.color = originalColors.xGridColor;
+            state.chartLine.options.scales.y.grid.color = originalColors.yGridColor;
+            state.chartLine.options.scales.x.grid.borderColor = originalColors.xGridBorderColor;
+            state.chartLine.options.scales.y.grid.borderColor = originalColors.yGridBorderColor;
+            state.chartLine.options.scales.x.title.color = originalColors.xTitleColor;
+            state.chartLine.options.scales.y.title.color = originalColors.yTitleColor;
+            state.chartLine.options.scales.x.ticks.color = originalColors.xTicksColor;
+            state.chartLine.options.scales.y.ticks.color = originalColors.yTicksColor;
+            state.chartLine.options.plugins.legend.labels.color = originalColors.legendColor;
             state.chartLine.update();
     
             function getBase64ImageFromUrl(url) {
@@ -2220,7 +2152,7 @@
                 const starText = hasStar && kapitalizacja !== "naKoniec" ? "★ Zmiana oprocentowania.\n" : "";
                 const footerNoteText = `${starText}`;
     
-                const pageWidth = 595.28;
+                const pageWidth = 595;
                 const pageHeight = 842;
                 const marginLeftRight = 85;
                 const marginTopBottom = 57;
@@ -2252,7 +2184,7 @@
     
                 const docDefinition = {
                     pageSize: 'A4',
-                    pageMargins: [29.17, 80, 29.17, 40], // Ujednolicone marginesy dla całej strony
+                    pageMargins: [14.17, 80, 65.19, 40],
                     defaultStyle: { font: 'Roboto' },
                     header: logoBase64 ? {
                         margin: [40, 20, 40, 0],
@@ -2297,11 +2229,11 @@
                                     paddingTop: function () { return 2; },
                                     paddingBottom: function () { return 2; }
                                 },
-                                width: 536.94, // Dopasowane do nowych marginesów
-                                margin: [0, 0, 0, 0],
+                                width: 515.92,
+                                margin: [14.17, 0, 65.19, 0],
                                 alignment: 'center'
                             },
-                            { text: footerNoteText, style: 'footerNote', margin: [0, 5, 0, 10] }
+                            { text: footerNoteText, style: 'footerNote', margin: [14.17, 5, 65.19, 10] }
                         ] : []),
                         {
                             stack: [
@@ -2313,14 +2245,13 @@
                                 },
                                 { 
                                     image: lineChartImage, 
-                                    width: 536.94, // Dopasowane do marginesów [29.17, 29.17]
+                                    width: 500, 
                                     height: 250, 
                                     alignment: 'center',
                                     margin: [0, 0, 0, 5]
                                 }
                             ],
-                            pageMargins: [29.17, 5, 29.17, 10], // Ujednolicone marginesy
-                            margin: [0, 0, 0, 0], // Brak dodatkowych marginesów zewnętrznych
+                            margin: [20, 5, 50, 10],
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
                     ],
