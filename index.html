@@ -340,16 +340,16 @@
         background: #000;
         border-radius: 20px;
         padding: 10px;
-        width: 100%;
-        margin: 0 auto;
+        width: 180px; /* Zmniejszona szerokość samego kalkulatora */
+        margin: 0 auto; /* Wycentrowanie w kontenerze */
     }
 
     #calcDisplay {
         width: 100%;
-        height: 40px;
+        height: 35px; /* Zmniejszona wysokość wyświetlacza */
         background: #000;
         color: #fff;
-        font-size: 1.5em;
+        font-size: 1.3em; /* Zmniejszona czcionka wyświetlacza */
         text-align: right;
         padding: 5px;
         border: none;
@@ -369,9 +369,9 @@
         color: #fff;
         border: none;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        font-size: 1em;
+        width: 35px; /* Zmniejszone przyciski */
+        height: 35px;
+        font-size: 0.9em; /* Zmniejszona czcionka */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -404,22 +404,22 @@
 
     .calc-zero {
         grid-column: span 2;
-        border-radius: 20px;
-        width: 90px;
+        border-radius: 18px; /* Zmniejszony promień */
+        width: 80px; /* Zmniejszona szerokość przycisku 0 */
     }
 
     /* Styl dla przeciągalnego kalkulatora */
     .draggable {
-        position: fixed; /* Zmieniono na fixed, aby pozycja była względem okna przeglądarki */
+        position: fixed; /* Pozycja względem okna przeglądarki */
         cursor: move;
         z-index: 1000;
         user-select: none;
-        width: 200px; /* Zmniejszona szerokość kalkulatora */
+        width: 250px; /* Szerokość kontenera taka sama jak sekcje boczne */
     }
 
     /* Placeholder dla kalkulatora */
     .placeholder {
-        height: 300px; /* Zwiększona wysokość, aby kalkulator nie zakrywał sekcji Praca */
+        height: 320px; /* Zwiększona wysokość, aby nie zakrywać sekcji Praca */
     }
 
     /* Responsywność */
@@ -439,32 +439,32 @@
         }
 
         .draggable {
-            width: 200px; /* Zachowana zmniejszona szerokość na mniejszych ekranach */
+            width: 250px; /* Zachowana szerokość kontenera na mniejszych ekranach */
         }
     }
 
     @media (max-width: 576px) {
         .calc-btn {
-            width: 35px;
-            height: 35px;
-            font-size: 0.9em;
+            width: 30px; /* Jeszcze mniejsze przyciski na małych ekranach */
+            height: 30px;
+            font-size: 0.8em;
         }
 
         .calc-zero {
-            width: 80px;
+            width: 70px;
         }
 
         #calcDisplay {
-            font-size: 1.2em;
-            height: 35px;
+            font-size: 1.1em;
+            height: 30px;
         }
 
         .calculator {
-            max-width: 100%;
+            width: 160px; /* Zmniejszona szerokość kalkulatora na mobile */
         }
 
         .placeholder {
-            height: 280px; /* Dopasowana wysokość na mniejszych ekranach */
+            height: 300px; /* Dopasowana wysokość na mniejszych ekranach */
         }
     }
 </style>
@@ -515,7 +515,7 @@
 
     function initializeTheme() {
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
+        if (savedর: [savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         } else {
@@ -695,6 +695,9 @@
 
     // Przycisk powrotu do początkowej pozycji
     resetPositionBtn.addEventListener('click', () => {
+        const placeholderRect = calculatorPlaceholder.getBoundingClientRect();
+        homeX = placeholderRect.left;
+        homeY = placeholderRect.top;
         currentX = homeX;
         currentY = homeY;
         calculatorBox.style.left = currentX + 'px';
@@ -714,7 +717,6 @@
 
     window.addEventListener('load', initializeCalculatorPosition);
     window.addEventListener('resize', initializeCalculatorPosition);
-    // Usunięto zdarzenie 'scroll', aby kalkulator nie wracał podczas przewijania
 </script>
 </body>
 </html>
