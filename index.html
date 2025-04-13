@@ -340,16 +340,16 @@
         background: #000;
         border-radius: 20px;
         padding: 10px;
-        width: 180px; /* Zmniejszona szerokość samego kalkulatora */
-        margin: 0 auto; /* Wycentrowanie w kontenerze */
+        width: 180px;
+        margin: 0 auto;
     }
 
     #calcDisplay {
         width: 100%;
-        height: 35px; /* Zmniejszona wysokość wyświetlacza */
+        height: 35px;
         background: #000;
         color: #fff;
-        font-size: 1.3em; /* Zmniejszona czcionka wyświetlacza */
+        font-size: 1.3em;
         text-align: right;
         padding: 5px;
         border: none;
@@ -369,9 +369,9 @@
         color: #fff;
         border: none;
         border-radius: 50%;
-        width: 35px; /* Zmniejszone przyciski */
+        width: 35px;
         height: 35px;
-        font-size: 0.9em; /* Zmniejszona czcionka */
+        font-size: 0.9em;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -404,22 +404,22 @@
 
     .calc-zero {
         grid-column: span 2;
-        border-radius: 18px; /* Zmniejszony promień */
-        width: 80px; /* Zmniejszona szerokość przycisku 0 */
+        border-radius: 18px;
+        width: 80px;
     }
 
     /* Styl dla przeciągalnego kalkulatora */
     .draggable {
-        position: fixed; /* Pozycja względem okna przeglądarki */
+        position: fixed;
         cursor: move;
         z-index: 1000;
         user-select: none;
-        width: 250px; /* Szerokość kontenera taka sama jak sekcje boczne */
+        width: 250px;
     }
 
     /* Placeholder dla kalkulatora */
     .placeholder {
-        height: 320px; /* Zwiększona wysokość, aby nie zakrywać sekcji Praca */
+        height: 320px;
     }
 
     /* Responsywność */
@@ -439,13 +439,13 @@
         }
 
         .draggable {
-            width: 250px; /* Zachowana szerokość kontenera na mniejszych ekranach */
+            width: 250px;
         }
     }
 
     @media (max-width: 576px) {
         .calc-btn {
-            width: 30px; /* Jeszcze mniejsze przyciski na małych ekranach */
+            width: 30px;
             height: 30px;
             font-size: 0.8em;
         }
@@ -460,11 +460,11 @@
         }
 
         .calculator {
-            width: 160px; /* Zmniejszona szerokość kalkulatora na mobile */
+            width: 160px;
         }
 
         .placeholder {
-            height: 300px; /* Dopasowana wysokość na mniejszych ekranach */
+            height: 300px;
         }
     }
 </style>
@@ -515,7 +515,7 @@
 
     function initializeTheme() {
         const savedTheme = localStorage.getItem('theme');
-        if (savedর: [savedTheme === 'dark') {
+        if (savedTheme === 'dark') {
             document.body.classList.add('dark-mode');
             document.getElementById('toggleDarkModeBtn').textContent = '☀️';
         } else {
@@ -654,18 +654,19 @@
     const calculatorPlaceholder = document.getElementById('calculatorPlaceholder');
     const resetPositionBtn = document.getElementById('resetPositionBtn');
     let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let homeX; // Początkowa pozycja X
-    let homeY; // Początkowa pozycja Y
+    let currentX = 0;
+    let currentY = 0;
+    let initialX = 0;
+    let initialY = 0;
+    let homeX = 0;
+    let homeY = 0;
 
     calculatorBox.addEventListener('mousedown', (e) => {
         if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('reset-btn')) {
             isDragging = true;
-            initialX = e.clientX - (currentX || 0);
-            initialY = e.clientY - (currentY || 0);
+            initialX = e.clientX - currentX;
+            initialY = e.clientY - currentY;
+            calculatorBox.style.cursor = 'grabbing';
             e.preventDefault();
         }
     });
@@ -690,7 +691,10 @@
     });
 
     document.addEventListener('mouseup', () => {
-        isDragging = false;
+        if (isDragging) {
+            isDragging = false;
+            calculatorBox.style.cursor = 'move';
+        }
     });
 
     // Przycisk powrotu do początkowej pozycji
