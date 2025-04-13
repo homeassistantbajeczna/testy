@@ -2241,17 +2241,17 @@
                                     text: "Wykres liniowy wartości lokaty w czasie", 
                                     style: 'sectionHeader', 
                                     alignment: 'center', 
-                                    margin: [0, 20, 0, 10] // Marginesy wewnętrzne w stack
+                                    margin: [0, 10, 0, 5] 
                                 },
                                 { 
                                     image: lineChartImage, 
-                                    width: 515.92, 
+                                    width: 500, 
                                     height: 250, 
                                     alignment: 'center',
-                                    margin: [0, 0, 0, 20] // Marginesy wewnętrzne w stack
+                                    margin: [0, 0, 0, 5]
                                 }
                             ],
-                            margin: [74.17, 5, 65.19, 10], // Marginesy zewnętrzne stack, zgodne z tabelą
+                            pageMargins: [0, 5, 0, 10], // Marginesy zewnętrzne stack, zgodne z tabelą
                             pageBreak: tableData.length > 10 && !isHarmonogramCollapsed ? 'before' : 'none'
                         }
                     ],
