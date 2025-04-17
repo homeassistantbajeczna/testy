@@ -1,227 +1,206 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Kredytowy</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Twój CSS z kalkulatora obligacji -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalkulator Kredytowy</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      background-color: #222;
+      color: #fff;
+    }
+    form {
+      display: grid;
+      gap: 10px;
+    }
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    @media (max-width: 600px) {
+      input, button {
+        font-size: 14px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="calculator-container">
-        <h1>Kalkulator Kredytowy</h1>
-        <form id="creditForm">
-            <div class="offer-box" id="offer-1">
-                <h3>Oferta 1</h3>
-                <div class="input-box">
-                    <label>Kwota kredytu (PLN):</label>
-                    <input type="number" class="loanAmount" required>
-                </div>
-                <div class="input-box">
-                    <label>Oprocentowanie roczne (%):</label>
-                    <input type="number" step="0.1" class="interestRate" required>
-                </div>
-                <div class="input-box">
-                    <label>Okres spłaty (miesiące):</label>
-                    <input type="number" class="loanTerm" required>
-                </div>
-                <div class="input-box">
-                    <label>Rodzaj rat:</label>
-                    <select class="rateType">
-                        <option value="equal">Równe</option>
-                        <option value="decreasing">Malejące</option>
-                    </select>
-                </div>
-            </div>
-            <button type="button" onclick="addOffer()">Dodaj kolejną ofertę</button>
-            <button type="submit">Oblicz</button>
-        </form>
-        <div id="results">
-            <table id="scheduleTable"></table>
-            <canvas id="cashFlowChart"></canvas>
-        </div>
-        <button onclick="generatePDF()">Generuj PDF</button>
-        <button onclick="toggleTheme()">Przełącz tryb jasny/ciemny</button>
-        <button onclick="zoomIn()">Powiększ</button>
-        <button onclick="zoomOut()">Pomniejsz</button>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-        // Logika z kalkulatora kredytowego
-        function calculateEqualRate(loanAmount, annualRate, termMonths) {
-            const monthlyRate = annualRate / 100 / 12;
-            const rate = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, termMonths) /
-                        (Math.pow(1 + monthlyRate, termMonths) - 1);
-            return rate;
-        }
+  <h1>Kalkulator Kredytowy</h1>
+  <button id="dark-mode-toggle">Przełącz tryb jasny/ciemny</button>
+  <form id="loan-form">
+    <label for="principal">Kwota kredytu (PLN):</label>
+    <input type="number" id="principal" required>
+    <label for="rate">Oprocentowanie roczne (%):</label>
+    <input type="number" id="rate" step="0.1" required>
+    <label for="term">Okres spłaty (lata):</label>
+    <input type="number" id="term" required>
+    <label for="fee">Prowizja (PLN):</label>
+    <input type="number" id="fee" value="0">
+    <button type="button" id="calculate-loan">Oblicz</button>
+    <button type="button" id="add-loan">Dodaj do porównania</button>
+  </form>
+  <div id="result"></div>
+  <div id="chart-container"><canvas id="loan-chart"></canvas></div>
 
-        function calculateDecreasingRate(loanAmount, annualRate, termMonths, month) {
-            const monthlyRate = annualRate / 100 / 12;
-            const principal = loanAmount / termMonths;
-            const remaining = loanAmount - (month - 1) * principal;
-            return principal + remaining * monthlyRate;
-        }
+  <script>
+    // Przełączanie trybu jasny/ciemny
+    document.getElementById("dark-mode-toggle").addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+    });
 
-        function generateSchedule(loanAmount, annualRate, termMonths, rateType) {
-            const schedule = [];
-            let totalInterest = 0;
-            let remaining = loanAmount;
+    // Obliczanie raty stałej
+    function calculateFixedPayment(principal, annualRate, term) {
+      const monthlyRate = annualRate / 100 / 12;
+      const months = term * 12;
+      const payment = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+      return payment.toFixed(2);
+    }
 
-            for (let i = 1; i <= termMonths; i++) {
-                let rate, principal, interest;
-                if (rateType === 'equal') {
-                    rate = calculateEqualRate(loanAmount, annualRate, termMonths);
-                    interest = remaining * (annualRate / 100 / 12);
-                    principal = rate - interest;
-                } else {
-                    rate = calculateDecreasingRate(loanAmount, annualRate, termMonths, i);
-                    principal = loanAmount / termMonths;
-                    interest = rate - principal;
-                }
-                remaining -= principal;
-                totalInterest += interest;
-                schedule.push({ month: i, rate: rate.toFixed(2), principal: principal.toFixed(2), interest: interest.toFixed(2), remaining: remaining.toFixed(2) });
-            }
-            return { schedule, totalInterest };
-        }
+    // Harmonogram spłat
+    function generateSchedule(principal, annualRate, term) {
+      const monthlyRate = annualRate / 100 / 12;
+      const months = term * 12;
+      const schedule = [];
+      let remaining = principal;
+      const fixedPayment = calculateFixedPayment(principal, annualRate, term);
 
-        // Porównywarka
-        let offerCount = 1;
-        function addOffer() {
-            offerCount++;
-            const newOffer = document.createElement('div');
-            newOffer.classList.add('offer-box');
-            newOffer.id = `offer-${offerCount}`;
-            newOffer.innerHTML = `
-                <h3>Oferta ${offerCount}</h3>
-                <div class="input-box">
-                    <label>Kwota kredytu (PLN):</label>
-                    <input type="number" class="loanAmount" required>
-                </div>
-                <div class="input-box">
-                    <label>Oprocentowanie roczne (%):</label>
-                    <input type="number" step="0.1" class="interestRate" required>
-                </div>
-                <div class="input-box">
-                    <label>Okres spłaty (miesiące):</label>
-                    <input type="number" class="loanTerm" required>
-                </div>
-                <div class="input-box">
-                    <label>Rodzaj rat:</label>
-                    <select class="rateType">
-                        <option value="equal">Równe</option>
-                        <option value="decreasing">Malejące</option>
-                    </select>
-                </div>
-            `;
-            document.getElementById('creditForm').insertBefore(newOffer, document.querySelector('button[type="submit"]'));
-        }
-
-        // Obsługa formularza
-        document.getElementById('creditForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const offers = [];
-            document.querySelectorAll('.offer-box').forEach((box, index) => {
-                const loanAmount = parseFloat(box.querySelector('.loanAmount').value);
-                const interestRate = parseFloat(box.querySelector('.interestRate').value);
-                const loanTerm = parseInt(box.querySelector('.loanTerm').value);
-                const rateType = box.querySelector('.rateType').value;
-
-                const { schedule, totalInterest } = generateSchedule(loanAmount, interestRate, loanTerm, rateType);
-                const monthlyRate = rateType === 'equal' ? calculateEqualRate(loanAmount, interestRate, loanTerm).toFixed(2) : null;
-                const totalCost = (loanAmount + totalInterest).toFixed(2);
-
-                offers.push({ offer: `Oferta ${index + 1}`, schedule, monthlyRate, totalCost, totalInterest: totalInterest.toFixed(2) });
-            });
-
-            // Generowanie tabeli porównawczej
-            let comparisonTable = `
-                <table>
-                    <tr>
-                        <th>Oferta</th>
-                        <th>Rata miesięczna (PLN)</th>
-                        <th>Całkowity koszt (PLN)</th>
-                        <th>Odsetki (PLN)</th>
-                    </tr>`;
-            offers.forEach(offer => {
-                comparisonTable += `
-                    <tr>
-                        <td>${offer.offer}</td>
-                        <td>${offer.monthlyRate || 'Zmienna'}</td>
-                        <td>${offer.totalCost}</td>
-                        <td>${offer.totalInterest}</td>
-                    </tr>`;
-            });
-            comparisonTable += '</table>';
-
-            // Generowanie harmonogramu dla pierwszej oferty (można rozszerzyć)
-            const scheduleTable = `
-                <table>
-                    <tr>
-                        <th>Miesiąc</th>
-                        <th>Rata (PLN)</th>
-                        <th>Kapitał (PLN)</th>
-                        <th>Odsetki (PLN)</th>
-                        <th>Pozostały dług (PLN)</th>
-                    </tr>
-                    ${offers[0].schedule.map(row => `
-                        <tr>
-                            <td>${row.month}</td>
-                            <td>${row.rate}</td>
-                            <td>${row.principal}</td>
-                            <td>${row.interest}</td>
-                            <td>${row.remaining}</td>
-                        </tr>`).join('')}
-                </table>`;
-
-            document.getElementById('results').innerHTML = comparisonTable + scheduleTable;
-
-            // Wykres (reużycie Chart.js z kalkulatora obligacji)
-            const ctx = document.getElementById('cashFlowChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: offers[0].schedule.map(row => row.month),
-                    datasets: [{
-                        label: 'Odsetki',
-                        data: offers[0].schedule.map(row => row.interest),
-                        borderColor: '#007bff',
-                        fill: false
-                    }, {
-                        label: 'Kapitał',
-                        data: offers[0].schedule.map(row => row.principal),
-                        borderColor: '#28a745',
-                        fill: false
-                    }]
-                },
-                options: { responsive: true }
-            });
+      for (let i = 1; i <= months; i++) {
+        const interest = remaining * monthlyRate;
+        const capital = fixedPayment - interest;
+        remaining -= capital;
+        schedule.push({
+          month: i,
+          payment: fixedPayment,
+          capital: capital.toFixed(2),
+          interest: interest.toFixed(2),
+          remaining: remaining.toFixed(2),
         });
+      }
+      return schedule;
+    }
 
-        // Generowanie PDF (reużycie z kalkulatora obligacji)
-        function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.text('Kalkulator Kredytowy - Wyniki', 10, 10);
-            doc.autoTable({ html: '#scheduleTable', startY: 20 });
-            doc.save('kalkulator_kredytowy.pdf');
-        }
+    // Porównywarka
+    let loans = [];
+    document.getElementById("add-loan").addEventListener("click", () => {
+      const principal = parseFloat(document.getElementById("principal").value);
+      const rate = parseFloat(document.getElementById("rate").value);
+      const term = parseInt(document.getElementById("term").value);
+      const fee = parseFloat(document.getElementById("fee").value) || 0;
 
-        // Funkcje UI z kalkulatora obligacji
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-        }
+      loans.push({ principal, rate, term, fee });
+      displayComparison();
+    });
 
-        let zoomLevel = 1;
-        function zoomIn() {
-            zoomLevel += 0.1;
-            document.querySelector('.calculator-container').style.transform = `scale(${zoomLevel})`;
-        }
+    function displayComparison() {
+      const comparison = loans.map((loan, index) => {
+        const monthlyPayment = calculateFixedPayment(loan.principal, loan.rate, loan.term);
+        const totalCost = (monthlyPayment * loan.term * 12 + loan.fee).toFixed(2);
+        return {
+          id: index + 1,
+          monthlyPayment,
+          totalCost,
+          ...loan,
+        };
+      });
 
-        function zoomOut() {
-            zoomLevel -= 0.1;
-            document.querySelector('.calculator-container').style.transform = `scale(${zoomLevel})`;
-        }
-    </script>
+      document.getElementById("result").innerHTML += `
+        <h2>Porównanie kredytów</h2>
+        <table>
+          <tr><th>ID</th><th>Kwota</th><th>Oprocentowanie</th><th>Okres</th><th>Prowizja</th><th>Rata</th><th>Koszt całkowity</th></tr>
+          ${comparison.map(row => `
+            <tr>
+              <td>${row.id}</td>
+              <td>${row.principal} PLN</td>
+              <td>${row.rate}%</td>
+              <td>${row.term} lat</td>
+              <td>${row.fee} PLN</td>
+              <td>${row.monthlyPayment} PLN</td>
+              <td>${row.totalCost} PLN</td>
+            </tr>
+          `).join("")}
+        </table>
+      `;
+    }
+
+    // Obliczanie kredytu
+    document.getElementById("calculate-loan").addEventListener("click", () => {
+      const principal = parseFloat(document.getElementById("principal").value);
+      const rate = parseFloat(document.getElementById("rate").value);
+      const term = parseInt(document.getElementById("term").value);
+      const fee = parseFloat(document.getElementById("fee").value) || 0;
+
+      const monthlyPayment = calculateFixedPayment(principal, rate, term);
+      const schedule = generateSchedule(principal, rate, term);
+      const totalCost = (monthlyPayment * term * 12 + fee).toFixed(2);
+
+      // Wyświetl wyniki
+      document.getElementById("result").innerHTML = `
+        <h2>Wyniki</h2>
+        <p>Rata miesięczna: ${monthlyPayment} PLN</p>
+        <p>Całkowity koszt: ${totalCost} PLN</p>
+        <table>
+          <tr><th>Miesiąc</th><th>Rata</th><th>Kapitał</th><th>Odsetki</th><th>Pozostało</th></tr>
+          ${schedule.map(row => `
+            <tr>
+              <td>${row.month}</td>
+              <td>${row.payment} PLN</td>
+              <td>${row.capital} PLN</td>
+              <td>${row.interest} PLN</td>
+              <td>${row.remaining} PLN</td>
+            </tr>
+          `).join("")}
+        </table>
+      `;
+
+      // Generuj wykres
+      const ctx = document.getElementById("loan-chart").getContext("2d");
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: schedule.map(row => row.month),
+          datasets: [
+            { label: "Kapitał", data: schedule.map(row => row.capital), borderColor: "#007bff" },
+            { label: "Odsetki", data: schedule.map(row => row.interest), borderColor: "#ff4444" },
+          ],
+        },
+      });
+
+      // Generuj PDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Wyniki kalkulatora kredytowego", 10, 10);
+      doc.text(`Rata miesięczna: ${monthlyPayment} PLN`, 10, 20);
+      doc.text(`Całkowity koszt: ${totalCost} PLN`, 10, 30);
+      doc.save("kalkulator_kredytowy.pdf");
+    });
+  </script>
 </body>
 </html>
