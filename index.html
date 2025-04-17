@@ -3,802 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Finansowy</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Kalkulator Kredytowy</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Twój CSS z kalkulatora obligacji -->
 </head>
 <body>
-    <!-- Sekcja nagłówka z logo i kontrolkami -->
-    <div class="logo-container">
-        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-        <div class="zoom-controls">
-            <button id="calcToggleBtn" class="btn btn-sm" aria-label="Otwórz kalkulator">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                    <rect x="6" y="6" width="12" height="4"/>
-                    <circle cx="7" cy="13" r="1"/>
-                    <circle cx="12" cy="13" r="1"/>
-                    <circle cx="17" cy="13" r="1"/>
-                    <circle cx="7" cy="16" r="1"/>
-                    <circle cx="12" cy="16" r="1"/>
-                    <circle cx="17" cy="16" r="1"/>
-                    <circle cx="7" cy="19" r="1"/>
-                    <circle cx="12" cy="19" r="1"/>
-                    <circle cx="17" cy="19" r="1"/>
-                </svg>
-            </button>
-            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
-            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
-            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
+    <div class="calculator-container">
+        <h1>Kalkulator Kredytowy</h1>
+        <form id="creditForm">
+            <div class="offer-box" id="offer-1">
+                <h3>Oferta 1</h3>
+                <div class="input-box">
+                    <label>Kwota kredytu (PLN):</label>
+                    <input type="number" class="loanAmount" required>
+                </div>
+                <div class="input-box">
+                    <label>Oprocentowanie roczne (%):</label>
+                    <input type="number" step="0.1" class="interestRate" required>
+                </div>
+                <div class="input-box">
+                    <label>Okres spłaty (miesiące):</label>
+                    <input type="number" class="loanTerm" required>
+                </div>
+                <div class="input-box">
+                    <label>Rodzaj rat:</label>
+                    <select class="rateType">
+                        <option value="equal">Równe</option>
+                        <option value="decreasing">Malejące</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" onclick="addOffer()">Dodaj kolejną ofertę</button>
+            <button type="submit">Oblicz</button>
+        </form>
+        <div id="results">
+            <table id="scheduleTable"></table>
+            <canvas id="cashFlowChart"></canvas>
         </div>
+        <button onclick="generatePDF()">Generuj PDF</button>
+        <button onclick="toggleTheme()">Przełącz tryb jasny/ciemny</button>
+        <button onclick="zoomIn()">Powiększ</button>
+        <button onclick="zoomOut()">Pomniejsz</button>
     </div>
-
-    <!-- Główny kontener portalu -->
-    <div class="main-container">
-        <!-- Sekcja lewa - Kredyty, Oszczędności, Biznesowe -->
-        <section class="sidebar left-sidebar">
-            <div class="sidebar-box">
-                <h3 class="sidebar-header">Kredyty</h3>
-                <div class="sidebar-content">
-                    <p><a href="#kalkulator-kredytow-hipotecznych">Kalkulator kredytów hipotecznych</a></p>
-                    <p><a href="#kalkulator-kredytow-gotowkowych">Kalkulator kredytów gotówkowych</a></p>
-                    <p><a href="#porownywarka-kredytow">Porównywarka kredytów</a></p>
-                </div>
-            </div>
-            <div class="sidebar-box">
-                <h3 class="sidebar-header">Oszczędności</h3>
-                <div class="sidebar-content">
-                    <p><a href="#kalkulator-obligacji">Kalkulator obligacji</a></p>
-                    <p><a href="#kalkulator-lokat">Kalkulator lokat</a></p>
-                    <p><a href="#porownywarka-kont-oszczednosciowych">Porównywarka kont oszczędnościowych</a></p>
-                </div>
-            </div>
-            <div class="sidebar-box">
-                <h3 class="sidebar-header">Biznesowe</h3>
-                <div class="sidebar-content">
-                    <p><a href="#kalkulator-leasingu">Kalkulator leasingu</a></p>
-                    <p><a href="#analiza-finansowa-firmy">Analiza finansowa firmy</a></p>
-                    <p><a href="#porownywarka-kont-firmowych">Porównywarka kont firmowych</a></p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sekcja środkowa - Kontener na treści -->
-        <section class="content-section">
-            <div class="content-box">
-                <h2>Witaj na Portalu Finansowym!</h2>
-                <video width="100%" height="315" controls class="content-video">
-                    <source src="kalkulator.mp4" type="video/mp4">
-                    Twoja przeglądarka nie obsługuje odtwarzania wideo.
-                </video>
-                <p>Znajdziesz tutaj narzędzia i informacje, które pomogą Ci zarządzać finansami. Wybierz opcję z menu po lewej stronie lub skorzystaj z kalkulatora, klikając przycisk z ikoną kalkulatora u góry.</p>
-                <h3>Przykładowy artykuł</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                <p><a href="#czytaj-wiecej">Czytaj więcej</a></p>
-                <h3>Przykładowy film</h3>
-                <iframe width="100%" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-            </div>
-        </section>
-
-        <!-- Sekcja prawa - Praca, Pozostałe -->
-        <section class="sidebar right-sidebar">
-            <!-- Okienko Praca -->
-            <div class="sidebar-box">
-                <h3 class="sidebar-header">Praca</h3>
-                <div class="sidebar-content">
-                    <p><a href="#oferty-pracy-w-finansach">Oferty pracy w finansach</a></p>
-                    <p><a href="#porady-kariera">Porady dotyczące kariery</a></p>
-                    <p><a href="#cv-i-list-motywacyjny">Jak napisać CV i list motywacyjny</a></p>
-                </div>
-            </div>
-            <!-- Okienko Pozostałe -->
-            <div class="sidebar-box">
-                <h3 class="sidebar-header">Pozostałe</h3>
-                <div class="sidebar-content">
-                    <p><a href="#kursy-walut">Kursy walut</a></p>
-                    <p><a href="#aktualnosci-finansowe">Aktualności finansowe</a></p>
-                    <p><a href="#kontakt">Kontakt</a></p>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Kalkulator (ukryty domyślnie) -->
-    <div class="sidebar-box draggable" id="calculatorBox" style="display: none;">
-        <h3 class="sidebar-header">
-            Kalkulator
-            <button id="closeCalcBtn" class="close-btn" title="Zamknij kalkulator">×</button>
-        </h3>
-        <div class="calculator">
-            <input type="text" id="calcDisplay" readonly>
-            <div class="calc-buttons">
-                <button class="calc-btn calc-clear">C</button>
-                <button class="calc-btn calc-operation">±</button>
-                <button class="calc-btn calc-operation">%</button>
-                <button class="calc-btn calc-operation">/</button>
-
-                <button class="calc-btn calc-number">7</button>
-                <button class="calc-btn calc-number">8</button>
-                <button class="calc-btn calc-number">9</button>
-                <button class="calc-btn calc-operation">*</button>
-
-                <button class="calc-btn calc-number">4</button>
-                <button class="calc-btn calc-number">5</button>
-                <button class="calc-btn calc-number">6</button>
-                <button class="calc-btn calc-operation">-</button>
-
-                <button class="calc-btn calc-number">1</button>
-                <button class="calc-btn calc-number">2</button>
-                <button class="calc-btn calc-number">3</button>
-                <button class="calc-btn calc-operation">+</button>
-
-                <button class="calc-btn calc-number calc-zero">0</button>
-                <button class="calc-btn calc-number">.</button>
-                <button class="calc-btn calc-equals">=</button>
-            </div>
-        </div>
-    </div>
-
-<style>
-    :root {
-        --primary-bg: #f5f6f5;
-        --primary-text: #333333;
-        --secondary-bg: #ffffff;
-        --accent-color: #c2b280;
-        --accent-gradient-start: #c2b280;
-        --accent-gradient-end: #b0a070;
-        --border-color: #e0e0e0;
-        --shadow-color: rgba(0, 0, 0, 0.1);
-        --logo-bg: #e9ecef;
-        --button-bg: #c2b280;
-        --button-text: #333333;
-    }
-
-    .dark-mode {
-        --primary-bg: #2b2b2b;
-        --primary-text: #e0e0e0;
-        --secondary-bg: #3a3a3a;
-        --accent-color: #8b7d47;
-        --accent-gradient-start: #8b7d47;
-        --accent-gradient-end: #70673b;
-        --border-color: #666666;
-        --shadow-color: rgba(0, 0, 0, 0.5);
-        --logo-bg: #3a3a3a;
-        --button-bg: #8b7d47;
-        --button-text: #e0e0e0;
-    }
-
-    *, ::after, ::before {
-        box-sizing: border-box;
-    }
-
-    body {
-        margin: 0;
-        background-color: var(--primary-bg);
-        font-family: 'Montserrat', sans-serif;
-        font-size: 1rem;
-        font-weight: 400;
-        line-height: 1.5;
-        color: var(--primary-text);
-        padding: 10px;
-        -webkit-text-size-adjust: 100%;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .logo-container {
-        background-color: var(--logo-bg);
-        padding: 15px;
-        margin-bottom: 20px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .zoom-controls {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        gap: 5px;
-    }
-
-    .zoom-controls .btn {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        font-size: 0.9em;
-        line-height: 25px;
-        background: var(--button-bg);
-        color: var(--button-text);
-        border: none;
-        box-shadow: 0 2px 4px var(--shadow-color);
-        transition: background 0.3s ease, transform 0.2s ease;
-    }
-
-    .zoom-controls .btn:hover {
-        background: var(--accent-gradient-end);
-        transform: translateY(-1px);
-    }
-
-    .zoom-controls .btn svg {
-        width: 16px;
-        height: 16px;
-        stroke: var(--button-text);
-    }
-
-    .logo, #siteLogo {
-        max-width: 200px;
-        margin-bottom: 0;
-        cursor: pointer;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* Główny layout portalu */
-    .main-container {
-        display: flex;
-        flex-wrap: wrap;
-        max-width: 1200px;
-        margin: 0 auto;
-        gap: 20px;
-        position: relative;
-    }
-
-    /* Sekcje boczne (lewa i prawa) */
-    .sidebar {
-        flex: 1;
-        min-width: 200px;
-        max-width: 250px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .left-sidebar {
-        order: 1;
-    }
-
-    .right-sidebar {
-        order: 3;
-    }
-
-    /* Sekcja środkowa */
-    .content-section {
-        flex: 2;
-        min-width: 350px;
-        order: 2;
-    }
-
-    /* Stylizacja okienek w sekcjach bocznych */
-    .sidebar-box {
-        background: var(--secondary-bg);
-        border-radius: 10px;
-        box-shadow: 0 2px 4px var(--shadow-color);
-        padding: 15px;
-        position: relative;
-        width: 100%;
-    }
-
-    .sidebar-header {
-        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-        color: var(--button-text);
-        padding: 8px;
-        margin: -15px -15px 15px -15px;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-        font-size: 1em;
-        font-weight: 700;
-        text-align: center;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .close-btn {
-        position: absolute;
-        right: 10px;
-        background: none;
-        border: none;
-        font-size: 1em;
-        cursor: pointer;
-        color: var(--button-text);
-        transition: transform 0.2s ease;
-    }
-
-    .close-btn:hover {
-        transform: scale(1.2);
-    }
-
-    .sidebar-content {
-        padding: 5px 0;
-        font-size: 0.85em;
-    }
-
-    .sidebar-content p {
-        margin: 5px 0;
-    }
-
-    .sidebar-content a {
-        color: var(--primary-text);
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-    .sidebar-content a:hover {
-        color: var(--accent-color);
-        text-decoration: underline;
-    }
-
-    /* Stylizacja sekcji środkowej */
-    .content-box {
-        background: var(--secondary-bg);
-        border-radius: 10px;
-        box-shadow: 0 2px 4px var(--shadow-color);
-        padding: 20px;
-    }
-
-    .content-box h2, .content-box h3 {
-        color: var(--primary-text);
-        margin-bottom: 15px;
-    }
-
-    .content-box p {
-        margin-bottom: 15px;
-    }
-
-    .content-box iframe, .content-box video {
-        border-radius: 10px;
-        margin-bottom: 15px;
-    }
-
-    /* Stylizacja kalkulatora */
-    .calculator {
-        background: #000;
-        border-radius: 20px;
-        padding: 10px;
-        width: 180px;
-        margin: 0 auto;
-    }
-
-    #calcDisplay {
-        width: 100%;
-        height: 35px;
-        background: #000;
-        color: #fff;
-        font-size: 1.3em;
-        text-align: right;
-        padding: 5px;
-        border: none;
-        outline: none;
-        margin-bottom: 8px;
-        font-family: 'Arial', sans-serif;
-    }
-
-    .calc-buttons {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 4px;
-    }
-
-    .calc-btn {
-        background: #333;
-        color: #fff;
-        border: none;
-        border-radius: 50%;
-        width: 35px;
-        height: 35px;
-        font-size: 0.9em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    .calc-btn:hover {
-        background: #555;
-    }
-
-    .calc-number {
-        background: #505050;
-    }
-
-    .calc-operation {
-        background: #ff9500;
-        color: #fff;
-    }
-
-    .calc-clear {
-        background: #a5a5a5;
-        color: #000;
-    }
-
-    .calc-equals {
-        background: #ff9500;
-        color: #fff;
-    }
-
-    .calc-zero {
-        grid-column: span 2;
-        border-radius: 18px;
-        width: 80px;
-    }
-
-    /* Styl dla przeciągalnego kalkulatora */
-    .draggable {
-        position: absolute;
-        cursor: move;
-        z-index: 1000;
-        user-select: none;
-        width: 250px;
-        max-width: 250px;
-        touch-action: none;
-        background: var(--secondary-bg);
-        border-radius: 10px;
-        box-shadow: 0 2px 4px var(--shadow-color);
-    }
-
-    /* Responsywność */
-    @media (max-width: 1200px) {
-        .sidebar {
-            flex: 1 1 100%;
-            max-width: 100%;
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        // Logika z kalkulatora kredytowego
+        function calculateEqualRate(loanAmount, annualRate, termMonths) {
+            const monthlyRate = annualRate / 100 / 12;
+            const rate = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, termMonths) /
+                        (Math.pow(1 + monthlyRate, termMonths) - 1);
+            return rate;
         }
 
-        .content-section {
-            flex: 1 1 100%;
-            min-width: 100%;
+        function calculateDecreasingRate(loanAmount, annualRate, termMonths, month) {
+            const monthlyRate = annualRate / 100 / 12;
+            const principal = loanAmount / termMonths;
+            const remaining = loanAmount - (month - 1) * principal;
+            return principal + remaining * monthlyRate;
         }
 
-        .left-sidebar, .right-sidebar, .content-section {
-            order: initial;
-        }
-    }
+        function generateSchedule(loanAmount, annualRate, termMonths, rateType) {
+            const schedule = [];
+            let totalInterest = 0;
+            let remaining = loanAmount;
 
-    @media (max-width: 576px) {
-        .calc-btn {
-            width: 30px;
-            height: 30px;
-            font-size: 0.8em;
-        }
-
-        .calc-zero {
-            width: 70px;
-        }
-
-        #calcDisplay {
-            font-size: 1.1em;
-            height: 30px;
-        }
-
-        .calculator {
-            width: 160px;
-        }
-
-        .draggable {
-            width: 200px;
-            max-width: 200px;
-        }
-    }
-</style>
-
-<script>
-    // Funkcje zoom i tryb ciemny
-    let currentZoom = 1;
-    const zoomStep = 0.1;
-    const minZoom = 0.5;
-    const maxZoom = 2;
-
-    function updateZoom() {
-        const container = document.querySelector('.main-container');
-        const previousZoom = currentZoom;
-        container.style.transform = `scale(${currentZoom})`;
-        container.style.transformOrigin = 'top center';
-        updateCalculatorPosition(previousZoom);
-    }
-
-    document.getElementById("zoomInBtn").addEventListener("click", () => {
-        if (currentZoom < maxZoom) {
-            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
-            updateZoom();
-        }
-    });
-
-    document.getElementById("zoomOutBtn").addEventListener("click", () => {
-        if (currentZoom > minZoom) {
-            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
-            updateZoom();
-        }
-    });
-
-    function toggleDarkMode() {
-        const body = document.body;
-        const isDarkMode = body.classList.contains('dark-mode');
-        
-        if (isDarkMode) {
-            body.classList.remove('dark-mode');
-            body.classList.add('light-mode');
-            localStorage.setItem('theme', 'light');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        } else {
-            body.classList.remove('light-mode');
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        }
-    }
-
-    function initializeTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '☀️';
-        } else {
-            document.body.classList.add('light-mode');
-            document.getElementById('toggleDarkModeBtn').textContent = '🌙';
-        }
-    }
-
-    document.getElementById('toggleDarkModeBtn').addEventListener('click', toggleDarkMode);
-    initializeTheme();
-
-    document.getElementById('siteLogo').addEventListener('click', () => {
-        window.open('https://finance-brothers.pl', '_blank');
-    });
-
-    // Logika kalkulatora
-    const calcDisplay = document.getElementById('calcDisplay');
-    let currentInput = '0';
-    let previousInput = '';
-    let operation = null;
-    let shouldResetDisplay = false;
-
-    function updateDisplay() {
-        calcDisplay.value = currentInput;
-    }
-
-    function clearCalculator() {
-        currentInput = '0';
-        previousInput = '';
-        operation = null;
-        shouldResetDisplay = false;
-        updateDisplay();
-    }
-
-    function toggleSign() {
-        if (currentInput === '0') return;
-        currentInput = (parseFloat(currentInput) * -1).toString();
-        updateDisplay();
-    }
-
-    function percent() {
-        currentInput = (parseFloat(currentInput) / 100).toString();
-        updateDisplay();
-    }
-
-    function appendNumber(number) {
-        if (shouldResetDisplay) {
-            currentInput = number;
-            shouldResetDisplay = false;
-        } else {
-            currentInput = currentInput === '0' ? number : currentInput + number;
-        }
-        updateDisplay();
-    }
-
-    function appendDecimal() {
-        if (!currentInput.includes('.')) {
-            currentInput += '.';
-        }
-        updateDisplay();
-    }
-
-    function setOperation(op) {
-        if (currentInput === '') return;
-        if (previousInput !== '') {
-            calculate();
-        }
-        operation = op;
-        previousInput = currentInput;
-        shouldResetDisplay = true;
-    }
-
-    function calculate() {
-        if (previousInput === '' || currentInput === '' || operation === null) return;
-        let result;
-        const prev = parseFloat(previousInput);
-        const curr = parseFloat(currentInput);
-
-        switch (operation) {
-            case '+':
-                result = prev + curr;
-                break;
-            case '-':
-                result = prev - curr;
-                break;
-            case '*':
-                result = prev * curr;
-                break;
-            case '/':
-                if (curr === 0) {
-                    alert("Nie można dzielić przez zero!");
-                    clearCalculator();
-                    return;
-                }
-                result = prev / curr;
-                break;
-            default:
-                return;
-        }
-
-        currentInput = result.toString();
-        operation = null;
-        previousInput = '';
-        shouldResetDisplay = true;
-        updateDisplay();
-    }
-
-    document.querySelectorAll('.calc-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const value = button.textContent;
-
-            if (button.classList.contains('calc-number')) {
-                appendNumber(value);
-            } else if (button.classList.contains('calc-operation')) {
-                if (value === '±') {
-                    toggleSign();
-                } else if (value === '%') {
-                    percent();
+            for (let i = 1; i <= termMonths; i++) {
+                let rate, principal, interest;
+                if (rateType === 'equal') {
+                    rate = calculateEqualRate(loanAmount, annualRate, termMonths);
+                    interest = remaining * (annualRate / 100 / 12);
+                    principal = rate - interest;
                 } else {
-                    setOperation(value);
+                    rate = calculateDecreasingRate(loanAmount, annualRate, termMonths, i);
+                    principal = loanAmount / termMonths;
+                    interest = rate - principal;
                 }
-            } else if (button.classList.contains('calc-clear')) {
-                clearCalculator();
-            } else if (button.classList.contains('calc-equals')) {
-                calculate();
-            } else if (value === '.') {
-                appendDecimal();
+                remaining -= principal;
+                totalInterest += interest;
+                schedule.push({ month: i, rate: rate.toFixed(2), principal: principal.toFixed(2), interest: interest.toFixed(2), remaining: remaining.toFixed(2) });
             }
+            return { schedule, totalInterest };
+        }
+
+        // Porównywarka
+        let offerCount = 1;
+        function addOffer() {
+            offerCount++;
+            const newOffer = document.createElement('div');
+            newOffer.classList.add('offer-box');
+            newOffer.id = `offer-${offerCount}`;
+            newOffer.innerHTML = `
+                <h3>Oferta ${offerCount}</h3>
+                <div class="input-box">
+                    <label>Kwota kredytu (PLN):</label>
+                    <input type="number" class="loanAmount" required>
+                </div>
+                <div class="input-box">
+                    <label>Oprocentowanie roczne (%):</label>
+                    <input type="number" step="0.1" class="interestRate" required>
+                </div>
+                <div class="input-box">
+                    <label>Okres spłaty (miesiące):</label>
+                    <input type="number" class="loanTerm" required>
+                </div>
+                <div class="input-box">
+                    <label>Rodzaj rat:</label>
+                    <select class="rateType">
+                        <option value="equal">Równe</option>
+                        <option value="decreasing">Malejące</option>
+                    </select>
+                </div>
+            `;
+            document.getElementById('creditForm').insertBefore(newOffer, document.querySelector('button[type="submit"]'));
+        }
+
+        // Obsługa formularza
+        document.getElementById('creditForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const offers = [];
+            document.querySelectorAll('.offer-box').forEach((box, index) => {
+                const loanAmount = parseFloat(box.querySelector('.loanAmount').value);
+                const interestRate = parseFloat(box.querySelector('.interestRate').value);
+                const loanTerm = parseInt(box.querySelector('.loanTerm').value);
+                const rateType = box.querySelector('.rateType').value;
+
+                const { schedule, totalInterest } = generateSchedule(loanAmount, interestRate, loanTerm, rateType);
+                const monthlyRate = rateType === 'equal' ? calculateEqualRate(loanAmount, interestRate, loanTerm).toFixed(2) : null;
+                const totalCost = (loanAmount + totalInterest).toFixed(2);
+
+                offers.push({ offer: `Oferta ${index + 1}`, schedule, monthlyRate, totalCost, totalInterest: totalInterest.toFixed(2) });
+            });
+
+            // Generowanie tabeli porównawczej
+            let comparisonTable = `
+                <table>
+                    <tr>
+                        <th>Oferta</th>
+                        <th>Rata miesięczna (PLN)</th>
+                        <th>Całkowity koszt (PLN)</th>
+                        <th>Odsetki (PLN)</th>
+                    </tr>`;
+            offers.forEach(offer => {
+                comparisonTable += `
+                    <tr>
+                        <td>${offer.offer}</td>
+                        <td>${offer.monthlyRate || 'Zmienna'}</td>
+                        <td>${offer.totalCost}</td>
+                        <td>${offer.totalInterest}</td>
+                    </tr>`;
+            });
+            comparisonTable += '</table>';
+
+            // Generowanie harmonogramu dla pierwszej oferty (można rozszerzyć)
+            const scheduleTable = `
+                <table>
+                    <tr>
+                        <th>Miesiąc</th>
+                        <th>Rata (PLN)</th>
+                        <th>Kapitał (PLN)</th>
+                        <th>Odsetki (PLN)</th>
+                        <th>Pozostały dług (PLN)</th>
+                    </tr>
+                    ${offers[0].schedule.map(row => `
+                        <tr>
+                            <td>${row.month}</td>
+                            <td>${row.rate}</td>
+                            <td>${row.principal}</td>
+                            <td>${row.interest}</td>
+                            <td>${row.remaining}</td>
+                        </tr>`).join('')}
+                </table>`;
+
+            document.getElementById('results').innerHTML = comparisonTable + scheduleTable;
+
+            // Wykres (reużycie Chart.js z kalkulatora obligacji)
+            const ctx = document.getElementById('cashFlowChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: offers[0].schedule.map(row => row.month),
+                    datasets: [{
+                        label: 'Odsetki',
+                        data: offers[0].schedule.map(row => row.interest),
+                        borderColor: '#007bff',
+                        fill: false
+                    }, {
+                        label: 'Kapitał',
+                        data: offers[0].schedule.map(row => row.principal),
+                        borderColor: '#28a745',
+                        fill: false
+                    }]
+                },
+                options: { responsive: true }
+            });
         });
-    });
 
-    updateDisplay();
-
-    // Logika pokazywania/ukrywania i przeciągania kalkulatora
-    const calculatorBox = document.getElementById('calculatorBox');
-    const calcToggleBtn = document.getElementById('calcToggleBtn');
-    const closeCalcBtn = document.getElementById('closeCalcBtn');
-    let isDragging = false;
-    let initialX = 0;
-    let initialY = 0;
-
-    function toggleCalculator() {
-        const isVisible = calculatorBox.style.display === 'block';
-        if (isVisible) {
-            calculatorBox.style.display = 'none';
-        } else {
-            calculatorBox.style.display = 'block';
-            // Ustaw domyślną pozycję w centrum strony
-            const windowWidth = window.innerWidth / currentZoom;
-            const windowHeight = window.innerHeight / currentZoom;
-            const calcWidth = calculatorBox.offsetWidth;
-            const calcHeight = calculatorBox.offsetHeight;
-            calculatorBox.style.left = ((windowWidth - calcWidth) / 2) + 'px';
-            calculatorBox.style.top = ((windowHeight - calcHeight) / 2) + 'px';
+        // Generowanie PDF (reużycie z kalkulatora obligacji)
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text('Kalkulator Kredytowy - Wyniki', 10, 10);
+            doc.autoTable({ html: '#scheduleTable', startY: 20 });
+            doc.save('kalkulator_kredytowy.pdf');
         }
-    }
 
-    calcToggleBtn.addEventListener('click', toggleCalculator);
-    closeCalcBtn.addEventListener('click', () => {
-        calculatorBox.style.display = 'none';
-    });
-
-    calculatorBox.addEventListener('mousedown', (e) => {
-        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
-            isDragging = true;
-            const calcRect = calculatorBox.getBoundingClientRect();
-            const currentX = (calcRect.left + window.scrollX) / currentZoom;
-            const currentY = (calcRect.top + window.scrollY) / currentZoom;
-
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
-
-            initialX = (e.clientX / currentZoom) - currentX;
-            initialY = (e.clientY / currentZoom) - currentY;
-            calculatorBox.style.cursor = 'grabbing';
-            e.preventDefault();
+        // Funkcje UI z kalkulatora obligacji
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
         }
-    });
 
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            const newX = (e.clientX / currentZoom) - initialX;
-            const newY = (e.clientY / currentZoom) - initialY;
-
-            const windowWidth = window.innerWidth / currentZoom;
-            const calcWidth = calculatorBox.offsetWidth;
-            const calcHeight = calculatorBox.offsetHeight;
-            const documentHeight = document.documentElement.scrollHeight / currentZoom;
-
-            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
-            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
-
-            calculatorBox.style.left = boundedX + 'px';
-            calculatorBox.style.top = boundedY + 'px';
+        let zoomLevel = 1;
+        function zoomIn() {
+            zoomLevel += 0.1;
+            document.querySelector('.calculator-container').style.transform = `scale(${zoomLevel})`;
         }
-    });
 
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            calculatorBox.style.cursor = 'move';
+        function zoomOut() {
+            zoomLevel -= 0.1;
+            document.querySelector('.calculator-container').style.transform = `scale(${zoomLevel})`;
         }
-    });
-
-    // Obsługa dotyku dla urządzeń mobilnych
-    calculatorBox.addEventListener('touchstart', (e) => {
-        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
-            isDragging = true;
-            const calcRect = calculatorBox.getBoundingClientRect();
-            const currentX = (calcRect.left + window.scrollX) / currentZoom;
-            const currentY = (calcRect.top + window.scrollY) / currentZoom;
-
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
-
-            const touch = e.touches[0];
-            initialX = (touch.clientX / currentZoom) - currentX;
-            initialY = (touch.clientY / currentZoom) - currentY;
-            e.preventDefault();
-        }
-    });
-
-    document.addEventListener('touchmove', (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const newX = (touch.clientX / currentZoom) - initialX;
-            const newY = (touch.clientY / currentZoom) - initialY;
-
-            const windowWidth = window.innerWidth / currentZoom;
-            const calcWidth = calculatorBox.offsetWidth;
-            const calcHeight = calculatorBox.offsetHeight;
-            const documentHeight = document.documentElement.scrollHeight / currentZoom;
-
-            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
-            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
-
-            calculatorBox.style.left = boundedX + 'px';
-            calculatorBox.style.top = boundedY + 'px';
-        }
-    }, { passive: false });
-
-    document.addEventListener('touchend', () => {
-        if (isDragging) {
-            isDragging = false;
-        }
-    });
-
-    // Funkcja aktualizująca pozycję kalkulatora po zmianie zoomu
-    function updateCalculatorPosition(previousZoom) {
-        if (calculatorBox.style.display === 'block') {
-            const calcRect = calculatorBox.getBoundingClientRect();
-            const zoomRatio = previousZoom / currentZoom;
-            const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
-            const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
-            calculatorBox.style.left = (newX / currentZoom) + 'px';
-            calculatorBox.style.top = (newY / currentZoom) + 'px';
-        }
-    }
-</script>
+    </script>
 </body>
 </html>
