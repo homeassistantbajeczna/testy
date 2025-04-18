@@ -271,6 +271,10 @@ body {
     justify-content: center;
 }
 
+#prowizja .input-group .form-control {
+    flex: 3;
+}
+
 .form-control:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color);
@@ -315,8 +319,12 @@ body {
 }
 
 .jednostka-select {
-    width: 40px;
+    flex: 1;
     position: relative;
+}
+
+#prowizja .input-group .jednostka-select {
+    flex: 1;
 }
 
 .jednostka-select::after {
@@ -358,6 +366,11 @@ body {
     width: 150px;
     display: flex;
     justify-content: center;
+}
+
+#prowizja .input-group {
+    display: flex;
+    width: 150px;
 }
 
 input[type="range"].form-range {
@@ -1017,12 +1030,22 @@ input[type="range"].form-range:focus::-ms-thumb {
         line-height: 20px;
     }
 
+    #prowizja .input-group .form-control {
+        flex: 3;
+        width: auto;
+    }
+
     .input-group-text,
     .jednostka-select {
         height: 26px;
         width: 40px;
         padding: 4px 8px;
         line-height: 20px;
+    }
+
+    #prowizja .input-group .jednostka-select {
+        flex: 1;
+        width: auto;
     }
 
     .variable-input-group .input-group {
@@ -1169,12 +1192,22 @@ input[type="range"].form-range:focus::-ms-thumb {
         line-height: 20px;
     }
 
+    #prowizja .input-group .form-control {
+        flex: 3;
+        width: auto;
+    }
+
     .input-group-text,
     .jednostka-select {
         height: 28px;
         width: 40px;
         padding: 4px 8px;
         line-height: 20px;
+    }
+
+    #prowizja .input-group .jednostka-select {
+        flex: 1;
+        width: auto;
     }
 
     .form-range {
