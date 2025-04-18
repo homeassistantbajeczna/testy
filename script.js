@@ -578,4 +578,48 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
         console.error("Error in initialization:", error);
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pokazanie/ukrycie sekcji "Nowy Kredyt"
+        const compareCheckbox = document.getElementById('compareCheckbox');
+        const formSection2 = document.getElementById('formSection2');
+        compareCheckbox.addEventListener('change', function() {
+            console.log('Compare checkbox changed:', this.checked);
+            formSection2.style.display = this.checked ? 'block' : 'none';
+        });
+    
+        // Przycisk "Oblicz"
+        document.getElementById('obliczBtn').addEventListener('click', function() {
+            console.log('Oblicz clicked');
+            // Tutaj powinna być logika obliczania kredytu
+            alert('Obliczenia w trakcie implementacji!');
+        });
+    
+        // Przyciski sterujące
+        document.getElementById('zoomInBtn').addEventListener('click', function() {
+            console.log('Zoom in clicked');
+            document.querySelector('.container').style.transform = 'scale(1.1)';
+        });
+    
+        document.getElementById('zoomOutBtn').addEventListener('click', function() {
+            console.log('Zoom out clicked');
+            document.querySelector('.container').style.transform = 'scale(0.9)';
+        });
+    
+        document.getElementById('toggleThemeBtn').addEventListener('click', function() {
+            console.log('Toggle theme clicked');
+            document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        });
+    
+        // Pokazanie/ukrycie nadpłat
+        document.getElementById('nadplataCheckbox').addEventListener('change', function() {
+            console.log('Nadplata checkbox changed:', this.checked);
+            document.getElementById('nadplataSection').style.display = this.checked ? 'block' : 'none';
+        });
+    
+        document.getElementById('nadplataCheckbox2').addEventListener('change', function() {
+            console.log('Nadplata checkbox 2 changed:', this.checked);
+            document.getElementById('nadplataSection2').style.display = this.checked ? 'block' : 'none';
+        });
+    });
 });
