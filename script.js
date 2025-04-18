@@ -7,7 +7,10 @@ const elements = {
     okresInwestycjiRange: document.getElementById("okresInwestycjiRange"),
     inflacja: document.getElementById("inflacja"),
     inflacjaRange: document.getElementById("inflacjaRange"),
-    oprocentowanie: document.getElementById("oprocentowanie"),
+    rodzajRat: document.getElementById("rodzajRat"),
+    wartoscRaty: document.getElementById("wartoscRaty"),
+    wartoscRatyRange: document.getElementById("wartoscRatyRange"),
+    jednostkaRaty: document.getElementById("jednostkaRaty"),
     inflacjaZmiennaBtn: document.getElementById("inflacjaZmiennaBtn"),
     addVariableBtn: document.getElementById("addVariableBtn")
 };
@@ -18,7 +21,9 @@ const state = {
         kwota: 10000,
         okresInwestycji: 3,
         inflacja: 4.90,
-        oprocentowanie: 3,
+        rodzajRat: "rowne",
+        wartoscRaty: 1000,
+        jednostkaRaty: "pln",
         inflacjaZmienna: false
     }
 };
@@ -69,6 +74,33 @@ elements.inflacjaRange.addEventListener("input", () => {
     elements.inflacja.value = value.toFixed(2);
     state.lastFormData.inflacja = value;
     updateInflacjaInfo();
+});
+
+elements.rodzajRat.addEventListener("change", () => {
+    state.lastFormData.rodzajRat = elements.rodzajRat.value;
+    updateRodzajRatInfo();
+});
+
+elements.wartoscRaty.addEventListener("input", () => {
+    let value = parseFloat(elements.wartoscRaty.value) || 0;
+    if (value < 0.1) value = 0.1;
+    if (value > 1000000) value = 1000000;
+    elements.wartoscRaty.value = value.toFixed(2);
+    elements.wartoscRatyRange.value = value;
+    state.lastFormData.wartoscRaty = value;
+    updateWartoscRatyInfo();
+});
+
+elements.wartoscRatyRange.addEventListener("input", () => {
+    let value = parseFloat(elements.wartoscRatyRange.value);
+    elements.wartoscRaty.value = value.toFixed(2);
+    state.lastFormData.wartoscRaty = value;
+    updateWartoscRatyInfo();
+});
+
+elements.jednostkaRaty.addEventListener("change", () => {
+    state.lastFormData.jednostkaRaty = elements.jednostkaRaty.value;
+    updateWartoscRatyInfo();
 });
 
 elements.inflacjaZmiennaBtn.addEventListener("change", () => {
@@ -126,6 +158,17 @@ function updateLata() {
 function updateInflacjaInfo() {
     const inflacja = parseFloat(elements.inflacja.value) || 0;
     document.getElementById("inflacjaInfo").textContent = `Stopa inflacji: ${inflacja.toFixed(1)}%`;
+}
+
+function updateRodzajRatInfo() {
+    const rodzaj = elements.rodzajRat.value === "rowne" ? "Raty równe" : "Raty malejące";
+    document.getElementById("rodzajRatInfo").textContent = `Wybrano: ${rodzaj}`;
+}
+
+function updateWartoscRatyInfo() {
+    const wartosc = parseFloat(elements.wartoscRaty.value) || 0;
+    const jednostka = elements.jednostkaRaty.value === "pln" ? "zł" : "%";
+    document.getElementById("wartoscRatyInfo").textContent = `Wartość: ${wartosc.toFixed(2)} ${jednostka}`;
 }
 
 function updateVariableData() {
@@ -366,6 +409,8 @@ function removeVariableChange(index) {
 updateIloscObligacji();
 updateLata();
 updateInflacjaInfo();
+updateRodzajRatInfo();
+updateWartoscRatyInfo();
 updateVariableInputs();
 
 // F U N K C J A   Z O O M
