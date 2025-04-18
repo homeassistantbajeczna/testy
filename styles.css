@@ -299,7 +299,6 @@ body {
     appearance: none; /* Usuwa domyślną strzałkę przeglądarki */
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-color: #f0f0f0; /* Tymczasowe tło do debugowania */
 }
 
 #rodzajRat .form-select {
@@ -309,13 +308,15 @@ body {
 #rodzajRat .form-select::after {
     content: "▼";
     position: absolute;
-    right: 10px;
+    right: 5px; /* Bliżej krawędzi dla widoczności */
     top: 50%;
     transform: translateY(-50%);
-    font-size: 1em; /* Większa strzałka dla widoczności */
+    font-size: 1.2em; /* Większa strzałka */
     color: #000; /* Czarny kolor dla kontrastu */
+    background-color: red; /* Czerwone tło do debugowania */
+    padding: 2px; /* Mały padding dla tła */
     pointer-events: none;
-    z-index: 2;
+    z-index: 10; /* Wysoki z-index, aby być na wierzchu */
 }
 
 .jednostka-select {
@@ -325,7 +326,6 @@ body {
     -webkit-appearance: none;
     -moz-appearance: none;
     padding-right: 24px; /* Miejsce na strzałkę */
-    background-color: #f0f0f0; /* Tymczasowe tło do debugowania */
 }
 
 #prowizja .input-group .jednostka-select {
@@ -335,13 +335,15 @@ body {
 #prowizja .input-group .jednostka-select::after {
     content: "▼";
     position: absolute;
-    right: 10px;
+    right: 5px; /* Bliżej krawędzi dla widoczności */
     top: 50%;
     transform: translateY(-50%);
-    font-size: 1em; /* Większa strzałka dla widoczności */
+    font-size: 1.2em; /* Większa strzałka */
     color: #000; /* Czarny kolor dla kontrastu */
+    background-color: red; /* Czerwone tło do debugowania */
+    padding: 2px; /* Mały padding dla tła */
     pointer-events: none;
-    z-index: 2;
+    z-index: 10; /* Wysoki z-index, aby być na wierzchu */
 }
 
 .form-select:focus {
