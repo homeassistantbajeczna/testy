@@ -82,15 +82,23 @@ body {
 }
 
 .calculator-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-around !important;
+    align-items: stretch !important;
     gap: 20px;
-    max-width: 1200px;
+    max-width: 1200px !important;
     margin: 0 auto;
     padding: clamp(10px, 2vw, 20px);
     width: 100%;
     box-sizing: border-box;
+}
+
+.form-container,
+.result-section {
+    flex: 1 1 auto !important;
+    min-width: 300px;
+    max-width: 600px;
 }
 
 /* L O G O   I   N A G Ł Ó W E K */
@@ -216,26 +224,26 @@ body {
 .result-section {
     display: none;
     padding: 10px;
-    max-width: 1200px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
 .form-row,
 .checkbox-row,
 .fields-wrapper {
-    display: flex;
-    justify-content: center;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
     align-items: flex-start;
     margin-bottom: 10px;
-    gap: 15px;
-    flex-wrap: wrap;
-    text-align: left;
+    gap: 10px !important;
+    width: 100%;
 }
 
 .form-group {
-    flex: 1;
-    min-width: 120px;
-    max-width: 150px;
+    flex: 1 1 auto !important;
+    min-width: 100px;
+    max-width: 160px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -269,6 +277,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 #prowizja .input-group .form-control {
@@ -319,6 +328,21 @@ body {
     color: var(--primary-text);
 }
 
+.input-group {
+    width: 100%;
+    max-width: 160px;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: center;
+}
+
+#prowizja .input-group {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: 100%;
+    max-width: 160px;
+}
+
 .input-group-text {
     height: 22px;
     font-size: var(--small-font-size);
@@ -333,17 +357,6 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-}
-
-.input-group {
-    width: 150px;
-    display: flex;
-    justify-content: center;
-}
-
-#prowizja .input-group {
-    display: flex;
-    width: 150px;
 }
 
 input[type="range"].form-range {
@@ -907,7 +920,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .variable-input-group .form-group {
-    width: 150px;
+    width: 100%;
     min-width: 0;
     max-width: none;
     flex: none;
@@ -916,8 +929,8 @@ input[type="range"].form-range:focus::-ms-thumb {
 .variable-input-group .input-group {
     display: flex;
     align-items: center;
-    max-width: 150px;
-    width: 150px;
+    max-width: 160px;
+    width: 100%;
 }
 
 .variable-input-group .btn-danger,
@@ -949,7 +962,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 /* R E S P O N S Y W N O Ś Ć */
 @media (max-width: 768px) {
     .calculator-container {
-        flex-direction: column;
+        flex-direction: column !important;
         padding: clamp(10px, 2vw, 15px);
     }
 }
@@ -982,26 +995,26 @@ input[type="range"].form-range:focus::-ms-thumb {
     .checkbox-row,
     .fields-wrapper,
     .variable-inputs-wrapper {
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 5px !important;
     }
 
     .form-group,
     .input-group {
-        width: 200px;
-        max-width: 200px;
-        min-width: 200px;
+        width: 100% !important;
+        max-width: 180px !important;
+        min-width: 100px !important;
         margin: 2px auto;
     }
 
     .form-control,
     #rodzajRat .form-select,
     #prowizja .input-group .jednostka-select {
-        height: 26px;
-        width: 130px;
-        padding: 4px 24px 4px 8px;
-        line-height: 20px;
+        height: 26px !important;
+        width: 100% !important;
+        padding: 4px 24px 4px 8px !important;
+        line-height: 20px !important;
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') !important;
         background-position: right 8px center !important;
     }
@@ -1013,11 +1026,11 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .input-group-text,
     #prowizja .input-group .jednostka-select {
-        height: 26px;
-        width: 40px;
-        padding: 4px 24px 4px 8px;
-        line-height: 20px;
-        border-radius: 2px;
+        height: 26px !important;
+        width: 40px !important;
+        padding: 4px 24px 4px 8px !important;
+        line-height: 20px !important;
+        border-radius: 2px !important;
     }
 
     #prowizja .input-group .jednostka-select {
@@ -1026,51 +1039,51 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group .input-group {
-        max-width: 200px;
-        min-width: 200px;
+        max-width: 180px !important;
+        min-width: 100px !important;
     }
 
     .variable-input-group .form-group {
-        width: 200px;
-        max-width: 200px;
-        min-width: 200px;
+        width: 100% !important;
+        max-width: 180px !important;
+        min-width: 100px !important;
         margin: 2px auto;
     }
 
     .variable-input-group .form-control {
-        width: 130px;
-        height: 26px;
-        padding: 4px 8px;
-        line-height: 20px;
+        width: 100% !important;
+        height: 26px !important;
+        padding: 4px 8px !important;
+        line-height: 20px !important;
     }
 
     .variable-input-group .input-group-text {
-        width: 70px;
-        height: 26px;
-        padding: 4px 8px;
-        line-height: 20px;
+        width: 70px !important;
+        height: 26px !important;
+        padding: 4px 8px !important;
+        line-height: 20px !important;
     }
 
     .variable-input-group .fields-wrapper {
-        flex-wrap: nowrap;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        max-width: 200px;
-        min-width: 200px;
-        gap: 2px;
+        flex-wrap: nowrap !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 180px !important;
+        min-width: 100px !important;
+        gap: 2px !important;
     }
 
     .variable-input-group .form-group:nth-child(1) .input-group,
     .variable-input-group .form-group:nth-child(2) .input-group {
-        width: 200px;
-        max-width: 200px;
-        min-width: 200px;
+        width: 100% !important;
+        max-width: 180px !important;
+        min-width: 100px !important;
     }
 
     .variable-input-group .form-group:nth-child(1) .form-control,
     .variable-input-group .form-group:nth-child(2) .form-control {
-        width: 130px;
+        width: 100% !important;
     }
 
     .btn-primary,
@@ -1127,16 +1140,16 @@ input[type="range"].form-range:focus::-ms-thumb {
 @media (max-width: 480px) {
     body {
         margin: 0;
-        padding: 0;
+        padding: 5px;
     }
 
     .calculator-container {
-        padding: 10px;
+        padding: 5px;
     }
 
     .form-row,
     .checkbox-row,
     .fields-wrapper {
-        gap: 5px;
+        gap: 5px !important;
     }
 }
