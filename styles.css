@@ -74,13 +74,12 @@ body {
     justify-content: center;
     margin-bottom: 15px;
     gap: 15px;
-    align-items: stretch;
+    align-items: flex-start;
     flex-wrap: wrap;
 }
 
 .form-group {
-    flex: 1;
-    min-width: 120px;
+    flex: 0 0 200px;
     max-width: 200px;
     width: 200px;
     display: flex;
@@ -93,6 +92,12 @@ body {
     height: 0;
 }
 
+#nadplataSection .form-group, #nadplataSection2 .form-group {
+    flex: 0 0 200px;
+    max-width: 200px;
+    width: 200px;
+}
+
 .form-label {
     font-size: 0.75em;
     text-transform: uppercase;
@@ -101,7 +106,7 @@ body {
 }
 
 .form-control {
-    height: 21px;
+    height: 22px;
     font-size: 0.75em;
     padding: 3px;
     text-align: center;
@@ -119,7 +124,7 @@ body {
 }
 
 .form-select {
-    height: 21px;
+    height: 22px;
     font-size: 0.75em;
     padding: 3px 20px 3px 3px;
     text-align: center;
@@ -197,7 +202,7 @@ body {
 }
 
 .input-group-text {
-    height: 21px;
+    height: 22px;
     font-size: 0.75em;
     padding: 3px 6px;
     background: #e9ecef;
@@ -718,6 +723,13 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
+        flex: 0 0 150px;
+        max-width: 150px;
+        width: 150px;
+    }
+
+    #nadplataSection .form-group, #nadplataSection2 .form-group {
+        flex: 0 0 150px;
         max-width: 150px;
         width: 150px;
     }
@@ -740,6 +752,13 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
+        flex: 0 0 150px;
+        max-width: 150px;
+        width: 150px;
+    }
+
+    #nadplataSection .form-group, #nadplataSection2 .form-group {
+        flex: 0 0 150px;
         max-width: 150px;
         width: 150px;
     }
@@ -808,6 +827,13 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
+        flex: 0 0 200px;
+        max-width: 200px;
+        width: 200px;
+    }
+
+    #nadplataSection .form-group, #nadplataSection2 .form-group {
+        flex: 0 0 200px;
         max-width: 200px;
         width: 200px;
     }
