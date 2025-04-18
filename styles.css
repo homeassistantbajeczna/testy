@@ -79,9 +79,9 @@ body {
 }
 
 .form-group {
-    flex: 0 0 200px;
-    max-width: 200px;
-    width: 200px;
+    flex: 0 0 160px;
+    max-width: 160px;
+    width: 160px;
     display: flex;
     flex-direction: column;
     justify-content: stretch;
@@ -93,9 +93,9 @@ body {
 }
 
 #nadplataSection .form-group, #nadplataSection2 .form-group {
-    flex: 0 0 200px;
-    max-width: 200px;
-    width: 200px;
+    flex: 0 0 160px;
+    max-width: 160px;
+    width: 160px;
 }
 
 .form-label {
@@ -126,7 +126,7 @@ body {
 .form-select {
     height: 22px;
     font-size: 0.75em;
-    padding: 3px 20px 3px 3px;
+    padding: 0 20px 0 3px;
     text-align: center;
     background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box;
     border: 1px solid #d3d3d3;
@@ -138,12 +138,15 @@ body {
     background-position: right 8px center;
     transition: background-color 0.3s ease, color 0.3s ease;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-select.prowizja-select {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
     background-position: right 6px center;
-    padding-right: 18px;
+    padding: 0 18px 0 3px;
 }
 
 .form-select:focus {
@@ -172,7 +175,7 @@ body {
     height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(50%);
+    transform: translateY(25%);
     -webkit-appearance: none;
 }
 
@@ -184,16 +187,14 @@ body {
     height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(50%);
+    transform: translateY(25%);
 }
 
 .input-group {
     display: flex;
     align-items: stretch;
     border: 1px solid #d3d3d3;
-    border-left: none;
     border-radius: 8px;
-    overflow: hidden;
     box-sizing: border-box;
 }
 
@@ -214,6 +215,7 @@ body {
     color: #333333;
     box-sizing: border-box;
     flex: 0 0 40px;
+    z-index: 1;
 }
 
 .input-group:has(.prowizja-select) .input-group-text {
@@ -494,6 +496,12 @@ input[type="radio"], input[type="checkbox"] {
     text-decoration: underline;
     margin-bottom: 15px;
     user-select: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .btn-primary, .btn-secondary {
@@ -504,7 +512,7 @@ input[type="radio"], input[type="checkbox"] {
     padding: 8px 25px;
     min-width: 150px;
     border-radius: 5px;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     margin: 0 auto;
     display: block;
     cursor: pointer;
@@ -513,7 +521,8 @@ input[type="radio"], input[type="checkbox"] {
 
 .btn-primary:hover, .btn-secondary:hover {
     background: linear-gradient(90deg, #b0a070, #C2B280);
-    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .btn-sm {
@@ -522,6 +531,12 @@ input[type="radio"], input[type="checkbox"] {
     min-width: 100px;
     cursor: pointer;
     pointer-events: auto;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 #generatePdfBtn {
@@ -691,7 +706,7 @@ input[type="radio"], input[type="checkbox"] {
     right: 15px;
     transform: translateY(-50%);
     display: flex;
-    gap: 10px;
+    gap: 5px;
 }
 
 .btn-control {
@@ -707,12 +722,14 @@ input[type="radio"], input[type="checkbox"] {
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
     pointer-events: auto;
 }
 
 .btn-control:hover {
     background: linear-gradient(90deg, #b0a070, #C2B280);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 @media (max-width: 768px) {
@@ -723,15 +740,15 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
-        flex: 0 0 150px;
-        max-width: 150px;
-        width: 150px;
+        flex: 0 0 140px;
+        max-width: 140px;
+        width: 140px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 0 0 150px;
-        max-width: 150px;
-        width: 150px;
+        flex: 0 0 140px;
+        max-width: 140px;
+        width: 140px;
     }
 
     .form-container, .result-container, .harmonogram-container {
@@ -752,15 +769,15 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
-        flex: 0 0 150px;
-        max-width: 150px;
-        width: 150px;
+        flex: 0 0 120px;
+        max-width: 120px;
+        width: 120px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 0 0 150px;
-        max-width: 150px;
-        width: 150px;
+        flex: 0 0 120px;
+        max-width: 120px;
+        width: 120px;
     }
 
     .form-container.compare-checkbox input:checked ~ .form-container {
@@ -800,7 +817,7 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .control-buttons {
-        gap: 6px;
+        gap: 3px;
     }
 
     .btn-control {
@@ -827,15 +844,15 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
-        flex: 0 0 200px;
-        max-width: 200px;
-        width: 200px;
+        flex: 0 0 150px;
+        max-width: 150px;
+        width: 150px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 0 0 200px;
-        max-width: 200px;
-        width: 200px;
+        flex: 0 0 150px;
+        max-width: 150px;
+        width: 150px;
     }
 
     .form-container, .result-container, .harmonogram-container {
