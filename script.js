@@ -3,10 +3,8 @@ const elements = {
     formSection: document.getElementById("formSection"),
     kwota: document.getElementById("kwota"),
     kwotaRange: document.getElementById("kwotaRange"),
-    typObligacji: document.getElementById("typObligacji"),
-    dynamicRate: document.getElementById("dynamicRate"),
-    dynamicRateRange: document.getElementById("dynamicRateRange"),
-    okres: document.getElementById("okres"),
+    okresInwestycji: document.getElementById("okresInwestycji"),
+    okresInwestycjiRange: document.getElementById("okresInwestycjiRange"),
     oprocentowanie: document.getElementById("oprocentowanie"),
     ikeIkzeBtn: document.getElementById("ikeIkzeBtn"),
     inflacjaZmiennaBtn: document.getElementById("inflacjaZmiennaBtn"),
@@ -20,63 +18,15 @@ const state = {
     variableReferenceRates: [],
     lastFormData: {
         kwota: 10000,
-        typObligacji: "OTS",
-        dynamicRates: {
-            "ROR": 5.75,
-            "DOR": 5.75,
-            "COI": 4.90,
-            "EDO": 4.90,
-            "ROS": 4.90,
-            "ROD": 4.90
-        },
-        okres: 3,
+        okresInwestycji: 3,
         oprocentowanie: 3,
         ikeIkze: false,
         inflacjaZmienna: false,
         stopaZmienna: false
-    },
-    previousTypObligacji: "OTS"
-};
-
-const maxVariableChanges = {
-    "ROR": 11,
-    "DOR": 23,
-    "COI": 3,
-    "EDO": 9,
-    "ROS": 5,
-    "ROD": 11
-};
-
-const obligacjeConfig = {
-    "OTS": { okres: 3, oprocentowanie: 3.00, zmienne: false, kapitalizacja: false, oplataWykup: 0.00 },
-    "ROR": { okres: 12, oprocentowanie: 5.75, zmienne: true, marza: 0.00, kapitalizacja: false, oplataWykup: 0.005 },
-    "DOR": { okres: 24, oprocentowanie: 5.90, zmienne: true, marza: 0.15, kapitalizacja: false, oplataWykup: 0.007 },
-    "TOS": { okres: 36, oprocentowanie: 5.95, zmienne: false, kapitalizacja: true, oplataWykup: 0.01 },
-    "COI": { okres: 48, oprocentowanie: 6.30, zmienne: true, marza: 1.50, indeksowaneInflacja: true, kapitalizacja: false, oplataWykup: 0.02 },
-    "EDO": { okres: 120, oprocentowanie: 6.55, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 },
-    "ROS": { okres: 72, oprocentowanie: 6.50, zmienne: true, marza: 2.00, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.02 },
-    "ROD": { okres: 144, oprocentowanie: 6.80, zmienne: true, marza: 2.50, indeksowaneInflacja: true, kapitalizacja: true, oplataWykup: 0.03 }
+    }
 };
 
 // O B S Ł U G A   Z D A R Z E Ń
-elements.dynamicRateRange.addEventListener("input", () => {
-    let value = parseFloat(elements.dynamicRateRange.value);
-    if (value < 0.1) value = 0.1;
-    elements.dynamicRate.value = value;
-    elements.dynamicRateRange.value = value;
-    const typ = elements.typObligacji.value;
-    state.lastFormData.dynamicRates[typ] = value;
-});
-
-elements.dynamicRate.addEventListener("input", () => {
-    let value = parseFloat(elements.dynamicRate.value) || 0;
-    if (value < 0.1) value = 0.1;
-    elements.dynamicRate.value = value;
-    elements.dynamicRateRange.value = value;
-    const typ = elements.typObligacji.value;
-    state.lastFormData.dynamicRates[typ] = value;
-});
-
 elements.kwota.addEventListener("input", (e) => {
     restrictInputToNumbers(e);
 });
@@ -92,29 +42,42 @@ elements.kwotaRange.addEventListener("input", () => {
 
 elements.kwotaRange.addEventListener("change", validateAndRoundKwota);
 
-elements.typObligacji.addEventListener("change", updateDynamicRateField);
-elements.ikeIkzeBtn.addEventListener("change", updateDynamicRateField);
+elements.okresInwestycji.addEventListener("input", (e) => {
+    restrictInputToNumbers(e);
+});
+
+elements.okresInwestycji.addEventListener("blur", validateOkresInwestycji);
+elements.okresInwestycji.addEventListener("change", validateOkresInwestycji);
+
+elements.okresInwestycjiRange.addEventListener("input", () => {
+    let value = parseFloat(elements.okresInwestycjiRange.value);
+    elements.okresInwestycji.value = value;
+    updateLata();
+});
+
+elements.okresInwestycjiRange.addEventListener("change", validateOkresInwestycji);
+
+elements.ikeIkzeBtn.addEventListener("change", () => {
+    state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
+    state.lastFormData.ikeIkze = state.isIkeIkzeMode;
+});
 
 elements.inflacjaZmiennaBtn.addEventListener("change", () => {
     state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    const typ = elements.typObligacji.value;
     if (!elements.inflacjaZmiennaBtn.checked) {
         state.variableInflation = [];
     } else {
-        const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
-        state.variableInflation = [{ value: defaultValue, period: 2 }];
+        state.variableInflation = [{ value: 4.90, period: 2 }];
     }
     updateVariableInputs();
 });
 
 elements.stopaZmiennaBtn.addEventListener("change", () => {
     state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked;
-    const typ = elements.typObligacji.value;
     if (!elements.stopaZmiennaBtn.checked) {
         state.variableReferenceRates = [];
     } else {
-        const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
-        state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
+        state.variableReferenceRates = [{ value: 5.75, period: 2 }];
     }
     updateVariableInputs();
 });
@@ -122,116 +85,6 @@ elements.stopaZmiennaBtn.addEventListener("change", () => {
 elements.addVariableBtn.addEventListener("click", addVariableChange);
 
 // F U N K C J E   P O M O C N I C Z E
-function setDynamicRateField(label, value, step, max) {
-    const dynamicRateLabel = document.getElementById("dynamicRateLabel");
-    const dynamicRateInfo = document.getElementById("dynamicRateInfo");
-    dynamicRateLabel.textContent = label;
-    elements.dynamicRate.value = value;
-    elements.dynamicRateRange.value = value;
-    elements.dynamicRate.step = step;
-    elements.dynamicRateRange.step = step;
-    elements.dynamicRate.max = max;
-    elements.dynamicRateRange.max = max;
-}
-
-function updateDynamicRateField() {
-    state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
-    const select = elements.typObligacji;
-    const previousTyp = state.previousTypObligacji;
-    const currentTyp = select.value;
-
-    select.innerHTML = state.isIkeIkzeMode ? `
-        <option value="ROR">12-miesięczne (ROR)</option>
-        <option value="DOR">24-miesięczne (DOR)</option>
-        <option value="TOS" selected>3-letnie (TOS)</option>
-        <option value="COI">4-letnie (COI)</option>
-        <option value="EDO">10-letnie (EDO)</option>
-    ` : `
-        <option value="OTS" selected>3-miesięczne (OTS)</option>
-        <option value="ROR">12-miesięczne (ROR)</option>
-        <option value="DOR">24-miesięczne (DOR)</option>
-        <option value="TOS">3-letnie (TOS)</option>
-        <option value="COI">4-letnie (COI)</option>
-        <option value="EDO">10-letnie (EDO)</option>
-        <option value="ROS">6-letnie (ROS)</option>
-        <option value="ROD">12-letnich (ROD)</option>
-    `;
-
-    const availableOptions = Array.from(select.options).map(opt => opt.value);
-    select.value = availableOptions.includes(currentTyp) ? currentTyp : (state.isIkeIkzeMode ? "TOS" : "OTS");
-
-    const typ = select.value;
-    const config = obligacjeConfig[typ];
-
-    if (typ !== previousTyp) {
-        if (elements.stopaZmiennaBtn.checked || elements.inflacjaZmiennaBtn.checked) {
-            elements.stopaZmiennaBtn.checked = false;
-            elements.inflacjaZmiennaBtn.checked = false;
-            state.lastFormData.stopaZmienna = false;
-            state.lastFormData.inflacjaZmienna = false;
-            state.variableReferenceRates = [];
-            state.variableInflation = [];
-        }
-    }
-
-    state.previousTypObligacji = typ;
-
-    elements.okres.value = config.okres;
-    const jednostkaOkresu = ["OTS", "DOR", "ROS", "ROD"].includes(typ) ? "miesiące" : "miesięcy";
-    const inputGroup = elements.okres.closest('.input-group');
-    const okresUnitElement = inputGroup ? inputGroup.querySelector('.input-group-text') : null;
-    if (okresUnitElement) {
-        okresUnitElement.textContent = jednostkaOkresu;
-    } else {
-        console.warn("Nie znaleziono elementu '.input-group-text' w obrębie '#okres'.");
-    }
-    elements.oprocentowanie.value = config.oprocentowanie;
-    updateLata();
-
-    const dynamicRateGroup = document.getElementById("dynamicRateGroup");
-    if (["ROR", "DOR"].includes(typ)) {
-        const stopaRefValue = state.lastFormData.dynamicRates[typ] || 5.75;
-        setDynamicRateField("Stopa Ref. NBP", stopaRefValue, "0.05", "20");
-        dynamicRateGroup.style.display = "flex";
-    } else if (["COI", "EDO", "ROS", "ROD"].includes(typ)) {
-        const inflacjaValue = state.lastFormData.dynamicRates[typ] || 4.90;
-        setDynamicRateField("Inflacja", inflacjaValue, "0.1", "50");
-        dynamicRateGroup.style.display = "flex";
-    } else {
-        dynamicRateGroup.style.display = "none";
-    }
-
-    document.getElementById("inflacjaZmiennaLabel").style.display = ["COI", "EDO", "ROS", "ROD"].includes(typ) ? "flex" : "none";
-    document.getElementById("stopaZmiennaLabel").style.display = ["ROR", "DOR"].includes(typ) ? "flex" : "none";
-
-    if (!["COI", "EDO", "ROS", "ROD"].includes(typ)) {
-        state.variableInflation = [];
-    } else if (elements.inflacjaZmiennaBtn.checked && state.variableInflation.length === 0) {
-        const defaultValue = state.lastFormData.dynamicRates[typ] || 4.90;
-        state.variableInflation = [{ value: defaultValue, period: 2 }];
-    }
-
-    if (!["ROR", "DOR"].includes(typ)) {
-        state.variableReferenceRates = [];
-    } else if (elements.stopaZmiennaBtn.checked && state.variableReferenceRates.length === 0) {
-        const defaultValue = state.lastFormData.dynamicRates[typ] || 5.75;
-        state.variableReferenceRates = [{ value: defaultValue, period: 2 }];
-    }
-
-    const ikeIkzeContainer = document.getElementById("ikeIkzeContainer");
-    const allowedTypes = ["ROR", "DOR", "TOS", "COI", "EDO"];
-    if (allowedTypes.includes(typ)) {
-        ikeIkzeContainer.style.display = "block";
-    } else {
-        ikeIkzeContainer.style.display = "none";
-        elements.ikeIkzeBtn.checked = false;
-        state.isIkeIkzeMode = false;
-        state.lastFormData.ikeIkze = false;
-    }
-
-    updateVariableInputs();
-}
-
 function restrictInputToNumbers(e) {
     e.target.value = e.target.value.replace(/[^0-9]/g, "");
 }
@@ -247,6 +100,16 @@ function validateAndRoundKwota() {
     updateIloscObligacji();
 }
 
+function validateOkresInwestycji() {
+    let value = parseInt(elements.okresInwestycji.value) || 0;
+    if (value < 3) value = 3;
+    if (value > 144) value = 144;
+    elements.okresInwestycji.value = value;
+    elements.okresInwestycjiRange.value = value;
+    state.lastFormData.okresInwestycji = value;
+    updateLata();
+}
+
 function updateIloscObligacji() {
     const kwota = parseFloat(elements.kwota.value) || 0;
     const ilosc = Math.floor(kwota / 100);
@@ -255,12 +118,17 @@ function updateIloscObligacji() {
     else console.warn("Element #iloscObligacji nie znaleziony.");
 }
 
+function updateLata() {
+    const miesiace = parseInt(elements.okresInwestycji.value) || 0;
+    const lata = (miesiace / 12).toFixed(0);
+    document.getElementById("lata").textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
+}
+
 function updateVariableData() {
-    const typ = elements.typObligacji.value;
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
-    const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
+    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
+    const isStopaZmienna = elements.stopaZmiennaBtn.checked;
     const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-    const maxCykl = ["ROR", "DOR"].includes(typ) ? obligacjeConfig[typ].okres : obligacjeConfig[typ].okres / 12;
+    const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
 
     const inputs = document.querySelectorAll(".variable-input-group");
     const newChanges = [];
@@ -304,30 +172,22 @@ function updateVariableData() {
     }
 }
 
-function updateLata() {
-    const miesiace = parseInt(elements.okres.value) || 0;
-    const lata = (miesiace / 12).toFixed(0);
-    document.getElementById("lata").textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
-}
-
 function updateVariableInputs() {
-    const typ = elements.typObligacji.value;
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
-    const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
+    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
+    const isStopaZmienna = elements.stopaZmiennaBtn.checked;
     const variableInputs = document.getElementById("variableInputs");
     const addVariableBtn = elements.addVariableBtn;
     const wrapper = document.getElementById("variableInputsWrapper");
-    const config = obligacjeConfig[typ];
-    const maxCykl = ["ROR", "DOR"].includes(typ) ? config.okres : config.okres / 12;
+    const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
+    const maxChanges = Math.floor(maxCykl / 12) || 1;
 
     if (isInflacjaZmienna || isStopaZmienna) {
         variableInputs.style.display = "block";
         addVariableBtn.style.display = "block";
 
         const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-        const maxChanges = maxVariableChanges[typ] || 0;
 
-        const defaultValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
+        const defaultValue = isInflacjaZmienna ? 4.90 : 5.75;
         const defaultPeriod = 2;
 
         if (data.length === 0 && data.length < maxChanges) {
@@ -352,7 +212,7 @@ function updateVariableInputs() {
                 <label class="form-label">Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
-                    <span class="input-group-text">${["ROR", "DOR"].includes(typ) ? "miesiąca" : "roku"}</span>
+                    <span class="input-group-text">miesiąca</span>
                 </div>
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
             `;
@@ -478,12 +338,11 @@ function updateVariableInputs() {
 }
 
 function addVariableChange() {
-    const typ = elements.typObligacji.value;
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
-    const isStopaZmienna = elements.stopaZmiennaBtn.checked && ["ROR", "DOR"].includes(typ);
+    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
+    const isStopaZmienna = elements.stopaZmiennaBtn.checked;
     const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-    const maxCykl = ["ROR", "DOR"].includes(typ) ? obligacjeConfig[typ].okres : obligacjeConfig[typ].okres / 12;
-    const maxChanges = maxVariableChanges[typ] || 0;
+    const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
+    const maxChanges = Math.floor(maxCykl / 12) || 1;
 
     if (!isInflacjaZmienna && !isStopaZmienna) return;
 
@@ -492,7 +351,7 @@ function addVariableChange() {
 
     if (changes.length >= maxChanges || isMaxPeriodReached) {
         if (changes.length >= maxChanges) {
-            alert(`Osiągnięto maksymalną liczbę zmian dla obligacji ${typ} (${maxChanges}).`);
+            alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
         }
         elements.addVariableBtn.style.display = "none";
         return;
@@ -500,15 +359,14 @@ function addVariableChange() {
 
     const lastCykl = lastChange ? lastChange.period : 1;
     const newCykl = Math.min(lastCykl + 1, maxCykl);
-    const newValue = state.lastFormData.dynamicRates[typ] || (isInflacjaZmienna ? 4.90 : 5.75);
+    const newValue = isInflacjaZmienna ? 4.90 : 5.75;
 
     changes.push({ period: newCykl, value: newValue });
     updateVariableInputs();
 }
 
 function removeVariableChange(index) {
-    const typ = elements.typObligacji.value;
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked && ["COI", "EDO", "ROS", "ROD"].includes(typ);
+    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
     const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
     if (changes.length > 1) {
         changes.splice(index, 1);
@@ -516,8 +374,9 @@ function removeVariableChange(index) {
     }
 }
 
-updateDynamicRateField();
 updateIloscObligacji();
+updateLata();
+updateVariableInputs();
 
 // F U N K C J A   Z O O M
 document.getElementById('siteLogo').addEventListener('click', () => {
