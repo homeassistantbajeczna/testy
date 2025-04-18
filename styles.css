@@ -91,10 +91,18 @@ body {
     justify-content: stretch;
 }
 
-.form-group:has(.input-group:not(:has(.mc-y-unit))) {
-    flex: 0 0 120px;
-    max-width: 120px;
-    width: 120px;
+.form-group.oprocentowanie, .form-group.prowizja {
+    flex: 0 0 auto;
+    max-width: none;
+    width: fit-content;
+    min-width: 80px;
+}
+
+.form-group.kwota, .form-group.miesieczna, .form-group.jednorazowa {
+    flex: 0 0 auto;
+    max-width: none;
+    width: fit-content;
+    min-width: 100px;
 }
 
 .form-group.no-sub-info .sub-info {
@@ -108,11 +116,12 @@ body {
     width: 150px;
 }
 
-#nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
-#nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
-    flex: 0 0 120px;
-    max-width: 120px;
-    width: 120px;
+#nadplataSection .form-group.miesieczna, #nadplataSection .form-group.jednorazowa,
+#nadplataSection2 .form-group.miesieczna, #nadplataSection2 .form-group.jednorazowa {
+    flex: 0 0 auto;
+    max-width: none;
+    width: fit-content;
+    min-width: 100px;
 }
 
 .form-label {
@@ -234,6 +243,10 @@ body {
     flex: 0 0 40px;
     z-index: 1;
     text-align: center;
+}
+
+.input-group-text:not(.mc-y-unit) {
+    padding: 3px 4px;
 }
 
 .input-group:has(.prowizja-select) .input-group-text {
@@ -768,10 +781,12 @@ input[type="radio"], input[type="checkbox"] {
         width: 125px;
     }
 
-    .form-group:has(.input-group:not(:has(.mc-y-unit))) {
-        flex: 0 0 100px;
-        max-width: 100px;
-        width: 100px;
+    .form-group.oprocentowanie, .form-group.prowizja {
+        min-width: 70px;
+    }
+
+    .form-group.kwota, .form-group.miesieczna, .form-group.jednorazowa {
+        min-width: 90px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
@@ -780,11 +795,9 @@ input[type="radio"], input[type="checkbox"] {
         width: 125px;
     }
 
-    #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
-    #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
-        flex: 0 0 100px;
-        max-width: 100px;
-        width: 100px;
+    #nadplataSection .form-group.miesieczna, #nadplataSection .form-group.jednorazowa,
+    #nadplataSection2 .form-group.miesieczna, #nadplataSection2 .form-group.jednorazowa {
+        min-width: 90px;
     }
 
     .form-container, .result-container, .harmonogram-container {
@@ -811,10 +824,12 @@ input[type="radio"], input[type="checkbox"] {
         width: 100px;
     }
 
-    .form-group:has(.input-group:not(:has(.mc-y-unit))) {
-        flex: 0 0 80px;
-        max-width: 80px;
-        width: 80px;
+    .form-group.oprocentowanie, .form-group.prowizja {
+        min-width: 60px;
+    }
+
+    .form-group.kwota, .form-group.miesieczna, .form-group.jednorazowa {
+        min-width: 80px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
@@ -823,11 +838,9 @@ input[type="radio"], input[type="checkbox"] {
         width: 100px;
     }
 
-    #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
-    #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
-        flex: 0 0 80px;
-        max-width: 80px;
-        width: 80px;
+    #nadplataSection .form-group.miesieczna, #nadplataSection .form-group.jednorazowa,
+    #nadplataSection2 .form-group.miesieczna, #nadplataSection2 .form-group.jednorazowa {
+        min-width: 80px;
     }
 
     .form-container.compare-checkbox input:checked ~ .form-container {
@@ -893,10 +906,12 @@ input[type="radio"], input[type="checkbox"] {
         width: 130px;
     }
 
-    .form-group:has(.input-group:not(:has(.mc-y-unit))) {
-        flex: 0 0 100px;
-        max-width: 100px;
-        width: 100px;
+    .form-group.oprocentowanie, .form-group.prowizja {
+        min-width: 70px;
+    }
+
+    .form-group.kwota, .form-group.miesieczna, .form-group.jednorazowa {
+        min-width: 90px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
@@ -905,11 +920,9 @@ input[type="radio"], input[type="checkbox"] {
         width: 130px;
     }
 
-    #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
-    #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
-        flex: 0 0 100px;
-        max-width: 100px;
-        width: 100px;
+    #nadplataSection .form-group.miesieczna, #nadplataSection .form-group.jednorazowa,
+    #nadplataSection2 .form-group.miesieczna, #nadplataSection2 .form-group.jednorazowa {
+        min-width: 90px;
     }
 
     .form-container, .result-container, .harmonogram-container {
