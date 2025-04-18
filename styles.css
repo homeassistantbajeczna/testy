@@ -144,17 +144,19 @@ body {
 .form-range {
     margin-top: 5px;
     height: 6px;
-    background: linear-gradient(90deg, #C2B280, #b0a070);
+    background: #555555;
     border-radius: 5px;
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    border-left: 1px solid #333333;
+    border-right: 1px solid #333333;
 }
 
 .form-range::-webkit-slider-thumb {
     background: linear-gradient(90deg, #C2B280, #b0a070);
     border: none;
     border-radius: 50%;
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     -webkit-appearance: none;
@@ -164,8 +166,8 @@ body {
     background: linear-gradient(90deg, #C2B280, #b0a070);
     border: none;
     border-radius: 50%;
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
@@ -179,10 +181,10 @@ body {
     height: 30px;
     font-size: 0.85em;
     padding: 5px 10px;
-    background: linear-gradient(90deg, #C2B280, #b0a070);
+    background: #6c757d;
     border: none;
     border-radius: 8px;
-    color: #000000;
+    color: #ffffff;
 }
 
 .sub-info {
@@ -256,6 +258,9 @@ input[type="radio"], input[type="checkbox"] {
     margin-bottom: 20px;
     position: relative;
     overflow: visible;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 10px;
 }
 
 .chart {
@@ -405,6 +410,9 @@ input[type="radio"], input[type="checkbox"] {
 .harmonogram {
     margin-top: 25px;
     font-size: 0.7em;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 10px;
 }
 
 .harmonogram table {
@@ -554,6 +562,9 @@ input[type="radio"], input[type="checkbox"] {
 .form-wrapper {
     flex: 1;
     max-width: 450px;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 10px;
 }
 
 .form-wrapper h5 {
@@ -587,6 +598,9 @@ input[type="radio"], input[type="checkbox"] {
 .result-wrapper {
     flex: 1;
     max-width: 550px;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    padding: 10px;
 }
 
 .result-wrapper h5 {
@@ -635,6 +649,7 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
     font-weight: 500;
     background: var(--button-bg);
+    border: 1px solid #d3d3d3;
 }
 
 .benefit-item span.value {
@@ -642,14 +657,22 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: 700;
 }
 
-.control-buttons {
+.footer {
     position: fixed;
-    top: 10px;
-    right: 15px;
-    display: flex;
-    flex-direction: row;
-    gap: 5px;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--container-bg);
+    padding: 10px 0;
+    text-align: center;
     z-index: 1000;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+.control-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .btn-control {
@@ -667,7 +690,6 @@ input[type="radio"], input[type="checkbox"] {
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     transition: background 0.3s ease;
     pointer-events: auto;
-    z-index: 1001;
 }
 
 .btn-control:hover {
@@ -692,6 +714,14 @@ input[type="radio"], input[type="checkbox"] {
     .divider {
         display: none;
     }
+
+    .footer {
+        padding: 8px 0;
+    }
+
+    .control-buttons {
+        gap: 8px;
+    }
 }
 
 @media (max-width: 576px) {
@@ -710,9 +740,7 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .control-buttons {
-        top: 5px;
-        right: 10px;
-        gap: 4px;
+        gap: 6px;
     }
 
     .btn-control {
