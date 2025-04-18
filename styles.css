@@ -300,7 +300,7 @@ body {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url('arrow-down.png');    
+    background-image: none;    
     background-position: right 5px center;
     background-repeat: no-repeat;
     background-size: 12px 12px; /* Rozmiar strzałki */
@@ -317,6 +317,21 @@ body {
     border-color: var(--border-color);
     background: var(--input-bg);
     color: var(--primary-text);
+}
+
+#rodzajRat .form-select::after,
+#prowizja .input-group .jednostka-select::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px transparent solid;
+    border-right: 4px transparent solid;
+    border-top: 4px solid #333; /* Kolor strzałki */
+    pointer-events: none; /* Strzałka nie blokuje kliknięć */
 }
 
 .input-group-text {
