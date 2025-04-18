@@ -1,743 +1,588 @@
-:root {
-    --primary-bg: #f5f6f5;
-    --container-bg: #FFFFFF;
-    --text-color: #333333;
-    --input-bg: #FFFFFF;
-    --input-border: #C2B280;
-    --button-bg: linear-gradient(90deg, #C2B280, #b0a070);
-    --table-header-bg: linear-gradient(90deg, #C2B280, #b0a070);
-    --table-bg: #f9f9f9;
-    --divider-bg: linear-gradient(#C2B280, #b0a070);
-}
-
-[data-theme="dark"] {
-    --primary-bg: #212529;
-    --container-bg: #2C3034;
-    --text-color: #e9ecef;
-    --input-bg: #343a40;
-    --input-border: #C2B280;
-    --button-bg: linear-gradient(90deg, #C2B280, #b0a070);
-    --table-header-bg: linear-gradient(90deg, #C2B280, #b0a070);
-    --table-bg: #343a40;
-    --divider-bg: linear-gradient(#C2B280, #b0a070);
-}
-
-body {
-    background-color: var(--primary-bg);
-    font-family: 'Montserrat', sans-serif;
-    padding: 10px;
-    transition: background-color 0.3s ease;
-}
-
-.logo-container {
-    background-color: #e9ecef;
-    padding: 15px;
-    text-align: center;
-    margin-bottom: 20px;
-    transform: none !important;
-    position: relative;
-}
-
-.logo {
-    max-width: 200px;
-    margin-bottom: 0;
-    cursor: pointer;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 30px auto 0;
-    background: var(--container-bg);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    transform-origin: 50% 0;
-}
-
-.form-section {
-    padding: 10px;
-    position: relative;
-}
-
-.form-section h4 {
-    margin-bottom: 15px;
-    text-align: center;
-    font-size: 1.4em;
-    color: var(--text-color);
-    font-weight: 700;
-}
-
-.form-row {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 15px;
-    gap: 15px;
-    align-items: stretch;
-    flex-wrap: wrap;
-}
-
-.form-group {
-    flex: 1;
-    min-width: 120px;
-    max-width: 150px;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-}
-
-.form-group.no-sub-info .sub-info {
-    visibility: hidden;
-    height: 0;
-}
-
-.form-label {
-    font-size: 0.75em;
-    text-transform: uppercase;
-    margin-bottom: 3px;
-    color: var(--text-color);
-}
-
-.form-control {
-    height: 30px;
-    font-size: 0.85em;
-    padding: 5px;
-    text-align: center;
-    background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box;
-    border: 2px solid transparent;
-    border-radius: 8px;
-    color: var(--text-color);
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.form-control:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(194, 178, 128, 0.5);
-}
-
-.form-select {
-    height: 30px;
-    font-size: 0.85em;
-    padding: 5px 25px 5px 5px;
-    text-align: center;
-    background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box;
-    border: 1px solid #d3d3d3;
-    border-radius: 8px;
-    color: var(--text-color);
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23C2B280" d="M0 4l6 6 6-6z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.form-select.prowizja-select {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
-    background-position: right 8px center;
-    padding-right: 20px;
-}
-
-.form-select:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(194, 178, 128, 0.5);
-}
-
-.form-range {
-    margin-top: 5px;
-    height: 6px;
-    background: #555555;
-    border-radius: 5px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-    border-left: 1px solid #333333;
-    border-right: 1px solid #333333;
-}
-
-.form-range::-webkit-slider-thumb {
-    background: linear-gradient(90deg, #C2B280, #b0a070);
-    border: none;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    -webkit-appearance: none;
-}
-
-.form-range::-moz-range-thumb {
-    background: linear-gradient(90deg, #C2B280, #b0a070);
-    border: none;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.input-group {
-    display: flex;
-    align-items: stretch;
-    border: 1px solid #d3d3d3;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.input-group-text {
-    height: 30px;
-    font-size: 0.85em;
-    padding: 5px 10px;
-    background: #6c757d;
-    border: none;
-    border-radius: 0;
-    color: #ffffff;
-}
-
-.sub-info {
-    font-size: 0.6em;
-    color: var(--text-color);
-    margin-top: 5px;
-    text-align: left;
-}
-
-.radio-option {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-input[type="radio"], input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    accent-color: transparent;
-    background: linear-gradient(90deg, #C2B280, #b0a070);
-    border: none;
-    border-radius: 3px;
-}
-
-.radio-label, .checkbox-label {
-    font-size: 0.6em;
-    margin-left: 0;
-    color: var(--text-color);
-}
-
-.checkbox-label.nadplata-label {
-    font-size: 0.7em;
-    font-weight: bold;
-}
-
-.checkbox-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
-}
-
-.spacer {
-    height: 15px;
-}
-
-.result-section {
-    display: none;
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.result-header {
-    text-align: center;
-    margin-bottom: 20px;
-    position: relative;
-}
-
-.result-header h4 {
-    font-size: 1.4em;
-    color: var(--text-color);
-    font-weight: 700;
-    display: inline-block;
-}
-
-.chart-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 25px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: visible;
-    padding: 10px;
-}
-
-.chart {
-    flex: 0 0 auto;
-    width: 140px;
-    height: 140px;
-    position: relative;
-    z-index: 25;
-}
-
-.chart-legend {
-    flex: 0 0 auto;
-    max-width: 220px;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.chart-legend .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 0.8em;
-    color: var(--text-color);
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    padding-left: 10px;
-}
-
-.chart-legend .color-box {
-    width: 100px;
-    height: 20px;
-    border-radius: 5px;
-    text-align: center;
-    font-weight: 500;
-    line-height: 20px;
-    font-size: 0.9em;
-    white-space: nowrap;
-    overflow: hidden;
-    position: relative;
-    color: #fff;
-    margin-right: 8px;
-}
-
-.chart-legend .color-box .value {
-    display: block;
-}
-
-.chart-legend .color-box:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    color: #fff;
-    font-size: 0.9em;
-    line-height: 20px;
-    text-align: center;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 30;
-}
-
-.chart-legend .color-box:hover .value {
-    display: none;
-}
-
-.chart-legend .legend-item:hover .color-box {
-    width: 100px;
-}
-
-.chart-legend .legend-item:hover .legend-text {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.chart-legend .legend-text {
-    opacity: 1;
-    transition: opacity 0.3s ease;
-    font-size: 0.8em;
-}
-
-.summary-footer {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 15px;
-}
-
-.summary-footer .highlight {
-    font-size: 0.9em;
-    padding: 6px 8px;
-    border-radius: 5px;
-    position: relative;
-    cursor: pointer;
-}
-
-.highlight.yellow {
-    background-color: #17a2b8;
-    color: #ffffff;
-}
-
-.highlight.yellow:hover {
-    color: transparent;
-}
-
-.highlight.yellow:hover::after {
-    content: attr(data-hover);
-    font-weight: bold;
-    font-size: 1.2em;
-    color: #ffffff;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.highlight.red {
-    background-color: #f8d7da;
-    color: #dc3545;
-}
-
-.highlight.red:hover {
-    color: transparent;
-}
-
-.highlight.red:hover::after {
-    content: attr(data-hover);
-    font-weight: bold;
-    font-size: 1.2em;
-    color: #dc3545;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.harmonogram {
-    margin-top: 25px;
-    font-size: 0.7em;
-    padding: 10px;
-}
-
-.harmonogram table {
-    margin-bottom: 0;
-    table-layout: fixed;
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: var(--table-bg);
-}
-
-.harmonogram th {
-    background: var(--table-header-bg);
-    color: #000000;
-    padding: 10px;
-    text-align: center;
-    vertical-align: middle;
-    font-weight: 500;
-    border-bottom: 2px solid #ddd;
-}
-
-.harmonogram td {
-    padding: 8px;
-    text-align: center;
-    font-weight: 400;
-    border-bottom: 1px solid #eee;
-    color: var(--text-color);
-}
-
-.harmonogram tr:last-child td {
-    border-bottom: none;
-}
-
-.harmonogram tr:hover td {
-    background-color: #e9ecef;
-    transition: background-color 0.3s ease;
-}
-
-.btn-toggle {
-    cursor: pointer;
-    font-size: 0.9em;
-    color: #007bff;
-    text-decoration: underline;
-    margin-bottom: 15px;
-    user-select: none;
-}
-
-.btn-primary, .btn-secondary {
-    background: var(--button-bg);
-    border: none;
-    color: #000000;
-    font-size: 0.9em;
-    padding: 8px 25px;
-    min-width: 150px;
-    border-radius: 5px;
-    transition: background 0.3s ease;
-    margin: 0 auto;
-    display: block;
-    cursor: pointer;
-    pointer-events: auto;
-}
-
-.btn-primary:hover, .btn-secondary:hover {
-    background: linear-gradient(90deg, #b0a070, #C2B280);
-    color: #000000;
-}
-
-.btn-sm {
-    font-size: 0.75em;
-    padding: 5px 15px;
-    min-width: 100px;
-    cursor: pointer;
-    pointer-events: auto;
-}
-
-#generatePdfBtn {
-    position: absolute;
-    top: 5px;
-    right: 15px;
-}
-
-#harmonogramContent, #harmonogramContent2 {
-    display: block;
-}
-
-#nadplataSection, #nadplataSection2 {
-    display: none;
-}
-
-.compare-checkbox {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    display: flex;
-    align-items: center;
-    font-size: 0.9em;
-    color: var(--text-color);
-}
-
-.compare-checkbox .checkbox-label {
-    display: flex;
-    align-items: center;
-    font-size: 0.8em;
-    color: var(--text-color);
-    cursor: pointer;
-}
-
-.compare-checkbox input {
-    display: none;
-}
-
-.compare-checkbox .checkbox-custom {
-    width: 14px;
-    height: 14px;
-    border: 2px solid transparent;
-    background: linear-gradient(90deg, #C2B280, #b0a070);
-    margin-right: 6px;
-    display: inline-block;
-    position: relative;
-    border-radius: 3px;
-}
-
-.compare-checkbox input:checked + .checkbox-custom {
-    background: linear-gradient(90deg, #b0a070, #C2B280);
-}
-
-.compare-checkbox input:checked + .checkbox-custom::after {
-    content: '✔';
-    color: #000;
-    font-size: 10px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.form-container {
-    display: flex;
-    gap: 25px;
-    justify-content: center;
-    position: relative;
-}
-
-.form-wrapper {
-    flex: 1;
-    max-width: 450px;
-    padding: 10px;
-}
-
-.form-wrapper h5 {
-    font-size: 1.1em;
-    text-align: center;
-    margin-bottom: 15px;
-    color: var(--text-color);
-}
-
-#formSection2 {
-    display: none;
-}
-
-.result-container {
-    display: flex;
-    gap: 25px;
-    justify-content: center;
-    flex-wrap: wrap;
-    position: relative;
-}
-
-.harmonogram-container {
-    display: flex;
-    gap: 25px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-top: 25px;
-    position: relative;
-}
-
-.result-wrapper {
-    flex: 1;
-    max-width: 550px;
-    padding: 10px;
-}
-
-.result-wrapper h5 {
-    font-size: 1.1em;
-    text-align: center;
-    margin-bottom: 15px;
-    color: var(--text-color);
-}
-
-.divider {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 120px;
-    background: var(--divider-bg);
-    display: none;
-}
-
-#harmonogramDivider {
-    top: 0;
-    height: 0;
-}
-
-.benefit-summary {
-    display: none;
-    margin: 25px auto;
-    max-width: 650px;
-    text-align: center;
-    font-size: 0.8em;
-}
-
-.benefit-summary h6 {
-    font-size: 1em;
-    margin-bottom: 10px;
-    color: var(--text-color);
-    font-weight: 700;
-}
-
-.benefit-item {
-    padding: 8px 15px;
-    margin-bottom: 5px;
-    border-radius: 5px;
-    color: #000000;
-    text-align: center;
-    font-weight: 500;
-    background: var(--button-bg);
-}
-
-.benefit-item span.value {
-    font-size: 1.3em;
-    font-weight: 700;
-}
-
-.control-buttons {
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 10px;
-}
-
-.btn-control {
-    width: 25px;
-    height: 25px;
-    background: linear-gradient(90deg, #C2B280, #b0a070);
-    border: none;
-    border-radius: 50%;
-    font-size: 0.9em;
-    color: #000000;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    transition: background 0.3s ease;
-    pointer-events: auto;
-}
-
-.btn-control:hover {
-    background: linear-gradient(90deg, #b0a070, #C2B280);
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .form-group {
-        max-width: 100%;
-    }
-
-    .form-container, .result-container, .harmonogram-container {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .divider {
-        display: none;
-    }
-
-    .control-buttons {
-        gap: 8px;
+let chart1, chart2;
+let harmonogram1Data = [];
+let harmonogram2Data = [];
+let scale = 1;
+const container = document.querySelector(".container");
+
+// Theme Toggle
+function toggleTheme() {
+    try {
+        console.log("Toggling theme");
+        const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        const themeToggleBtn = document.getElementById("themeToggleBtn");
+        if (themeToggleBtn) {
+            themeToggleBtn.textContent = newTheme === "dark" ? "☀" : "🌙";
+            console.log("Theme toggled to:", newTheme);
+        } else {
+            console.error("Theme toggle button not found");
+        }
+    } catch (error) {
+        console.error("Error in toggleTheme:", error);
     }
 }
 
-@media (max-width: 576px) {
-    .form-label, .form-control, .form-select, .input-group-text {
-        font-size: 0.75em;
-    }
-
-    .btn-primary, .btn-secondary {
-        font-size: 0.8em;
-        padding: 6px 20px;
-    }
-
-    .chart {
-        width: 120px;
-        height: 120px;
-    }
-
-    .control-buttons {
-        gap: 6px;
-    }
-
-    .btn-control {
-        width: 22px;
-        height: 22px;
-        font-size: 0.8em;
-    }
-
-    .form-select {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
-        background-position: right 8px center;
-    }
-
-    .form-select.prowizja-select {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
-        background-position: right 6px center;
+// Zoom Controls
+function zoomIn() {
+    try {
+        console.log("Zoom in triggered, current scale:", scale);
+        if (!container) throw new Error("Container element not found");
+        if (scale < 2) {
+            scale = Math.min(scale + 0.1, 2);
+            container.style.transform = `scale(${scale})`;
+            console.log("New scale applied:", scale);
+        } else {
+            console.log("Max zoom reached:", scale);
+        }
+    } catch (error) {
+        console.error("Error in zoomIn:", error);
     }
 }
+
+function zoomOut() {
+    try {
+        console.log("Zoom out triggered, current scale:", scale);
+        if (!container) throw new Error("Container element not found");
+        if (scale > 0.5) {
+            scale = Math.max(scale - 0.1, 0.5);
+            container.style.transform = `scale(${scale})`;
+            console.log("New scale applied:", scale);
+        } else {
+            console.log("Min zoom reached:", scale);
+        }
+    } catch (error) {
+        console.error("Error in zoomOut:", error);
+    }
+}
+
+// Harmonogram Toggle
+function toggleHarmonogram(sectionId, toggleBtnId) {
+    try {
+        console.log("Toggling harmonogram:", sectionId);
+        const content = document.getElementById(sectionId);
+        const toggleBtn = document.getElementById(toggleBtnId);
+        if (!content || !toggleBtn) throw new Error(`Harmonogram content or toggle button not found: ${sectionId}, ${toggleBtnId}`);
+        if (content.style.display === "none") {
+            content.style.display = "block";
+            toggleBtn.textContent = "Harmonogram spłat ▼";
+        } else {
+            content.style.display = "none";
+            toggleBtn.textContent = "Harmonogram spłat ►";
+        }
+        console.log("Harmonogram toggled, new display:", content.style.display);
+    } catch (error) {
+        console.error("Error in toggleHarmonogram:", error);
+    }
+}
+
+// Show Form
+function showForm() {
+    try {
+        console.log("Showing form");
+        const formSection = document.getElementById("formSection");
+        const resultSection = document.getElementById("resultSection");
+        if (!formSection || !resultSection) throw new Error("Form or result section not found");
+        formSection.style.display = "block";
+        resultSection.style.display = "none";
+        console.log("Form displayed");
+    } catch (error) {
+        console.error("Error in showForm:", error);
+    }
+}
+
+// Generate PDF (Placeholder)
+function generatePdf() {
+    try {
+        console.log("Generate PDF triggered");
+        alert("Funkcjonalność generowania PDF nie jest jeszcze zaimplementowana.");
+    } catch (error) {
+        console.error("Error in generatePdf:", error);
+    }
+}
+
+// Toggle Compare Section
+function toggleCompareSection() {
+    try {
+        console.log("Toggling compare section");
+        const compareCheckbox = document.getElementById("porownajKredyt");
+        const formSection2 = document.getElementById("formSection2");
+        const resultSection2 = document.getElementById("resultSection2");
+        const harmonogramSection2 = document.getElementById("harmonogramSection2");
+        const formDivider = document.getElementById("formDivider");
+        const resultDivider = document.getElementById("resultDivider");
+        const harmonogramDivider = document.getElementById("harmonogramDivider");
+        if (!compareCheckbox || !formSection2 || !resultSection2 || !harmonogramSection2 || !formDivider || !resultDivider || !harmonogramDivider) {
+            throw new Error("Compare section elements not found");
+        }
+        if (compareCheckbox.checked) {
+            formSection2.style.display = "block";
+            resultSection2.style.display = "block";
+            harmonogramSection2.style.display = "block";
+            formDivider.style.display = "block";
+            resultDivider.style.display = "block";
+            harmonogramDivider.style.display = "none";
+        } else {
+            formSection2.style.display = "none";
+            resultSection2.style.display = "none";
+            harmonogramSection2.style.display = "none";
+            formDivider.style.display = "none";
+            resultDivider.style.display = "none";
+            harmonogramDivider.style.display = "none";
+            document.getElementById("benefitSummary").style.display = "none";
+        }
+        console.log("Compare section toggled, checked:", compareCheckbox.checked);
+    } catch (error) {
+        console.error("Error in toggleCompareSection:", error);
+    }
+}
+
+// Toggle Nadplata Sections
+function toggleNadplataSection() {
+    try {
+        console.log("Toggling nadplata section 1");
+        const nadplataSection = document.getElementById("nadplataSection");
+        const nadplataCheckbox = document.getElementById("wlaczNadplate");
+        const nadplataInput = document.getElementById("nadplata");
+        const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa");
+        const nadplataRange = document.getElementById("nadplataRange");
+        const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange");
+        if (!nadplataSection || !nadplataCheckbox || !nadplataInput || !nadplataJednorazowaInput || !nadplataRange || !nadplataJednorazowaRange) {
+            throw new Error("Nadplata section 1 elements not found");
+        }
+        nadplataSection.style.display = nadplataCheckbox.checked ? "flex" : "none";
+        if (!nadplataCheckbox.checked) {
+            nadplataInput.value = 0;
+            nadplataJednorazowaInput.value = 0;
+            nadplataRange.value = 0;
+            nadplataJednorazowaRange.value = 0;
+            console.log("Nadplata section 1 reset");
+        }
+        console.log("Nadplata section 1 toggled, checked:", nadplataCheckbox.checked, "display:", nadplataSection.style.display);
+    } catch (error) {
+        console.error("Error in toggleNadplataSection:", error);
+    }
+}
+
+function toggleNadplataSection2() {
+    try {
+        console.log("Toggling nadplata section 2");
+        const nadplataSection = document.getElementById("nadplataSection2");
+        const nadplataCheckbox = document.getElementById("wlaczNadplate2");
+        const nadplataInput = document.getElementById("nadplata2");
+        const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa2");
+        const nadplataRange = document.getElementById("nadplataRange2");
+        const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange2");
+        if (!nadplataSection || !nadplataCheckbox || !nadplataInput || !nadplataJednorazowaInput || !nadplataRange || !nadplataJednorazowaRange) {
+            throw new Error("Nadplata section 2 elements not found");
+        }
+        nadplataSection.style.display = nadplataCheckbox.checked ? "flex" : "none";
+        if (!nadplataCheckbox.checked) {
+            nadplataInput.value = 0;
+            nadplataJednorazowaInput.value = 0;
+            nadplataRange.value = 0;
+            nadplataJednorazowaRange.value = 0;
+            console.log("Nadplata section 2 reset");
+        }
+        console.log("Nadplata section 2 toggled, checked:", nadplataCheckbox.checked, "display:", nadplataSection.style.display);
+    } catch (error) {
+        console.error("Error in toggleNadplataSection2:", error);
+    }
+}
+
+// Input and Range Synchronization
+function syncInputRange(inputId, rangeId, callback) {
+    try {
+        console.log(`Initializing sync for input: ${inputId}, range: ${rangeId}`);
+        const input = document.getElementById(inputId);
+        const range = document.getElementById(rangeId);
+        if (!input || !range) throw new Error(`Input or range not found: ${inputId}, ${rangeId}`);
+        range.addEventListener("input", () => {
+            input.value = range.value;
+            if (callback) callback();
+            console.log(`Range ${rangeId} updated to: ${range.value}`);
+        });
+        input.addEventListener("input", () => {
+            range.value = input.value;
+            if (callback) callback();
+            console.log(`Input ${inputId} updated to: ${input.value}`);
+        });
+    } catch (error) {
+        console.error("Error in syncInputRange:", error);
+    }
+}
+
+// Update Functions
+function updateLata() {
+    try {
+        console.log("Updating lata");
+        const miesiace = parseInt(document.getElementById("okres").value) || 0;
+        const lata = (miesiace / 12).toFixed(0);
+        document.getElementById("lata").textContent = `Ilość lat: ${lata}`;
+        console.log("Lata updated:", lata);
+    } catch (error) {
+        console.error("Error in updateLata:", error);
+    }
+}
+
+function updateProwizja() {
+    try {
+        console.log("Updating prowizja");
+        const kwota = parseFloat(document.getElementById("kwota").value) || 0;
+        const prowizja = parseFloat(document.getElementById("prowizja").value) || 0;
+        const typ = document.getElementById("prowizjaTyp").value;
+        const prowizjaPLN = typ === "procent" ? (kwota * prowizja / 100) : prowizja;
+        document.getElementById("prowizjaWartosc").textContent = `Wartość prowizji: ${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        console.log("Prowizja updated:", prowizjaPLN);
+        return prowizjaPLN;
+    } catch (error) {
+        console.error("Error in updateProwizja:", error);
+        return 0;
+    }
+}
+
+function updateLata2() {
+    try {
+        console.log("Updating lata2");
+        const miesiace = parseInt(document.getElementById("okres2").value) || 0;
+        const lata = (miesiace / 12).toFixed(0);
+        document.getElementById("lata2").textContent = `Ilość lat: ${lata}`;
+        console.log("Lata2 updated:", lata);
+    } catch (error) {
+        console.error("Error in updateLata2:", error);
+    }
+}
+
+function updateProwizja2() {
+    try {
+        console.log("Updating prowizja2");
+        const kwota = parseFloat(document.getElementById("kwota2").value) || 0;
+        const prowizja = parseFloat(document.getElementById("prowizja2").value) || 0;
+        const typ = document.getElementById("prowizjaTyp2").value;
+        const prowizjaPLN = typ === "procent" ? (kwota * prowizja / 100) : prowizja;
+        document.getElementById("prowizjaWartosc2").textContent = `Wartość prowizji: ${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        console.log("Prowizja2 updated:", prowizjaPLN);
+        return prowizjaPLN;
+    } catch (error) {
+        console.error("Error in updateProwizja2:", error);
+        return 0;
+    }
+}
+
+// Calculate Credit for Form
+function obliczKredytDlaFormularza(formPrefix = "") {
+    try {
+        console.log(`Calculating credit for form: ${formPrefix || "main"}`);
+        let kwota = parseFloat(document.getElementById(`kwota${formPrefix}`).value) || 0;
+        let oprocentowanie = parseFloat(document.getElementById(`oprocentowanie${formPrefix}`).value) / 100 / 12 || 0;
+        let miesiace = parseInt(document.getElementById(`okres${formPrefix}`).value) || 0;
+        let nadplata = parseFloat(document.getElementById(`nadplata${formPrefix}`).value) || 0;
+        let nadplataJednorazowa = parseFloat(document.getElementById(`nadplataJednorazowa${formPrefix}`).value) || 0;
+        let rodzajRat = document.getElementById(`rodzajRat${formPrefix}`).value || "rowne";
+        let efektNadplaty = document.querySelector(`input[name="efektNadplaty${formPrefix}"]:checked`)?.value || "skrocenie";
+        let prowizjaPLN = formPrefix === "" ? updateProwizja() : updateProwizja2();
+
+        if (kwota <= 0 || miesiace <= 0 || oprocentowanie <= 0) {
+            alert("Proszę wypełnić wszystkie wymagane pola poprawnymi wartościami dla " + (formPrefix === "" ? "Twojego Kredytu" : "Nowego Kredytu") + ".");
+            console.log("Invalid input values");
+            return null;
+        }
+
+        let rata, calkowityKoszt = 0, odsetki = 0, harmonogram = [];
+        let pozostalyKapital = kwota;
+        let calkowitaNadplata = 0;
+
+        if (nadplataJednorazowa > 0) {
+            pozostalyKapital -= nadplataJednorazowa;
+            calkowitaNadplata += nadplataJednorazowa;
+        }
+
+        if (rodzajRat === "rowne" && oprocentowanie > 0) {
+            rata = (pozostalyKapital * oprocentowanie) / (1 - Math.pow(1 + oprocentowanie, -miesiace));
+            if (isNaN(rata) || !isFinite(rata)) rata = 0;
+            if (nadplata > 0 && efektNadplaty === "obnizenie") {
+                rata = ((pozostalyKapital - nadplata * miesiace) * oprocentowanie) / (1 - Math.pow(1 + oprocentowanie, -miesiace));
+                if (isNaN(rata) || !isFinite(rata)) rata = 0;
+            }
+            for (let i = 1; i <= miesiace && pozostalyKapital > 0; i++) {
+                let odsetkiMiesiac = pozostalyKapital * oprocentowanie;
+                let kapital = rata - odsetkiMiesiac;
+                let nadplataMiesiac = 0;
+                if (nadplata > 0 && efektNadplaty === "skrocenie") {
+                    kapital += nadplata;
+                    nadplataMiesiac = nadplata;
+                    calkowitaNadplata += nadplata;
+                }
+                pozostalyKapital -= kapital;
+                if (pozostalyKapital < 0) pozostalyKapital = 0;
+                calkowityKoszt += rata;
+                odsetki += odsetkiMiesiac;
+                harmonogram.push({
+                    miesiac: i,
+                    rata: rata.toFixed(2),
+                    nadplata: (nadplataMiesiac + (i === 1 ? nadplataJednorazowa : 0)).toFixed(2),
+                    kapital: kapital.toFixed(2),
+                    odsetki: odsetkiMiesiac.toFixed(2),
+                    pozostaly: pozostalyKapital.toFixed(2)
+                });
+                if (nadplata > 0 && efektNadplaty === "skrocenie" && pozostalyKapital <= 0) break;
+            }
+        } else if (rodzajRat === "malejace" && oprocentowanie > 0) {
+            let kapitalStaly = pozostalyKapital / miesiace;
+            if (nadplata > 0 && efektNadplaty === "obnizenie") {
+                kapitalStaly = (pozostalyKapital - nadplata * miesiace) / miesiace;
+            }
+            for (let i = 1; i <= miesiace && pozostalyKapital > 0; i++) {
+                let odsetkiMiesiac = pozostalyKapital * oprocentowanie;
+                let kapital = kapitalStaly;
+                rata = kapital + odsetkiMiesiac;
+                let nadplataMiesiac = 0;
+                if (nadplata > 0 && efektNadplaty === "skrocenie") {
+                    kapital += nadplata;
+                    nadplataMiesiac = nadplata;
+                    calkowitaNadplata += nadplata;
+                }
+                pozostalyKapital -= kapital;
+                if (pozostalyKapital < 0) pozostalyKapital = 0;
+                calkowityKoszt += rata;
+                odsetki += odsetkiMiesiac;
+                harmonogram.push({
+                    miesiac: i,
+                    rata: rata.toFixed(2),
+                    nadplata: (nadplataMiesiac + (i === 1 ? nadplataJednorazowa : 0)).toFixed(2),
+                    kapital: kapital.toFixed(2),
+                    odsetki: odsetkiMiesiac.toFixed(2),
+                    pozostaly: pozostalyKapital.toFixed(2)
+                });
+                if (nadplata > 0 && efektNadplaty === "skrocenie" && pozostalyKapital <= 0) break;
+            }
+        }
+
+        calkowityKoszt += prowizjaPLN;
+
+        console.log("Credit calculated successfully");
+        return {
+            kwota,
+            odsetki,
+            calkowitaNadplata,
+            prowizjaPLN,
+            calkowityKoszt,
+            harmonogram,
+            okresPoNadplacie: harmonogram.length || miesiace
+        };
+    } catch (error) {
+        console.error("Error in obliczKredytDlaFormularza:", error);
+        return null;
+    }
+}
+
+// Update Results
+function aktualizujWyniki(dane, prefix = "") {
+    try {
+        if (!dane) throw new Error("No data provided to aktualizujWyniki");
+        console.log(`Updating results for prefix: ${prefix || "main"}`);
+
+        const { kwota, odsetki, calkowitaNadplata, prowizjaPLN, calkowityKoszt, harmonogram, okresPoNadplacie } = dane;
+
+        document.getElementById(`valueKapital${prefix}`).textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="0"] .color-box`).setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+
+        document.getElementById(`valueOdsetki${prefix}`).textContent = `${odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="1"] .color-box`).setAttribute('data-tooltip', `Odsetki: ${odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+
+        document.getElementById(`valueNadplata${prefix}`).textContent = `${calkowitaNadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="2"] .color-box`).setAttribute('data-tooltip', `Nadpłaty: ${calkowitaNadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+
+        document.getElementById(`valueProwizja${prefix}`).textContent = `${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="3"] .color-box`).setAttribute('data-tooltip', `Prowizja: ${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+
+        document.getElementById(`okresPoNadplacie${prefix}`).textContent = okresPoNadplacie;
+        document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .highlight.yellow`).setAttribute('data-hover', `${okresPoNadplacie} miesięcy`);
+
+        document.getElementById(`koszt${prefix}`).textContent = `${calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .highlight.red`).setAttribute('data-hover', `${calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+
+        let chart = prefix === "" ? chart1 : chart2;
+        if (chart) {
+            chart.destroy();
+        }
+
+        const ctx = document.getElementById(`creditChart${prefix}`).getContext("2d");
+        chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Kapitał', 'Odsetki', 'Nadpłaty', 'Prowizja'],
+                datasets: [{
+                    data: [kwota, odsetki, calkowitaNadplata, prowizjaPLN],
+                    backgroundColor: ['#28a745', '#007bff', '#dc3545', '#6f42c1'],
+                    borderWidth: 1,
+                    hoverOffset: 8,
+                    hoverBackgroundColor: ['#28a745', '#007bff', '#dc3545', '#6f42c1']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: { size: 10 },
+                        bodyFont: { size: 8 }
+                    }
+                },
+                onHover: (event, chartElement) => {
+                    event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                }
+            }
+        });
+
+        if (prefix === "") {
+            chart1 = chart;
+        } else {
+            chart2 = chart;
+        }
+
+        document.querySelectorAll(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item`).forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const index = parseInt(this.getAttribute('data-index'));
+                chart.setActiveElements([{ datasetIndex: 0, index: index }]);
+                chart.update();
+            });
+            item.addEventListener('mouseleave', function() {
+                chart.setActiveElements([]);
+                chart.update();
+            });
+        });
+
+        let tabela = document.getElementById(`harmonogramTabela${prefix}`);
+        tabela.innerHTML = "";
+        harmonogram.forEach(wiersz => {
+            tabela.innerHTML += `
+                <tr>
+                    <td>${wiersz.miesiac}</td>
+                    <td>${parseFloat(wiersz.rata).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                    <td>${parseFloat(wiersz.nadplata).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                    <td>${parseFloat(wiersz.kapital).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                    <td>${parseFloat(wiersz.odsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                    <td>${parseFloat(wiersz.pozostaly).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                </tr>
+            `;
+        });
+
+        console.log("Results updated successfully");
+    } catch (error) {
+        console.error("Error in aktualizujWyniki:", error);
+    }
+}
+
+// Calculate Credit
+function obliczKredyt() {
+    try {
+        console.log("Calculating credit");
+        const formSection = document.getElementById("formSection");
+        const resultSection = document.getElementById("resultSection");
+        const benefitSummary = document.getElementById("benefitSummary");
+        if (!formSection || !resultSection || !benefitSummary) throw new Error("Form, result, or benefit section not found");
+
+        const daneKredyt1 = obliczKredytDlaFormularza();
+        if (!daneKredyt1) return;
+
+        formSection.style.display = "none";
+        resultSection.style.display = "block";
+        harmonogram1Data = daneKredyt1.harmonogram;
+        aktualizujWyniki(daneKredyt1);
+
+        if (document.getElementById("porownajKredyt").checked) {
+            const daneKredyt2 = obliczKredytDlaFormularza("2");
+            if (!daneKredyt2) return;
+
+            harmonogram2Data = daneKredyt2.harmonogram;
+            aktualizujWyniki(daneKredyt2, "2");
+
+            const kosztRoznica = daneKredyt1.calkowityKoszt - daneKredyt2.calkowityKoszt;
+            const okresRoznica = daneKredyt1.okresPoNadplacie - daneKredyt2.okresPoNadplacie;
+            const procentRoznica = ((daneKredyt1.calkowityKoszt - daneKredyt2.calkowityKoszt) / daneKredyt1.calkowityKoszt * 100).toFixed(2);
+
+            document.getElementById("benefitCostValue").textContent = `${kosztRoznica.toLocaleString('pl-PL', { minimumFractionDigits: 2 })}`;
+            document.getElementById("benefitPeriodValue").textContent = `${okresRoznica}`;
+            document.getElementById("benefitPercentageValue").textContent = `${procentRoznica}`;
+            benefitSummary.style.display = "block";
+        } else {
+            benefitSummary.style.display = "none";
+        }
+
+        console.log("Credit calculation completed");
+    } catch (error) {
+        console.error("Error in obliczKredyt:", error);
+    }
+}
+
+// Initialize
+document.addEventListener("DOMContentLoaded", () => {
+    try {
+        console.log("Initializing application");
+
+        // Load theme
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        document.getElementById("themeToggleBtn").textContent = savedTheme === "dark" ? "☀" : "🌙";
+
+        // Event Listeners
+        document.getElementById("themeToggleBtn")?.addEventListener("click", toggleTheme);
+        document.getElementById("zoomInBtn")?.addEventListener("click", zoomIn);
+        document.getElementById("zoomOutBtn")?.addEventListener("click", zoomOut);
+        document.getElementById("toggleHarmonogram1")?.addEventListener("click", () => toggleHarmonogram("harmonogramContent", "toggleHarmonogram1"));
+        document.getElementById("toggleHarmonogram2")?.addEventListener("click", () => toggleHarmonogram("harmonogramContent2", "toggleHarmonogram2"));
+        document.getElementById("returnToFormBtn")?.addEventListener("click", showForm);
+        document.getElementById("generatePdfBtn")?.addEventListener("click", generatePdf);
+        document.getElementById("obliczBtn")?.addEventListener("click", obliczKredyt);
+        document.getElementById("porownajKredyt")?.addEventListener("change", toggleCompareSection);
+        document.getElementById("wlaczNadplate")?.addEventListener("change", toggleNadplataSection);
+        document.getElementById("wlaczNadplate2")?.addEventListener("change", toggleNadplataSection2);
+
+        // Sync Inputs and Ranges
+        syncInputRange("kwota", "kwotaRange", updateProwizja);
+        syncInputRange("okres", "okresRange", updateLata);
+        syncInputRange("oprocentowanie", "oprocentowanieRange");
+        syncInputRange("prowizja", "prowizjaRange", updateProwizja);
+        syncInputRange("nadplata", "nadplataRange");
+        syncInputRange("nadplataJednorazowa", "nadplataJednorazowaRange");
+        syncInputRange("kwota2", "kwotaRange2", updateProwizja2);
+        syncInputRange("okres2", "okresRange2", updateLata2);
+        syncInputRange("oprocentowanie2", "oprocentowanieRange2");
+        syncInputRange("prowizja2", "prowizjaRange2", updateProwizja2);
+        syncInputRange("nadplata2", "nadplataRange2");
+        syncInputRange("nadplataJednorazowa2", "nadplataJednorazowaRange2");
+
+        document.getElementById("prowizjaTyp")?.addEventListener("change", updateProwizja);
+        document.getElementById("prowizjaTyp2")?.addEventListener("change", updateProwizja2);
+
+        // Initialize values
+        updateLata();
+        updateProwizja();
+        updateLata2();
+        updateProwizja2();
+
+        // Logo redirect on hover
+        const logoLink = document.getElementById("logoLink");
+        if (logoLink) {
+            logoLink.addEventListener("mouseenter", () => {
+                console.log("Logo mouseenter, redirecting...");
+                window.location.href = "https://finance-brothers.pl";
+            });
+            logoLink.addEventListener("click", (e) => {
+                e.preventDefault();
+                console.log("Logo click prevented");
+            });
+        } else {
+            console.error("Logo link not found");
+        }
+
+        console.log("Application initialized successfully");
+    } catch (error) {
+        console.error("Error in initialization:", error);
+    }
+});
