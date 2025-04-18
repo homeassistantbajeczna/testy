@@ -71,19 +71,15 @@ body {
 
 .form-row {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     margin-bottom: 15px;
     gap: 15px;
     align-items: flex-start;
     flex-wrap: wrap;
 }
 
-#formSection1 .form-row:not(#nadplataSection .form-row):not(#nadplataSection2 .form-row) {
-    flex-wrap: nowrap;
-}
-
 .form-group {
-    flex: 1;
+    flex: 0 0 150px;
     max-width: 150px;
     width: 150px;
     display: flex;
@@ -92,13 +88,17 @@ body {
 }
 
 .form-group:has(.input-group:not(:has(.mc-y-unit)):not(:has(.prowizja))) {
+    flex: 0 0 120px;
     max-width: 120px;
     width: 120px;
+    min-width: 100px;
 }
 
 .form-group:has(.input-group:has(.prowizja)) {
+    flex: 0 0 90px;
     max-width: 90px;
     width: 90px;
+    min-width: 80px;
 }
 
 .form-group.no-sub-info .sub-info {
@@ -107,15 +107,17 @@ body {
 }
 
 #nadplataSection .form-group, #nadplataSection2 .form-group {
-    flex: 1;
+    flex: 0 0 150px;
     max-width: 150px;
     width: 150px;
 }
 
 #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
 #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+    flex: 0 0 120px;
     max-width: 120px;
     width: 120px;
+    min-width: 100px;
 }
 
 .form-label {
@@ -161,12 +163,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.form-select.prowizja-select {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
-    background-position: right 6px center;
-    padding: 0 18px 0 3px;
 }
 
 .form-select:focus {
@@ -218,10 +214,6 @@ body {
     box-sizing: border-box;
 }
 
-.input-group:has(.prowizja-select) {
-    border-right: none;
-}
-
 .input-group-text {
     height: 22px;
     font-size: 0.6875em;
@@ -239,11 +231,11 @@ body {
     text-align: center;
 }
 
-.input-group:has(.prowizja-select) .input-group-text {
+.input-group:has(.prowizja) .input-group-text {
     flex: 0 0 30px;
 }
 
-.input-group:has(.prowizja-select) .form-control {
+.input-group:has(.prowizja) .form-control {
     flex: 1;
 }
 
@@ -284,10 +276,6 @@ input[type="radio"], input[type="checkbox"] {
     display: flex;
     justify-content: center;
     margin-bottom: 10px;
-}
-
-.spacer {
-    height: 15px;
 }
 
 .result-section {
@@ -626,17 +614,18 @@ input[type="radio"], input[type="checkbox"] {
     gap: 25px;
     justify-content: center;
     position: relative;
+    flex-wrap: wrap;
 }
 
 .form-wrapper {
     flex: 1;
     max-width: 450px;
     padding: 10px;
-    min-width: 100%;
+    min-width: 400px;
 }
 
 #formSection2:not([style*="display: none"]) ~ .form-wrapper {
-    min-width: 100%;
+    min-width: 400px;
 }
 
 .form-wrapper h5 {
@@ -727,19 +716,20 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .control-buttons {
-    position: absolute;
+    position: fixed;
     top: 50%;
-    right: 15px;
+    right: 20px;
     transform: translateY(-50%);
     display: flex;
-    gap: 5px;
+    flex-direction: column;
+    gap: 8px;
     z-index: 10;
     pointer-events: auto;
 }
 
 .btn-control {
-    width: 25px;
-    height: 25px;
+    width: 30px;
+    height: 30px;
     background: linear-gradient(90deg, #C2B280, #b0a070);
     border: none;
     border-radius: 50%;
@@ -764,35 +754,41 @@ input[type="radio"], input[type="checkbox"] {
     .form-row {
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: space-between;
     }
 
     .form-group {
-        flex: 1;
+        flex: 0 0 125px;
         max-width: 125px;
         width: 125px;
     }
 
     .form-group:has(.input-group:not(:has(.mc-y-unit)):not(:has(.prowizja))) {
+        flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
+        min-width: 90px;
     }
 
     .form-group:has(.input-group:has(.prowizja)) {
+        flex: 0 0 80px;
         max-width: 80px;
         width: 80px;
+        min-width: 70px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 1;
+        flex: 0 0 125px;
         max-width: 125px;
         width: 125px;
     }
 
     #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
     #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
+        min-width: 90px;
     }
 
     .form-container, .result-container, .harmonogram-container {
@@ -811,35 +807,41 @@ input[type="radio"], input[type="checkbox"] {
     .form-row {
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-around;
+        justify-content: space-between;
     }
 
     .form-group {
-        flex: 1;
+        flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
     }
 
     .form-group:has(.input-group:not(:has(.mc-y-unit)):not(:has(.prowizja))) {
+        flex: 0 0 90px;
         max-width: 90px;
         width: 90px;
+        min-width: 80px;
     }
 
     .form-group:has(.input-group:has(.prowizja)) {
+        flex: 0 0 70px;
         max-width: 70px;
         width: 70px;
+        min-width: 60px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 1;
+        flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
     }
 
     #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
     #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 90px;
         max-width: 90px;
         width: 90px;
+        min-width: 80px;
     }
 
     .form-container.compare-checkbox input:checked ~ .form-container {
@@ -879,17 +881,7 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .control-buttons {
-        gap: 3px;
-    }
-
-    .form-select {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
-        background-position: right 8px center;
-    }
-
-    .form-select.prowizja-select {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
-        background-position: right 6px center;
+        gap: 6px;
     }
 }
 
@@ -907,13 +899,17 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group:has(.input-group:not(:has(.mc-y-unit)):not(:has(.prowizja))) {
+        flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
+        min-width: 90px;
     }
 
     .form-group:has(.input-group:has(.prowizja)) {
+        flex: 0 0 80px;
         max-width: 80px;
         width: 80px;
+        min-width: 70px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
@@ -924,8 +920,10 @@ input[type="radio"], input[type="checkbox"] {
 
     #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
     #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
+        min-width: 90px;
     }
 
     .form-container, .result-container, .harmonogram-container {
