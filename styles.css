@@ -286,7 +286,7 @@ body {
 .form-select {
     height: 22px;
     font-size: var(--small-font-size);
-    padding: 2px 20px 2px 2px; /* Dodano padding-right dla miejsca na strzałkę */
+    padding: 2px 24px 2px 8px; /* Miejsce na strzałkę */
     text-align: center;
     background: var(--input-bg);
     color: var(--primary-text);
@@ -294,32 +294,28 @@ body {
     border-radius: var(--border-radius);
     box-sizing: border-box;
     line-height: 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     position: relative;
     appearance: none; /* Usuwa domyślną strzałkę przeglądarki */
     -webkit-appearance: none;
     -moz-appearance: none;
+    background-color: #f0f0f0; /* Tymczasowe tło do debugowania */
 }
 
 #rodzajRat .form-select {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
 }
 
 #rodzajRat .form-select::after {
     content: "▼";
     position: absolute;
-    right: 8px; /* Zwiększono odstęp od prawej krawędzi */
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.8em; /* Nieco większa strzałka dla widoczności */
-    color: var(--primary-text);
+    font-size: 1em; /* Większa strzałka dla widoczności */
+    color: #000; /* Czarny kolor dla kontrastu */
     pointer-events: none;
-    z-index: 1; /* Upewniamy się, że strzałka jest nad elementem */
+    z-index: 2;
 }
 
 .jednostka-select {
@@ -328,23 +324,24 @@ body {
     appearance: none; /* Usuwa domyślną strzałkę przeglądarki */
     -webkit-appearance: none;
     -moz-appearance: none;
-    padding-right: 20px; /* Miejsce na strzałkę */
+    padding-right: 24px; /* Miejsce na strzałkę */
+    background-color: #f0f0f0; /* Tymczasowe tło do debugowania */
 }
 
 #prowizja .input-group .jednostka-select {
     flex: 1;
 }
 
-.jednostka-select::after {
+#prowizja .input-group .jednostka-select::after {
     content: "▼";
     position: absolute;
-    right: 8px; /* Zwiększono odstęp od prawej krawędzi */
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.8em; /* Nieco większa strzałka dla widoczności */
-    color: var(--primary-text);
+    font-size: 1em; /* Większa strzałka dla widoczności */
+    color: #000; /* Czarny kolor dla kontrastu */
     pointer-events: none;
-    z-index: 1; /* Upewniamy się, że strzałka jest nad elementem */
+    z-index: 2;
 }
 
 .form-select:focus {
@@ -1035,7 +1032,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     .form-select {
         height: 26px;
         width: 130px;
-        padding: 4px 20px 4px 8px; /* Zwiększono padding dla strzałki */
+        padding: 4px 24px 4px 8px; /* Miejsce na strzałkę */
         line-height: 20px;
     }
 
@@ -1048,7 +1045,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     .jednostka-select {
         height: 26px;
         width: 40px;
-        padding: 4px 20px 4px 8px; /* Zwiększono padding dla strzałki */
+        padding: 4px 24px 4px 8px; /* Miejsce na strzałkę */
         line-height: 20px;
     }
 
