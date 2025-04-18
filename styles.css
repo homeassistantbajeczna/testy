@@ -246,15 +246,6 @@ body {
     margin-bottom: 30px;
 }
 
-#dynamicRateGroup {
-    width: 150px;
-    min-width: 150px;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    margin-right: 15px;
-}
-
 .form-label,
 .variable-input-group .form-label {
     font-size: var(--small-font-size);
@@ -264,8 +255,7 @@ body {
     width: 100%;
 }
 
-.form-control,
-.form-select {
+.form-control {
     height: 22px;
     font-size: var(--small-font-size);
     padding: 2px;
@@ -281,8 +271,7 @@ body {
     justify-content: center;
 }
 
-.form-control:focus,
-.form-select:focus {
+.form-control:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color);
     border-color: var(--border-color);
@@ -310,18 +299,6 @@ body {
     width: 150px;
     display: flex;
     justify-content: center;
-}
-
-.form-select {
-    max-width: 100px;
-    appearance: none;
-    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQ0lEQVR42mNgwAfKy8Q/Y//+Ii//3jVAYQzsIFyQ0dOaWq992zxcnN5+9NmyZACV40DmGhPZtzwUAxhUaoLntdha0DqQbtz4E9DzN6XgI0P2VYFlQrUwoQDIgbChLE/0awXiwV5rhugPX6A8BSsYFDqU+rEFdkGZA7+G9HMqaAU6l+0w+NdJD7ADhzhR/4KDZnWOw0QKrVqYc1G+1Dczfx8DR0uv+QJqDRvQxdizFAQAwsy39EZhAAAwAAJ4+Q1XFlAAAAABJRU5ErkJggg==') no-repeat right 5px center;
-    padding: 0 20px 0 5px;
-    line-height: 22px;
-}
-
-.form-select option {
-    text-align: center;
 }
 
 input[type="range"].form-range {
@@ -529,21 +506,6 @@ input[type="range"].form-range:focus::-ms-thumb {
 .harmonogram td .star,
 #harmonogramOpis .star {
     color: #c2b280;
-}
-
-.data-container {
-    text-align: right;
-    margin-top: 5px;
-}
-
-.data-info,
-.data-date {
-    font-size: 0.8em;
-    color: var(--accent-color);
-}
-
-.data-date {
-    font-size: 0.9em;
 }
 
 /* W Y N I K I   I   H A R M O N O G R A M */
@@ -975,16 +937,14 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group,
-    .input-group,
-    #dynamicRateGroup {
+    .input-group {
         width: 200px;
         max-width: 200px;
         min-width: 200px;
         margin: 2px auto;
     }
 
-    .form-control,
-    .form-select {
+    .form-control {
         height: 26px;
         width: 130px;
         padding: 4px 8px;
@@ -996,13 +956,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 70px;
         padding: 4px 8px;
         line-height: 20px;
-    }
-
-    #typObligacji.form-control {
-        text-align: center;
-        text-align-last: center;
-        width: 200px;
-        height: 26px;
     }
 
     .variable-input-group .input-group {
@@ -1071,10 +1024,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         padding: 4px 10px;
     }
 
-    #generatePdfBtn {
-        margin: 2.5px 0 2.5px auto;
-    }
-
     .chart-container {
         flex-direction: row;
         flex-wrap: wrap;
@@ -1125,13 +1074,9 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group,
-    #dynamicRateGroup {
+    .input-group {
         display: block;
         margin: 10px auto;
-    }
-
-    .input-group {
-        margin: 0 auto;
     }
 
     .chart-container {
@@ -1147,8 +1092,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         height: 100px;
     }
 
-    .form-control,
-    .form-select {
+    .form-control {
         height: 28px;
         width: 130px;
         padding: 4px 8px;
@@ -1213,22 +1157,11 @@ input[type="range"].form-range:focus::-ms-thumb {
         margin: 5px auto 0;
     }
 
-    #typObligacji.form-control {
-        text-align: center;
-        text-align-last: center;
-        width: 200px;
-        height: 28px;
-    }
-
     .btn-primary,
     #addVariableBtn,
     #generatePdfBtn {
         margin: 20px auto;
         padding: 6px 15px;
-    }
-
-    #generatePdfBtn {
-        margin: 20px 0 20px auto;
     }
 
     .logo-container {
