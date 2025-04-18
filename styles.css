@@ -35,6 +35,7 @@ body {
     text-align: center;
     margin-bottom: 20px;
     transform: none !important;
+    position: relative;
 }
 
 .logo {
@@ -120,7 +121,7 @@ body {
     padding: 5px 25px 5px 5px;
     text-align: center;
     background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box;
-    border: 2px solid transparent;
+    border: 1px solid #d3d3d3;
     border-radius: 8px;
     color: var(--text-color);
     appearance: none;
@@ -175,6 +176,9 @@ body {
 .input-group {
     display: flex;
     align-items: stretch;
+    border: 1px solid #d3d3d3;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .input-group-text {
@@ -183,7 +187,7 @@ body {
     padding: 5px 10px;
     background: #6c757d;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     color: #ffffff;
 }
 
@@ -258,8 +262,6 @@ input[type="radio"], input[type="checkbox"] {
     margin-bottom: 20px;
     position: relative;
     overflow: visible;
-    border: 1px solid #d3d3d3;
-    border-radius: 5px;
     padding: 10px;
 }
 
@@ -410,8 +412,6 @@ input[type="radio"], input[type="checkbox"] {
 .harmonogram {
     margin-top: 25px;
     font-size: 0.7em;
-    border: 1px solid #d3d3d3;
-    border-radius: 5px;
     padding: 10px;
 }
 
@@ -562,8 +562,6 @@ input[type="radio"], input[type="checkbox"] {
 .form-wrapper {
     flex: 1;
     max-width: 450px;
-    border: 1px solid #d3d3d3;
-    border-radius: 5px;
     padding: 10px;
 }
 
@@ -598,8 +596,6 @@ input[type="radio"], input[type="checkbox"] {
 .result-wrapper {
     flex: 1;
     max-width: 550px;
-    border: 1px solid #d3d3d3;
-    border-radius: 5px;
     padding: 10px;
 }
 
@@ -649,7 +645,6 @@ input[type="radio"], input[type="checkbox"] {
     text-align: center;
     font-weight: 500;
     background: var(--button-bg);
-    border: 1px solid #d3d3d3;
 }
 
 .benefit-item span.value {
@@ -657,21 +652,12 @@ input[type="radio"], input[type="checkbox"] {
     font-weight: 700;
 }
 
-.footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--container-bg);
-    padding: 10px 0;
-    text-align: center;
-    z-index: 1000;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-}
-
 .control-buttons {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
     display: flex;
-    justify-content: center;
     gap: 10px;
 }
 
@@ -713,10 +699,6 @@ input[type="radio"], input[type="checkbox"] {
 
     .divider {
         display: none;
-    }
-
-    .footer {
-        padding: 8px 0;
     }
 
     .control-buttons {
