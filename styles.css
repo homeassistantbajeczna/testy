@@ -279,6 +279,35 @@ body {
     color: var(--primary-text);
 }
 
+.form-select {
+    height: 22px;
+    font-size: var(--small-font-size);
+    padding: 2px;
+    text-align: center;
+    background: var(--input-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    line-height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.form-select:focus {
+    outline: none !important;
+    box-shadow: 0 0 4px var(--accent-color);
+    border-color: var(--border-color);
+    background: var(--input-bg);
+    color: var(--primary-text);
+}
+
+.jednostka-select {
+    width: 50px;
+}
+
 .input-group-text {
     height: 22px;
     font-size: var(--small-font-size);
@@ -944,14 +973,16 @@ input[type="range"].form-range:focus::-ms-thumb {
         margin: 2px auto;
     }
 
-    .form-control {
+    .form-control,
+    .form-select {
         height: 26px;
         width: 130px;
         padding: 4px 8px;
         line-height: 20px;
     }
 
-    .input-group-text {
+    .input-group-text,
+    .jednostka-select {
         height: 26px;
         width: 70px;
         padding: 4px 8px;
@@ -1092,14 +1123,16 @@ input[type="range"].form-range:focus::-ms-thumb {
         height: 100px;
     }
 
-    .form-control {
+    .form-control,
+    .form-select {
         height: 28px;
         width: 130px;
         padding: 4px 8px;
         line-height: 20px;
     }
 
-    .input-group-text {
+    .input-group-text,
+    .jednostka-select {
         height: 28px;
         width: 70px;
         padding: 4px 8px;
