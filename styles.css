@@ -294,6 +294,7 @@ body {
     align-items: center;
     justify-content: center;
     width: 100%;
+    position: relative;
 }
 
 #rodzajRat .form-select {
@@ -302,16 +303,39 @@ body {
     justify-content: center;
 }
 
+#rodzajRat .form-select::after {
+    content: "▼";
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6em;
+    color: var(--primary-text);
+    pointer-events: none;
+}
+
+.jednostka-select {
+    width: 40px;
+    position: relative;
+}
+
+.jednostka-select::after {
+    content: "▼";
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6em;
+    color: var(--primary-text);
+    pointer-events: none;
+}
+
 .form-select:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color);
     border-color: var(--border-color);
     background: var(--input-bg);
     color: var(--primary-text);
-}
-
-.jednostka-select {
-    width: 50px;
 }
 
 .input-group-text {
@@ -788,7 +812,8 @@ input[type="range"].form-range:focus::-ms-thumb {
 /* P R Z Y C I S K I */
 .btn-primary,
 .btn-secondary,
-#addVariableBtn,
+#addVariableOprocentowanieBtn,
+#addNadplataKredytuBtn,
 #generatePdfBtn,
 .zoom-controls .btn {
     background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
@@ -804,7 +829,8 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 .btn-primary:hover,
 .btn-secondary:hover,
-#addVariableBtn:hover,
+#addVariableOprocentowanieBtn:hover,
+#addNadplataKredytuBtn:hover,
 #generatePdfBtn:hover,
 .zoom-controls .btn:hover {
     transform: translateY(-2px);
@@ -814,7 +840,8 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 .dark-mode .btn-primary,
 .dark-mode .btn-secondary,
-.dark-mode #addVariableBtn,
+.dark-mode #addVariableOprocentowanieBtn,
+.dark-mode #addNadplataKredytuBtn,
 .dark-mode #generatePdfBtn,
 .dark-mode .zoom-controls .btn {
     background: linear-gradient(135deg, var(--accent-gradient-start, #8b7d47), var(--accent-gradient-end, #70673b)) !important;
@@ -823,7 +850,8 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 .dark-mode .btn-primary:hover,
 .dark-mode .btn-secondary:hover,
-.dark-mode #addVariableBtn:hover,
+.dark-mode #addVariableOprocentowanieBtn:hover,
+.dark-mode #addNadplataKredytuBtn:hover,
 .dark-mode #generatePdfBtn:hover,
 .dark-mode .zoom-controls .btn:hover {
     background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start, #8b7d47)) !important;
@@ -836,7 +864,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     margin: 25px auto 0;
 }
 
-#addVariableBtn {
+#addVariableOprocentowanieBtn,
+#addNadplataKredytuBtn {
     font-size: var(--small-font-size);
     padding: 3px 10px;
     border-radius: 15px;
@@ -869,6 +898,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 /* Z M I E N N E   S T O P Y */
 .variable-rate-container {
     margin-top: 15px;
+    margin-bottom: 15px;
     text-align: center;
 }
 
@@ -990,7 +1020,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     .input-group-text,
     .jednostka-select {
         height: 26px;
-        width: 70px;
+        width: 40px;
         padding: 4px 8px;
         line-height: 20px;
     }
@@ -1044,14 +1074,16 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .btn-primary,
-    #addVariableBtn,
+    #addVariableOprocentowanieBtn,
+    #addNadplataKredytuBtn,
     #generatePdfBtn {
         margin: 2.5px auto;
         padding: 6px 10px;
     }
 
     .btn-primary,
-    #addVariableBtn {
+    #addVariableOprocentowanieBtn,
+    #addNadplataKredytuBtn {
         width: auto;
     }
 
@@ -1140,7 +1172,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     .input-group-text,
     .jednostka-select {
         height: 28px;
-        width: 70px;
+        width: 40px;
         padding: 4px 8px;
         line-height: 20px;
     }
@@ -1197,7 +1229,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .btn-primary,
-    #addVariableBtn,
+    #addVariableOprocentowanieBtn,
+    #addNadplataKredytuBtn,
     #generatePdfBtn {
         margin: 20px auto;
         padding: 6px 15px;
