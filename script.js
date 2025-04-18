@@ -5,24 +5,21 @@ const elements = {
     kwotaRange: document.getElementById("kwotaRange"),
     okresInwestycji: document.getElementById("okresInwestycji"),
     okresInwestycjiRange: document.getElementById("okresInwestycjiRange"),
+    inflacja: document.getElementById("inflacja"),
+    inflacjaRange: document.getElementById("inflacjaRange"),
     oprocentowanie: document.getElementById("oprocentowanie"),
-    ikeIkzeBtn: document.getElementById("ikeIkzeBtn"),
     inflacjaZmiennaBtn: document.getElementById("inflacjaZmiennaBtn"),
-    stopaZmiennaBtn: document.getElementById("stopaZmiennaBtn"),
     addVariableBtn: document.getElementById("addVariableBtn")
 };
 
 const state = {
-    isIkeIkzeMode: false,
     variableInflation: [],
-    variableReferenceRates: [],
     lastFormData: {
         kwota: 10000,
         okresInwestycji: 3,
+        inflacja: 4.90,
         oprocentowanie: 3,
-        ikeIkze: false,
-        inflacjaZmienna: false,
-        stopaZmienna: false
+        inflacjaZmienna: false
     }
 };
 
@@ -57,9 +54,21 @@ elements.okresInwestycjiRange.addEventListener("input", () => {
 
 elements.okresInwestycjiRange.addEventListener("change", validateOkresInwestycji);
 
-elements.ikeIkzeBtn.addEventListener("change", () => {
-    state.isIkeIkzeMode = elements.ikeIkzeBtn.checked;
-    state.lastFormData.ikeIkze = state.isIkeIkzeMode;
+elements.inflacja.addEventListener("input", () => {
+    let value = parseFloat(elements.inflacja.value) || 0;
+    if (value < 0.1) value = 0.1;
+    if (value > 50) value = 50;
+    elements.inflacja.value = value.toFixed(2);
+    elements.inflacjaRange.value = value;
+    state.lastFormData.inflacja = value;
+    updateInflacjaInfo();
+});
+
+elements.inflacjaRange.addEventListener("input", () => {
+    let value = parseFloat(elements.inflacjaRange.value);
+    elements.inflacja.value = value.toFixed(2);
+    state.lastFormData.inflacja = value;
+    updateInflacjaInfo();
 });
 
 elements.inflacjaZmiennaBtn.addEventListener("change", () => {
@@ -67,17 +76,7 @@ elements.inflacjaZmiennaBtn.addEventListener("change", () => {
     if (!elements.inflacjaZmiennaBtn.checked) {
         state.variableInflation = [];
     } else {
-        state.variableInflation = [{ value: 4.90, period: 2 }];
-    }
-    updateVariableInputs();
-});
-
-elements.stopaZmiennaBtn.addEventListener("change", () => {
-    state.lastFormData.stopaZmienna = elements.stopaZmiennaBtn.checked;
-    if (!elements.stopaZmiennaBtn.checked) {
-        state.variableReferenceRates = [];
-    } else {
-        state.variableReferenceRates = [{ value: 5.75, period: 2 }];
+        state.variableInflation = [{ value: state.lastFormData.inflacja, period: 2 }];
     }
     updateVariableInputs();
 });
@@ -124,10 +123,14 @@ function updateLata() {
     document.getElementById("lata").textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
 }
 
+function updateInflacjaInfo() {
+    const inflacja = parseFloat(elements.inflacja.value) || 0;
+    document.getElementById("inflacjaInfo").textContent = `Stopa inflacji: ${inflacja.toFixed(1)}%`;
+}
+
 function updateVariableData() {
     const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    const isStopaZmienna = elements.stopaZmiennaBtn.checked;
-    const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
+    const changes = state.variableInflation;
     const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
 
     const inputs = document.querySelectorAll(".variable-input-group");
@@ -165,29 +168,23 @@ function updateVariableData() {
         }
     }
 
-    if (isInflacjaZmienna) {
-        state.variableInflation = newChanges;
-    } else {
-        state.variableReferenceRates = newChanges;
-    }
+    state.variableInflation = newChanges;
 }
 
 function updateVariableInputs() {
     const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    const isStopaZmienna = elements.stopaZmiennaBtn.checked;
     const variableInputs = document.getElementById("variableInputs");
     const addVariableBtn = elements.addVariableBtn;
     const wrapper = document.getElementById("variableInputsWrapper");
     const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    if (isInflacjaZmienna || isStopaZmienna) {
+    if (isInflacjaZmienna) {
         variableInputs.style.display = "block";
         addVariableBtn.style.display = "block";
 
-        const data = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
-
-        const defaultValue = isInflacjaZmienna ? 4.90 : 5.75;
+        const data = state.variableInflation;
+        const defaultValue = state.lastFormData.inflacja || 4.90;
         const defaultPeriod = 2;
 
         if (data.length === 0 && data.length < maxChanges) {
@@ -195,7 +192,7 @@ function updateVariableInputs() {
         }
 
         wrapper.innerHTML = "";
-        const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
+        const changes = state.variableInflation;
 
         changes.forEach((change, index) => {
             const inputGroup = document.createElement("div");
@@ -220,12 +217,12 @@ function updateVariableInputs() {
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
-                <label class="form-label">${isInflacjaZmienna ? "Inflacja" : "Stopa Ref. NBP"}</label>
+                <label class="form-label">Inflacja</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.1" value="${change.value}">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0.1" max="${isInflacjaZmienna ? 50 : 20}" step="${isInflacjaZmienna ? 0.1 : 0.05}" value="${change.value}">
+                <input type="range" class="form-range variable-rate-range" min="0.1" max="50" step="0.1" value="${change.value}">
             `;
 
             fieldsWrapper.appendChild(cyklGroup);
@@ -239,15 +236,9 @@ function updateVariableInputs() {
                 removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
                 removeFirstBtn.textContent = "Usuń";
                 removeFirstBtn.onclick = () => {
-                    if (isInflacjaZmienna) {
-                        state.variableInflation = [];
-                        elements.inflacjaZmiennaBtn.checked = false;
-                        state.lastFormData.inflacjaZmienna = false;
-                    } else {
-                        state.variableReferenceRates = [];
-                        elements.stopaZmiennaBtn.checked = false;
-                        state.lastFormData.stopaZmienna = false;
-                    }
+                    state.variableInflation = [];
+                    elements.inflacjaZmiennaBtn.checked = false;
+                    state.lastFormData.inflacjaZmienna = false;
                     variableInputs.style.display = "none";
                     addVariableBtn.style.display = "none";
                     wrapper.innerHTML = "";
@@ -310,8 +301,8 @@ function updateVariableInputs() {
             rateInput.addEventListener("input", () => {
                 let value = parseFloat(rateInput.value) || 0;
                 if (value < 0.1) value = 0.1;
-                if (value > (isInflacjaZmienna ? 50 : 20)) value = isInflacjaZmienna ? 50 : 20;
-                rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2);
+                if (value > 50) value = 50;
+                rateInput.value = value.toFixed(1);
                 rateRange.value = value;
                 changes[index].value = value;
                 updateVariableData();
@@ -320,7 +311,7 @@ function updateVariableInputs() {
             rateRange.addEventListener("input", () => {
                 let value = parseFloat(rateRange.value);
                 if (value < 0.1) value = 0.1;
-                rateInput.value = value.toFixed(isInflacjaZmienna ? 1 : 2);
+                rateInput.value = value.toFixed(1);
                 changes[index].value = value;
                 updateVariableData();
             });
@@ -339,12 +330,11 @@ function updateVariableInputs() {
 
 function addVariableChange() {
     const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    const isStopaZmienna = elements.stopaZmiennaBtn.checked;
-    const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
+    const changes = state.variableInflation;
     const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    if (!isInflacjaZmienna && !isStopaZmienna) return;
+    if (!isInflacjaZmienna) return;
 
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
@@ -359,15 +349,14 @@ function addVariableChange() {
 
     const lastCykl = lastChange ? lastChange.period : 1;
     const newCykl = Math.min(lastCykl + 1, maxCykl);
-    const newValue = isInflacjaZmienna ? 4.90 : 5.75;
+    const newValue = state.lastFormData.inflacja || 4.90;
 
     changes.push({ period: newCykl, value: newValue });
     updateVariableInputs();
 }
 
 function removeVariableChange(index) {
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    const changes = isInflacjaZmienna ? state.variableInflation : state.variableReferenceRates;
+    const changes = state.variableInflation;
     if (changes.length > 1) {
         changes.splice(index, 1);
         updateVariableInputs();
@@ -376,6 +365,7 @@ function removeVariableChange(index) {
 
 updateIloscObligacji();
 updateLata();
+updateInflacjaInfo();
 updateVariableInputs();
 
 // F U N K C J A   Z O O M
