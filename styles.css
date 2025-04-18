@@ -91,6 +91,12 @@ body {
     justify-content: stretch;
 }
 
+.form-group:has(.input-group:not(:has(.mc-y-unit))) {
+    flex: 0 0 120px;
+    max-width: 120px;
+    width: 120px;
+}
+
 .form-group.no-sub-info .sub-info {
     visibility: hidden;
     height: 0;
@@ -100,6 +106,13 @@ body {
     flex: 0 0 150px;
     max-width: 150px;
     width: 150px;
+}
+
+#nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
+#nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+    flex: 0 0 120px;
+    max-width: 120px;
+    width: 120px;
 }
 
 .form-label {
@@ -179,7 +192,7 @@ body {
     height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(25%);
+    transform: translateY(16.67%);
     -webkit-appearance: none;
 }
 
@@ -191,7 +204,7 @@ body {
     height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(25%);
+    transform: translateY(16.67%);
 }
 
 .input-group {
@@ -564,14 +577,14 @@ input[type="radio"], input[type="checkbox"] {
     right: 15px;
     display: flex;
     align-items: center;
-    font-size: 0.8375em;
+    font-size: 0.9em;
     color: var(--text-color);
 }
 
 .compare-checkbox .checkbox-label {
     display: flex;
     align-items: center;
-    font-size: 0.5375em;
+    font-size: 0.8em;
     color: var(--text-color);
     cursor: pointer;
 }
@@ -755,10 +768,23 @@ input[type="radio"], input[type="checkbox"] {
         width: 125px;
     }
 
+    .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 100px;
+        max-width: 100px;
+        width: 100px;
+    }
+
     #nadplataSection .form-group, #nadplataSection2 .form-group {
         flex: 0 0 125px;
         max-width: 125px;
         width: 125px;
+    }
+
+    #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
+    #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 100px;
+        max-width: 100px;
+        width: 100px;
     }
 
     .form-container, .result-container, .harmonogram-container {
@@ -785,10 +811,23 @@ input[type="radio"], input[type="checkbox"] {
         width: 100px;
     }
 
+    .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 80px;
+        max-width: 80px;
+        width: 80px;
+    }
+
     #nadplataSection .form-group, #nadplataSection2 .form-group {
         flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
+    }
+
+    #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
+    #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 80px;
+        max-width: 80px;
+        width: 80px;
     }
 
     .form-container.compare-checkbox input:checked ~ .form-container {
@@ -854,10 +893,23 @@ input[type="radio"], input[type="checkbox"] {
         width: 130px;
     }
 
+    .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 100px;
+        max-width: 100px;
+        width: 100px;
+    }
+
     #nadplataSection .form-group, #nadplataSection2 .form-group {
         flex: 0 0 130px;
         max-width: 130px;
         width: 130px;
+    }
+
+    #nadplataSection .form-group:has(.input-group:not(:has(.mc-y-unit))), 
+    #nadplataSection2 .form-group:has(.input-group:not(:has(.mc-y-unit))) {
+        flex: 0 0 100px;
+        max-width: 100px;
+        width: 100px;
     }
 
     .form-container, .result-container, .harmonogram-container {
