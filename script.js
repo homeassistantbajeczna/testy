@@ -566,17 +566,10 @@ document.addEventListener("DOMContentLoaded", () => {
         updateLata2();
         updateProwizja2();
 
-        // Logo redirect on hover
+        // Logo click verification
         const logoLink = document.getElementById("logoLink");
         if (logoLink) {
-            logoLink.addEventListener("mouseenter", () => {
-                console.log("Logo mouseenter, redirecting...");
-                window.location.href = "https://finance-brothers.pl";
-            });
-            logoLink.addEventListener("click", (e) => {
-                e.preventDefault();
-                console.log("Logo click prevented");
-            });
+            console.log("Logo link found, href:", logoLink.href);
         } else {
             console.error("Logo link not found");
         }
