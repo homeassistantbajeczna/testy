@@ -9,13 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="control-buttons">
+        <button id="zoomInBtn" class="btn-control" aria-label="Powiększ">➕</button>
+        <button id="zoomOutBtn" class="btn-control" aria-label="Pomniejsz">➖</button>
+        <button id="themeToggleBtn" class="btn-control" aria-label="Przełącz tryb ciemny">🌙</button>
+    </div>
     <div class="logo-container">
-        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-        <div class="zoom-controls">
-            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
-            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
-            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
-        </div>
+        <a href="https://finance-brothers.pl">
+            <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        </a>
     </div>
     <div class="container">
         <div class="form-section" id="formSection">
@@ -129,10 +131,10 @@
                             <div class="form-group">
                                 <label for="kwota2" class="form-label">Kwota kredytu</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="kwota2" min="1000" max="5000000" step="1000" value="500000">
+                                    <input type="number" class="form-control" id="kwota2" min="10000" max="5000000" step="1000" value="500000">
                                     <span class="input-group-text">zł</span>
                                 </div>
-                                <input type="range" class="form-range" id="kwotaRange2" min="1000" max="5000000" step="1000" value="500000">
+                                <input type="range" class="form-range" id="kwotaRange2" min="10000" max="5000000" step="1000" value="500000">
                                 <div class="sub-info"></div>
                             </div>
                             <div class="form-group">
@@ -455,51 +457,56 @@
         }
 
         .form-control, .form-select {
-            height: 28px;
-            font-size: 0.8em;
+            height: 30px;
+            font-size: 0.85em;
             padding: 5px;
             text-align: center;
-            background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 5px;
+            background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box;
+            border: 2px solid transparent;
+            border-radius: 8px;
             color: var(--text-color);
             transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(194, 178, 128, 0.5);
         }
 
         .form-select {
             max-width: 150px;
             appearance: none;
-            background: var(--input-bg) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') no-repeat right 8px center;
-            padding-right: 20px;
+            background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23C2B280" d="M0 4l6 6 6-6z"/></svg>') no-repeat right 10px center;
+            padding-right: 25px;
         }
 
         .form-range {
             margin-top: 5px;
-            height: 8px;
-            background: #d3d3d3;
+            height: 6px;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
             border-radius: 5px;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }
 
         .form-range::-webkit-slider-thumb {
-            background: #C2B280;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
             border: none;
             border-radius: 50%;
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             -webkit-appearance: none;
         }
 
         .form-range::-moz-range-thumb {
-            background: #C2B280;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
             border: none;
             border-radius: 50%;
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .input-group {
@@ -508,17 +515,17 @@
         }
 
         .input-group-text {
-            height: 28px;
-            font-size: 0.8em;
-            padding: 5px 8px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 5px;
-            color: var(--text-color);
+            height: 30px;
+            font-size: 0.85em;
+            padding: 5px 10px;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
+            border: none;
+            border-radius: 8px;
+            color: #000000;
         }
 
         .sub-info {
-            font-size: 0.5em;
+            font-size: 0.6em;
             color: var(--text-color);
             margin-top: 5px;
             text-align: left;
@@ -531,19 +538,22 @@
         }
 
         input[type="radio"], input[type="checkbox"] {
-            accent-color: #C2B280;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
+            accent-color: transparent;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
+            border: none;
+            border-radius: 3px;
         }
 
         .radio-label, .checkbox-label {
-            font-size: 0.55em;
+            font-size: 0.6em;
             margin-left: 0;
             color: var(--text-color);
         }
 
         .checkbox-label.nadplata-label {
-            font-size: 0.65em;
+            font-size: 0.7em;
             font-weight: bold;
         }
 
@@ -844,10 +854,10 @@
         }
 
         .compare-checkbox .checkbox-custom {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #C2B280;
-            background-color: var(--input-bg);
+            width: 14px;
+            height: 14px;
+            border: 2px solid transparent;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
             margin-right: 6px;
             display: inline-block;
             position: relative;
@@ -855,13 +865,13 @@
         }
 
         .compare-checkbox input:checked + .checkbox-custom {
-            background-color: #C2B280;
+            background: linear-gradient(90deg, #b0a070, #C2B280);
         }
 
         .compare-checkbox input:checked + .checkbox-custom::after {
             content: '✔';
             color: #000;
-            font-size: 12px;
+            font-size: 10px;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -977,23 +987,23 @@
         }
 
         .btn-control {
-            width: 35px;
-            height: 35px;
-            background-color: #C2B280;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(90deg, #C2B280, #b0a070);
             border: none;
             border-radius: 50%;
-            font-size: 1.1em;
+            font-size: 1.2em;
             color: #000000;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: background 0.3s ease;
         }
 
         .btn-control:hover {
-            background-color: #b0a070;
+            background: linear-gradient(90deg, #b0a070, #C2B280);
         }
 
         @media (max-width: 768px) {
@@ -1018,7 +1028,7 @@
 
         @media (max-width: 576px) {
             .form-label, .form-control, .form-select, .input-group-text {
-                font-size: 0.7em;
+                font-size: 0.75em;
             }
 
             .btn-primary, .btn-secondary {
@@ -1037,9 +1047,9 @@
             }
 
             .btn-control {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9em;
+                width: 35px;
+                height: 35px;
+                font-size: 1em;
             }
         }
     </style>
@@ -1050,18 +1060,23 @@
 
         // Theme Toggle
         const themeToggleBtn = document.getElementById("themeToggleBtn");
-        const currentTheme = localStorage.getItem("theme") || "light";
-        if (currentTheme === "dark") {
-            document.documentElement.setAttribute("data-theme", "dark");
-            themeToggleBtn.textContent = "☀";
-        }
+        if (themeToggleBtn) {
+            const currentTheme = localStorage.getItem("theme") || "light";
+            if (currentTheme === "dark") {
+                document.documentElement.setAttribute("data-theme", "dark");
+                themeToggleBtn.textContent = "☀";
+            }
 
-        themeToggleBtn.addEventListener("click", () => {
-            const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-            document.documentElement.setAttribute("data-theme", theme);
-            localStorage.setItem("theme", theme);
-            themeToggleBtn.textContent = theme === "dark" ? "☀" : "🌙";
-        });
+            themeToggleBtn.addEventListener("click", () => {
+                console.log("Toggling theme");
+                const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+                document.documentElement.setAttribute("data-theme", theme);
+                localStorage.setItem("theme", theme);
+                themeToggleBtn.textContent = theme === "dark" ? "☀" : "🌙";
+            });
+        } else {
+            console.error("Theme toggle button not found");
+        }
 
         // Zoom Controls
         let scale = 1;
@@ -1069,19 +1084,29 @@
         const zoomOutBtn = document.getElementById("zoomOutBtn");
         const container = document.querySelector(".container");
 
-        zoomInBtn.addEventListener("click", () => {
-            if (scale < 2) {
-                scale += 0.1;
-                container.style.transform = `scale(${scale})`;
-            }
-        });
+        if (zoomInBtn) {
+            zoomInBtn.addEventListener("click", () => {
+                console.log("Zoom in");
+                if (scale < 2) {
+                    scale += 0.1;
+                    container.style.transform = `scale(${scale})`;
+                }
+            });
+        } else {
+            console.error("Zoom in button not found");
+        }
 
-        zoomOutBtn.addEventListener("click", () => {
-            if (scale > 0.5) {
-                scale -= 0.1;
-                container.style.transform = `scale(${scale})`;
-            }
-        });
+        if (zoomOutBtn) {
+            zoomOutBtn.addEventListener("click", () => {
+                console.log("Zoom out");
+                if (scale > 0.5) {
+                    scale -= 0.1;
+                    container.style.transform = `scale(${scale})`;
+                }
+            });
+        } else {
+            console.error("Zoom out button not found");
+        }
 
         // Toggle Compare Section
         function toggleCompareSection() {
@@ -1104,7 +1129,10 @@
             }
         }
 
-        document.getElementById("porownajKredyt").addEventListener("change", toggleCompareSection);
+        const porownajKredytCheckbox = document.getElementById("porownajKredyt");
+        if (porownajKredytCheckbox) {
+            porownajKredytCheckbox.addEventListener("change", toggleCompareSection);
+        }
 
         // Toggle Nadplata Sections
         function toggleNadplataSection() {
@@ -1145,21 +1173,30 @@
             }
         }
 
-        document.getElementById("wlaczNadplate").addEventListener("change", toggleNadplataSection);
-        document.getElementById("wlaczNadplate2").addEventListener("change", toggleNadplataSection2);
+        const wlaczNadplateCheckbox = document.getElementById("wlaczNadplate");
+        if (wlaczNadplateCheckbox) {
+            wlaczNadplateCheckbox.addEventListener("change", toggleNadplataSection);
+        }
+
+        const wlaczNadplate2Checkbox = document.getElementById("wlaczNadplate2");
+        if (wlaczNadplate2Checkbox) {
+            wlaczNadplate2Checkbox.addEventListener("change", toggleNadplataSection2);
+        }
 
         // Input and Range Synchronization
         function syncInputRange(inputId, rangeId, callback) {
             const input = document.getElementById(inputId);
             const range = document.getElementById(rangeId);
-            range.addEventListener("input", () => {
-                input.value = range.value;
-                if (callback) callback();
-            });
-            input.addEventListener("input", () => {
-                range.value = input.value;
-                if (callback) callback();
-            });
+            if (input && range) {
+                range.addEventListener("input", () => {
+                    input.value = range.value;
+                    if (callback) callback();
+                });
+                input.addEventListener("input", () => {
+                    range.value = input.value;
+                    if (callback) callback();
+                });
+            }
         }
 
         // First Form
@@ -1209,8 +1246,15 @@
             return prowizjaPLN;
         }
 
-        document.getElementById("prowizjaTyp").addEventListener("change", updateProwizja);
-        document.getElementById("prowizjaTyp2").addEventListener("change", updateProwizja2);
+        const prowizjaTypSelect = document.getElementById("prowizjaTyp");
+        if (prowizjaTypSelect) {
+            prowizjaTypSelect.addEventListener("change", updateProwizja);
+        }
+
+        const prowizjaTyp2Select = document.getElementById("prowizjaTyp2");
+        if (prowizjaTyp2Select) {
+            prowizjaTyp2Select.addEventListener("change", updateProwizja2);
+        }
 
         updateLata();
         updateProwizja();
@@ -1430,6 +1474,7 @@
 
         // Main Calculate Function
         function obliczKredyt() {
+            console.log("Oblicz clicked");
             const compareCheckbox = document.getElementById("porownajKredyt");
             const resultSection2 = document.getElementById("resultSection2");
             const harmonogramSection2 = document.getElementById("harmonogramSection2");
@@ -1476,5 +1521,10 @@
             }
         }
 
-        document.getElementById("obliczBtn").addEventListener("click", obliczKredyt);
+        const obliczBtn = document.getElementById("obliczBtn");
+        if (obliczBtn) {
+            obliczBtn.addEventListener("click", obliczKredyt);
+        } else {
+            console.error("Oblicz button not found");
+        }
     </script>
