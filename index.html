@@ -55,13 +55,25 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group">
-                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                            <div class="form-group" id="rodzajRat">
+                                <label for="rodzajRat" class="form-label">Rodzaj rat</label>
+                                <select class="form-select" id="rodzajRat">
+                                    <option value="rowne">Raty równe</option>
+                                    <option value="malejace">Raty malejące</option>
+                                </select>
+                                <div class="sub-info" id="rodzajRatInfo">Wybrano: Raty równe</div>
+                            </div>
+                            <div class="form-group" id="wartoscRaty">
+                                <label for="wartoscRaty" class="form-label">Wartość raty</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="3" readonly>
-                                    <span class="input-group-text">%</span>
+                                    <input type="number" class="form-control" id="wartoscRaty" min="0.1" max="1000000" step="0.1" value="1000">
+                                    <select class="form-select jednostka-select" id="jednostkaRaty">
+                                        <option value="pln">zł</option>
+                                        <option value="procent">%</option>
+                                    </select>
                                 </div>
-                                <div class="sub-info" id="oprocentowanieInfo"></div>
+                                <input type="range" class="form-range" id="wartoscRatyRange" min="0.1" max="1000000" step="0.1" value="1000">
+                                <div class="sub-info" id="wartoscRatyInfo">Wartość: 1000 zł</div>
                             </div>
                         </div>
                         <div class="variable-rate-container">
