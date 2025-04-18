@@ -292,31 +292,20 @@ body {
     background: var(--input-bg); /* Białe tło w trybie jasnym, ciemne w dark mode */
     color: var(--primary-text);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius); /* 5px dla Rodzaj rat */
     box-sizing: border-box;
     line-height: 18px;
     width: 100%;
     position: relative;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: none;    
-    background-position: right 5px center;
-    background-repeat: no-repeat;
-    background-size: 12px 12px; /* Rozmiar strzałki */
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: none !important; /* Usuwamy obrazki Bootstrapa */
 }
 
 #prowizja .input-group .jednostka-select {
     flex: 1;
-}
-
-#rodzajRat .form-select:focus,
-#prowizja .input-group .jednostka-select:focus {
-    outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color);
-    border-color: var(--border-color);
-    background: var(--input-bg);
-    color: var(--primary-text);
+    border-radius: 2px; /* Mniejsze zaokrąglenia dla jednostki w Prowizja */
 }
 
 #rodzajRat .form-select::after,
@@ -330,8 +319,17 @@ body {
     height: 0;
     border-left: 4px transparent solid;
     border-right: 4px transparent solid;
-    border-top: 4px solid #333; /* Kolor strzałki */
+    border-top: 4px solid var(--primary-text); /* Kolor strzałki dopasowany do tekstu */
     pointer-events: none; /* Strzałka nie blokuje kliknięć */
+}
+
+#rodzajRat .form-select:focus,
+#prowizja .input-group .jednostka-select:focus {
+    outline: none !important;
+    box-shadow: 0 0 4px var(--accent-color);
+    border-color: var(--border-color);
+    background: var(--input-bg);
+    color: var(--primary-text);
 }
 
 .input-group-text {
@@ -377,19 +375,19 @@ input[type="range"].form-range {
 input[type="range"].form-range::-webkit-slider-runnable-track {
     background: var(--input-group-bg);
     height: 6px;
-    border-radius: var(--border-radius);
+    border-radius: var(---border-radius);
 }
 
 input[type="range"].form-range::-moz-range-track {
     background: var(--input-group-bg);
     height: 6px;
-    border-radius: var(--border-radius);
+    border-radius: var(---border-radius);
 }
 
 input[type="range"].form-range::-ms-track {
     background: var(--input-group-bg);
     height: 6px;
-    border-radius: var(--border-radius);
+    border-radius: var(---border-radius);
 }
 
 input[type="range"].form-range::-webkit-slider-thumb {
@@ -1035,6 +1033,15 @@ input[type="range"].form-range:focus::-ms-thumb {
     #prowizja .input-group .jednostka-select {
         flex: 1;
         width: auto;
+        border-radius: 2px; /* Mniejsze zaokrąglenia w responsywności */
+    }
+
+    #rodzajRat .form-select::after,
+    #prowizja .input-group .jednostka-select::after {
+        right: 8px;
+        border-left: 4px transparent solid;
+        border-right: 4px transparent solid;
+        border-top: 4px solid var(--primary-text);
     }
 
     .variable-input-group .input-group {
