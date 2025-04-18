@@ -157,7 +157,7 @@ body {
     font-size: clamp(0.65em, 1vw, var(--small-font-size));
     cursor: pointer;
     position: relative;
-    margin: 5px 0;
+    margin: 5px 10px;
     justify-content: center;
 }
 
@@ -294,6 +294,12 @@ body {
     align-items: center;
     justify-content: center;
     width: 100%;
+}
+
+#rodzajRat .form-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-select:focus {
