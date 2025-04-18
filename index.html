@@ -9,13 +9,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="control-buttons">
+        <button id="zoomInBtn" class="btn-control" aria-label="Powiększ">➕</button>
+        <button id="zoomOutBtn" class="btn-control" aria-label="Pomniejsz">➖</button>
+        <button id="themeToggleBtn" class="btn-control" aria-label="Przełącz tryb ciemny">🌙</button>
+    </div>
     <div class="logo-container">
-        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-        <div class="zoom-controls">
-            <button id="zoomInBtn" class="btn-control" aria-label="Powiększ">+</button>
-            <button id="zoomOutBtn" class="btn-control" aria-label="Pomniejsz">-</button>
-            <button id="themeToggleBtn" class="btn-control" aria-label="Przełącz tryb ciemny">🌙</button>
-        </div>
+        <a href="https://finance-brothers.pl">
+            <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        </a>
     </div>
     <div class="container">
         <div class="form-section" id="formSection">
@@ -63,7 +65,7 @@
                         <div class="form-row">
                             <div class="form-group no-sub-info">
                                 <label class="form-label">Rodzaj rat</label>
-                                <select class="form-control" id="rodzajRat">
+                                <select class="form-control form-select" id="rodzajRat">
                                     <option value="rowne" selected>Rata równa</option>
                                     <option value="malejace">Rata malejąca</option>
                                 </select>
@@ -73,7 +75,7 @@
                                 <label for="prowizja" class="form-label">Prowizja</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="prowizja" min="0.1" max="25" step="0.1" value="2">
-                                    <select class="form-select" id="prowizjaTyp">
+                                    <select class="form-select prowizja-select" id="prowizjaTyp">
                                         <option value="procent" selected>%</option>
                                         <option value="pln">zł</option>
                                     </select>
@@ -157,7 +159,7 @@
                         <div class="form-row">
                             <div class="form-group no-sub-info">
                                 <label class="form-label">Rodzaj rat</label>
-                                <select class="form-control" id="rodzajRat2">
+                                <select class="form-control form-select" id="rodzajRat2">
                                     <option value="rowne" selected>Rata równa</option>
                                     <option value="malejace">Rata malejąca</option>
                                 </select>
@@ -167,7 +169,7 @@
                                 <label for="prowizja2" class="form-label">Prowizja</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="prowizja2" min="0.1" max="25" step="0.1" value="2">
-                                    <select class="form-select" id="prowizjaTyp2">
+                                    <select class="form-select prowizja-select" id="prowizjaTyp2">
                                         <option value="procent" selected>%</option>
                                         <option value="pln">zł</option>
                                     </select>
@@ -393,6 +395,7 @@
             padding: 15px;
             text-align: center;
             margin-bottom: 20px;
+            transform: none !important;
         }
 
         .logo {
@@ -409,6 +412,7 @@
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, background-color 0.3s ease;
+            transform-origin: 50% 0;
         }
 
         .form-section {
@@ -454,7 +458,7 @@
             color: var(--text-color);
         }
 
-        .form-control, .form-select {
+        .form-control {
             height: 30px;
             font-size: 0.85em;
             padding: 5px;
@@ -466,16 +470,36 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus {
             outline: none;
             box-shadow: 0 0 5px rgba(194, 178, 128, 0.5);
         }
 
         .form-select {
-            max-width: 150px;
+            height: 30px;
+            font-size: 0.85em;
+            padding: 5px 25px 5px 5px;
+            text-align: center;
+            background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            color: var(--text-color);
             appearance: none;
-            background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23C2B280" d="M0 4l6 6 6-6z"/></svg>') no-repeat right 10px center;
-            padding-right: 25px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23C2B280" d="M0 4l6 6 6-6z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .form-select.prowizja-select {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
+            background-position: right 8px center;
+            padding-right: 20px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(194, 178, 128, 0.5);
         }
 
         .form-range {
@@ -979,18 +1003,18 @@
             top: 10px;
             right: 15px;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            flex-direction: row;
+            gap: 5px;
             z-index: 1000;
         }
 
         .btn-control {
-            width: 40px;
-            height: 40px;
+            width: 25px;
+            height: 25px;
             background: linear-gradient(90deg, #C2B280, #b0a070);
             border: none;
             border-radius: 50%;
-            font-size: 1.2em;
+            font-size: 0.9em;
             color: #000000;
             cursor: pointer;
             display: flex;
@@ -1042,12 +1066,23 @@
             .control-buttons {
                 top: 5px;
                 right: 10px;
+                gap: 4px;
             }
 
             .btn-control {
-                width: 35px;
-                height: 35px;
-                font-size: 1em;
+                width: 22px;
+                height: 22px;
+                font-size: 0.8em;
+            }
+
+            .form-select {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
+                background-position: right 8px center;
+            }
+
+            .form-select.prowizja-select {
+                background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
+                background-position: right 6px center;
             }
         }
     </style>
@@ -1057,54 +1092,98 @@
         let harmonogram2Data = [];
 
         // Theme Toggle
+        function toggleTheme() {
+            console.log("Toggling theme");
+            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
+            const newTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+            const themeToggleBtn = document.getElementById("themeToggleBtn");
+            if (themeToggleBtn) {
+                themeToggleBtn.textContent = newTheme === "dark" ? "☀" : "🌙";
+            } else {
+                console.error("Theme toggle button not found");
+            }
+        }
+
         const themeToggleBtn = document.getElementById("themeToggleBtn");
         if (themeToggleBtn) {
-            const currentTheme = localStorage.getItem("theme") || "light";
-            if (currentTheme === "dark") {
-                document.documentElement.setAttribute("data-theme", "dark");
-                themeToggleBtn.textContent = "☀";
-            }
-
-            themeToggleBtn.addEventListener("click", () => {
-                console.log("Toggling theme");
-                const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-                document.documentElement.setAttribute("data-theme", theme);
-                localStorage.setItem("theme", theme);
-                themeToggleBtn.textContent = theme === "dark" ? "☀" : "🌙";
-            });
+            const savedTheme = localStorage.getItem("theme") || "light";
+            document.documentElement.setAttribute("data-theme", savedTheme);
+            themeToggleBtn.textContent = savedTheme === "dark" ? "☀" : "🌙";
+            themeToggleBtn.addEventListener("click", toggleTheme);
         } else {
             console.error("Theme toggle button not found");
         }
 
         // Zoom Controls
         let scale = 1;
-        const zoomInBtn = document.getElementById("zoomInBtn");
-        const zoomOutBtn = document.getElementById("zoomOutBtn");
         const container = document.querySelector(".container");
 
-        if (zoomInBtn) {
-            zoomInBtn.addEventListener("click", () => {
-                console.log("Zoom in");
-                if (scale < 2) {
-                    scale += 0.1;
-                    container.style.transform = `scale(${scale})`;
+        function zoomIn() {
+            try {
+                console.log("Zoom in triggered, current scale:", scale, "transform-origin:", getComputedStyle(container).transformOrigin);
+                if (!container) {
+                    throw new Error("Container element not found");
                 }
-            });
-        } else {
-            console.error("Zoom in button not found");
+                if (scale < 2) {
+                    scale = Math.min(scale + 0.1, 2);
+                    container.style.transform = `scale(${scale})`;
+                    console.log("New scale applied:", scale);
+                } else {
+                    console.log("Max zoom reached:", scale);
+                }
+            } catch (error) {
+                console.error("Error in zoomIn:", error);
+            }
         }
 
-        if (zoomOutBtn) {
-            zoomOutBtn.addEventListener("click", () => {
-                console.log("Zoom out");
-                if (scale > 0.5) {
-                    scale -= 0.1;
-                    container.style.transform = `scale(${scale})`;
+        function zoomOut() {
+            try {
+                console.log("Zoom out triggered, current scale:", scale, "transform-origin:", getComputedStyle(container).transformOrigin);
+                if (!container) {
+                    throw new Error("Container element not found");
                 }
-            });
-        } else {
-            console.error("Zoom out button not found");
+                if (scale > 0.5) {
+                    scale = Math.max(scale - 0.1, 0.5);
+                    container.style.transform = `scale(${scale})`;
+                    console.log("New scale applied:", scale);
+                } else {
+                    console.log("Min zoom reached:", scale);
+                }
+            } catch (error) {
+                console.error("Error in zoomOut:", error);
+            }
         }
+
+        function setupZoomControls() {
+            const zoomInBtn = document.getElementById("zoomInBtn");
+            const zoomOutBtn = document.getElementById("zoomOutBtn");
+
+            if (zoomInBtn) {
+                // Usuwamy istniejące listenery, aby uniknąć wielokrotnego przypisania
+                zoomInBtn.removeEventListener("click", zoomIn);
+                zoomInBtn.addEventListener("click", zoomIn);
+                console.log("Zoom in button listener attached");
+            } else {
+                console.error("Zoom in button not found");
+            }
+
+            if (zoomOutBtn) {
+                // Usuwamy istniejące listenery
+                zoomOutBtn.removeEventListener("click", zoomOut);
+                zoomOutBtn.addEventListener("click", zoomOut);
+                console.log("Zoom out button listener attached");
+            } else {
+                console.error("Zoom out button not found");
+            }
+        }
+
+        // Inicjalizacja zoomu po załadowaniu DOM
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM fully loaded, setting up zoom controls");
+            setupZoomControls();
+        });
 
         // Toggle Compare Section
         function toggleCompareSection() {
@@ -1419,8 +1498,8 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true;
+                    maintainAspectRatio: false;
                     plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -1519,10 +1598,13 @@
             }
         }
 
+        // Attach Calculate Button Event
         const obliczBtn = document.getElementById("obliczBtn");
         if (obliczBtn) {
             obliczBtn.addEventListener("click", obliczKredyt);
         } else {
-            console.error("Oblicz button not found");
+            console.error("Calculate button not found");
         }
     </script>
+</body>
+</html>
