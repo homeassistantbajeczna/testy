@@ -11,12 +11,14 @@ const elements = {
     wartoscRaty: document.getElementById("wartoscRaty"),
     wartoscRatyRange: document.getElementById("wartoscRatyRange"),
     jednostkaRaty: document.getElementById("jednostkaRaty"),
-    inflacjaZmiennaBtn: document.getElementById("inflacjaZmiennaBtn"),
+    zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
+    nadplataKredytuBtn: document.getElementById("nadplataKredytuBtn"),
     addVariableBtn: document.getElementById("addVariableBtn")
 };
 
 const state = {
-    variableInflation: [],
+    variableRates: [],
+    overpaymentRates: [],
     lastFormData: {
         kwota: 10000,
         okresInwestycji: 3,
@@ -24,7 +26,8 @@ const state = {
         rodzajRat: "rowne",
         wartoscRaty: 1000,
         jednostkaRaty: "pln",
-        inflacjaZmienna: false
+        zmienneOprocentowanie: false,
+        nadplataKredytu: false
     }
 };
 
@@ -39,7 +42,6 @@ elements.kwota.addEventListener("change", validateAndRoundKwota);
 elements.kwotaRange.addEventListener("input", () => {
     let value = parseFloat(elements.kwotaRange.value);
     elements.kwota.value = value;
-    updateIloscObligacji();
 });
 
 elements.kwotaRange.addEventListener("change", validateAndRoundKwota);
@@ -66,19 +68,16 @@ elements.inflacja.addEventListener("input", () => {
     elements.inflacja.value = value.toFixed(2);
     elements.inflacjaRange.value = value;
     state.lastFormData.inflacja = value;
-    updateInflacjaInfo();
 });
 
 elements.inflacjaRange.addEventListener("input", () => {
     let value = parseFloat(elements.inflacjaRange.value);
     elements.inflacja.value = value.toFixed(2);
     state.lastFormData.inflacja = value;
-    updateInflacjaInfo();
 });
 
 elements.rodzajRat.addEventListener("change", () => {
     state.lastFormData.rodzajRat = elements.rodzajRat.value;
-    updateRodzajRatInfo();
 });
 
 elements.wartoscRaty.addEventListener("input", () => {
@@ -103,12 +102,22 @@ elements.jednostkaRaty.addEventListener("change", () => {
     updateWartoscRatyInfo();
 });
 
-elements.inflacjaZmiennaBtn.addEventListener("change", () => {
-    state.lastFormData.inflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    if (!elements.inflacjaZmiennaBtn.checked) {
-        state.variableInflation = [];
+elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+    state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
+    if (!elements.zmienneOprocentowanieBtn.checked) {
+        state.variableRates = [];
     } else {
-        state.variableInflation = [{ value: state.lastFormData.inflacja, period: 2 }];
+        state.variableRates = [{ value: state.lastFormData.inflacja, period: 2 }];
+    }
+    updateVariableInputs();
+});
+
+elements.nadplataKredytuBtn.addEventListener("change", () => {
+    state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
+    if (!elements.nadplataKredytuBtn.checked) {
+        state.overpaymentRates = [];
+    } else {
+        state.overpaymentRates = [{ value: state.lastFormData.inflacja, period: 2 }];
     }
     updateVariableInputs();
 });
@@ -128,7 +137,6 @@ function validateAndRoundKwota() {
     elements.kwota.value = value;
     elements.kwotaRange.value = value;
     state.lastFormData.kwota = value;
-    updateIloscObligacji();
 }
 
 function validateOkresInwestycji() {
@@ -141,28 +149,10 @@ function validateOkresInwestycji() {
     updateLata();
 }
 
-function updateIloscObligacji() {
-    const kwota = parseFloat(elements.kwota.value) || 0;
-    const ilosc = Math.floor(kwota / 100);
-    const iloscElement = document.getElementById("iloscObligacji");
-    if (iloscElement) iloscElement.textContent = `Ilość obligacji: ${ilosc}`;
-    else console.warn("Element #iloscObligacji nie znaleziony.");
-}
-
 function updateLata() {
     const miesiace = parseInt(elements.okresInwestycji.value) || 0;
     const lata = (miesiace / 12).toFixed(0);
     document.getElementById("lata").textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
-}
-
-function updateInflacjaInfo() {
-    const inflacja = parseFloat(elements.inflacja.value) || 0;
-    document.getElementById("inflacjaInfo").textContent = `Stopa inflacji: ${inflacja.toFixed(1)}%`;
-}
-
-function updateRodzajRatInfo() {
-    const rodzaj = elements.rodzajRat.value === "rowne" ? "Raty równe" : "Raty malejące";
-    document.getElementById("rodzajRatInfo").textContent = `Wybrano: ${rodzaj}`;
 }
 
 function updateWartoscRatyInfo() {
@@ -171,11 +161,8 @@ function updateWartoscRatyInfo() {
     document.getElementById("wartoscRatyInfo").textContent = `Wartość: ${wartosc.toFixed(2)} ${jednostka}`;
 }
 
-function updateVariableData() {
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    const changes = state.variableInflation;
+function updateVariableData(activeType) {
     const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
-
     const inputs = document.querySelectorAll(".variable-input-group");
     const newChanges = [];
 
@@ -211,22 +198,37 @@ function updateVariableData() {
         }
     }
 
-    state.variableInflation = newChanges;
+    if (activeType === "oprocentowanie") {
+        state.variableRates = newChanges;
+    } else if (activeType === "nadplata") {
+        state.overpaymentRates = newChanges;
+    }
 }
 
 function updateVariableInputs() {
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
+    const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
+    const isNadplataKredytu = elements.nadplataKredytuBtn.checked;
     const variableInputs = document.getElementById("variableInputs");
     const addVariableBtn = elements.addVariableBtn;
     const wrapper = document.getElementById("variableInputsWrapper");
     const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    if (isInflacjaZmienna) {
+    let activeType = null;
+    let data = [];
+
+    if (isZmienneOprocentowanie) {
+        activeType = "oprocentowanie";
+        data = state.variableRates;
+    } else if (isNadplataKredytu) {
+        activeType = "nadplata";
+        data = state.overpaymentRates;
+    }
+
+    if (isZmienneOprocentowanie || isNadplataKredytu) {
         variableInputs.style.display = "block";
         addVariableBtn.style.display = "block";
 
-        const data = state.variableInflation;
         const defaultValue = state.lastFormData.inflacja || 4.90;
         const defaultPeriod = 2;
 
@@ -235,7 +237,7 @@ function updateVariableInputs() {
         }
 
         wrapper.innerHTML = "";
-        const changes = state.variableInflation;
+        const changes = data;
 
         changes.forEach((change, index) => {
             const inputGroup = document.createElement("div");
@@ -260,7 +262,7 @@ function updateVariableInputs() {
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
-                <label class="form-label">Inflacja</label>
+                <label class="form-label">${activeType === "oprocentowanie" ? "Oprocentowanie" : "Nadpłata"}</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.1" value="${change.value}">
                     <span class="input-group-text">%</span>
@@ -279,9 +281,15 @@ function updateVariableInputs() {
                 removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
                 removeFirstBtn.textContent = "Usuń";
                 removeFirstBtn.onclick = () => {
-                    state.variableInflation = [];
-                    elements.inflacjaZmiennaBtn.checked = false;
-                    state.lastFormData.inflacjaZmienna = false;
+                    if (activeType === "oprocentowanie") {
+                        state.variableRates = [];
+                        elements.zmienneOprocentowanieBtn.checked = false;
+                        state.lastFormData.zmienneOprocentowanie = false;
+                    } else if (activeType === "nadplata") {
+                        state.overpaymentRates = [];
+                        elements.nadplataKredytuBtn.checked = false;
+                        state.lastFormData.nadplataKredytu = false;
+                    }
                     variableInputs.style.display = "none";
                     addVariableBtn.style.display = "none";
                     wrapper.innerHTML = "";
@@ -296,7 +304,7 @@ function updateVariableInputs() {
                 const removeBtn = document.createElement("button");
                 removeBtn.className = "btn btn-danger btn-sm";
                 removeBtn.textContent = "Usuń";
-                removeBtn.onclick = () => removeVariableChange(index);
+                removeBtn.onclick = () => removeVariableChange(index, activeType);
                 removeBtnWrapper.appendChild(removeBtn);
                 inputGroup.appendChild(removeBtnWrapper);
             }
@@ -316,11 +324,11 @@ function updateVariableInputs() {
                 }
                 if (value > maxCykl) {
                     value = maxCykl;
-                    cyklInput.value = value;
+                    cykInput.value = value;
                 }
                 cyklRange.value = value;
                 changes[index].period = value;
-                updateVariableData();
+                updateVariableData(activeType);
                 updateVariableInputs();
             });
 
@@ -337,7 +345,7 @@ function updateVariableInputs() {
                 cyklRange.value = value;
                 cyklInput.value = value;
                 changes[index].period = value;
-                updateVariableData();
+                updateVariableData(activeType);
                 updateVariableInputs();
             });
 
@@ -348,7 +356,7 @@ function updateVariableInputs() {
                 rateInput.value = value.toFixed(1);
                 rateRange.value = value;
                 changes[index].value = value;
-                updateVariableData();
+                updateVariableData(activeType);
             });
 
             rateRange.addEventListener("input", () => {
@@ -356,7 +364,7 @@ function updateVariableInputs() {
                 if (value < 0.1) value = 0.1;
                 rateInput.value = value.toFixed(1);
                 changes[index].value = value;
-                updateVariableData();
+                updateVariableData(activeType);
             });
         });
 
@@ -372,12 +380,23 @@ function updateVariableInputs() {
 }
 
 function addVariableChange() {
-    const isInflacjaZmienna = elements.inflacjaZmiennaBtn.checked;
-    const changes = state.variableInflation;
+    const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
+    const isNadplataKredytu = elements.nadplataKredytuBtn.checked;
     const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    if (!isInflacjaZmienna) return;
+    let changes = [];
+    let activeType = null;
+
+    if (isZmienneOprocentowanie) {
+        changes = state.variableRates;
+        activeType = "oprocentowanie";
+    } else if (isNadplataKredytu) {
+        changes = state.overpaymentRates;
+        activeType = "nadplata";
+    }
+
+    if (!isZmienneOprocentowanie && !isNadplataKredytu) return;
 
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
@@ -398,18 +417,20 @@ function addVariableChange() {
     updateVariableInputs();
 }
 
-function removeVariableChange(index) {
-    const changes = state.variableInflation;
+function removeVariableChange(index, activeType) {
+    let changes = [];
+    if (activeType === "oprocentowanie") {
+        changes = state.variableRates;
+    } else if (activeType === "nadplata") {
+        changes = state.overpaymentRates;
+    }
     if (changes.length > 1) {
         changes.splice(index, 1);
         updateVariableInputs();
     }
 }
 
-updateIloscObligacji();
 updateLata();
-updateInflacjaInfo();
-updateRodzajRatInfo();
 updateWartoscRatyInfo();
 updateVariableInputs();
 
