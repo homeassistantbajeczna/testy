@@ -289,8 +289,7 @@ body {
     font-size: var(--small-font-size);
     padding: 2px 24px 2px 8px; /* Miejsce na strzałkę */
     text-align: center;
-    background: var(--input-bg);
-    background-color: #f0f0f0; /* Tło debugujące */
+    background: var(--input-bg); /* Białe tło w trybie jasnym, ciemne w dark mode */
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -301,9 +300,10 @@ body {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAABGUlEQVQokZ2RMU7DUBBFLxZ3wUdwE+IW1A2I+wBuQtwCOwW3IB7ACbgF9gZewS24B3GDk4i7sA5tO3bThCR3k+R9Jukm+frV0z/7vY8ePaq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzAAAABJRU5ErkJggg==');
+    background-image: url('arrow-down.png');    
     background-position: right 5px center;
     background-repeat: no-repeat;
+    background-size: 12px 12px; /* Rozmiar strzałki */
 }
 
 #prowizja .input-group .jednostka-select {
