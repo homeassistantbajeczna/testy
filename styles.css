@@ -286,7 +286,7 @@ body {
 .form-select {
     height: 22px;
     font-size: var(--small-font-size);
-    padding: 2px;
+    padding: 2px 20px 2px 2px; /* Dodano padding-right dla miejsca na strzałkę */
     text-align: center;
     background: var(--input-bg);
     color: var(--primary-text);
@@ -299,6 +299,9 @@ body {
     justify-content: center;
     width: 100%;
     position: relative;
+    appearance: none; /* Usuwa domyślną strzałkę przeglądarki */
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 #rodzajRat .form-select {
@@ -310,17 +313,22 @@ body {
 #rodzajRat .form-select::after {
     content: "▼";
     position: absolute;
-    right: 5px;
+    right: 8px; /* Zwiększono odstęp od prawej krawędzi */
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.6em;
+    font-size: 0.8em; /* Nieco większa strzałka dla widoczności */
     color: var(--primary-text);
     pointer-events: none;
+    z-index: 1; /* Upewniamy się, że strzałka jest nad elementem */
 }
 
 .jednostka-select {
     flex: 1;
     position: relative;
+    appearance: none; /* Usuwa domyślną strzałkę przeglądarki */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 20px; /* Miejsce na strzałkę */
 }
 
 #prowizja .input-group .jednostka-select {
@@ -330,12 +338,13 @@ body {
 .jednostka-select::after {
     content: "▼";
     position: absolute;
-    right: 5px;
+    right: 8px; /* Zwiększono odstęp od prawej krawędzi */
     top: 50%;
     transform: translateY(-50%);
-    font-size: 0.6em;
+    font-size: 0.8em; /* Nieco większa strzałka dla widoczności */
     color: var(--primary-text);
     pointer-events: none;
+    z-index: 1; /* Upewniamy się, że strzałka jest nad elementem */
 }
 
 .form-select:focus {
@@ -1026,7 +1035,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     .form-select {
         height: 26px;
         width: 130px;
-        padding: 4px 8px;
+        padding: 4px 20px 4px 8px; /* Zwiększono padding dla strzałki */
         line-height: 20px;
     }
 
@@ -1039,7 +1048,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     .jednostka-select {
         height: 26px;
         width: 40px;
-        padding: 4px 8px;
+        padding: 4px 20px 4px 8px; /* Zwiększono padding dla strzałki */
         line-height: 20px;
     }
 
@@ -1159,146 +1168,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .form-row,
     .checkbox-row,
-    .fields-wrapper,
-    .variable-inputs-wrapper {
-        display: block;
-        text-align: center;
-    }
-
-    .form-group,
-    .input-group {
-        display: block;
-        margin: 10px auto;
-    }
-
-    .chart-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .chart {
-        width: 100px;
-        height: 100px;
-    }
-
-    .form-control,
-    .form-select {
-        height: 28px;
-        width: 130px;
-        padding: 4px 8px;
-        line-height: 20px;
-    }
-
-    #prowizja .input-group .form-control {
-        flex: 3;
-        width: auto;
-    }
-
-    .input-group-text,
-    .jednostka-select {
-        height: 28px;
-        width: 40px;
-        padding: 4px 8px;
-        line-height: 20px;
-    }
-
-    #prowizja .input-group .jednostka-select {
-        flex: 1;
-        width: auto;
-    }
-
-    .form-range {
-        height: 8px;
-        width: 200px;
-        margin: 5px auto 0;
-    }
-
-    .form-range::-webkit-slider-thumb,
-    .form-range::-moz-range-thumb,
-    .form-range::-ms-thumb {
-        width: 14px;
-        height: 14px;
-    }
-
-    .variable-input-group {
-        display: block;
-        width: 200px;
-        margin: 15px auto;
-    }
-
-    .variable-input-group .fields-wrapper {
-        display: block;
-        width: 200px;
-    }
-
-    .variable-input-group .form-group {
-        margin: 10px auto;
-    }
-
-    .variable-input-group .input-group {
-        margin: 0 auto;
-    }
-
-    .variable-input-group .form-control {
-        width: 130px;
-        height: 28px;
-        padding: 4px 8px;
-        line-height: 20px;
-    }
-
-    .variable-input-group .input-group-text {
-        width: 70px;
-        height: 28px;
-        padding: 4px 8px;
-        line-height: 20px;
-    }
-
-    .variable-input-group .form-range {
-        width: 200px;
-        margin: 5px auto 0;
-    }
-
-    .btn-primary,
-    #addVariableOprocentowanieBtn,
-    #addNadplataKredytuBtn,
-    #generatePdfBtn {
-        margin: 20px auto;
-        padding: 6px 15px;
-    }
-
-    .logo-container {
-        display: flex !important;
-        justify-content: flex-start !important;
-        text-align: left !important;
-        flex-wrap: wrap;
-    }
-
-    .logo,
-    #siteLogo {
-        margin: 0 !important;
-        padding: 10px 0;
-        max-width: 150px;
-    }
-
-    .zoom-controls {
-        position: static;
-        transform: none;
-        margin-left: auto;
-    }
-
-    .summary-footer {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
+    .fields-wrapper {
         gap: 5px;
-        text-align: center;
-        width: auto;
-    }
-
-    .summary-footer .highlight {
-        margin: 2px 0;
     }
 }
