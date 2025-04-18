@@ -166,7 +166,7 @@ body {
     height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(-10%);
+    transform: translateY(50%);
     -webkit-appearance: none;
 }
 
@@ -178,7 +178,7 @@ body {
     height: 12px;
     cursor: pointer;
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    transform: translateY(-10%);
+    transform: translateY(50%);
 }
 
 .input-group {
@@ -195,7 +195,10 @@ body {
     font-size: 0.8em;
     padding: 4px 8px;
     background: #e9ecef;
-    border: 1px solid #d3d3d3;
+    border-left: 1px solid #d3d3d3;
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
     border-radius: 0;
     color: #333333;
     box-sizing: border-box;
