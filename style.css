@@ -1,4 +1,4 @@
-<script>
+<style>
     :root {
         --primary-bg: #f5f6f5;
         --container-bg: #FFFFFF;
@@ -732,4 +732,4 @@
             background-position: right 6px center;
         }
     }
-</script>
+</style>
