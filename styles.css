@@ -78,13 +78,24 @@ body {
     flex-wrap: wrap;
 }
 
+#formSection1 .form-row:not(#nadplataSection .form-row):not(#nadplataSection2 .form-row) {
+    flex-wrap: nowrap;
+}
+
 .form-group {
-    flex: 0 0 150px;
-    max-width: 150px;
-    width: 150px;
     display: flex;
     flex-direction: column;
     justify-content: stretch;
+}
+
+.form-group:has(.input-group) {
+    width: fit-content;
+}
+
+.form-group:has(.form-select) {
+    flex: 0 0 150px;
+    max-width: 150px;
+    width: 150px;
 }
 
 .form-group.no-sub-info .sub-info {
@@ -93,6 +104,10 @@ body {
 }
 
 #nadplataSection .form-group, #nadplataSection2 .form-group {
+    width: fit-content;
+}
+
+#nadplataSection .form-group:has(.form-select), #nadplataSection2 .form-group:has(.form-select) {
     flex: 0 0 150px;
     max-width: 150px;
     width: 150px;
@@ -196,6 +211,8 @@ body {
     border: 1px solid #d3d3d3;
     border-radius: 8px;
     box-sizing: border-box;
+    width: fit-content;
+    min-width: 100px;
 }
 
 .input-group:has(.prowizja-select) {
@@ -208,10 +225,10 @@ body {
     padding: 3px 6px;
     background: #e9ecef;
     border-left: 1px solid #d3d3d3;
+    border-right: none;
     border-top: none;
     border-bottom: none;
-    border-right: none;
-    border-radius: 0;
+    border-radius: 0 8px 8px 0;
     color: #333333;
     box-sizing: border-box;
     flex: 0 0 40px;
@@ -506,7 +523,7 @@ input[type="radio"], input[type="checkbox"] {
 
 .btn-primary, .btn-secondary {
     background: var(--button-bg);
-    border: none;
+    border unone;
     color: #000000;
     font-size: 0.9em;
     padding: 8px 25px;
@@ -611,6 +628,11 @@ input[type="radio"], input[type="checkbox"] {
     flex: 1;
     max-width: 450px;
     padding: 10px;
+    min-width: 510px;
+}
+
+#formSection2:not([style*="display: none"]) ~ .form-wrapper {
+    min-width: 450px;
 }
 
 .form-wrapper h5 {
@@ -739,16 +761,20 @@ input[type="radio"], input[type="checkbox"] {
         justify-content: center;
     }
 
-    .form-group {
+    .form-group:has(.form-select) {
         flex: 0 0 125px;
         max-width: 125px;
         width: 125px;
     }
 
-    #nadplataSection .form-group, #nadplataSection2 .form-group {
+    #nadplataSection .form-group:has(.form-select), #nadplataSection2 .form-group:has(.form-select) {
         flex: 0 0 125px;
         max-width: 125px;
         width: 125px;
+    }
+
+    .input-group {
+        min-width: 90px;
     }
 
     .form-container, .result-container, .harmonogram-container {
@@ -757,8 +783,9 @@ input[type="radio"], input[type="checkbox"] {
         gap: 20px;
     }
 
-    .form-wrapper, .result-wrapper {
+    .form-wrapper {
         max-width: 100%;
+        min-width: 0;
     }
 }
 
@@ -768,16 +795,20 @@ input[type="radio"], input[type="checkbox"] {
         flex-wrap: wrap;
     }
 
-    .form-group {
+    .form-group:has(.form-select) {
         flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
     }
 
-    #nadplataSection .form-group, #nadplataSection2 .form-group {
+    #nadplataSection .form-group:has(.form-select), #nadplataSection2 .form-group:has(.form-select) {
         flex: 0 0 100px;
         max-width: 100px;
         width: 100px;
+    }
+
+    .input-group {
+        min-width: 80px;
     }
 
     .form-container.compare-checkbox input:checked ~ .form-container {
@@ -820,12 +851,6 @@ input[type="radio"], input[type="checkbox"] {
         gap: 3px;
     }
 
-    .btn-control {
-        width: 22px;
-        height: 22px;
-        font-size: 0.8em;
-    }
-
     .form-select {
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>');
         background-position: right 8px center;
@@ -843,16 +868,20 @@ input[type="radio"], input[type="checkbox"] {
         align-items: center;
     }
 
-    .form-group {
+    .form-group:has(.form-select) {
         flex: 0 0 130px;
         max-width: 130px;
         width: 130px;
     }
 
-    #nadplataSection .form-group, #nadplataSection2 .form-group {
+    #nadplataSection .form-group:has(.form-select), #nadplataSection2 .form-group:has(.form-select) {
         flex: 0 0 130px;
         max-width: 130px;
         width: 130px;
+    }
+
+    .input-group {
+        min-width: 90px;
     }
 
     .form-container, .result-container, .harmonogram-container {
