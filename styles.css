@@ -79,9 +79,9 @@ body {
 }
 
 .form-group {
-    flex: 0 0 160px;
-    max-width: 160px;
-    width: 160px;
+    flex: 0 0 150px;
+    max-width: 150px;
+    width: 150px;
     display: flex;
     flex-direction: column;
     justify-content: stretch;
@@ -93,9 +93,9 @@ body {
 }
 
 #nadplataSection .form-group, #nadplataSection2 .form-group {
-    flex: 0 0 160px;
-    max-width: 160px;
-    width: 160px;
+    flex: 0 0 150px;
+    max-width: 150px;
+    width: 150px;
 }
 
 .form-label {
@@ -740,15 +740,15 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
-        flex: 0 0 140px;
-        max-width: 140px;
-        width: 140px;
+        flex: 0 0 125px;
+        max-width: 125px;
+        width: 125px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 0 0 140px;
-        max-width: 140px;
-        width: 140px;
+        flex: 0 0 125px;
+        max-width: 125px;
+        width: 125px;
     }
 
     .form-container, .result-container, .harmonogram-container {
@@ -769,15 +769,15 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
-        flex: 0 0 120px;
-        max-width: 120px;
-        width: 120px;
+        flex: 0 0 100px;
+        max-width: 100px;
+        width: 100px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 0 0 120px;
-        max-width: 120px;
-        width: 120px;
+        flex: 0 0 100px;
+        max-width: 100px;
+        width: 100px;
     }
 
     .form-container.compare-checkbox input:checked ~ .form-container {
@@ -844,15 +844,15 @@ input[type="radio"], input[type="checkbox"] {
     }
 
     .form-group {
-        flex: 0 0 150px;
-        max-width: 150px;
-        width: 150px;
+        flex: 0 0 130px;
+        max-width: 130px;
+        width: 130px;
     }
 
     #nadplataSection .form-group, #nadplataSection2 .form-group {
-        flex: 0 0 150px;
-        max-width: 150px;
-        width: 150px;
+        flex: 0 0 130px;
+        max-width: 130px;
+        width: 130px;
     }
 
     .form-container, .result-container, .harmonogram-container {
