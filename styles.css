@@ -289,18 +289,20 @@ body {
     font-size: var(--small-font-size);
     padding: 2px 24px 2px 8px; /* Miejsce na strzałkę */
     text-align: center;
-    background: var(--input-bg); /* Białe tło w trybie jasnym, ciemne w dark mode */
+    background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box; /* Gradient z Twojego kodu */
     color: var(--primary-text);
-    border: 1px solid var(--border-color);
+    border: 2px solid transparent; /* Przezroczyste obramowanie z gradientem */
     border-radius: var(--border-radius); /* 5px dla Rodzaj rat */
     box-sizing: border-box;
     line-height: 18px;
     width: 100%;
-    position: relative;
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: none !important; /* Usuwamy obrazki Bootstrapa */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 8px center !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #prowizja .input-group .jednostka-select {
@@ -308,27 +310,12 @@ body {
     border-radius: 2px; /* Mniejsze zaokrąglenia dla jednostki w Prowizja */
 }
 
-#rodzajRat .form-select::after,
-#prowizja .input-group .jednostka-select::after {
-    content: '';
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 4px transparent solid;
-    border-right: 4px transparent solid;
-    border-top: 4px solid var(--primary-text); /* Kolor strzałki dopasowany do tekstu */
-    pointer-events: none; /* Strzałka nie blokuje kliknięć */
-}
-
 #rodzajRat .form-select:focus,
 #prowizja .input-group .jednostka-select:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color);
     border-color: var(--border-color);
-    background: var(--input-bg);
+    background: var(--input-bg) padding-box, linear-gradient(90deg, #C2B280, #b0a070) border-box;
     color: var(--primary-text);
 }
 
@@ -1013,8 +1000,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     #prowizja .input-group .jednostka-select {
         height: 26px;
         width: 130px;
-        padding: 4px 24px 4px 8px; /* Miejsce na strzałkę */
+        padding: 4px 24px 4px 8px;
         line-height: 20px;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') !important;
+        background-position: right 8px center !important;
     }
 
     #prowizja .input-group .form-control {
@@ -1026,22 +1015,14 @@ input[type="range"].form-range:focus::-ms-thumb {
     #prowizja .input-group .jednostka-select {
         height: 26px;
         width: 40px;
-        padding: 4px 24px 4px 8px; /* Miejsce na strzałkę */
+        padding: 4px 24px 4px 8px;
         line-height: 20px;
+        border-radius: 2px;
     }
 
     #prowizja .input-group .jednostka-select {
         flex: 1;
         width: auto;
-        border-radius: 2px; /* Mniejsze zaokrąglenia w responsywności */
-    }
-
-    #rodzajRat .form-select::after,
-    #prowizja .input-group .jednostka-select::after {
-        right: 8px;
-        border-left: 4px transparent solid;
-        border-right: 4px transparent solid;
-        border-top: 4px solid var(--primary-text);
     }
 
     .variable-input-group .input-group {
