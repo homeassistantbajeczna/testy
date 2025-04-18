@@ -283,12 +283,14 @@ body {
     color: var(--primary-text);
 }
 
-.form-select {
+#rodzajRat .form-select,
+#prowizja .input-group .jednostka-select {
     height: 22px;
     font-size: var(--small-font-size);
     padding: 2px 24px 2px 8px; /* Miejsce na strzałkę */
     text-align: center;
     background: var(--input-bg);
+    background-color: #f0f0f0; /* Tło debugujące */
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -296,57 +298,20 @@ body {
     line-height: 18px;
     width: 100%;
     position: relative;
-    appearance: none; /* Usuwa domyślną strzałkę przeglądarki */
+    appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-}
-
-#rodzajRat .form-select {
-    position: relative;
-}
-
-#rodzajRat .form-select::after {
-    content: "▼";
-    position: absolute;
-    right: 5px; /* Bliżej krawędzi dla widoczności */
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2em; /* Większa strzałka */
-    color: #000; /* Czarny kolor dla kontrastu */
-    background-color: red; /* Czerwone tło do debugowania */
-    padding: 2px; /* Mały padding dla tła */
-    pointer-events: none;
-    z-index: 10; /* Wysoki z-index, aby być na wierzchu */
-}
-
-.jednostka-select {
-    flex: 1;
-    position: relative;
-    appearance: none; /* Usuwa domyślną strzałkę przeglądarki */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    padding-right: 24px; /* Miejsce na strzałkę */
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAABmJLR0QA/wD/AP+gvaeTAAABGUlEQVQokZ2RMU7DUBBFLxZ3wUdwE+IW1A2I+wBuQtwCOwW3IB7ACbgF9gZewS24B3GDk4i7sA5tO3bThCR3k+R9Jukm+frV0z/7vY8ePaq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzi6p+vWqeVFXzq6p+vWq+qlTzAAAABJRU5ErkJggg==');
+    background-position: right 5px center;
+    background-repeat: no-repeat;
 }
 
 #prowizja .input-group .jednostka-select {
     flex: 1;
 }
 
-#prowizja .input-group .jednostka-select::after {
-    content: "▼";
-    position: absolute;
-    right: 5px; /* Bliżej krawędzi dla widoczności */
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2em; /* Większa strzałka */
-    color: #000; /* Czarny kolor dla kontrastu */
-    background-color: red; /* Czerwone tło do debugowania */
-    padding: 2px; /* Mały padding dla tła */
-    pointer-events: none;
-    z-index: 10; /* Wysoki z-index, aby być na wierzchu */
-}
-
-.form-select:focus {
+#rodzajRat .form-select:focus,
+#prowizja .input-group .jednostka-select:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color);
     border-color: var(--border-color);
@@ -1031,7 +996,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-control,
-    .form-select {
+    #rodzajRat .form-select,
+    #prowizja .input-group .jednostka-select {
         height: 26px;
         width: 130px;
         padding: 4px 24px 4px 8px; /* Miejsce na strzałkę */
@@ -1044,7 +1010,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .input-group-text,
-    .jednostka-select {
+    #prowizja .input-group .jednostka-select {
         height: 26px;
         width: 40px;
         padding: 4px 24px 4px 8px; /* Miejsce na strzałkę */
