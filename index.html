@@ -3,482 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Kalkulator kredytu hipotecznego z harmonogramem spłat i wykresami.">
-    <title>Kalkulator Kredytu Hipotecznego</title>
+    <title>Kalkulator Kredytowy - Porównywarka</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-    <style>
-        :root {
-            --primary-bg: #f5f6f5;
-            --container-bg: #ffffff;
-            --text-color: #333333;
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --accent-color: #28a745;
-            --highlight-color: #C2B280;
-            --highlight-hover: #b0a070;
-            --chart-font-size: 12px;
-            --font-family: 'Montserrat', sans-serif;
-            --shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-        [data-theme="dark"] {
-            --primary-bg: #212529;
-            --container-bg: #2c3034;
-            --text-color: #e9ecef;
-            --primary-color: #66b0ff;
-            --secondary-color: #adb5bd;
-            --accent-color: #51cf66;
-            --highlight-color: #d4c28e;
-            --highlight-hover: #c0ae7a;
-            --shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-        }
-        body {
-            background-color: var(--primary-bg);
-            font-family: var(--font-family);
-            color: var(--text-color);
-            margin: 0;
-            padding: 10px;
-            transition: var(--transition);
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: var(--container-bg);
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        .logo-container {
-            background-color: #e9ecef;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 20px;
-            transition: var(--transition);
-        }
-        [data-theme="dark"] .logo-container {
-            background-color: #343a40;
-        }
-        .logo {
-            max-width: 200px;
-            cursor: pointer;
-        }
-        .form-section, .result-section {
-            padding: 10px;
-            position: relative;
-        }
-        .form-section h4, .result-section h4 {
-            font-size: 1.2em;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .form-row {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .form-group {
-            flex: 1;
-            min-width: 150px;
-            max-width: 200px;
-        }
-        .form-label {
-            font-size: 0.7em;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-        }
-        .form-control, .form-select {
-            height: 22px;
-            font-size: 0.7em;
-            padding: 2px;
-            text-align: center;
-            border-radius: 5px;
-            transition: var(--transition);
-        }
-        .form-range {
-            height: 8px;
-            background: #d3d3d3;
-            border-radius: 5px;
-            margin-top: 2px;
-        }
-        .form-range::-webkit-slider-thumb {
-            background: var(--highlight-color);
-            border: none;
-            border-radius: 50%;
-            width: 12px;
-            height: 12px;
-            cursor: pointer;
-        }
-        .input-group-text {
-            font-size: 0.7em;
-            padding: 2px 5px;
-        }
-        .sub-info {
-            font-size: 0.6em;
-            margin-top: 2px;
-            text-align: left;
-        }
-        .checkbox-row {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            font-size: 0.8em;
-            cursor: pointer;
-        }
-        .checkbox-custom {
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--highlight-color);
-            background-color: var(--container-bg);
-            margin-right: 5px;
-            position: relative;
-        }
-        input[type="checkbox"]:checked + .checkbox-custom {
-            background-color: var(--highlight-color);
-        }
-        input[type="checkbox"]:checked + .checkbox-custom::after {
-            content: '✔';
-            color: #000;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 12px;
-        }
-        .variable-inputs {
-            display: none;
-            margin-top: 10px;
-        }
-        .variable-inputs.show {
-            display: block;
-        }
-        .variable-inputs-wrapper {
-            max-height: 150px;
-            overflow-y: auto;
-            margin-bottom: 5px;
-        }
-        .variable-input-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 5px;
-        }
-        .btn-primary, .btn-secondary, .btn-sm {
-            background-color: var(--highlight-color);
-            border-color: var(--highlight-color);
-            color: #000;
-            font-size: 0.9em;
-            padding: 5px 20px;
-            border-radius: 5px;
-            transition: var(--transition);
-        }
-        .btn-primary:hover, .btn-secondary:hover, .btn-sm:hover {
-            background-color: var(--highlight-hover);
-            border-color: var(--highlight-hover);
-        }
-        .btn-sm {
-            font-size: 0.7em;
-            padding: 3px 10px;
-        }
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .chart-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .chart {
-            width: 150px;
-            height: 150px;
-        }
-        .chart-legend {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 6px;
-            font-size: 0.8em;
-            cursor: pointer;
-        }
-        .color-box {
-            width: 90px;
-            height: 18px;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 0.8em;
-            line-height: 18px;
-            color: #fff;
-            margin-right: 6px;
-            position: relative;
-        }
-        .color-box:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            font-size: 0.8em;
-            line-height: 18px;
-            z-index: 10;
-        }
-        .legend-text {
-            font-size: 0.7em;
-        }
-        .harmonogram-container {
-            margin-top: 20px;
-        }
-        .harmonogram {
-            font-size: 0.65em;
-        }
-        .harmonogram table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        .harmonogram th {
-            background: linear-gradient(90deg, var(--highlight-color), var(--highlight-hover));
-            color: #000;
-            padding: 8px;
-            text-align: center;
-            font-weight: 500;
-        }
-        .harmonogram td {
-            padding: 6px;
-            text-align: center;
-            background-color: var(--container-bg);
-            color: var(--text-color);
-            border-bottom: 1px solid #eee;
-        }
-        .btn-toggle {
-            cursor: pointer;
-            font-size: 0.8em;
-            color: var(--primary-color);
-            text-decoration: underline;
-            margin-bottom: 10px;
-        }
-        .chart-container-line {
-            margin-top: 20px;
-        }
-        .chart-line {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .theme-toggle, .zoom-controls {
-            position: fixed;
-            bottom: 20px;
-            z-index: 1000;
-        }
-        .theme-toggle {
-            right: 20px;
-        }
-        .zoom-controls {
-            right: 60px;
-        }
-        .theme-toggle button, .zoom-controls button {
-            background-color: var(--highlight-color);
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            color: #000;
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .theme-toggle button:hover, .zoom-controls button:hover {
-            background-color: var(--highlight-hover);
-        }
-        @media (max-width: 576px) {
-            .form-row {
-                flex-direction: column;
-                align-items: center;
-            }
-            .form-group {
-                max-width: 100%;
-            }
-            .chart-container {
-                flex-direction: column;
-            }
-            .chart {
-                width: 120px;
-                height: 120px;
-            }
-        }
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            .form-section h4, .result-section h4 {
-                font-size: 1em;
-            }
-            .btn-primary, .btn-secondary {
-                font-size: 0.8em;
-                padding: 4px 15px;
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="logo-container">
         <a href="https://finance-brothers.pl">
-            <img src="cropped-logo-FB-1.png" alt="Finance Brothers Logo" class="logo">
+            <img src="cropped-logo-FB-1.png" alt="Twoje Logo" class="logo d-block mx-auto">
         </a>
     </div>
     <div class="container">
         <div class="form-section" id="formSection">
-            <h4>Kalkulator Kredytu Hipotecznego</h4>
+            <h4>Kalkulator Kredytowy</h4>
+            <div class="compare-checkbox">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="porownajKredyt" name="porownajKredyt">
+                    <span class="checkbox-custom"></span>
+                    Porównaj kredyt
+                </label>
+            </div>
             <div class="form-container">
-                <form id="kredytForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="kwotaKredytu" class="form-label">Kwota kredytu*</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="kwotaKredytu" min="1000" max="5000000" step="1000" value="500000">
-                                <span class="input-group-text">zł</span>
+                <div class="form-wrapper">
+                    <h5>Twój Kredyt</h5>
+                    <form id="kredytForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kwota" class="form-label">Kwota kredytu</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="kwota" min="1000" max="5000000" step="1000" value="500000">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="kwotaRange" min="1000" max="5000000" step="1000" value="500000">
+                                <div class="sub-info"></div>
                             </div>
-                            <input type="range" class="form-range" id="kwotaKredytuRange" min="1000" max="5000000" step="1000" value="500000">
-                            <div class="sub-info" id="kwotaKredytuInfo">Kwota: 500 000 zł</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="iloscRat" class="form-label">Ilość rat*</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="iloscRat" min="12" max="420" step="1" value="360">
-                                <span class="input-group-text">mc-y</span>
+                            <div class="form-group">
+                                <label for="okres" class="form-label">Ilość rat</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="okres" min="12" max="420" step="1" value="360">
+                                    <span class="input-group-text">mc-y</span>
+                                </div>
+                                <input type="range" class="form-range" id="okresRange" min="12" max="420" step="1" value="360">
+                                <div class="sub-info" id="lata">Ilość lat: 30</div>
                             </div>
-                            <input type="range" class="form-range" id="iloscRatRange" min="12" max="420" step="1" value="360">
-                            <div class="sub-info" id="iloscRatInfo">Okres: 30 lat</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="oprocentowanie" class="form-label">Oprocentowanie*</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="7">
-                                <span class="input-group-text">%</span>
+                            <div class="form-group">
+                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="7">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="7">
+                                <div class="sub-info"></div>
                             </div>
-                            <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="7">
-                            <div class="sub-info">Roczne oprocentowanie</div>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="rodzajRat" class="form-label">Rodzaj rat*</label>
-                            <select class="form-control" id="rodzajRat">
-                                <option value="rowne" selected>Równe</option>
-                                <option value="malejace">Malejące</option>
-                            </select>
-                            <div class="sub-info">Wybierz typ rat</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="prowizja" class="form-label">Prowizja</label>
-                            <div class="input-group">
-                                <input type="number" class="form-control" id="prowizja" min="0" max="25" step="0.1" value="2">
-                                <span class="input-group-text">%</span>
+                        <div class="form-row">
+                            <div class="form-group no-sub-info">
+                                <label class="form-label">Rodzaj rat</label>
+                                <select class="form-control" id="rodzajRat">
+                                    <option value="rowne" selected>Rata równa</option>
+                                    <option value="malejace">Rata malejąca</option>
+                                </select>
+                                <div class="sub-info"></div>
                             </div>
-                            <input type="range" class="form-range" id="prowizjaRange" min="0" max="25" step="0.1" value="2">
-                            <div class="sub-info" id="prowizjaInfo">Wartość: 10 000 zł</div>
+                            <div class="form-group">
+                                <label for="prowizja" class="form-label">Prowizja</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="prowizja" min="0.1" max="25" step="0.1" value="2">
+                                    <select class="form-select" id="prowizjaTyp">
+                                        <option value="procent" selected>%</option>
+                                        <option value="pln">zł</option>
+                                    </select>
+                                </div>
+                                <input type="range" class="form-range" id="prowizjaRange" min="0.1" max="25" step="0.1" value="2">
+                                <div class="sub-info" id="prowizjaWartosc">Wartość prowizji: 10000.00 zł</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="variable-rate-container">
-                        <div class="checkbox-row">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="nadplataBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Nadpłata kredytu</b>
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="zmienneOprocentowanieBtn">
-                                <span class="checkbox-custom"></span>
-                                <b>Zmienne oprocentowanie</b>
-                            </label>
-                        </div>
-                        <div class="variable-inputs" id="nadplataInputs">
-                            <div class="variable-inputs-wrapper" id="nadplataInputsWrapper">
-                                <div class="variable-input-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Kwota nadpłaty</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control nadplata-kwota" min="0" max="100000" step="10" value="0">
-                                            <span class="input-group-text">zł</span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Miesiąc</label>
-                                        <input type="number" class="form-control nadplata-miesiac" min="1" max="420" step="1" value="1">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Efekt</label>
-                                        <select class="form-control nadplata-efekt">
-                                            <option value="skrocenie" selected>Skrócenie</option>
-                                            <option value="obnizenie">Obniżenie raty</option>
-                                        </select>
-                                    </div>
+                        <div class="checkbox-container">
+                            <div class="form-group">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="checkbox" id="wlaczNadplate" name="wlaczNadplate">
+                                    <label for="wlaczNadplate" class="checkbox-label nadplata-label">Nadpłata</label>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addNadplataBtn">Dodaj kolejną nadpłatę</button>
                         </div>
-                        <div class="variable-inputs" id="zmienneOprocentowanieInputs">
-                            <div class="variable-inputs-wrapper" id="zmienneOprocentowanieInputsWrapper">
-                                <div class="variable-input-row">
-                                    <div class="form-group">
-                                        <label class="form-label">Nowe oprocentowanie</label>
-                                        <div class="input-group">
-                                            <input type="number" class="form-control zmienne-oprocentowanie" min="0.1" max="25" step="0.1" value="7">
-                                            <span class="input-group-text">%</span>
-                                        </div>
+                        <div class="form-row" id="nadplataSection">
+                            <div class="form-group">
+                                <label for="nadplata" class="form-label">Miesięczna</label>
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <div class="radio-option">
+                                        <input type="radio" id="skrocenie" name="efektNadplaty" value="skrocenie" checked>
+                                        <label for="skrocenie" class="radio-label">Skrócenie kredytu</label>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Od miesiąca</label>
-                                        <input type="number" class="form-control zmienne-miesiac" min="1" max="420" step="1" value="1">
+                                    <div class="radio-option">
+                                        <input type="radio" id="obnizenie" name="efektNadplaty" value="obnizenie">
+                                        <label for="obnizenie" class="radio-label">Obniżenie raty</label>
                                     </div>
                                 </div>
+                                <div class="input-group mt-2">
+                                    <input type="number" class="form-control" id="nadplata" min="0" max="10000" step="10" value="0">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="nadplataRange" min="0" max="10000" step="10" value="0">
                             </div>
-                            <button type="button" class="btn btn-secondary btn-sm" id="addZmienneOprocentowanieBtn">Dodaj kolejne oprocentowanie</button>
+                            <div class="form-group">
+                                <label for="nadplataJednorazowa" class="form-label">Jednorazowa</label>
+                                <div class="spacer"></div>
+                                <div class="input-group mt-2">
+                                    <input type="number" class="form-control" id="nadplataJednorazowa" min="0" max="100000" step="100" value="0">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="nadplataJednorazowaRange" min="0" max="100000" step="100" value="0">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <button type="button" class="btn btn-primary" id="obliczBtn">Oblicz</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="divider" id="formDivider"></div>
+                <div class="form-wrapper" id="formSection2">
+                    <h5>Nowy Kredyt</h5>
+                    <form id="kredytForm2">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kwota2" class="form-label">Kwota kredytu</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="kwota2" min="1000" max="5000000" step="1000" value="500000">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="kwotaRange2" min="1000" max="5000000" step="1000" value="500000">
+                                <div class="sub-info"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="okres2" class="form-label">Ilość rat</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="okres2" min="12" max="420" step="1" value="360">
+                                    <span class="input-group-text">mc-y</span>
+                                </div>
+                                <input type="range" class="form-range" id="okresRange2" min="12" max="420" step="1" value="360">
+                                <div class="sub-info" id="lata2">Ilość lat: 30</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="oprocentowanie2" class="form-label">Oprocentowanie</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="oprocentowanie2" min="0.1" max="25" step="0.1" value="7">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="oprocentowanieRange2" min="0.1" max="25" step="0.1" value="7">
+                                <div class="sub-info"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group no-sub-info">
+                                <label class="form-label">Rodzaj rat</label>
+                                <select class="form-control" id="rodzajRat2">
+                                    <option value="rowne" selected>Rata równa</option>
+                                    <option value="malejace">Rata malejąca</option>
+                                </select>
+                                <div class="sub-info"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="prowizja2" class="form-label">Prowizja</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="prowizja2" min="0.1" max="25" step="0.1" value="2">
+                                    <select class="form-select" id="prowizjaTyp2">
+                                        <option value="procent" selected>%</option>
+                                        <option value="pln">zł</option>
+                                    </select>
+                                </div>
+                                <input type="range" class="form-range" id="prowizjaRange2" min="0.1" max="25" step="0.1" value="2">
+                                <div class="sub-info" id="prowizjaWartosc2">Wartość prowizji: 10000.00 zł</div>
+                            </div>
+                        </div>
+                        <div class="checkbox-container">
+                            <div class="form-group">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <input type="checkbox" id="wlaczNadplate2" name="wlaczNadplate2">
+                                    <label for="wlaczNadplate2" class="checkbox-label nadplata-label">Włącz nadpłaty</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row" id="nadplataSection2">
+                            <div class="form-group">
+                                <label for="nadplata2" class="form-label">Nadpłata miesięczna</label>
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <div class="radio-option">
+                                        <input type="radio" id="skrocenie2" name="efektNadplaty2" value="skrocenie" checked>
+                                        <label for="skrocenie2" class="radio-label">Skrócenie kredytu</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="obnizenie2" name="efektNadplaty2" value="obnizenie">
+                                        <label for="obnizenie2" class="radio-label">Obniżenie raty</label>
+                                    </div>
+                                </div>
+                                <div class="input-group mt-2">
+                                    <input type="number" class="form-control" id="nadplata2" min="0" max="10000" step="10" value="0">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="nadplataRange2" min="0" max="10000" step="10" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="nadplataJednorazowa2" class="form-label">Nadpłata jednorazowa</label>
+                                <div class="spacer"></div>
+                                <div class="input-group mt-2">
+                                    <input type="number" class="form-control" id="nadplataJednorazowa2" min="0" max="100000" step="100" value="0">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="nadplataJednorazowaRange2" min="0" max="100000" step="100" value="0">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="form-row">
+                <button type="button" class="btn btn-primary" id="obliczBtn">Oblicz</button>
             </div>
         </div>
-        <div class="result-section" id="resultSection" style="display: none;">
+        <div class="result-section" id="resultSection">
             <div class="result-header">
-                <h4>Podsumowanie kredytu</h4>
-                <button class="btn btn-primary btn-sm" id="generatePdfBtn">Generuj PDF</button>
+                <h4>Podsumowanie wyników</h4>
+                <button id="generatePdfBtn" class="btn btn-primary btn-sm">Generuj PDF</button>
             </div>
             <button class="btn btn-secondary mb-3" onclick="showForm()">Powrót do edycji</button>
             <div class="result-container">
                 <div class="result-wrapper">
+                    <h5>Twój Kredyt</h5>
                     <div class="chart-container">
                         <div class="chart">
-                            <canvas id="kredytChart"></canvas>
+                            <canvas id="creditChart"></canvas>
                         </div>
                         <div class="chart-legend">
                             <div class="legend-item" data-index="0">
@@ -507,385 +257,1224 @@
                             </div>
                         </div>
                     </div>
+                    <div class="summary-footer">
+                        <span class="highlight yellow" data-hover="360 miesięcy">Okres kredytowania: <span id="okresPoNadplacie">-</span> mc-y</span>
+                        <span class="highlight red" data-hover="">Całkowita kwota spłaty: <span id="koszt">-</span> zł</span>
+                    </div>
                 </div>
-            </div>
-            <div class="harmonogram-container">
-                <div class="result-wrapper-harmonogram">
-                    <div class="harmonogram-chart-wrapper">
-                        <div class="harmonogram">
-                            <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')">Harmonogram spłat ▼</h5>
-                            <div id="harmonogramContent">
-                                <table class="table table-striped">
-                                    <thead id="harmonogramNaglowek">
-                                        <tr>
-                                            <th>Miesiąc</th>
-                                            <th>Rata</th>
-                                            <th>Nadpłata</th>
-                                            <th>Kapitał</th>
-                                            <th>Odsetki</th>
-                                            <th>Pozostały kapitał</th>
-                                            <th>Oprocentowanie</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="harmonogramTabela"></tbody>
-                                </table>
+                <div class="divider" id="resultDivider"></div>
+                <div class="result-wrapper" id="resultSection2" style="display: none;">
+                    <h5>Nowy Kredyt</h5>
+                    <div class="chart-container">
+                        <div class="chart">
+                            <canvas id="creditChart2"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item" data-index="0">
+                                <div class="color-box" style="background-color: #28a745;" data-tooltip="Kapitał: -">
+                                    <span class="value" id="valueKapital2">-</span>
+                                </div>
+                                <span class="legend-text">Kapitał</span>
+                            </div>
+                            <div class="legend-item" data-index="1">
+                                <div class="color-box" style="background-color: #007bff;" data-tooltip="Odsetki: -">
+                                    <span class="value" id="valueOdsetki2">-</span>
+                                </div>
+                                <span class="legend-text">Odsetki</span>
+                            </div>
+                            <div class="legend-item" data-index="2">
+                                <div class="color-box" style="background-color: #dc3545;" data-tooltip="Nadpłaty: -">
+                                    <span class="value" id="valueNadplata2">-</span>
+                                </div>
+                                <span class="legend-text">Nadpłaty</span>
+                            </div>
+                            <div class="legend-item" data-index="3">
+                                <div class="color-box" style="background-color: #6f42c1;" data-tooltip="Prowizja: -">
+                                    <span class="value" id="valueProwizja2">-</span>
+                                </div>
+                                <span class="legend-text">Prowizja</span>
                             </div>
                         </div>
-                        <div class="chart-container-line">
-                            <div class="chart-line">
-                                <canvas id="kredytChartLine"></canvas>
-                            </div>
+                    </div>
+                    <div class="summary-footer">
+                        <span class="highlight yellow" data-hover="360 miesięcy">Okres kredytowania: <span id="okresPoNadplacie2">-</span> mc-y</span>
+                        <span class="highlight red" data-hover="">Całkowita kwota spłaty: <span id="koszt2">-</span> zł</span>
+                    </div>
+                </div>
+            </div>
+            <div class="benefit-summary" id="benefitSummary">
+                <h6>Korzyści nowego kredytu:</h6>
+                <div class="benefit-item" id="benefitCost">Zmniejszenie kosztu kredytu: <span class="value" id="benefitCostValue">-</span> zł</div>
+                <div class="benefit-item" id="benefitPeriod">Skrócenie okresu kredytowania: <span class="value" id="benefitPeriodValue">-</span> miesięcy</div>
+                <div class="benefit-item" id="benefitPercentage">Zmniejszysz koszty o: <span class="value" id="benefitPercentageValue">-</span> %</div>
+            </div>
+            <div class="harmonogram-container">
+                <div class="result-wrapper">
+                    <div class="harmonogram">
+                        <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')">Harmonogram spłat ▼</h5>
+                        <div id="harmonogramContent">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Miesiąc</th>
+                                        <th>Rata</th>
+                                        <th>Nadpłata</th>
+                                        <th>Kapitał</th>
+                                        <th>Odsetki</th>
+                                        <th>Pozostały kapitał</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="harmonogramTabela"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider" id="harmonogramDivider"></div>
+                <div class="result-wrapper" id="harmonogramSection2" style="display: none;">
+                    <div class="harmonogram">
+                        <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent2')">Harmonogram spłat ▼</h5>
+                        <div id="harmonogramContent2">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Miesiąc</th>
+                                        <th>Rata</th>
+                                        <th>Nadpłata</th>
+                                        <th>Kapitał</th>
+                                        <th>Odsetki</th>
+                                        <th>Pozostały kapitał</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="harmonogramTabela2"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="control-buttons">
+            <button id="zoomInBtn" class="btn-control">➕</button>
+            <button id="zoomOutBtn" class="btn-control">➖</button>
+            <button id="themeToggleBtn" class="btn-control">🌙</button>
+        </div>
     </div>
-    <div class="theme-toggle">
-        <button id="themeToggle" aria-label="Przełącz motyw">🌙</button>
-    </div>
-    <div class="zoom-controls">
-        <button id="zoomIn" aria-label="Powiększ">+</button>
-        <button id="zoomOut" aria-label="Pomniejsz">-</button>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/pdfmake@0.2.7/build/pdfmake.min.js"></script>
-    <script src="https://unpkg.com/pdfmake@0.2.7/build/vfs_fonts.js"></script>
-    <script>
-        pdfMake.vfs['Roboto-Regular.ttf'] = window.pdfMake.vfs['Roboto-Regular.ttf'];
-        pdfMake.fonts = {
-            Roboto: { normal: 'Roboto-Regular.ttf' }
-        };
+    <style>
+        :root {
+            --primary-bg: #f5f6f5;
+            --container-bg: #FFFFFF;
+            --text-color: #333333;
+            --input-bg: #FFFFFF;
+            --input-border: #C2B280;
+            --button-bg: linear-gradient(90deg, #C2B280, #b0a070);
+            --table-header-bg: linear-gradient(90deg, #C2B280, #b0a070);
+            --table-bg: #f9f9f9;
+            --divider-bg: linear-gradient(#C2B280, #b0a070);
+        }
 
-        const elements = {
-            kwotaKredytu: document.getElementById("kwotaKredytu"),
-            kwotaKredytuRange: document.getElementById("kwotaKredytuRange"),
-            iloscRat: document.getElementById("iloscRat"),
-            iloscRatRange: document.getElementById("iloscRatRange"),
-            oprocentowanie: document.getElementById("oprocentowanie"),
-            oprocentowanieRange: document.getElementById("oprocentowanieRange"),
-            rodzajRat: document.getElementById("rodzajRat"),
-            prowizja: document.getElementById("prowizja"),
-            prowizjaRange: document.getElementById("prowizjaRange"),
-            nadplataBtn: document.getElementById("nadplataBtn"),
-            zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
-            nadplataInputs: document.getElementById("nadplataInputs"),
-            zmienneOprocentowanieInputs: document.getElementById("zmienneOprocentowanieInputs"),
-            addNadplataBtn: document.getElementById("addNadplataBtn"),
-            addZmienneOprocentowanieBtn: document.getElementById("addZmienneOprocentowanieBtn"),
-            obliczBtn: document.getElementById("obliczBtn"),
-            formSection: document.getElementById("formSection"),
-            resultSection: document.getElementById("resultSection"),
-            kredytChart: document.getElementById("kredytChart"),
-            kredytChartLine: document.getElementById("kredytChartLine"),
-            harmonogramTabela: document.getElementById("harmonogramTabela"),
-            generatePdfBtn: document.getElementById("generatePdfBtn"),
-            themeToggle: document.getElementById("themeToggle"),
-            zoomIn: document.getElementById("zoomIn"),
-            zoomOut: document.getElementById("zoomOut")
-        };
+        [data-theme="dark"] {
+            --primary-bg: #212529;
+            --container-bg: #2C3034;
+            --text-color: #e9ecef;
+            --input-bg: #343a40;
+            --input-border: #C2B280;
+            --button-bg: linear-gradient(90deg, #C2B280, #b0a070);
+            --table-header-bg: linear-gradient(90deg, #C2B280, #b0a070);
+            --table-bg: #343a40;
+            --divider-bg: linear-gradient(#C2B280, #b0a070);
+        }
 
-        const state = {
-            chart: null,
-            chartLine: null,
-            harmonogramData: [],
-            nadplaty: [],
-            zmienneOprocentowanie: [],
-            isCalculating: false,
-            zoomLevel: 1,
-            lastFormData: {
-                kwotaKredytu: 500000,
-                iloscRat: 360,
-                oprocentowanie: 7,
-                rodzajRat: "rowne",
-                prowizja: 2,
-                nadplata: false,
-                zmienneOprocentowanie: false
+        body {
+            background-color: var(--primary-bg);
+            font-family: 'Montserrat', sans-serif;
+            padding: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .logo-container {
+            background-color: #e9ecef;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            background: var(--container-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .form-section {
+            padding: 10px;
+            position: relative;
+        }
+
+        .form-section h4 {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.4em;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+            gap: 15px;
+            align-items: stretch;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 150px;
+            max-width: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: stretch;
+        }
+
+        .form-group.no-sub-info .sub-info {
+            visibility: hidden;
+            height: 0;
+        }
+
+        .form-label {
+            font-size: 0.8em;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+            color: var(--text-color);
+        }
+
+        .form-control, .form-select {
+            height: 30px;
+            font-size: 0.85em;
+            padding: 5px;
+            text-align: center;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 5px;
+            color: var(--text-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .form-select {
+            max-width: 180px;
+            appearance: none;
+            background: var(--input-bg) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') no-repeat right 8px center;
+            padding-right: 20px;
+        }
+
+        .form-range {
+            margin-top: 5px;
+            height: 10px;
+            background: #d3d3d3;
+            border-radius: 5px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .form-range::-webkit-slider-thumb {
+            background: #C2B280;
+            border: none;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            -webkit-appearance: none;
+        }
+
+        .form-range::-moz-range-thumb {
+            background: #C2B280;
+            border: none;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .input-group-text {
+            font-size: 0.85em;
+            padding: 5px 8px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 5px;
+            color: var(--text-color);
+        }
+
+        .sub-info {
+            font-size: 0.5em;
+            color: var(--text-color);
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        input[type="radio"], input[type="checkbox"] {
+            accent-color: #C2B280;
+            width: 18px;
+            height: 18px;
+        }
+
+        .radio-label, .checkbox-label {
+            font-size: 0.6em;
+            margin-left: 0;
+            color: var(--text-color);
+        }
+
+        .checkbox-label.nadplata-label {
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        .checkbox-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .spacer {
+            height: 15px;
+        }
+
+        .result-section {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .result-header h4 {
+            font-size: 1.4em;
+            color: var(--text-color);
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .chart {
+            flex: 0 0 auto;
+            width: 140px;
+            height: 140px;
+            position: relative;
+            z-index: 25;
+        }
+
+        .chart-legend {
+            flex: 0 0 auto;
+            max-width: 220px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .chart-legend .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.8em;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            padding-left: 10px;
+        }
+
+        .chart-legend .color-box {
+            width: 100px;
+            height: 20px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: 500;
+            line-height: 20px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+            margin-right: 8px;
+        }
+
+        .chart-legend .color-box .value {
+            display: block;
+        }
+
+        .chart-legend .color-box:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: #fff;
+            font-size: 0.9em;
+            line-height: 20px;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 30;
+        }
+
+        .chart-legend .color-box:hover .value {
+            display: none;
+        }
+
+        .chart-legend .legend-item:hover .color-box {
+            width: 100px;
+        }
+
+        .chart-legend .legend-item:hover .legend-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chart-legend .legend-text {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            font-size: 0.8em;
+        }
+
+        .summary-footer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .summary-footer .highlight {
+            font-size: 0.9em;
+            padding: 6px 8px;
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .highlight.yellow {
+            background-color: #17a2b8;
+            color: #ffffff;
+        }
+
+        .highlight.yellow:hover {
+            color: transparent;
+        }
+
+        .highlight.yellow:hover::after {
+            content: attr(data-hover);
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #ffffff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .highlight.red {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+
+        .highlight.red:hover {
+            color: transparent;
+        }
+
+        .highlight.red:hover::after {
+            content: attr(data-hover);
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #dc3545;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .harmonogram {
+            margin-top: 25px;
+            font-size: 0.7em;
+        }
+
+        .harmonogram table {
+            margin-bottom: 0;
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: var(--table-bg);
+        }
+
+        .harmonogram th {
+            background: var(--table-header-bg);
+            color: #000000;
+            padding: 10px;
+            text-align: center;
+            vertical-align: middle;
+            font-weight: 500;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .harmonogram td {
+            padding: 8px;
+            text-align: center;
+            font-weight: 400;
+            border-bottom: 1px solid #eee;
+            color: var(--text-color);
+        }
+
+        .harmonogram tr:last-child td {
+            border-bottom: none;
+        }
+
+        .harmonogram tr:hover td {
+            background-color: #e9ecef;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-toggle {
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #007bff;
+            text-decoration: underline;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary, .btn-secondary {
+            background: var(--button-bg);
+            border: none;
+            color: #000000;
+            font-size: 0.95em;
+            padding: 8px 25px;
+            min-width: 150px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .btn-primary:hover, .btn-secondary:hover {
+            background: linear-gradient(90deg, #b0a070, #C2B280);
+            color: #000000;
+        }
+
+        .btn-sm {
+            font-size: 0.8em;
+            padding: 5px 15px;
+            min-width: 100px;
+        }
+
+        #generatePdfBtn {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+        }
+
+        #harmonogramContent, #harmonogramContent2 {
+            display: block;
+        }
+
+        #nadplataSection, #nadplataSection2 {
+            display: none;
+        }
+
+        .compare-checkbox {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+
+        .compare-checkbox .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.85em;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .compare-checkbox input {
+            display: none;
+        }
+
+        .compare-checkbox .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #C2B280;
+            background-color: var(--input-bg);
+            margin-right: 6px;
+            display: inline-block;
+            position: relative;
+            border-radius: 3px;
+        }
+
+        .compare-checkbox input:checked + .checkbox-custom {
+            background-color: #C2B280;
+        }
+
+        .compare-checkbox input:checked + .checkbox-custom::after {
+            content: '✔';
+            color: #000;
+            font-size: 14px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .form-container {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            position: relative;
+        }
+
+        .form-wrapper {
+            flex: 1;
+            max-width: 450px;
+        }
+
+        .form-wrapper h5 {
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        #formSection2 {
+            display: none;
+        }
+
+        .result-container {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .harmonogram-container {
+            display: flex;
+            gap: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            position: relative;
+        }
+
+        .result-wrapper {
+            flex: 1;
+            max-width: 550px;
+        }
+
+        .result-wrapper h5 {
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        .divider {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 150px;
+            background: var(--divider-bg);
+            display: none;
+        }
+
+        #harmonogramDivider {
+            top: 0;
+            height: 0;
+        }
+
+        .benefit-summary {
+            display: none;
+            margin: 25px auto;
+            max-width: 650px;
+            text-align: center;
+            font-size: 0.8em;
+        }
+
+        .benefit-summary h6 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .benefit-item {
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            color: #000000;
+            text-align: center;
+            font-weight: 500;
+            background: var(--button-bg);
+        }
+
+        .benefit-item span.value {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .control-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .btn-control {
+            width: 40px;
+            height: 40px;
+            background-color: #C2B280;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2em;
+            color: #000000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-control:hover {
+            background-color: #b0a070;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                align-items: center;
             }
-        };
 
-        function restrictInputToNumbers(input) {
-            input.addEventListener("input", () => {
-                input.value = input.value.replace(/[^0-9.]/g, "");
-                if (input.value.split(".").length > 2) {
-                    input.value = input.value.replace(/\.+$/, "");
-                }
-            });
+            .form-group {
+                max-width: 100%;
+            }
+
+            .form-container, .result-container, .harmonogram-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .divider {
+                display: none;
+            }
         }
 
-        function validateAndRoundKwota(input, range, min, max) {
-            input.addEventListener("input", () => {
-                let value = parseFloat(input.value) || min;
-                if (value < min) value = min;
-                if (value > max) value = max;
-                input.value = Math.round(value);
-                range.value = input.value;
-                updateKwotaInfo();
-            });
-            range.addEventListener("input", () => {
-                input.value = range.value;
-                updateKwotaInfo();
-            });
+        @media (max-width: 576px) {
+            .form-label, .form-control, .form-select, .input-group-text {
+                font-size: 0.75em;
+            }
+
+            .btn-primary, .btn-secondary {
+                font-size: 0.85em;
+                padding: 6px 20px;
+            }
+
+            .chart {
+                width: 120px;
+                height: 120px;
+            }
+
+            .control-buttons {
+                bottom: 10px;
+                right: 10px;
+            }
+
+            .btn-control {
+                width: 35px;
+                height: 35px;
+                font-size: 1em;
+            }
+        }
+    </style>
+    <script>
+        let chart1, chart2;
+        let harmonogram1Data = [];
+        let harmonogram2Data = [];
+
+        const { jsPDF } = window.jspdf || {};
+        if (!jsPDF) {
+            console.error("Biblioteka jsPDF nie została załadowana.");
+        } else if (!jsPDF.prototype.autoTable) {
+            console.warn("Plugin autoTable nie został załadowany. PDF bez tabel harmonogramu.");
         }
 
-        function validateAndRoundIloscRat(input, range, min, max) {
-            input.addEventListener("input", () => {
-                let value = parseInt(input.value) || min;
-                if (value < min) value = min;
-                if (value > max) value = max;
-                input.value = value;
-                range.value = input.value;
-                updateIloscRatInfo();
-                validateMaxKwota();
-            });
-            range.addEventListener("input", () => {
-                input.value = range.value;
-                updateIloscRatInfo();
-                validateMaxKwota();
-            });
+        // Theme Toggle
+        const themeToggleBtn = document.getElementById("themeToggleBtn");
+        const currentTheme = localStorage.getItem("theme") || "light";
+        if (currentTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeToggleBtn.textContent = "☀";
         }
 
-        function validateAndRoundOprocentowanie(input, range, min, max) {
-            input.addEventListener("input", () => {
-                let value = parseFloat(input.value) || min;
-                if (value < min) value = min;
-                if (value > max) value = max;
-                input.value = value.toFixed(1);
-                range.value = input.value;
-            });
-            range.addEventListener("input", () => {
-                input.value = parseFloat(range.value).toFixed(1);
-            });
+        themeToggleBtn.addEventListener("click", () => {
+            const theme = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", theme);
+            localStorage.setItem("theme", theme);
+            themeToggleBtn.textContent = theme === "dark" ? "☀" : "🌙";
+        });
+
+        // Zoom Controls
+        let scale = 1;
+        const zoomInBtn = document.getElementById("zoomInBtn");
+        const zoomOutBtn = document.getElementById("zoomOutBtn");
+        const container = document.querySelector(".container");
+
+        zoomInBtn.addEventListener("click", () => {
+            if (scale < 2) {
+                scale += 0.1;
+                container.style.transform = `scale(${scale})`;
+            }
+        });
+
+        zoomOutBtn.addEventListener("click", () => {
+            if (scale > 0.5) {
+                scale -= 0.1;
+                container.style.transform = `scale(${scale})`;
+            }
+        });
+
+        function toggleCompareSection() {
+            const compareCheckbox = document.getElementById("porownajKredyt");
+            const formSection2 = document.getElementById("formSection2");
+            const formDivider = document.getElementById("formDivider");
+            const resultDivider = document.getElementById("resultDivider");
+            const harmonogramDivider = document.getElementById("harmonogramDivider");
+
+            if (compareCheckbox.checked) {
+                formSection2.style.display = "block";
+                formDivider.style.display = "block";
+                resultDivider.style.display = "block";
+                harmonogramDivider.style.display = "none";
+            } else {
+                formSection2.style.display = "none";
+                formDivider.style.display = "none";
+                resultDivider.style.display = "none";
+                harmonogramDivider.style.display = "none";
+            }
         }
 
-        function validateAndRoundProwizja(input, range, min, max) {
-            input.addEventListener("input", () => {
-                let value = parseFloat(input.value) || min;
-                if (value < min) value = min;
-                if (value > max) value = max;
-                input.value = value.toFixed(1);
-                range.value = input.value;
-                updateProwizjaInfo();
-            });
-            range.addEventListener("input", () => {
-                input.value = parseFloat(range.value).toFixed(1);
-                updateProwizjaInfo();
-            });
+        document.getElementById("porownajKredyt").addEventListener("change", toggleCompareSection);
+
+        function toggleNadplataSection() {
+            const nadplataSection = document.getElementById("nadplataSection");
+            const nadplataCheckbox = document.getElementById("wlaczNadplate");
+            const nadplataInput = document.getElementById("nadplata");
+            const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa");
+            const nadplataRange = document.getElementById("nadplataRange");
+            const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange");
+
+            if (nadplataCheckbox.checked) {
+                nadplataSection.style.display = "flex";
+            } else {
+                nadplataSection.style.display = "none";
+                nadplataInput.value = 0;
+                nadplataJednorazowaInput.value = 0;
+                nadplataRange.value = 0;
+                nadplataJednorazowaRange.value = 0;
+            }
         }
 
-        function updateKwotaInfo() {
-            const kwota = parseFloat(elements.kwotaKredytu.value) || 0;
-            elements.kwotaKredytuInfo.textContent = `Kwota: ${kwota.toLocaleString('pl-PL')} zł`;
+        document.getElementById("wlaczNadplate").addEventListener("change", toggleNadplataSection);
+
+        document.getElementById("kwotaRange").addEventListener("input", function() {
+            const kwotaInput = document.getElementById("kwota");
+            kwotaInput.value = this.value;
+            updateProwizja();
+        });
+
+        document.getElementById("kwota").addEventListener("input", function() {
+            const kwotaRange = document.getElementById("kwotaRange");
+            kwotaRange.value = this.value;
+            updateProwizja();
+        });
+
+        document.getElementById("okresRange").addEventListener("input", function() {
+            const okresInput = document.getElementById("okres");
+            okresInput.value = this.value;
+            updateLata();
+        });
+
+        document.getElementById("okres").addEventListener("input", function() {
+            const okresRange = document.getElementById("okresRange");
+            okresRange.value = this.value;
+            updateLata();
+        });
+
+        document.getElementById("oprocentowanieRange").addEventListener("input", function() {
+            const oprocentowanieInput = document.getElementById("oprocentowanie");
+            oprocentowanieInput.value = this.value;
+        });
+
+        document.getElementById("oprocentowanie").addEventListener("input", function() {
+            const oprocentowanieRange = document.getElementById("oprocentowanieRange");
+            oprocentowanieRange.value = this.value;
+        });
+
+        document.getElementById("prowizjaRange").addEventListener("input", function() {
+            const prowizjaInput = document.getElementById("prowizja");
+            prowizjaInput.value = this.value;
+            updateProwizja();
+        });
+
+        document.getElementById("prowizja").addEventListener("input", function() {
+            const prowizjaRange = document.getElementById("prowizjaRange");
+            prowizjaRange.value = this.value;
+            updateProwizja();
+        });
+
+        document.getElementById("prowizjaTyp").addEventListener("change", updateProwizja);
+
+        document.getElementById("nadplataRange").addEventListener("input", function() {
+            const nadplataInput = document.getElementById("nadplata");
+            nadplataInput.value = this.value;
+        });
+
+        document.getElementById("nadplata").addEventListener("input", function() {
+            const nadplataRange = document.getElementById("nadplataRange");
+            nadplataRange.value = this.value;
+        });
+
+        document.getElementById("nadplataJednorazowaRange").addEventListener("input", function() {
+            const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa");
+            nadplataJednorazowaInput.value = this.value;
+        });
+
+        document.getElementById("nadplataJednorazowa").addEventListener("input", function() {
+            const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange");
+            nadplataJednorazowaRange.value = this.value;
+        });
+
+        function toggleNadplataSection2() {
+            const nadplataSection = document.getElementById("nadplataSection2");
+            const nadplataCheckbox = document.getElementById("wlaczNadplate2");
+            const nadplataInput = document.getElementById("nadplata2");
+            const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa2");
+            const nadplataRange = document.getElementById("nadplataRange2");
+            const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange2");
+
+            if (nadplataCheckbox.checked) {
+                nadplataSection.style.display = "flex";
+            } else {
+                nadplataSection.style.display = "none";
+                nadplataInput.value = 0;
+                nadplataJednorazowaInput.value = 0;
+                nadplataRange.value = 0;
+                nadplataJednorazowaRange.value = 0;
+            }
         }
 
-        function updateIloscRatInfo() {
-            const raty = parseInt(elements.iloscRat.value) || 0;
-            const lata = Math.round(raty / 12);
-            elements.iloscRatInfo.textContent = `Okres: ${lata} lat`;
+        document.getElementById("wlaczNadplate2").addEventListener("change", toggleNadplataSection2);
+
+        document.getElementById("kwotaRange2").addEventListener("input", function() {
+            const kwotaInput = document.getElementById("kwota2");
+            kwotaInput.value = this.value;
+            updateProwizja2();
+        });
+
+        document.getElementById("kwota2").addEventListener("input", function() {
+            const kwotaRange = document.getElementById("kwotaRange2");
+            kwotaRange.value = this.value;
+            updateProwizja2();
+        });
+
+        document.getElementById("okresRange2").addEventListener("input", function() {
+            const okresInput = document.getElementById("okres2");
+            okresInput.value = this.value;
+            updateLata2();
+        });
+
+        document.getElementById("okres2").addEventListener("input", function() {
+            const okresRange = document.getElementById("okresRange2");
+            okresRange.value = this.value;
+            updateLata2();
+        });
+
+        document.getElementById("oprocentowanieRange2").addEventListener("input", function() {
+            const oprocentowanieInput = document.getElementById("oprocentowanie2");
+            oprocentowanieInput.value = this.value;
+        });
+
+        document.getElementById("oprocentowanie2").addEventListener("input", function() {
+            const oprocentowanieRange = document.getElementById("oprocentowanieRange2");
+            oprocentowanieRange.value = this.value;
+        });
+
+        document.getElementById("prowizjaRange2").addEventListener("input", function() {
+            const prowizjaInput = document.getElementById("prowizja2");
+            prowizjaInput.value = this.value;
+            updateProwizja2();
+        });
+
+        document.getElementById("prowizja2").addEventListener("input", function() {
+            const prowizjaRange = document.getElementById("prowizjaRange2");
+            prowizjaRange.value = this.value;
+            updateProwizja2();
+        });
+
+        document.getElementById("prowizjaTyp2").addEventListener("change", updateProwizja2);
+
+        document.getElementById("nadplataRange2").addEventListener("input", function() {
+            const nadplataInput = document.getElementById("nadplata2");
+            nadplataInput.value = this.value;
+        });
+
+        document.getElementById("nadplata2").addEventListener("input", function() {
+            const nadplataRange = document.getElementById("nadplataRange2");
+            nadplataRange.value = this.value;
+        });
+
+        document.getElementById("nadplataJednorazowaRange2").addEventListener("input", function() {
+            const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa2");
+            nadplataJednorazowaInput.value = this.value;
+        });
+
+        document.getElementById("nadplataJednorazowa2").addEventListener("input", function() {
+            const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange2");
+            nadplataJednorazowaRange.value = this.value;
+        });
+
+        function updateLata() {
+            const miesiace = parseInt(document.getElementById("okres").value) || 0;
+            const lata = (miesiace / 12).toFixed(0);
+            document.getElementById("lata").textContent = `Ilość lat: ${lata}`;
         }
 
-        function updateProwizjaInfo() {
-            const kwota = parseFloat(elements.kwotaKredytu.value) || 0;
-            const prowizja = parseFloat(elements.prowizja.value) || 0;
-            const prowizjaPLN = kwota * (prowizja / 100);
-            elements.prowizjaInfo.textContent = `Wartość: ${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+        function updateProwizja() {
+            const kwota = parseFloat(document.getElementById("kwota").value) || 0;
+            const prowizja = parseFloat(document.getElementById("prowizja").value) || 0;
+            const typ = document.getElementById("prowizjaTyp").value;
+            const prowizjaPLN = typ === "procent" ? (kwota * prowizja / 100) : prowizja;
+            document.getElementById("prowizjaWartosc").textContent = `Wartość prowizji: ${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
             return prowizjaPLN;
         }
 
-        function validateMaxKwota() {
-            const raty = parseInt(elements.iloscRat.value) || 0;
-            const maxKwota = Math.min(5000000, 100000 * raty);
-            elements.kwotaKredytu.max = maxKwota;
-            elements.kwotaKredytuRange.max = maxKwota;
-            if (parseFloat(elements.kwotaKredytu.value) > maxKwota) {
-                elements.kwotaKredytu.value = maxKwota;
-                elements.kwotaKredytuRange.value = maxKwota;
-                updateKwotaInfo();
-            }
+        function updateLata2() {
+            const miesiace = parseInt(document.getElementById("okres2").value) || 0;
+            const lata = (miesiace / 12).toFixed(0);
+            document.getElementById("lata2").textContent = `Ilość lat: ${lata}`;
         }
 
-        function toggleVariableInputs(checkbox, container) {
-            checkbox.addEventListener("change", () => {
-                container.classList.toggle("show", checkbox.checked);
-            });
+        function updateProwizja2() {
+            const kwota = parseFloat(document.getElementById("kwota2").value) || 0;
+            const prowizja = parseFloat(document.getElementById("prowizja2").value) || 0;
+            const typ = document.getElementById("prowizjaTyp2").value;
+            const prowizjaPLN = typ === "procent" ? (kwota * prowizja / 100) : prowizja;
+            document.getElementById("prowizjaWartosc2").textContent = `Wartość prowizji: ${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+            return prowizjaPLN;
         }
 
-        function addVariableInput(wrapper, type) {
-            const row = document.createElement("div");
-            row.className = "variable-input-row";
-            if (type === "nadplata") {
-                row.innerHTML = `
-                    <div class="form-group">
-                        <label class="form-label">Kwota nadpłaty</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control nadplata-kwota" min="0" max="100000" step="10" value="0">
-                            <span class="input-group-text">zł</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Miesiąc</label>
-                        <input type="number" class="form-control nadplata-miesiac" min="1" max="420" step="1" value="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Efekt</label>
-                        <select class="form-control nadplata-efekt">
-                            <option value="skrocenie" selected>Skrócenie</option>
-                            <option value="obnizenie">Obniżenie raty</option>
-                        </select>
-                    </div>
-                `;
+        updateLata();
+        updateProwizja();
+        updateLata2();
+        updateProwizja2();
+
+        function toggleHarmonogram(sectionId) {
+            const content = document.getElementById(sectionId);
+            const toggleBtn = content.previousElementSibling;
+            if (content.style.display === "none") {
+                content.style.display = "block";
+                toggleBtn.textContent = "Harmonogram spłat ▼";
             } else {
-                row.innerHTML = `
-                    <div class="form-group">
-                        <label class="form-label">Nowe oprocentowanie</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control zmienne-oprocentowanie" min="0.1" max="25" step="0.1" value="7">
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Od miesiąca</label>
-                        <input type="number" class="form-control zmienne-miesiac" min="1" max="420" step="1" value="1">
-                    </div>
-                `;
+                content.style.display = "none";
+                toggleBtn.textContent = "Harmonogram spłat ►";
             }
-            wrapper.appendChild(row);
-            restrictInputToNumbers(row.querySelector("input[type='number']"));
         }
 
-        function obliczKredyt() {
-            if (state.isCalculating) return;
-            state.isCalculating = true;
+        function showForm() {
+            document.getElementById("formSection").style.display = "block";
+            document.getElementById("resultSection").style.display = "none";
+        }
 
-            const kwota = parseFloat(elements.kwotaKredytu.value) || 0;
-            const raty = parseInt(elements.iloscRat.value) || 0;
-            const oprocentowaniePoczatkowe = parseFloat(elements.oprocentowanie.value) / 100 / 12 || 0;
-            const rodzajRat = elements.rodzajRat.value;
-            const prowizjaPLN = updateProwizjaInfo();
+        function obliczKredytDlaFormularza(formPrefix = "") {
+            let kwota = parseFloat(document.getElementById(`kwota${formPrefix}`).value) || 0;
+            let oprocentowanie = parseFloat(document.getElementById(`oprocentowanie${formPrefix}`).value) / 100 / 12 || 0;
+            let miesiace = parseInt(document.getElementById(`okres${formPrefix}`).value) || 0;
+            let nadplata = parseFloat(document.getElementById(`nadplata${formPrefix}`).value) || 0;
+            let nadplataJednorazowa = parseFloat(document.getElementById(`nadplataJednorazowa${formPrefix}`).value) || 0;
+            let rodzajRat = document.getElementById(`rodzajRat${formPrefix}`).value || "rowne";
+            let efektNadplaty = document.querySelector(`input[name="efektNadplaty${formPrefix}"]:checked`)?.value || "skrocenie";
+            let prowizjaPLN = formPrefix === "" ? updateProwizja() : updateProwizja2();
 
-            if (kwota <= 0 || raty <= 0 || oprocentowaniePoczatkowe <= 0) {
-                alert("Wypełnij wszystkie wymagane pola poprawnymi wartościami.");
-                state.isCalculating = false;
-                return;
+            if (kwota <= 0 || miesiace <= 0 || oprocentowanie <= 0) {
+                alert("Proszę wypełnić wszystkie wymagane pola poprawnymi wartościami dla " + (formPrefix === "" ? "Twojego Kredytu" : "Nowego Kredytu") + ".");
+                return null;
             }
 
-            state.nadplaty = [];
-            if (elements.nadplataBtn.checked) {
-                document.querySelectorAll("#nadplataInputsWrapper .variable-input-row").forEach(row => {
-                    const kwota = parseFloat(row.querySelector(".nadplata-kwota").value) || 0;
-                    const miesiac = parseInt(row.querySelector(".nadplata-miesiac").value) || 1;
-                    const efekt = row.querySelector(".nadplata-efekt").value;
-                    if (kwota > 0 && miesiac > 0) {
-                        state.nadplaty.push({ kwota, miesiac, efekt });
-                    }
-                });
-            }
-
-            state.zmienneOprocentowanie = [];
-            if (elements.zmienneOprocentowanieBtn.checked) {
-                document.querySelectorAll("#zmienneOprocentowanieInputsWrapper .variable-input-row").forEach(row => {
-                    const oprocentowanie = parseFloat(row.querySelector(".zmienne-oprocentowanie").value) / 100 / 12 || 0;
-                    const miesiac = parseInt(row.querySelector(".zmienne-miesiac").value) || 1;
-                    if (oprocentowanie > 0 && miesiac > 0) {
-                        state.zmienneOprocentowanie.push({ oprocentowanie, miesiac });
-                    }
-                });
-            }
-
+            let rata, calkowityKoszt = 0, odsetki = 0, harmonogram = [];
             let pozostalyKapital = kwota;
-            let odsetkiCalkowite = 0;
             let calkowitaNadplata = 0;
-            let harmonogram = [];
-            let rata = 0;
 
-            if (rodzajRat === "rowne") {
-                rata = (pozostalyKapital * oprocentowaniePoczatkowe) / (1 - Math.pow(1 + oprocentowaniePoczatkowe, -raty));
+            if (nadplataJednorazowa > 0) {
+                pozostalyKapital -= nadplataJednorazowa;
+                calkowitaNadplata += nadplataJednorazowa;
+            }
+
+            if (rodzajRat === "rowne" && oprocentowanie > 0) {
+                rata = (pozostalyKapital * oprocentowanie) / (1 - Math.pow(1 + oprocentowanie, -miesiace));
                 if (isNaN(rata) || !isFinite(rata)) rata = 0;
-            }
-
-            for (let i = 1; i <= raty && pozostalyKapital > 0; i++) {
-                let oprocentowanie = oprocentowaniePoczatkowe;
-                for (const zmienna of state.zmienneOprocentowanie) {
-                    if (i >= zmienna.miesiac) {
-                        oprocentowanie = zmienna.oprocentowanie;
-                    }
+                if (nadplata > 0 && efektNadplaty === "obnizenie") {
+                    rata = ((pozostalyKapital - nadplata * miesiace) * oprocentowanie) / (1 - Math.pow(1 + oprocentowanie, -miesiace));
+                    if (isNaN(rata) || !isFinite(rata)) rata = 0;
                 }
-
-                let nadplataMiesiac = 0;
-                let efektNadplaty = "skrocenie";
-                for (const nadplata of state.nadplaty) {
-                    if (i === nadplata.miesiac) {
-                        nadplataMiesiac += nadplata.kwota;
-                        efektNadplaty = nadplata.efekt;
-                        calkowitaNadplata += nadplata.kwota;
+                for (let i = 1; i <= miesiace && pozostalyKapital > 0; i++) {
+                    let odsetkiMiesiac = pozostalyKapital * oprocentowanie;
+                    let kapital = rata - odsetkiMiesiac;
+                    let nadplataMiesiac = 0;
+                    if (nadplata > 0 && efektNadplaty === "skrocenie") {
+                        kapital += nadplata;
+                        nadplataMiesiac = nadplata;
+                        calkowitaNadplata += nadplata;
                     }
+                    pozostalyKapital -= kapital;
+                    if (pozostalyKapital < 0) pozostalyKapital = 0;
+                    calkowityKoszt += rata;
+                    odsetki += odsetkiMiesiac;
+                    harmonogram.push({
+                        miesiac: i,
+                        rata: rata.toFixed(2),
+                        nadplata: (nadplataMiesiac + (i === 1 ? nadplataJednorazowa : 0)).toFixed(2),
+                        kapital: kapital.toFixed(2),
+                        odsetki: odsetkiMiesiac.toFixed(2),
+                        pozostaly: pozostalyKapital.toFixed(2)
+                    });
+                    if (nadplata > 0 && efektNadplaty === "skrocenie" && pozostalyKapital <= 0) break;
                 }
-
-                let odsetkiMiesiac = pozostalyKapital * oprocentowanie;
-                let kapital;
-
-                if (rodzajRat === "rowne") {
-                    if (efektNadplaty === "obnizenie" && nadplataMiesiac > 0) {
-                        pozostalyKapital -= nadplataMiesiac;
-                        rata = (pozostalyKapital * oprocentowanie) / (1 - Math.pow(1 + oprocentowanie, -(raty - i + 1)));
-                        if (isNaN(rata) || !isFinite(rata)) rata = 0;
-                    }
-                    kapital = rata - odsetkiMiesiac;
-                    if (efektNadplaty === "skrocenie" && nadplataMiesiac > 0) {
-                        kapital += nadplataMiesiac;
-                    }
-                } else {
-                    kapital = pozostalyKapital / (raty - i + 1);
-                    if (efektNadplaty === "obnizenie" && nadplataMiesiac > 0) {
-                        pozostalyKapital -= nadplataMiesiac;
-                        kapital = pozostalyKapital / (raty - i + 1);
-                    }
-                    if (efektNadplaty === "skrocenie" && nadplataMiesiac > 0) {
-                        kapital += nadplataMiesiac;
-                    }
+            } else if (rodzajRat === "malejace" && oprocentowanie > 0) {
+                let kapitalStaly = pozostalyKapital / miesiace;
+                if (nadplata > 0 && efektNadplaty === "obnizenie") {
+                    kapitalStaly = (pozostalyKapital - nadplata * miesiace) / miesiace;
+                }
+                for (let i = 1; i <= miesiace && pozostalyKapital > 0; i++) {
+                    let odsetkiMiesiac = pozostalyKapital * oprocentowanie;
+                    let kapital = kapitalStaly;
                     rata = kapital + odsetkiMiesiac;
+                    let nadplataMiesiac = 0;
+                    if (nadplata > 0 && efektNadplaty === "skrocenie") {
+                        kapital += nadplata;
+                        nadplataMiesiac = nadplata;
+                        calkowitaNadplata += nadplata;
+                    }
+                    pozostalyKapital -= kapital;
+                    if (pozostalyKapital < 0) pozostalyKapital = 0;
+                    calkowityKoszt += rata;
+                    odsetki += odsetkiMiesiac;
+                    harmonogram.push({
+                        miesiac: i,
+                        rata: rata.toFixed(2),
+                        nadplata: (nadplataMiesiac + (i === 1 ? nadplataJednorazowa : 0)).toFixed(2),
+                        kapital: kapital.toFixed(2),
+                        odsetki: odsetkiMiesiac.toFixed(2),
+                        pozostaly: pozostalyKapital.toFixed(2)
+                    });
+                    if (nadplata > 0 && efektNadplaty === "skrocenie" && pozostalyKapital <= 0) break;
                 }
-
-                pozostalyKapital -= kapital;
-                if (pozostalyKapital < 0) pozostalyKapital = 0;
-                odsetkiCalkowite += odsetkiMiesiac;
-
-                harmonogram.push({
-                    miesiac: i,
-                    rata: rata.toFixed(2),
-                    nadplata: nadplataMiesiac.toFixed(2),
-                    kapital: kapital.toFixed(2),
-                    odsetki: odsetkiMiesiac.toFixed(2),
-                    pozostaly: pozostalyKapital.toFixed(2),
-                    oprocentowanie: (oprocentowanie * 12 * 100).toFixed(2) + "%"
-                });
-
-                if (pozostalyKapital <= 0) break;
             }
 
-            state.harmonogramData = harmonogram;
-            const calkowityKoszt = kwota + odsetkiCalkowite + prowizjaPLN;
+            calkowityKoszt += prowizjaPLN;
 
-            updateCharts(kwota, odsetkiCalkowite, calkowitaNadplata, prowizjaPLN);
-            updateHarmonogram();
-            elements.formSection.style.display = "none";
-            elements.resultSection.style.display = "block";
-            state.isCalculating = false;
+            return {
+                kwota,
+                odsetki,
+                calkowitaNadplata,
+                prowizjaPLN,
+                calkowityKoszt,
+                harmonogram,
+                okresPoNadplacie: harmonogram.length || miesiace
+            };
         }
 
-        function updateCharts(kwota, odsetki, nadplata, prowizja) {
-            if (state.chart) state.chart.destroy();
-            if (state.chartLine) state.chartLine.destroy();
+        function aktualizujWyniki(dane, prefix = "") {
+            if (!dane) return;
 
-            const ctx = elements.kredytChart.getContext("2d");
-            state.chart = new Chart(ctx, {
+            const { kwota, odsetki, calkowitaNadplata, prowizjaPLN, calkowityKoszt, harmonogram, okresPoNadplacie } = dane;
+
+            document.getElementById(`valueKapital${prefix}`).textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+            document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="0"] .color-box`).setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+
+            document.getElementById(`valueOdsetki${prefix}`).textContent = `${odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+            document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="1"] .color-box`).setAttribute('data-tooltip', `Odsetki: ${odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+
+            document.getElementById(`valueNadplata${prefix}`).textContent = `${calkowitaNadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+            document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="2"] .color-box`).setAttribute('data-tooltip', `Nadpłaty: ${calkowitaNadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+
+            document.getElementById(`valueProwizja${prefix}`).textContent = `${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
+            document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item[data-index="3"] .color-box`).setAttribute('data-tooltip', `Prowizja: ${prowizjaPLN.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+
+            document.getElementById(`okresPoNadplacie${prefix}`).textContent = okresPoNadplacie;
+            document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .highlight.yellow`).setAttribute('data-hover', `${okresPoNadplacie} miesięcy`);
+
+            document.getElementById(`koszt${prefix}`).textContent = `${calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+            document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .highlight.red`).setAttribute('data-hover', `${calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
+          
+            let chart = prefix === "" ? chart1 : chart2;
+            if (chart) {
+                chart.destroy();
+            }
+
+            const ctx = document.getElementById(`creditChart${prefix}`).getContext("2d");
+            chart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Kapitał', 'Odsetki', 'Nadpłaty', 'Prowizja'],
                     datasets: [{
-                        data: [kwota, odsetki, nadplata, prowizja],
+                        data: [kwota, odsetki, calkowitaNadplata, prowizjaPLN],
                         backgroundColor: ['#28a745', '#007bff', '#dc3545', '#6f42c1'],
-                        borderWidth: 1
+                        borderWidth: 1,
+                        hoverOffset: 8,
+                        hoverBackgroundColor: ['#28a745', '#007bff', '#dc3545', '#6f42c1']
                     }]
                 },
                 options: {
@@ -894,211 +1483,77 @@
                     plugins: {
                         legend: { display: false },
                         tooltip: {
+                            enabled: true,
                             backgroundColor: 'rgba(0, 0, 0, 0.8)',
                             titleFont: { size: 10 },
                             bodyFont: { size: 8 }
                         }
-                    }
-                }
-            });
-
-            const ctxLine = elements.kredytChartLine.getContext("2d");
-            state.chartLine = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: state.harmonogramData.map(row => row.miesiac),
-                    datasets: [{
-                        label: 'Pozostały kapitał',
-                        data: state.harmonogramData.map(row => parseFloat(row.pozostaly)),
-                        borderColor: '#007bff',
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: { title: { display: true, text: 'Miesiąc' } },
-                        y: { title: { display: true, text: 'Zadłużenie (zł)' }, beginAtZero: true }
                     },
-                    plugins: {
-                        legend: { display: true },
-                        tooltip: { mode: 'index', intersect: false }
+                    onHover: (event, chartElement) => {
+                        event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
                     }
                 }
             });
 
-            document.getElementById("valueKapital").textContent = `${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-            document.querySelector('.legend-item[data-index="0"] .color-box').setAttribute('data-tooltip', `Kapitał: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
+            if (prefix === "") {
+                chart1 = chart;
+            } else {
+                chart2 = chart;
+            }
 
-            document.getElementById("valueOdsetki").textContent = `${odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-            document.querySelector('.legend-item[data-index="1"] .color-box').setAttribute('data-tooltip', `Odsetki: ${odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-
-            document.getElementById("valueNadplata").textContent = `${nadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-            document.querySelector('.legend-item[data-index="2"] .color-box').setAttribute('data-tooltip', `Nadpłaty: ${nadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-
-            document.getElementById("valueProwizja").textContent = `${prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`;
-            document.querySelector('.legend-item[data-index="3"] .color-box').setAttribute('data-tooltip', `Prowizja: ${prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2 })} zł`);
-
-            document.querySelectorAll(".legend-item").forEach(item => {
-                item.addEventListener("mouseenter", () => {
-                    const index = parseInt(item.getAttribute("data-index"));
-                    state.chart.setActiveElements([{ datasetIndex: 0, index }]);
-                    state.chart.update();
+            document.querySelectorAll(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .legend-item`).forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    chart.setActiveElements([{ datasetIndex: 0, index: index }]);
+                    chart.update();
                 });
-                item.addEventListener("mouseleave", () => {
-                    state.chart.setActiveElements([]);
-                    state.chart.update();
+                item.addEventListener('mouseleave', function() {
+                    chart.setActiveElements([]);
+                    chart.update();
                 });
             });
-        }
 
-        function updateHarmonogram() {
-            elements.harmonogramTabela.innerHTML = "";
-            state.harmonogramData.forEach(row => {
-                elements.harmonogramTabela.innerHTML += `
+            let tabela = document.getElementById(`harmonogramTabela${prefix}`);
+            tabela.innerHTML = "";
+            harmonogram.forEach(wiersz => {
+                tabela.innerHTML += `
                     <tr>
-                        <td>${row.miesiac}</td>
-                        <td>${parseFloat(row.rata).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
-                        <td>${parseFloat(row.nadplata).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
-                        <td>${parseFloat(row.kapital).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
-                        <td>${parseFloat(row.odsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
-                        <td>${parseFloat(row.pozostaly).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
-                        <td>${row.oprocentowanie}</td>
+                        <td>${wiersz.miesiac}</td>
+                        <td>${parseFloat(wiersz.rata).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                        <td>${parseFloat(wiersz.nadplata).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                        <td>${parseFloat(wiersz.kapital).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                        <td>${parseFloat(wiersz.odsetki).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
+                        <td>${parseFloat(wiersz.pozostaly).toLocaleString('pl-PL', { minimumFractionDigits: 2 })}</td>
                     </tr>
                 `;
             });
         }
 
-        function generatePdf() {
-            const docDefinition = {
-                content: [
-                    {
-                        image: 'logo',
-                        width: 100,
-                        alignment: 'center'
-                    },
-                    { text: 'Kalkulator Kredytu Hipotecznego - Podsumowanie', style: 'header', margin: [0, 10] },
-                    {
-                        text: [
-                            { text: 'Kapitał: ', style: 'subheader' },
-                            document.getElementById("valueKapital").textContent
-                        ],
-                        margin: [0, 5]
-                    },
-                    {
-                        text: [
-                            { text: 'Odsetki: ', style: 'subheader' },
-                            document.getElementById("valueOdsetki").textContent
-                        ],
-                        margin: [0, 5]
-                    },
-                    {
-                        text: [
-                            { text: 'Nadpłaty: ', style: 'subheader' },
-                            document.getElementById("valueNadplata").textContent
-                        ],
-                        margin: [0, 5]
-                    },
-                    {
-                        text: [
-                            { text: 'Prowizja: ', style: 'subheader' },
-                            document.getElementById("valueProwizja").textContent
-                        ],
-                        margin: [0, 5]
-                    },
-                    { text: 'Harmonogram spłat', style: 'header', margin: [0, 10] },
-                    {
-                        table: {
-                            headerRows: 1,
-                            widths: [30, 60, 60, 60, 60, 60, 50],
-                            body: [
-                                ['Miesiąc', 'Rata', 'Nadpłata', 'Kapitał', 'Odsetki', 'Pozostały kapitał', 'Oprocentowanie'],
-                                ...state.harmonogramData.map(row => [
-                                    row.miesiac,
-                                    row.rata,
-                                    row.nadplata,
-                                    row.kapital,
-                                    row.odsetki,
-                                    row.pozostaly,
-                                    row.oprocentowanie
-                                ])
-                            ]
-                        }
-                    }
-                ],
-                images: {
-                    logo: 'https://finance-brothers.pl/cropped-logo-FB-1.png'
-                },
-                styles: {
-                    header: { fontSize: 16, bold: true },
-                    subheader: { fontSize: 12, bold: true }
-                },
-                defaultStyle: { font: 'Roboto' }
-            };
+        function obliczKredyt() {
+            const compareCheckbox = document.getElementById("porownajKredyt");
+            const resultSection2 = document.getElementById("resultSection2");
+            const harmonogramSection2 = document.getElementById("harmonogramSection2");
+            const benefitSummary = document.getElementById("benefitSummary");
+            const resultDivider = document.getElementById("resultDivider");
 
-            pdfMake.createPdf(docDefinition).download('Kalkulator_Kredytu_Hipotecznego.pdf');
-        }
+            const dane1 = obliczKredytDlaFormularza("");
+            if (!dane1) return;
+            harmonogram1Data = dane1.harmonogram;
+            aktualizujWyniki(dane1);
 
-        function toggleHarmonogram(sectionId) {
-            const content = document.getElementById(sectionId);
-            const toggleBtn = content.previousElementSibling;
-            content.style.display = content.style.display === "none" ? "block" : "none";
-            toggleBtn.textContent = content.style.display === "none" ? "Harmonogram spłat ►" : "Harmonogram spłat ▼";
-        }
+            if (compareCheckbox.checked) {
+                const dane2 = obliczKredytDlaFormularza("2");
+                if (!dane2) return;
+                harmonogram2Data = dane2.harmonogram;
 
-        function showForm() {
-            elements.formSection.style.display = "block";
-            elements.resultSection.style.display = "none";
-        }
+                resultSection2.style.display = "block";
+                harmonogramSection2.style.display = "block";
+                benefitSummary.style.display = "block";
+                resultDivider.style.display = "block";
 
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
-            const newTheme = currentTheme === "light" ? "dark" : "light";
-            document.documentElement.setAttribute("data-theme", newTheme);
-            elements.themeToggle.textContent = newTheme === "light" ? "🌙" : "☀";
-            localStorage.setItem("theme", newTheme);
-        }
+                aktualizujWyniki(dane2, "2");
 
-        function zoomIn() {
-            state.zoomLevel += 0.1;
-            document.querySelector(".container").style.transform = `scale(${state.zoomLevel})`;
-        }
-
-        function zoomOut() {
-            state.zoomLevel = Math.max(0.5, state.zoomLevel - 0.1);
-            document.querySelector(".container").style.transform = `scale(${state.zoomLevel})`;
-        }
-
-        // Inicjalizacja
-        restrictInputToNumbers(elements.kwotaKredytu);
-        restrictInputToNumbers(elements.iloscRat);
-        restrictInputToNumbers(elements.oprocentowanie);
-        restrictInputToNumbers(elements.prowizja);
-
-        validateAndRoundKwota(elements.kwotaKredytu, elements.kwotaKredytuRange, 1000, 5000000);
-        validateAndRoundIloscRat(elements.iloscRat, elements.iloscRatRange, 12, 420);
-        validateAndRoundOprocentowanie(elements.oprocentowanie, elements.oprocentowanieRange, 0.1, 25);
-        validateAndRoundProwizja(elements.prowizja, elements.prowizjaRange, 0, 25);
-
-        toggleVariableInputs(elements.nadplataBtn, elements.nadplataInputs);
-        toggleVariableInputs(elements.zmienneOprocentowanieBtn, elements.zmienneOprocentowanieInputs);
-
-        elements.addNadplataBtn.addEventListener("click", () => addVariableInput(document.getElementById("nadplataInputsWrapper"), "nadplata"));
-        elements.addZmienneOprocentowanieBtn.addEventListener("click", () => addVariableInput(document.getElementById("zmienneOprocentowanieInputsWrapper"), "zmienneOprocentowanie"));
-
-        elements.obliczBtn.addEventListener("click", obliczKredyt);
-        elements.generatePdfBtn.addEventListener("click", generatePdf);
-        elements.themeToggle.addEventListener("click", toggleTheme);
-        elements.zoomIn.addEventListener("click", zoomIn);
-        elements.zoomOut.addEventListener("click", zoomOut);
-
-        const savedTheme = localStorage.getItem("theme") || "light";
-        document.documentElement.setAttribute("data-theme", savedTheme);
-        elements.themeToggle.textContent = savedTheme === "light" ? "🌙" : "☀";
-
-        updateKwotaInfo();
-        updateIloscRatInfo();
-        updateProwizjaInfo();
-    </script>
-</body>
-</html>
+                const koszt1 = dane1.calkowityKoszt;
+                const koszt2 = dane2.calkowityKoszt;
+                const okres1 = dane1.okresPoNadplacie;
+                const okres2 = dane2.okresPoNadpl
