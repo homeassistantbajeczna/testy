@@ -60,35 +60,43 @@
                                     <option value="malejace">Raty malejące</option>
                                 </select>
                             </div>
-                            <div class="form-group" id="wartoscRaty">
-                                <label for="wartoscRaty" class="form-label">Wartość raty</label>
+                            <div class="form-group" id="prowizja">
+                                <label for="prowizja" class="form-label">Prowizja</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="wartoscRaty" min="0.1" max="1000000" step="0.1" value="1000">
-                                    <select class="form-select jednostka-select" id="jednostkaRaty">
+                                    <input type="number" class="form-control" id="prowizja" min="0.1" max="1000000" step="0.1" value="1000">
+                                    <select class="form-select jednostka-select" id="jednostkaProwizji">
                                         <option value="pln">zł</option>
                                         <option value="procent">%</option>
                                     </select>
                                 </div>
-                                <input type="range" class="form-range" id="wartoscRatyRange" min="0.1" max="1000000" step="0.1" value="1000">
-                                <div class="sub-info" id="wartoscRatyInfo">Wartość: 1000 zł</div>
+                                <input type="range" class="form-range" id="prowizjaRange" min="0.1" max="1000000" step="0.1" value="1000">
+                                <div class="sub-info" id="prowizjaInfo">Wartość: 1000 zł</div>
                             </div>
                         </div>
-                        <div class="variable-rate-container">
-                            <div class="checkbox-row" id="variableCheckboxRow">
-                                <label class="checkbox-label" id="nadplataKredytuLabel">
-                                    <input type="checkbox" id="nadplataKredytuBtn">
-                                    <span class="checkbox-custom"></span>
-                                    <b>Nadpłata Kredytu</b>
-                                </label>
+                        <div class="variable-rate-container" id="variableOprocentowanieContainer">
+                            <div class="checkbox-row">
                                 <label class="checkbox-label" id="zmienneOprocentowanieLabel">
                                     <input type="checkbox" id="zmienneOprocentowanieBtn">
                                     <span class="checkbox-custom"></span>
                                     <b>Zmienne Oprocentowanie</b>
                                 </label>
                             </div>
-                            <div class="variable-inputs" id="variableInputs">
-                                <div class="variable-inputs-wrapper" id="variableInputsWrapper"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                            <div class="variable-inputs" id="variableOprocentowanieInputs">
+                                <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                            </div>
+                        </div>
+                        <div class="variable-rate-container" id="nadplataKredytuContainer">
+                            <div class="checkbox-row">
+                                <label class="checkbox-label" id="nadplataKredytuLabel">
+                                    <input type="checkbox" id="nadplataKredytuBtn">
+                                    <span class="checkbox-custom"></span>
+                                    <b>Nadpłata Kredytu</b>
+                                </label>
+                            </div>
+                            <div class="variable-inputs" id="nadplataKredytuInputs">
+                                <div class="variable-inputs-wrapper" id="nadplataKredytuInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną zmianę</button>
                             </div>
                         </div>
                         <div class="form-row">
