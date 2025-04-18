@@ -10,9 +10,12 @@
 </head>
 <body>
     <div class="logo-container">
-        <a href="https://finance-brothers.pl">
-            <img src="cropped-logo-FB-1.png" alt="Twoje Logo" class="logo d-block mx-auto">
-        </a>
+        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        <div class="zoom-controls">
+            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
+            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
+            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
+        </div>
     </div>
     <div class="container">
         <div class="form-section" id="formSection">
@@ -352,11 +355,6 @@
                 </div>
             </div>
         </div>
-        <div class="control-buttons">
-            <button id="zoomInBtn" class="btn-control">➕</button>
-            <button id="zoomOutBtn" class="btn-control">➖</button>
-            <button id="themeToggleBtn" class="btn-control">🌙</button>
-        </div>
     </div>
     <style>
         :root {
@@ -437,8 +435,8 @@
 
         .form-group {
             flex: 1;
-            min-width: 150px;
-            max-width: 180px;
+            min-width: 120px;
+            max-width: 150px;
             display: flex;
             flex-direction: column;
             justify-content: stretch;
@@ -450,15 +448,15 @@
         }
 
         .form-label {
-            font-size: 0.8em;
+            font-size: 0.75em;
             text-transform: uppercase;
             margin-bottom: 3px;
             color: var(--text-color);
         }
 
         .form-control, .form-select {
-            height: 30px;
-            font-size: 0.85em;
+            height: 28px;
+            font-size: 0.8em;
             padding: 5px;
             text-align: center;
             background-color: var(--input-bg);
@@ -469,7 +467,7 @@
         }
 
         .form-select {
-            max-width: 180px;
+            max-width: 150px;
             appearance: none;
             background: var(--input-bg) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') no-repeat right 8px center;
             padding-right: 20px;
@@ -477,7 +475,7 @@
 
         .form-range {
             margin-top: 5px;
-            height: 10px;
+            height: 8px;
             background: #d3d3d3;
             border-radius: 5px;
             box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
@@ -487,8 +485,8 @@
             background: #C2B280;
             border: none;
             border-radius: 50%;
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
             -webkit-appearance: none;
@@ -498,14 +496,20 @@
             background: #C2B280;
             border: none;
             border-radius: 50%;
-            width: 15px;
-            height: 15px;
+            width: 12px;
+            height: 12px;
             cursor: pointer;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
+        .input-group {
+            display: flex;
+            align-items: stretch;
+        }
+
         .input-group-text {
-            font-size: 0.85em;
+            height: 28px;
+            font-size: 0.8em;
             padding: 5px 8px;
             background-color: var(--input-bg);
             border: 1px solid var(--input-border);
@@ -528,18 +532,18 @@
 
         input[type="radio"], input[type="checkbox"] {
             accent-color: #C2B280;
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
         }
 
         .radio-label, .checkbox-label {
-            font-size: 0.6em;
+            font-size: 0.55em;
             margin-left: 0;
             color: var(--text-color);
         }
 
         .checkbox-label.nadplata-label {
-            font-size: 0.7em;
+            font-size: 0.65em;
             font-weight: bold;
         }
 
@@ -783,7 +787,7 @@
             background: var(--button-bg);
             border: none;
             color: #000000;
-            font-size: 0.95em;
+            font-size: 0.9em;
             padding: 8px 25px;
             min-width: 150px;
             border-radius: 5px;
@@ -798,7 +802,7 @@
         }
 
         .btn-sm {
-            font-size: 0.8em;
+            font-size: 0.75em;
             padding: 5px 15px;
             min-width: 100px;
         }
@@ -823,14 +827,14 @@
             right: 15px;
             display: flex;
             align-items: center;
-            font-size: 0.95em;
+            font-size: 0.9em;
             color: var(--text-color);
         }
 
         .compare-checkbox .checkbox-label {
             display: flex;
             align-items: center;
-            font-size: 0.85em;
+            font-size: 0.8em;
             color: var(--text-color);
             cursor: pointer;
         }
@@ -840,8 +844,8 @@
         }
 
         .compare-checkbox .checkbox-custom {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border: 2px solid #C2B280;
             background-color: var(--input-bg);
             margin-right: 6px;
@@ -857,7 +861,7 @@
         .compare-checkbox input:checked + .checkbox-custom::after {
             content: '✔';
             color: #000;
-            font-size: 14px;
+            font-size: 12px;
             position: absolute;
             top: 50%;
             left: 50%;
@@ -922,7 +926,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: 2px;
-            height: 150px;
+            height: 120px;
             background: var(--divider-bg);
             display: none;
         }
@@ -964,21 +968,21 @@
 
         .control-buttons {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            top: 10px;
+            right: 15px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
             z-index: 1000;
         }
 
         .btn-control {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             background-color: #C2B280;
             border: none;
             border-radius: 50%;
-            font-size: 1.2em;
+            font-size: 1.1em;
             color: #000000;
             cursor: pointer;
             display: flex;
@@ -1014,11 +1018,11 @@
 
         @media (max-width: 576px) {
             .form-label, .form-control, .form-select, .input-group-text {
-                font-size: 0.75em;
+                font-size: 0.7em;
             }
 
             .btn-primary, .btn-secondary {
-                font-size: 0.85em;
+                font-size: 0.8em;
                 padding: 6px 20px;
             }
 
@@ -1028,14 +1032,14 @@
             }
 
             .control-buttons {
-                bottom: 10px;
+                top: 5px;
                 right: 10px;
             }
 
             .btn-control {
-                width: 35px;
-                height: 35px;
-                font-size: 1em;
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
             }
         }
     </style>
@@ -1043,13 +1047,6 @@
         let chart1, chart2;
         let harmonogram1Data = [];
         let harmonogram2Data = [];
-
-        const { jsPDF } = window.jspdf || {};
-        if (!jsPDF) {
-            console.error("Biblioteka jsPDF nie została załadowana.");
-        } else if (!jsPDF.prototype.autoTable) {
-            console.warn("Plugin autoTable nie został załadowany. PDF bez tabel harmonogramu.");
-        }
 
         // Theme Toggle
         const themeToggleBtn = document.getElementById("themeToggleBtn");
@@ -1086,6 +1083,7 @@
             }
         });
 
+        // Toggle Compare Section
         function toggleCompareSection() {
             const compareCheckbox = document.getElementById("porownajKredyt");
             const formSection2 = document.getElementById("formSection2");
@@ -1108,6 +1106,7 @@
 
         document.getElementById("porownajKredyt").addEventListener("change", toggleCompareSection);
 
+        // Toggle Nadplata Sections
         function toggleNadplataSection() {
             const nadplataSection = document.getElementById("nadplataSection");
             const nadplataCheckbox = document.getElementById("wlaczNadplate");
@@ -1126,76 +1125,6 @@
                 nadplataJednorazowaRange.value = 0;
             }
         }
-
-        document.getElementById("wlaczNadplate").addEventListener("change", toggleNadplataSection);
-
-        document.getElementById("kwotaRange").addEventListener("input", function() {
-            const kwotaInput = document.getElementById("kwota");
-            kwotaInput.value = this.value;
-            updateProwizja();
-        });
-
-        document.getElementById("kwota").addEventListener("input", function() {
-            const kwotaRange = document.getElementById("kwotaRange");
-            kwotaRange.value = this.value;
-            updateProwizja();
-        });
-
-        document.getElementById("okresRange").addEventListener("input", function() {
-            const okresInput = document.getElementById("okres");
-            okresInput.value = this.value;
-            updateLata();
-        });
-
-        document.getElementById("okres").addEventListener("input", function() {
-            const okresRange = document.getElementById("okresRange");
-            okresRange.value = this.value;
-            updateLata();
-        });
-
-        document.getElementById("oprocentowanieRange").addEventListener("input", function() {
-            const oprocentowanieInput = document.getElementById("oprocentowanie");
-            oprocentowanieInput.value = this.value;
-        });
-
-        document.getElementById("oprocentowanie").addEventListener("input", function() {
-            const oprocentowanieRange = document.getElementById("oprocentowanieRange");
-            oprocentowanieRange.value = this.value;
-        });
-
-        document.getElementById("prowizjaRange").addEventListener("input", function() {
-            const prowizjaInput = document.getElementById("prowizja");
-            prowizjaInput.value = this.value;
-            updateProwizja();
-        });
-
-        document.getElementById("prowizja").addEventListener("input", function() {
-            const prowizjaRange = document.getElementById("prowizjaRange");
-            prowizjaRange.value = this.value;
-            updateProwizja();
-        });
-
-        document.getElementById("prowizjaTyp").addEventListener("change", updateProwizja);
-
-        document.getElementById("nadplataRange").addEventListener("input", function() {
-            const nadplataInput = document.getElementById("nadplata");
-            nadplataInput.value = this.value;
-        });
-
-        document.getElementById("nadplata").addEventListener("input", function() {
-            const nadplataRange = document.getElementById("nadplataRange");
-            nadplataRange.value = this.value;
-        });
-
-        document.getElementById("nadplataJednorazowaRange").addEventListener("input", function() {
-            const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa");
-            nadplataJednorazowaInput.value = this.value;
-        });
-
-        document.getElementById("nadplataJednorazowa").addEventListener("input", function() {
-            const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange");
-            nadplataJednorazowaRange.value = this.value;
-        });
 
         function toggleNadplataSection2() {
             const nadplataSection = document.getElementById("nadplataSection2");
@@ -1216,76 +1145,40 @@
             }
         }
 
+        document.getElementById("wlaczNadplate").addEventListener("change", toggleNadplataSection);
         document.getElementById("wlaczNadplate2").addEventListener("change", toggleNadplataSection2);
 
-        document.getElementById("kwotaRange2").addEventListener("input", function() {
-            const kwotaInput = document.getElementById("kwota2");
-            kwotaInput.value = this.value;
-            updateProwizja2();
-        });
+        // Input and Range Synchronization
+        function syncInputRange(inputId, rangeId, callback) {
+            const input = document.getElementById(inputId);
+            const range = document.getElementById(rangeId);
+            range.addEventListener("input", () => {
+                input.value = range.value;
+                if (callback) callback();
+            });
+            input.addEventListener("input", () => {
+                range.value = input.value;
+                if (callback) callback();
+            });
+        }
 
-        document.getElementById("kwota2").addEventListener("input", function() {
-            const kwotaRange = document.getElementById("kwotaRange2");
-            kwotaRange.value = this.value;
-            updateProwizja2();
-        });
+        // First Form
+        syncInputRange("kwota", "kwotaRange", updateProwizja);
+        syncInputRange("okres", "okresRange", updateLata);
+        syncInputRange("oprocentowanie", "oprocentowanieRange");
+        syncInputRange("prowizja", "prowizjaRange", updateProwizja);
+        syncInputRange("nadplata", "nadplataRange");
+        syncInputRange("nadplataJednorazowa", "nadplataJednorazowaRange");
 
-        document.getElementById("okresRange2").addEventListener("input", function() {
-            const okresInput = document.getElementById("okres2");
-            okresInput.value = this.value;
-            updateLata2();
-        });
+        // Second Form
+        syncInputRange("kwota2", "kwotaRange2", updateProwizja2);
+        syncInputRange("okres2", "okresRange2", updateLata2);
+        syncInputRange("oprocentowanie2", "oprocentowanieRange2");
+        syncInputRange("prowizja2", "prowizjaRange2", updateProwizja2);
+        syncInputRange("nadplata2", "nadplataRange2");
+        syncInputRange("nadplataJednorazowa2", "nadplataJednorazowaRange2");
 
-        document.getElementById("okres2").addEventListener("input", function() {
-            const okresRange = document.getElementById("okresRange2");
-            okresRange.value = this.value;
-            updateLata2();
-        });
-
-        document.getElementById("oprocentowanieRange2").addEventListener("input", function() {
-            const oprocentowanieInput = document.getElementById("oprocentowanie2");
-            oprocentowanieInput.value = this.value;
-        });
-
-        document.getElementById("oprocentowanie2").addEventListener("input", function() {
-            const oprocentowanieRange = document.getElementById("oprocentowanieRange2");
-            oprocentowanieRange.value = this.value;
-        });
-
-        document.getElementById("prowizjaRange2").addEventListener("input", function() {
-            const prowizjaInput = document.getElementById("prowizja2");
-            prowizjaInput.value = this.value;
-            updateProwizja2();
-        });
-
-        document.getElementById("prowizja2").addEventListener("input", function() {
-            const prowizjaRange = document.getElementById("prowizjaRange2");
-            prowizjaRange.value = this.value;
-            updateProwizja2();
-        });
-
-        document.getElementById("prowizjaTyp2").addEventListener("change", updateProwizja2);
-
-        document.getElementById("nadplataRange2").addEventListener("input", function() {
-            const nadplataInput = document.getElementById("nadplata2");
-            nadplataInput.value = this.value;
-        });
-
-        document.getElementById("nadplata2").addEventListener("input", function() {
-            const nadplataRange = document.getElementById("nadplataRange2");
-            nadplataRange.value = this.value;
-        });
-
-        document.getElementById("nadplataJednorazowaRange2").addEventListener("input", function() {
-            const nadplataJednorazowaInput = document.getElementById("nadplataJednorazowa2");
-            nadplataJednorazowaInput.value = this.value;
-        });
-
-        document.getElementById("nadplataJednorazowa2").addEventListener("input", function() {
-            const nadplataJednorazowaRange = document.getElementById("nadplataJednorazowaRange2");
-            nadplataJednorazowaRange.value = this.value;
-        });
-
+        // Update Functions
         function updateLata() {
             const miesiace = parseInt(document.getElementById("okres").value) || 0;
             const lata = (miesiace / 12).toFixed(0);
@@ -1316,11 +1209,15 @@
             return prowizjaPLN;
         }
 
+        document.getElementById("prowizjaTyp").addEventListener("change", updateProwizja);
+        document.getElementById("prowizjaTyp2").addEventListener("change", updateProwizja2);
+
         updateLata();
         updateProwizja();
         updateLata2();
         updateProwizja2();
 
+        // Harmonogram Toggle
         function toggleHarmonogram(sectionId) {
             const content = document.getElementById(sectionId);
             const toggleBtn = content.previousElementSibling;
@@ -1333,11 +1230,13 @@
             }
         }
 
+        // Show Form
         function showForm() {
             document.getElementById("formSection").style.display = "block";
             document.getElementById("resultSection").style.display = "none";
         }
 
+        // Calculate Credit
         function obliczKredytDlaFormularza(formPrefix = "") {
             let kwota = parseFloat(document.getElementById(`kwota${formPrefix}`).value) || 0;
             let oprocentowanie = parseFloat(document.getElementById(`oprocentowanie${formPrefix}`).value) / 100 / 12 || 0;
@@ -1458,7 +1357,7 @@
 
             document.getElementById(`koszt${prefix}`).textContent = `${calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
             document.querySelector(`.result-wrapper${prefix === "" ? ":nth-child(1)" : "#resultSection2"} .highlight.red`).setAttribute('data-hover', `${calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`);
-          
+
             let chart = prefix === "" ? chart1 : chart2;
             if (chart) {
                 chart.destroy();
@@ -1529,12 +1428,16 @@
             });
         }
 
+        // Main Calculate Function
         function obliczKredyt() {
             const compareCheckbox = document.getElementById("porownajKredyt");
             const resultSection2 = document.getElementById("resultSection2");
             const harmonogramSection2 = document.getElementById("harmonogramSection2");
             const benefitSummary = document.getElementById("benefitSummary");
             const resultDivider = document.getElementById("resultDivider");
+
+            document.getElementById("formSection").style.display = "none";
+            document.getElementById("resultSection").style.display = "block";
 
             const dane1 = obliczKredytDlaFormularza("");
             if (!dane1) return;
@@ -1556,4 +1459,22 @@
                 const koszt1 = dane1.calkowityKoszt;
                 const koszt2 = dane2.calkowityKoszt;
                 const okres1 = dane1.okresPoNadplacie;
-                const okres2 = dane2.okresPoNadpl
+                const okres2 = dane2.okresPoNadplacie;
+
+                const roznicaKoszt = (koszt1 - koszt2).toFixed(2);
+                const roznicaOkres = okres1 - okres2;
+                const procentZmniejszenia = koszt2 > 0 ? ((koszt1 - koszt2) / koszt1 * 100).toFixed(2) : 0;
+
+                document.getElementById("benefitCostValue").textContent = `${roznicaKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2 })}`;
+                document.getElementById("benefitPeriodValue").textContent = `${roznicaOkres}`;
+                document.getElementById("benefitPercentageValue").textContent = `${procentZmniejszenia}`;
+            } else {
+                resultSection2.style.display = "none";
+                harmonogramSection2.style.display = "none";
+                benefitSummary.style.display = "none";
+                resultDivider.style.display = "none";
+            }
+        }
+
+        document.getElementById("obliczBtn").addEventListener("click", obliczKredyt);
+    </script>
