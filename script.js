@@ -45,7 +45,6 @@ function syncInputWithRange(input, range, options = {}) {
 
     // Synchronizacja z pola tekstowego do suwaka
     input.addEventListener("input", () => {
-        // Odczytujemy aktualne atrybuty z input
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(input.step) || 1;
@@ -61,7 +60,6 @@ function syncInputWithRange(input, range, options = {}) {
 
     // Synchronizacja z suwaka do pola tekstowego
     range.addEventListener("input", () => {
-        // Odczytujemy aktualne atrybuty z range
         const min = parseFloat(range.min) || 0;
         const max = parseFloat(range.max) || Infinity;
         const step = parseFloat(range.step) || 1;
@@ -72,7 +70,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (onChange) onChange(value);
     });
 
-    // Inicjalna synchronizacja przy załadowaniu strony
+    // Inicjalna synchronizacja
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
     const step = parseFloat(input.step) || 1;
@@ -90,8 +88,8 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: false,
     onChange: (value) => {
         state.lastFormData.kwota = value;
-        updateProwizjaInfo(); // Aktualizacja prowizji przy zmianie kwoty
-        updateKwotaInfo(); // Aktualizacja tekstu "Kwota kredytu"
+        updateProwizjaInfo();
+        updateKwotaInfo();
     },
 });
 
@@ -100,8 +98,8 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     isDecimal: false,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
-        updateLata(); // Aktualizacja tekstu "Ilość lat"
-        updateVariableInputs(); // Aktualizacja zmiennych oprocentowań/nadpłat
+        updateLata();
+        updateVariableInputs();
     },
 });
 
@@ -118,7 +116,7 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
-        updateProwizjaInfo(); // Aktualizacja tekstu "Wartość: X zł"
+        updateProwizjaInfo();
     },
 });
 
@@ -139,7 +137,6 @@ function updateProwizjaInput() {
         defaultValue = 10000;
     }
 
-    // Aktualizacja atrybutów input i range
     elements.prowizja.min = min;
     elements.prowizja.max = max;
     elements.prowizja.step = step;
@@ -147,14 +144,12 @@ function updateProwizjaInput() {
     elements.prowizjaRange.max = max;
     elements.prowizjaRange.step = step;
 
-    // Ustawienie wartości domyślnej tylko przy zmianie jednostki
     const currentValue = parseFloat(elements.prowizja.value);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
         elements.prowizja.value = defaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
     } else {
-        // Zachowanie bieżącej wartości, jeśli jest w zakresie
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
