@@ -43,6 +43,7 @@ function syncInputWithRange(input, range, options = {}) {
         return;
     }
 
+    // Synchronizacja z pola tekstowego do suwaka
     input.addEventListener("input", () => {
         let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
         if (isNaN(value)) value = min;
@@ -53,12 +54,21 @@ function syncInputWithRange(input, range, options = {}) {
         if (onChange) onChange(value);
     });
 
+    // Synchronizacja z suwaka do pola tekstowego
     range.addEventListener("input", () => {
         let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
         input.value = isDecimal ? value.toFixed(1) : value;
-        range.value = value; // Ensure range value is updated
+        range.value = value; // Upewnij się, że wartość suwaka jest zsynchronizowana
         if (onChange) onChange(value);
     });
+
+    // Inicjalna synchronizacja przy załadowaniu strony
+    let initialValue = isDecimal ? parseFloat(input.value) : parseInt(input.value);
+    if (isNaN(initialValue)) initialValue = min;
+    if (initialValue < min) initialValue = min;
+    if (initialValue > max) initialValue = max;
+    input.value = isDecimal ? initialValue.toFixed(1) : initialValue;
+    range.value = initialValue;
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
