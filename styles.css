@@ -169,7 +169,7 @@ body {
 }
 
 #nadplataKredytuLabel {
-    font-size: 0.6em !important;
+    font-size: 0.7em !important; /* Zmieniono z 0.6em na 0.7em */
 }
 
 .checkbox-label input {
