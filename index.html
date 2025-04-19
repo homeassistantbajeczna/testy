@@ -1,113 +1,125 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+    <!-- Ustawienie kodowania na UTF-8 -->
     <meta charset="UTF-8">
+    <!-- Responsywność -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Kalkulator kredytowy - oblicz raty kredytu z uwzględnieniem nadpłaty i zmiennego oprocentowania.">
-    <meta name="keywords" content="kalkulator kredytowy, kredyt, nadpłata kredytu, zmienne oprocentowanie, finanse">
-    <meta name="author" content="Finance Brothers">
-    <title>Kalkulator Kredytowy</title>
+    <title>Finance Brothers</title>
+    <!-- Zewnętrzne zależności Bootstrap i Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lokalny plik CSS -->
     <link rel="stylesheet" href="styles.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <div class="logo-container">
-            <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
-            <div class="zoom-controls">
-                <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
-                <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
-                <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
-            </div>
+    <!-- Kontener na logo i przyciski zoomu -->
+    <div class="logo-container">
+        <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
+        <div class="zoom-controls">
+            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
+            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
+            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
         </div>
-
-        <div class="calc-container">
-            <h1 class="calc-title">Kalkulator Kredytowy</h1>
-            <div class="form-section" id="formSection">
-                <div class="form-group">
-                    <label for="kwota" class="form-label">Kwota Kredytu</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
-                        <span class="input-group-text">zł</span>
-                    </div>
-                    <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
-                </div>
-
-                <div class="form-group">
-                    <label for="okresInwestycji" class="form-label">Okres Kredytu</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="okresInwestycji" min="3" max="144" step="1" value="3">
-                        <span class="input-group-text">miesięcy</span>
-                    </div>
-                    <input type="range" class="form-range" id="okresInwestycjiRange" min="3" max="144" step="1" value="3">
-                    <span id="lata" class="form-text">Ilość lat: 0</span>
-                </div>
-
-                <div class="form-group">
-                    <label for="inflacja" class="form-label">Oprocentowanie</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="inflacja" min="0.1" max="50" step="0.1" value="4.90">
-                        <span class="input-group-text">%</span>
-                    </div>
-                    <input type="range" class="form-range" id="inflacjaRange" min="0.1" max="50" step="0.1" value="4.90">
-                </div>
-
-                <div class="form-group">
-                    <label for="rodzajRat" class="form-label">Rodzaj Rat</label>
-                    <select class="form-select" id="rodzajRat">
-                        <option value="rowne" selected>Równe</option>
-                        <option value="malejace">Malejące</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="prowizja" class="form-label">Prowizja</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="prowizja" min="0.1" max="1000000" step="0.1" value="1000">
-                        <select class="form-select" id="jednostkaProwizji">
-                            <option value="pln" selected>PLN</option>
-                            <option value="procent">%</option>
-                        </select>
-                    </div>
-                    <input type="range" class="form-range" id="prowizjaRange" min="0.1" max="1000000" step="0.1" value="1000">
-                    <span id="prowizjaInfo" class="form-text">Wartość: 1000.00 zł</span>
-                </div>
-
-                <!-- Nadpłata Kredytu -->
-                <div class="variable-rate-container" id="nadplataKredytuContainer">
-                    <div class="checkbox-row">
-                        <label class="checkbox-label" id="nadplataKredytuLabel">
-                            <input type="checkbox" id="nadplataKredytuBtn">
-                            <span class="checkbox-custom"></span>
-                            Nadpłata Kredytu
-                        </label>
-                    </div>
-                    <div class="variable-inputs" id="nadplataKredytuInputs">
-                        <div class="variable-inputs-wrapper" id="nadplataKredytuInputsWrapper"></div>
-                        <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną zmianę</button>
-                    </div>
-                </div>
-
-                <!-- Zmienne Oprocentowanie -->
-                <div class="variable-rate-container" id="variableOprocentowanieContainer">
-                    <div class="checkbox-row">
-                        <label class="checkbox-label" id="zmienneOprocentowanieLabel">
-                            <input type="checkbox" id="zmienneOprocentowanieBtn">
-                            <span class="checkbox-custom"></span>
-                            Zmienne Oprocentowanie
-                        </label>
-                    </div>
-                    <div class="variable-inputs" id="variableOprocentowanieInputs">
-                        <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper"></div>
-                        <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
-                    </div>
+    </div>
+    <!-- Główny kontener formularza -->
+    <div class="container">
+        <div class="form-section" id="formSection">
+            <div class="header-row">
+                <h4>Finance Brothers</h4>
+            </div>
+            <div class="form-container">
+                <div class="form-wrapper">
+                    <form id="obligacjeForm">
+                        <!-- Pierwszy wiersz: Kwota, Okres, Inflacja -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="kwota" class="form-label">Kwota inwestycji</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
+                                    <span class="input-group-text">zł</span>
+                                </div>
+                                <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
+                            </div>
+                            <div class="form-group" id="okresInwestycji">
+                                <label for="okresInwestycji" class="form-label">Okres inwestycji</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="okresInwestycji" min="3" max="144" step="1" value="3">
+                                    <span class="input-group-text">mc-y</span>
+                                </div>
+                                <input type="range" class="form-range" id="okresInwestycjiRange" min="3" max="144" step="1" value="3">
+                                <div class="sub-info" id="lata">Ilość lat: 0</div>
+                            </div>
+                            <div class="form-group" id="inflacja">
+                                <label for="inflacja" class="form-label">Inflacja</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="inflacja" min="0.1" max="50" step="0.1" value="4.90">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <input type="range" class="form-range" id="inflacjaRange" min="0.1" max="50" step="0.1" value="4.90">
+                            </div>
+                        </div>
+                        <!-- Drugi wiersz: Rodzaj rat, Prowizja -->
+                        <div class="form-row">
+                            <!-- Rodzaj rat -->
+                            <div class="form-group" id="rodzajRat">
+                                <label for="rodzajRat" class="form-label">Rodzaj rat</label>
+                                <select class="form-select" id="rodzajRat">
+                                    <option value="rowne">Raty równe</option>
+                                    <option value="malejace">Raty malejące</option>
+                                </select>
+                            </div>
+                            <!-- Prowizja -->
+                            <div class="form-group" id="prowizja">
+                                <label for="prowizja" class="form-label">Prowizja</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="prowizja" min="0.1" max="1000000" step="0.1" value="1000">
+                                    <select class="form-select jednostka-select" id="jednostkaProwizji">
+                                        <option value="pln">zł</option>
+                                        <option value="procent">%</option>
+                                    </select>
+                                </div>
+                                <input type="range" class="form-range" id="prowizjaRange" min="0.1" max="1000000" step="0.1" value="1000">
+                                <div class="sub-info" id="prowizjaInfo">Wartość: 1000 zł</div>
+                            </div>
+                        </div>
+                        <!-- Zmienne oprocentowanie -->
+                        <div class="variable-rate-container" id="variableOprocentowanieContainer">
+                            <div class="checkbox-row">
+                                <label class="checkbox-label" id="zmienneOprocentowanieLabel">
+                                    <input type="checkbox" id="zmienneOprocentowanieBtn">
+                                    <span class="checkbox-custom"></span>
+                                    Zmienne Oprocentowanie
+                                </label>
+                            </div>
+                            <div class="variable-inputs" id="variableOprocentowanieInputs">
+                                <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                            </div>
+                        </div>
+                        <!-- Nadpłata kredytu -->
+                        <div class="variable-rate-container" id="nadplataKredytuContainer">
+                            <div class="checkbox-row">
+                                <label class="checkbox-label" id="nadplataKredytuLabel">
+                                    <input type="checkbox" id="nadplataKredytuBtn">
+                                    <span class="checkbox-custom"></span>
+                                    Nadpłata Kredytu
+                                </label>
+                            </div>
+                            <div class="variable-inputs" id="nadplataKredytuInputs">
+                                <div class="variable-inputs-wrapper" id="nadplataKredytuInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną zmianę</button>
+                            </div>
+                        </div>
+                        <!-- Przycisk oblicz -->
+                        <div class="form-row">
+                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
