@@ -43,7 +43,6 @@ function syncInputWithRange(input, range, options = {}) {
         return;
     }
 
-    // Synchronizacja z pola tekstowego do suwaka
     input.addEventListener("input", () => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
@@ -58,7 +57,6 @@ function syncInputWithRange(input, range, options = {}) {
         if (onChange) onChange(value);
     });
 
-    // Synchronizacja z suwaka do pola tekstowego
     range.addEventListener("input", () => {
         const min = parseFloat(range.min) || 0;
         const max = parseFloat(range.max) || Infinity;
@@ -70,7 +68,6 @@ function syncInputWithRange(input, range, options = {}) {
         if (onChange) onChange(value);
     });
 
-    // Inicjalna synchronizacja
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
     const step = parseFloat(input.step) || 1;
@@ -83,7 +80,6 @@ function syncInputWithRange(input, range, options = {}) {
     console.log(`Initial sync: ${input.id} = ${initialValue}`);
 }
 
-// Synchronizacja dla kwoty kredytu
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: false,
     onChange: (value) => {
@@ -93,7 +89,6 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
     },
 });
 
-// Synchronizacja dla ilości rat
 syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     isDecimal: false,
     onChange: (value) => {
@@ -103,7 +98,6 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     },
 });
 
-// Synchronizacja dla oprocentowania
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
     onChange: (value) => {
@@ -111,7 +105,6 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     },
 });
 
-// Synchronizacja dla prowizji
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
     onChange: (value) => {
@@ -120,7 +113,6 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     },
 });
 
-// Funkcja aktualizująca atrybuty i wartość pola prowizji
 function updateProwizjaInput() {
     const jednostka = elements.jednostkaProwizji.value;
     let min, max, step, defaultValue;
@@ -132,7 +124,7 @@ function updateProwizjaInput() {
         defaultValue = 2;
     } else {
         min = 0;
-        max = 125000;
+        max = 1250000;
         step = 1;
         defaultValue = 10000;
     }
@@ -161,18 +153,15 @@ function updateProwizjaInput() {
     state.lastFormData.jednostkaProwizji = jednostka;
 }
 
-// Nasłuchiwanie zmiany jednostki prowizji
 elements.jednostkaProwizji.addEventListener("change", () => {
     updateProwizjaInput();
     updateProwizjaInfo();
 });
 
-// Nasłuchiwanie zmiany rodzaju rat
 elements.rodzajRat.addEventListener("change", () => {
     state.lastFormData.rodzajRat = elements.rodzajRat.value;
 });
 
-// Nasłuchiwanie checkboxa zmiennego oprocentowania
 elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
     state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     if (!elements.zmienneOprocentowanieBtn.checked) {
@@ -183,7 +172,6 @@ elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
     updateVariableInputs();
 });
 
-// Nasłuchiwanie checkboxa nadpłaty kredytu
 elements.nadplataKredytuBtn.addEventListener("change", () => {
     state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
     if (!elements.nadplataKredytuBtn.checked) {
@@ -194,25 +182,22 @@ elements.nadplataKredytuBtn.addEventListener("change", () => {
     updateVariableInputs();
 });
 
-// Dodawanie zmiennego oprocentowania
 elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
     addVariableChange("oprocentowanie");
 });
 
-// Dodawanie nadpłaty kredytu
 elements.addNadplataKredytuBtn.addEventListener("click", () => {
     addVariableChange("nadplata");
 });
 
-// Obsługa przycisku "Oblicz"
 elements.obliczBtn.addEventListener("click", () => {
     console.log("Oblicz clicked", state.lastFormData);
     updateLata();
     updateProwizjaInfo();
     updateKwotaInfo();
+    updateRodzajRatInfo();
 });
 
-// Aktualizacja tekstu "Kwota kredytu"
 function updateKwotaInfo() {
     const kwota = parseFloat(elements.kwota.value) || 500000;
     const kwotaInfo = document.getElementById("kwotaInfo");
@@ -221,7 +206,6 @@ function updateKwotaInfo() {
     }
 }
 
-// Aktualizacja tekstu "Ilość lat"
 function updateLata() {
     const miesiace = parseInt(elements.iloscRat.value) || 0;
     const lata = Math.floor(miesiace / 12);
@@ -231,7 +215,6 @@ function updateLata() {
     }
 }
 
-// Aktualizacja tekstu "Wartość: X zł"
 function updateProwizjaInfo() {
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value;
@@ -239,7 +222,14 @@ function updateProwizjaInfo() {
     const prowizjaInfo = document.getElementById("prowizjaInfo");
     if (prowizjaInfo) {
         const wartosc = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
-        prowizjaInfo.textContent = `Wartość: ${wartosc.toFixed(2)} zł`;
+        prowizjaInfo.textContent = `Prowizja: ${wartosc.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+    }
+}
+
+function updateRodzajRatInfo() {
+    const rodzajRatInfo = document.getElementById("rodzajRatInfo");
+    if (rodzajRatInfo) {
+        rodzajRatInfo.textContent = "Wybierz równe lub malejące";
     }
 }
 
@@ -530,10 +520,10 @@ document.getElementById("siteLogo").addEventListener("click", () => {
     window.open("https://finance-brothers.pl", "_blank");
 });
 
-// Inicjalizacja
 updateProwizjaInput();
 updateKwotaInfo();
 updateLata();
 updateProwizjaInfo();
+updateRodzajRatInfo();
 updateVariableInputs();
 initializeTheme();
