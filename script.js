@@ -32,75 +32,81 @@ const state = {
     }
 };
 
+// F U N K C J A   S Y N C H R O N I Z A C J I
+function syncInputWithRange(input, range, options = {}) {
+    const { isDecimal = false, min, max, step = 1, onChange } = options;
+
+    input.addEventListener("input", () => {
+        let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
+        if (isNaN(value)) value = min;
+        if (value < min) value = min;
+        if (value > max) value = max;
+        input.value = isDecimal ? value.toFixed(2) : value;
+        range.value = value;
+        console.log(`Input ${input.id} updated to ${input.value}`);
+        if (onChange) onChange(value);
+    });
+
+    range.addEventListener("input", () => {
+        let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
+        input.value = isDecimal ? value.toFixed(2) : value;
+        console.log(`Range ${range.id} updated input ${input.id} to ${input.value}`);
+        if (onChange) onChange(value);
+    });
+}
+
 // O B S Ł U G A   Z D A R Z E Ń
-elements.kwota.addEventListener("input", (e) => {
-    restrictInputToNumbers(e);
+syncInputWithRange(elements.kwota, elements.kwotaRange, {
+    isDecimal: false,
+    min: 100,
+    max: 10000000,
+    step: 100,
+    onChange: (value) => {
+        state.lastFormData.kwota = value;
+        updateProwizjaInfo();
+    }
 });
 
-elements.kwota.addEventListener("blur", validateAndRoundKwota);
-elements.kwota.addEventListener("change", validateAndRoundKwota);
-
-elements.kwotaRange.addEventListener("input", () => {
-    let value = parseFloat(elements.kwotaRange.value);
-    elements.kwota.value = value;
+syncInputWithRange(elements.okresInwestycji, elements.okresInwestycjiRange, {
+    isDecimal: false,
+    min: 3,
+    max: 144,
+    step: 1,
+    onChange: (value) => {
+        state.lastFormData.okresInwestycji = value;
+        updateLata();
+        updateVariableInputs();
+    }
 });
 
-elements.kwotaRange.addEventListener("change", validateAndRoundKwota);
-
-elements.okresInwestycji.addEventListener("input", (e) => {
-    restrictInputToNumbers(e);
+syncInputWithRange(elements.inflacja, elements.inflacjaRange, {
+    isDecimal: true,
+    min: 0.1,
+    max: 50,
+    step: 0.1,
+    onChange: (value) => {
+        state.lastFormData.inflacja = value;
+    }
 });
 
-elements.okresInwestycji.addEventListener("blur", validateOkresInwestycji);
-elements.okresInwestycji.addEventListener("change", validateOkresInwestycji);
-
-elements.okresInwestycjiRange.addEventListener("input", () => {
-    let value = parseFloat(elements.okresInwestycjiRange.value);
-    elements.okresInwestycji.value = value;
-    updateLata();
-});
-
-elements.okresInwestycjiRange.addEventListener("change", validateOkresInwestycji);
-
-elements.inflacja.addEventListener("input", () => {
-    let value = parseFloat(elements.inflacja.value) || 0;
-    if (value < 0.1) value = 0.1;
-    if (value > 50) value = 50;
-    elements.inflacja.value = value.toFixed(2);
-    elements.inflacjaRange.value = value;
-    state.lastFormData.inflacja = value;
-});
-
-elements.inflacjaRange.addEventListener("input", () => {
-    let value = parseFloat(elements.inflacjaRange.value);
-    elements.inflacja.value = value.toFixed(2);
-    state.lastFormData.inflacja = value;
-});
-
-elements.rodzajRat.addEventListener("change", () => {
-    state.lastFormData.rodzajRat = elements.rodzajRat.value;
-});
-
-elements.prowizja.addEventListener("input", () => {
-    let value = parseFloat(elements.prowizja.value) || 0;
-    if (value < 0.1) value = 0.1;
-    if (value > 1000000) value = 1000000;
-    elements.prowizja.value = value.toFixed(2);
-    elements.prowizjaRange.value = value;
-    state.lastFormData.prowizja = value;
-    updateProwizjaInfo();
-});
-
-elements.prowizjaRange.addEventListener("input", () => {
-    let value = parseFloat(elements.prowizjaRange.value);
-    elements.prowizja.value = value.toFixed(2);
-    state.lastFormData.prowizja = value;
-    updateProwizjaInfo();
+syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
+    isDecimal: true,
+    min: 0.1,
+    max: 1000000,
+    step: 0.1,
+    onChange: (value) => {
+        state.lastFormData.prowizja = value;
+        updateProwizjaInfo();
+    }
 });
 
 elements.jednostkaProwizji.addEventListener("change", () => {
     state.lastFormData.jednostkaProwizji = elements.jednostkaProwizji.value;
     updateProwizjaInfo();
+});
+
+elements.rodzajRat.addEventListener("change", () => {
+    state.lastFormData.rodzajRat = elements.rodzajRat.value;
 });
 
 elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
@@ -127,30 +133,6 @@ elements.addVariableOprocentowanieBtn.addEventListener("click", () => addVariabl
 elements.addNadplataKredytuBtn.addEventListener("click", () => addVariableChange("nadplata"));
 
 // F U N K C J E   P O M O C N I C Z E
-function restrictInputToNumbers(e) {
-    e.target.value = e.target.value.replace(/[^0-9]/g, "");
-}
-
-function validateAndRoundKwota() {
-    let value = parseFloat(elements.kwota.value) || 0;
-    if (value < 100) value = 100;
-    if (value > 10000000) value = 10000000;
-    value = Math.round(value / 100) * 100;
-    elements.kwota.value = value;
-    elements.kwotaRange.value = value;
-    state.lastFormData.kwota = value;
-}
-
-function validateOkresInwestycji() {
-    let value = parseInt(elements.okresInwestycji.value) || 0;
-    if (value < 3) value = 3;
-    if (value > 144) value = 144;
-    elements.okresInwestycji.value = value;
-    elements.okresInwestycjiRange.value = value;
-    state.lastFormData.okresInwestycji = value;
-    updateLata();
-}
-
 function updateLata() {
     const miesiace = parseInt(elements.okresInwestycji.value) || 0;
     const lata = (miesiace / 12).toFixed(0);
@@ -218,6 +200,7 @@ function updateVariableInputs() {
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
     if (isZmienneOprocentowanie) {
+        console.log("Showing Zmienne Oprocentowanie inputs");
         variableOprocentowanieInputs.style.display = "block";
         addVariableOprocentowanieBtn.style.display = "block";
 
@@ -230,6 +213,7 @@ function updateVariableInputs() {
 
         renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
     } else {
+        console.log("Hiding Zmienne Oprocentowanie inputs");
         variableOprocentowanieInputs.style.display = "none";
         addVariableOprocentowanieBtn.style.display = "none";
         variableOprocentowanieWrapper.innerHTML = "";
@@ -242,6 +226,7 @@ function updateVariableInputs() {
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
     if (isNadplataKredytu) {
+        console.log("Showing Nadpłata Kredytu inputs");
         nadplataKredytuInputs.style.display = "block";
         addNadplataKredytuBtn.style.display = "block";
 
@@ -254,6 +239,7 @@ function updateVariableInputs() {
 
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
+        console.log("Hiding Nadpłata Kredytu inputs");
         nadplataKredytuInputs.style.display = "none";
         addNadplataKredytuBtn.style.display = "none";
         nadplataKredytuWrapper.innerHTML = "";
@@ -339,55 +325,27 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateInput = inputGroup.querySelector(".variable-rate");
         const rateRange = inputGroup.querySelector(".variable-rate-range");
 
-        cyklInput.addEventListener("input", () => {
-            let value = parseInt(cyklInput.value);
-            if (value < minPeriod) {
-                value = minPeriod;
-                cyklInput.value = value;
+        syncInputWithRange(cyklInput, cyklRange, {
+            isDecimal: false,
+            min: minPeriod,
+            max: maxCykl,
+            step: 1,
+            onChange: (value) => {
+                changes[index].period = value;
+                updateVariableData(activeType);
+                updateVariableInputs();
             }
-            if (value > maxCykl) {
-                value = maxCykl;
-                cyklInput.value = value;
+        });
+
+        syncInputWithRange(rateInput, rateRange, {
+            isDecimal: true,
+            min: 0.1,
+            max: 50,
+            step: 0.1,
+            onChange: (value) => {
+                changes[index].value = value;
+                updateVariableData(activeType);
             }
-            cyklRange.value = value;
-            changes[index].period = value;
-            updateVariableData(activeType);
-            updateVariableInputs();
-        });
-
-        cyklRange.addEventListener("input", () => {
-            let value = parseFloat(cyklRange.value);
-            cyklInput.value = Math.round(value);
-        });
-
-        cyklRange.addEventListener("change", () => {
-            let value = parseFloat(cyklRange.value);
-            value = Math.round(value);
-            if (value < minPeriod) value = minPeriod;
-            if (value > maxCykl) value = maxCykl;
-            cyklRange.value = value;
-            cyklInput.value = value;
-            changes[index].period = value;
-            updateVariableData(activeType);
-            updateVariableInputs();
-        });
-
-        rateInput.addEventListener("input", () => {
-            let value = parseFloat(rateInput.value) || 0;
-            if (value < 0.1) value = 0.1;
-            if (value > 50) value = 50;
-            rateInput.value = value.toFixed(1);
-            rateRange.value = value;
-            changes[index].value = value;
-            updateVariableData(activeType);
-        });
-
-        rateRange.addEventListener("input", () => {
-            let value = parseFloat(rateRange.value);
-            if (value < 0.1) value = 0.1;
-            rateInput.value = value.toFixed(1);
-            changes[index].value = value;
-            updateVariableData(activeType);
         });
     });
 
