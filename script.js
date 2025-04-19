@@ -51,6 +51,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (value > max) value = max;
         input.value = isDecimal ? value.toFixed(1) : value;
         range.value = value;
+        console.log(`Input changed: ${input.id} = ${value}`);
         if (onChange) onChange(value);
     });
 
@@ -58,17 +59,19 @@ function syncInputWithRange(input, range, options = {}) {
     range.addEventListener("input", () => {
         let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
         input.value = isDecimal ? value.toFixed(1) : value;
-        range.value = value; // Upewnij się, że wartość suwaka jest zsynchronizowana
+        range.value = value; // Upewnij się, że suwak ma poprawną wartość
+        console.log(`Range changed: ${input.id} = ${value}`);
         if (onChange) onChange(value);
     });
 
     // Inicjalna synchronizacja przy załadowaniu strony
-    let initialValue = isDecimal ? parseFloat(input.value) : parseInt(input.value);
+    let initialValue = isDecimal ? parseFloat(range.value) : parseInt(range.value);
     if (isNaN(initialValue)) initialValue = min;
     if (initialValue < min) initialValue = min;
     if (initialValue > max) initialValue = max;
     input.value = isDecimal ? initialValue.toFixed(1) : initialValue;
     range.value = initialValue;
+    console.log(`Initial sync: ${input.id} = ${initialValue}`);
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
