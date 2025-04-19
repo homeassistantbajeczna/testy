@@ -164,7 +164,10 @@ body {
     line-height: 1.5;
 }
 
-#nadplataKredytuLabel,
+#nadplataKredytuLabel {
+    font-size: 0.6em !important;
+}
+
 #zmienneOprocentowanieLabel {
     font-size: 0.65em !important;
 }
