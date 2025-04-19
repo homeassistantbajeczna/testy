@@ -299,7 +299,7 @@ body {
 #prowizja .input-group .jednostka-select {
     height: 22px;
     font-size: var(--small-font-size);
-    padding: 2px 24px 2px 8px;
+    padding: 2px 16px 2px 4px; /* Zmniejszono padding, aby box był bardziej kompaktowy */
     text-align: center;
     background: var(--input-bg);
     color: var(--primary-text);
@@ -311,13 +311,14 @@ body {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
-    background-position: right 8px center !important;
+    background-position: right 4px center !important; /* Zmniejszono odstęp strzałki */
 }
 
 #prowizja .input-group .jednostka-select {
-    flex: 1;
+    flex: none; /* Zmieniono z flex: 1 na flex: none */
+    width: 40px; /* Ustawiono stałą szerokość, aby box był mniejszy */
     border-radius: 0 5px 5px 0 !important;
     border-left: 1px solid var(--border-color);
 }
@@ -334,7 +335,8 @@ body {
 .dark-mode #rodzajRat .form-select,
 .dark-mode #prowizja .input-group .jednostka-select {
     border: 1px solid var(--border-color);
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23a3945c" d="M0 3l5 5 5-5z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-position: right 4px center !important;
 }
 
 .dark-mode #prowizja .input-group .form-control {
@@ -1039,10 +1041,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     .form-control,
     #rodzajRat .form-select,
     #prowizja .input-group .jednostka-select {
-        height: 26px;
+        height: 22px; /* Ujednolicono wysokość z desktopem */
         width: 100px;
-        padding: 4px 8px;
-        line-height: 20px;
+        padding: 2px 16px 2px 4px; /* Dopasowano padding do desktopu */
+        line-height: 18px;
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
         text-align: center;
@@ -1063,26 +1065,26 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .input-group-text,
     #prowizja .input-group .jednostka-select {
-        height: 26px;
-        width: 40px;
-        padding: 4px 8px;
-        line-height: 20px;
+        height: 22px; /* Ujednolicono wysokość z desktopem */
+        width: 40px; /* Zachowano stałą szerokość */
+        padding: 2px 16px 2px 4px; /* Dopasowano padding do desktopu */
+        line-height: 18px;
         text-align: center;
+        background-position: right 4px center !important;
     }
 
     #prowizja .input-group .jednostka-select {
-        flex: 1;
-        width: auto;
+        flex: none;
+        width: 40px;
         border-radius: 0 5px 5px 0 !important;
         border-left: 1px solid var(--border-color);
-        background-position: right 8px center !important;
     }
 
     .dark-mode #rodzajRat .form-select,
     .dark-mode #prowizja .input-group .jednostka-select {
         border: 1px solid var(--border-color);
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23a3945c" d="M0 3l5 5 5-5z"/></svg>') !important;
-        background-position: right 8px center !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+        background-position: right 4px center !important;
     }
 
     .dark-mode #prowizja .input-group .form-control {
@@ -1107,17 +1109,17 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .variable-input-group .form-control {
         width: 100px;
-        height: 26px;
-        padding: 4px 8px;
-        line-height: 20px;
+        height: 22px;
+        padding: 2px 4px;
+        line-height: 18px;
         text-align: center;
     }
 
     .variable-input-group .input-group-text {
         width: 50px;
-        height: 26px;
-        padding: 4px 8px;
-        line-height: 20px;
+        height: 22px;
+        padding: 2px 4px;
+        line-height: 18px;
         text-align: center;
     }
 
