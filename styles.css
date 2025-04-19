@@ -164,12 +164,9 @@ body {
     line-height: 1.5;
 }
 
+#nadplataKredytuLabel,
 #zmienneOprocentowanieLabel {
-    font-size: 0.7em !important;
-}
-
-#nadplataKredytuLabel {
-    font-size: 0.7em !important; /* Zmieniono z 0.6em na 0.7em */
+    font-size: 0.65em !important;
 }
 
 .checkbox-label input {
