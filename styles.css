@@ -281,18 +281,35 @@ body {
     justify-content: center;
 }
 
+/* Styl dla spinnerów w input type="number" */
+#prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
+#prowizja .input-group .form-control[type="number"]::-webkit-outer-spin-button {
+    height: 16px;
+    width: 12px;
+    margin: 0;
+    opacity: 1;
+    -webkit-appearance: none;
+    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23C2B280" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
+    background-size: 12px 16px;
+}
+
+#prowizja .input-group .form-control[type="number"] {
+    -moz-appearance: textfield; /* Usuwa spinnery w Firefox */
+}
+
 #prowizja .input-group .form-control {
     flex: 3;
     border-radius: 5px 0 0 5px !important;
     border-right: none;
 }
 
-.form-control:focus {
+/* Bardziej specyficzne style dla :focus w prowizja */
+#prowizjaGroup .input-group .form-control:focus {
     outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color);
-    border-color: var(--border-color);
-    background: var(--input-bg);
-    color: var(--primary-text);
+    box-shadow: 0 0 4px var(--accent-color) !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--primary-text) !important;
 }
 
 #rodzajRat .form-select {
@@ -310,16 +327,16 @@ body {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23C2B280" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
-    background-position: right 2px center !important;
+    background-position: right 4px center !important;
 }
 
 /* Bardziej specyficzne i agresywne style dla jednostka-select */
 #prowizjaGroup .input-group .form-select.jednostka-select {
     height: 22px !important;
     font-size: var(--small-font-size) !important;
-    padding: 2px 8px 2px 4px !important;
+    padding: 2px 12px 2px 4px !important;
     text-align: center !important;
     background: var(--input-bg) !important;
     color: var(--primary-text) !important;
@@ -328,16 +345,16 @@ body {
     border-left: 1px solid var(--border-color) !important;
     box-sizing: border-box !important;
     line-height: normal !important;
-    width: 32px !important;
-    min-width: 32px !important;
-    max-width: 32px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
     flex: none !important;
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23C2B280" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
-    background-position: right 2px center !important;
+    background-position: right 4px center !important;
 }
 
 #prowizjaGroup .input-group .form-select.jednostka-select:focus {
@@ -346,13 +363,16 @@ body {
     border: 1px solid var(--border-color) !important;
     background: var(--input-bg) !important;
     color: var(--primary-text) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
 }
 
 .dark-mode #rodzajRat .form-select,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
     border: 1px solid var(--border-color) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23a3945c" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
-    background-position: right 2px center !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-position: right 4px center !important;
 }
 
 .dark-mode #prowizja .input-group .form-control {
@@ -363,9 +383,17 @@ body {
     border-left: 1px solid var(--border-color) !important;
 }
 
+.dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-inner-spin-button,
+.dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
+    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23a3945c" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
+    background-size: 12px 16px;
+}
+
 .dark-mode #rodzajRat .form-select:focus,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     border: 1px solid var(--border-color) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-position: right 4px center !important;
 }
 
 .input-group-text {
@@ -1071,6 +1099,29 @@ input[type="range"].form-range:focus::-ms-thumb {
         border-right: none;
     }
 
+    #prowizjaGroup .input-group .form-control:focus {
+        outline: none !important;
+        box-shadow: 0 0 4px var(--accent-color) !important;
+        border: 1px solid var(--border-color) !important;
+        background: var(--input-bg) !important;
+        color: var(--primary-text) !important;
+    }
+
+    #prowizjaGroup .input-group .form-control[type="number"]::-webkit-inner-spin-button,
+    #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
+        height: 16px;
+        width: 12px;
+        margin: 0;
+        opacity: 1;
+        -webkit-appearance: none;
+        background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23C2B280" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
+        background-size: 12px 16px;
+    }
+
+    #prowizjaGroup .input-group .form-control[type="number"] {
+        -moz-appearance: textfield;
+    }
+
     #rodzajRat .form-select {
         height: 22px;
         width: 150px;
@@ -1081,20 +1132,24 @@ input[type="range"].form-range:focus::-ms-thumb {
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
         text-align: center;
-        background-position: right 2px center !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+        background-repeat: no-repeat !important;
+        background-position: right 4px center !important;
     }
 
     #prowizjaGroup .input-group .form-select.jednostka-select {
         height: 22px !important;
-        width: 32px !important;
-        min-width: 32px !important;
-        max-width: 32px !important;
-        padding: 2px 8px 2px 4px !important;
+        width: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        padding: 2px 12px 2px 4px !important;
         line-height: normal !important;
         text-align: center !important;
         border-radius: 0 5px 5px 0 !important;
         border-left: 1px solid var(--border-color) !important;
-        background-position: right 2px center !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+        background-repeat: no-repeat !important;
+        background-position: right 4px center !important;
         flex: none !important;
         font-size: var(--small-font-size) !important;
         background: var(--input-bg) !important;
@@ -1103,15 +1158,24 @@ input[type="range"].form-range:focus::-ms-thumb {
         appearance: none !important;
         -webkit-appearance: none !important;
         -moz-appearance: none !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23C2B280" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
+    }
+
+    #prowizjaGroup .input-group .form-select.jednostka-select:focus {
+        outline: none !important;
+        box-shadow: 0 0 4px var(--accent-color) !important;
+        border: 1px solid var(--border-color) !important;
+        background: var(--input-bg) !important;
+        color: var(--primary-text) !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
         background-repeat: no-repeat !important;
+        background-position: right 4px center !important;
     }
 
     .dark-mode #rodzajRat .form-select,
     .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
         border: 1px solid var(--border-color) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23a3945c" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
-        background-position: right 2px center !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+        background-position: right 4px center !important;
     }
 
     .dark-mode #prowizja .input-group .form-control {
@@ -1120,6 +1184,19 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
         border-left: 1px solid var(--border-color) !important;
+    }
+
+    .dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-inner-spin-button,
+    .dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
+        background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23a3945c" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
+        background-size: 12px 16px;
+    }
+
+    .dark-mode #rodzajRat .form-select:focus,
+    .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
+        border: 1px solid var(--border-color) !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+        background-position: right 4px center !important;
     }
 
     .variable-input-group .input-group {
