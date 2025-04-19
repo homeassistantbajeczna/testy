@@ -1,12 +1,11 @@
-// D E F I N I C J E   Z M I E N N Y C H
 const elements = {
     formSection: document.getElementById("formSection"),
     kwota: document.getElementById("kwota"),
     kwotaRange: document.getElementById("kwotaRange"),
-    okresInwestycji: document.getElementById("okresInwestycji"),
-    okresInwestycjiRange: document.getElementById("okresInwestycjiRange"),
-    inflacja: document.getElementById("inflacja"),
-    inflacjaRange: document.getElementById("inflacjaRange"),
+    iloscRat: document.getElementById("iloscRat"),
+    iloscRatRange: document.getElementById("iloscRatRange"),
+    oprocentowanie: document.getElementById("oprocentowanie"),
+    oprocentowanieRange: document.getElementById("oprocentowanieRange"),
     rodzajRat: document.getElementById("rodzajRat"),
     prowizja: document.getElementById("prowizja"),
     prowizjaRange: document.getElementById("prowizjaRange"),
@@ -14,30 +13,33 @@ const elements = {
     zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
     nadplataKredytuBtn: document.getElementById("nadplataKredytuBtn"),
     addVariableOprocentowanieBtn: document.getElementById("addVariableOprocentowanieBtn"),
-    addNadplataKredytuBtn: document.getElementById("addNadplataKredytuBtn")
+    addNadplataKredytuBtn: document.getElementById("addNadplataKredytuBtn"),
+    obliczBtn: document.getElementById("obliczBtn"),
+    zoomInBtn: document.getElementById("zoomInBtn"),
+    zoomOutBtn: document.getElementById("zoomOutBtn"),
+    toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
 };
 
 const state = {
     variableRates: [],
     overpaymentRates: [],
     lastFormData: {
-        kwota: 10000,
-        okresInwestycji: 3,
-        inflacja: 4.90,
+        kwota: 500000,
+        iloscRat: 360,
+        oprocentowanie: 7,
         rodzajRat: "rowne",
-        prowizja: 1000,
-        jednostkaProwizji: "pln",
+        prowizja: 2,
+        jednostkaProwizji: "procent",
         zmienneOprocentowanie: false,
-        nadplataKredytu: false
-    }
+        nadplataKredytu: false,
+    },
 };
 
-// F U N K C J A   S Y N C H R O N I Z A C J I
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, min, max, step = 1, onChange } = options;
 
     if (!input || !range) {
-        console.error(`Input or range not found for ${input?.id || 'unknown'}`);
+        console.error(`Input or range not found for ${input?.id || "unknown"}`);
         return;
     }
 
@@ -46,63 +48,60 @@ function syncInputWithRange(input, range, options = {}) {
         if (isNaN(value)) value = min;
         if (value < min) value = min;
         if (value > max) value = max;
-        input.value = isDecimal ? value.toFixed(2) : value;
+        input.value = isDecimal ? value.toFixed(1) : value;
         range.value = value;
-        console.log(`Input ${input.id} updated to ${input.value}`);
         if (onChange) onChange(value);
     });
 
     range.addEventListener("input", () => {
         let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
-        input.value = isDecimal ? value.toFixed(2) : value;
-        console.log(`Range ${range.id} updated input ${input.id} to ${input.value}`);
+        input.value = isDecimal ? value.toFixed(1) : value;
         if (onChange) onChange(value);
     });
 }
 
-// O B S Ł U G A   Z D A R Z E Ń
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: false,
-    min: 100,
-    max: 10000000,
+    min: 50000,
+    max: 5000000,
     step: 100,
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
-    }
+    },
 });
 
-syncInputWithRange(elements.okresInwestycji, elements.okresInwestycjiRange, {
+syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     isDecimal: false,
-    min: 3,
-    max: 144,
+    min: 12,
+    max: 420,
     step: 1,
     onChange: (value) => {
-        state.lastFormData.okresInwestycji = value;
+        state.lastFormData.iloscRat = value;
         updateLata();
         updateVariableInputs();
-    }
+    },
 });
 
-syncInputWithRange(elements.inflacja, elements.inflacjaRange, {
+syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
     min: 0.1,
-    max: 50,
+    max: 25,
     step: 0.1,
     onChange: (value) => {
-        state.lastFormData.inflacja = value;
-    }
+        state.lastFormData.oprocentowanie = value;
+    },
 });
 
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
-    min: 0.1,
-    max: 1000000,
+    min: 0,
+    max: 25,
     step: 0.1,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
         updateProwizjaInfo();
-    }
+    },
 });
 
 elements.jednostkaProwizji.addEventListener("change", () => {
@@ -115,64 +114,59 @@ elements.rodzajRat.addEventListener("change", () => {
 });
 
 elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-    console.log(`Zmienne Oprocentowanie changed to ${elements.zmienneOprocentowanieBtn.checked}`);
     state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     if (!elements.zmienneOprocentowanieBtn.checked) {
         state.variableRates = [];
     } else {
-        state.variableRates = [{ value: state.lastFormData.inflacja, period: 2 }];
+        state.variableRates = [{ value: state.lastFormData.oprocentowanie, period: 2 }];
     }
     updateVariableInputs();
 });
 
 elements.nadplataKredytuBtn.addEventListener("change", () => {
-    console.log(`Nadpłata Kredytu changed to ${elements.nadplataKredytuBtn.checked}`);
     state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
     if (!elements.nadplataKredytuBtn.checked) {
         state.overpaymentRates = [];
     } else {
-        state.overpaymentRates = [{ value: state.lastFormData.inflacja, period: 2 }];
+        state.overpaymentRates = [{ value: 0, period: 2 }];
     }
     updateVariableInputs();
 });
 
 elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
-    console.log("Adding variable oprocentowanie change");
     addVariableChange("oprocentowanie");
 });
 
 elements.addNadplataKredytuBtn.addEventListener("click", () => {
-    console.log("Adding nadplata kredytu change");
     addVariableChange("nadplata");
 });
 
-// F U N K C J E   P O M O C N I C Z E
+elements.obliczBtn.addEventListener("click", () => {
+    console.log("Oblicz clicked", state.lastFormData);
+});
+
 function updateLata() {
-    const miesiace = parseInt(elements.okresInwestycji.value) || 0;
-    const lata = (miesiace / 12).toFixed(0);
+    const miesiace = parseInt(elements.iloscRat.value) || 0;
+    const lata = Math.floor(miesiace / 12);
     const lataElement = document.getElementById("lata");
     if (lataElement) {
         lataElement.textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
-        console.log(`Updated lata to: Ilość lat: ${miesiace >= 12 ? lata : 0}`);
-    } else {
-        console.error("Lata element not found!");
     }
 }
 
 function updateProwizjaInfo() {
     const prowizja = parseFloat(elements.prowizja.value) || 0;
-    const jednostka = elements.jednostkaProwizji.value === "pln" ? "zł" : "%";
+    const jednostka = elements.jednostkaProwizji.value;
+    const kwota = parseFloat(elements.kwota.value) || 500000;
     const prowizjaInfo = document.getElementById("prowizjaInfo");
     if (prowizjaInfo) {
-        prowizjaInfo.textContent = `Wartość: ${prowizja.toFixed(2)} ${jednostka}`;
-        console.log(`Updated prowizjaInfo to: Wartość: ${prowizja.toFixed(2)} ${jednostka}`);
-    } else {
-        console.error("ProwizjaInfo element not found!");
+        const wartosc = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
+        prowizjaInfo.textContent = `Wartość: ${wartosc.toFixed(2)} zł`;
     }
 }
 
 function updateVariableData(activeType) {
-    const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
+    const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const inputs = document.querySelectorAll(`.variable-input-group[data-type="${activeType}"]`);
     const newChanges = [];
 
@@ -216,76 +210,47 @@ function updateVariableData(activeType) {
 }
 
 function updateVariableInputs() {
-    const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
+    const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    console.log("Updating variable inputs...");
-
-    // Zmienne Oprocentowanie
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
     const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
-    if (!variableOprocentowanieInputs || !variableOprocentowanieWrapper) {
-        console.error("Zmienne Oprocentowanie inputs or wrapper not found!");
-        return;
-    }
-
     if (isZmienneOprocentowanie) {
-        console.log("Showing Zmienne Oprocentowanie inputs");
-        variableOprocentowanieInputs.style.display = "block";
+        variableOprocentowanieInputs.classList.add("active");
         addVariableOprocentowanieBtn.style.display = "block";
-
-        const defaultValue = state.lastFormData.inflacja || 4.90;
-        const defaultPeriod = 2;
-
         if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
-            state.variableRates.push({ value: defaultValue, period: defaultPeriod });
+            state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
         }
-
         renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
     } else {
-        console.log("Hiding Zmienne Oprocentowanie inputs");
-        variableOprocentowanieInputs.style.display = "none";
+        variableOprocentowanieInputs.classList.remove("active");
         addVariableOprocentowanieBtn.style.display = "none";
         variableOprocentowanieWrapper.innerHTML = "";
     }
 
-    // Nadpłata Kredytu
     const isNadplataKredytu = elements.nadplataKredytuBtn.checked;
     const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
     const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
-    if (!nadplataKredytuInputs || !nadplataKredytuWrapper) {
-        console.error("Nadpłata Kredytu inputs or wrapper not found!");
-        return;
-    }
-
     if (isNadplataKredytu) {
-        console.log("Showing Nadpłata Kredytu inputs");
-        nadplataKredytuInputs.style.display = "block";
+        nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
-
-        const defaultValue = state.lastFormData.inflacja || 4.90;
-        const defaultPeriod = 2;
-
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates.push({ value: defaultValue, period: defaultPeriod });
+            state.overpaymentRates.push({ value: 0, period: 2 });
         }
-
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
-        console.log("Hiding Nadpłata Kredytu inputs");
-        nadplataKredytuInputs.style.display = "none";
+        nadplataKredytuInputs.classList.remove("active");
         addNadplataKredytuBtn.style.display = "none";
         nadplataKredytuWrapper.innerHTML = "";
     }
 }
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
-    console.log(`Rendering variable inputs for ${activeType} with ${changes.length} changes`);
     wrapper.innerHTML = "";
 
     changes.forEach((change, index) => {
@@ -314,10 +279,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         rateGroup.innerHTML = `
             <label class="form-label">${activeType === "oprocentowanie" ? "Oprocentowanie" : "Nadpłata"}</label>
             <div class="input-group">
-                <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.1" value="${change.value}">
-                <span class="input-group-text">%</span>
+                <input type="number" class="form-control variable-rate" min="${activeType === "oprocentowanie" ? 0.1 : 0}" max="${activeType === "oprocentowanie" ? 50 : 1000000}" step="0.1" value="${change.value}">
+                <span class="input-group-text">${activeType === "oprocentowanie" ? "%" : "zł"}</span>
             </div>
-            <input type="range" class="form-range variable-rate-range" min="0.1" max="50" step="0.1" value="${change.value}">
+            <input type="range" class="form-range variable-rate-range" min="${activeType === "oprocentowanie" ? 0.1 : 0}" max="${activeType === "oprocentowanie" ? 50 : 1000000}" step="0.1" value="${change.value}">
         `;
 
         fieldsWrapper.appendChild(cyklGroup);
@@ -331,7 +296,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
             removeFirstBtn.textContent = "Usuń";
             removeFirstBtn.onclick = () => {
-                console.log(`Removing first ${activeType} change`);
                 if (activeType === "oprocentowanie") {
                     state.variableRates = [];
                     elements.zmienneOprocentowanieBtn.checked = false;
@@ -354,7 +318,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             removeBtn.className = "btn btn-danger btn-sm";
             removeBtn.textContent = "Usuń";
             removeBtn.onclick = () => {
-                console.log(`Removing ${activeType} change at index ${index}`);
                 removeVariableChange(index, activeType);
             };
             removeBtnWrapper.appendChild(removeBtn);
@@ -377,29 +340,29 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 changes[index].period = value;
                 updateVariableData(activeType);
                 updateVariableInputs();
-            }
+            },
         });
 
         syncInputWithRange(rateInput, rateRange, {
             isDecimal: true,
-            min: 0.1,
-            max: 50,
+            min: activeType === "oprocentowanie" ? 0.1 : 0,
+            max: activeType === "oprocentowanie" ? 50 : 1000000,
             step: 0.1,
             onChange: (value) => {
                 changes[index].value = value;
                 updateVariableData(activeType);
-            }
+            },
         });
     });
 
     addBtn.textContent = "Dodaj kolejną zmianę";
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
-    addBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
+    addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
 }
 
 function addVariableChange(activeType) {
-    const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
+    const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
@@ -421,7 +384,7 @@ function addVariableChange(activeType) {
 
     const lastCykl = lastChange ? lastChange.period : 1;
     const newCykl = Math.min(lastCykl + 1, maxCykl);
-    const newValue = state.lastFormData.inflacja || 4.90;
+    const newValue = activeType === "oprocentowanie" ? state.lastFormData.oprocentowanie : 0;
 
     changes.push({ period: newCykl, value: newValue });
     updateVariableInputs();
@@ -435,78 +398,67 @@ function removeVariableChange(index, activeType) {
     }
 }
 
-updateLata();
-updateProwizjaInfo();
-updateVariableInputs();
-
-// F U N K C J A   Z O O M
-document.getElementById('siteLogo').addEventListener('click', () => {
-    console.log("Logo clicked, opening finance-brothers.pl");
-    window.open('https://finance-brothers.pl', '_blank');
-});
-
 let currentZoom = 1;
 const zoomStep = 0.1;
 const minZoom = 0.5;
 const maxZoom = 2;
 
 function updateZoom() {
-    const container = document.querySelector('.container');
-    if (!container) {
-        console.error("Container not found!");
-        return;
-    }
-    console.log(`Updating zoom to ${currentZoom}`);
+    const container = document.querySelector(".container");
+    if (!container) return;
     container.style.transform = `scale(${currentZoom})`;
-    container.style.transformOrigin = 'top center';
+    container.style.transformOrigin = "top center";
 }
 
-document.getElementById("zoomInBtn").addEventListener("click", () => {
-    console.log("Zoom In clicked");
+elements.zoomInBtn.addEventListener("click", () => {
     if (currentZoom < maxZoom) {
         currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
         updateZoom();
     }
 });
 
-document.getElementById("zoomOutBtn").addEventListener("click", () => {
-    console.log("Zoom Out clicked");
+elements.zoomOutBtn.addEventListener("click", () => {
     if (currentZoom > minZoom) {
         currentZoom = Math.max(minZoom, currentZoom - zoomStep);
         updateZoom();
     }
 });
 
-// D A R K   M O D E
 function toggleDarkMode() {
-    console.log("Toggling dark mode");
     const body = document.body;
-    const isDarkMode = body.classList.contains('dark-mode');
+    const isDarkMode = body.classList.contains("dark-mode");
 
     if (isDarkMode) {
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-        localStorage.setItem('theme', 'light');
-        document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        body.classList.remove("dark-mode");
+        body.classList.add("light-mode");
+        localStorage.setItem("theme", "light");
+        elements.toggleDarkModeBtn.textContent = "🌙";
     } else {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-        localStorage.setItem('theme', 'dark');
-        document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+        body.classList.remove("light-mode");
+        body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+        elements.toggleDarkModeBtn.textContent = "☀️";
     }
 }
 
 function initializeTheme() {
-    console.log("Initializing theme");
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        document.getElementById('toggleDarkModeBtn').textContent = '☀️';
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        elements.toggleDarkModeBtn.textContent = "☀️";
     } else {
-        document.body.classList.add('light-mode');
-        document.getElementById('toggleDarkModeBtn').textContent = '🌙';
+        document.body.classList.add("light-mode");
+        elements.toggleDarkModeBtn.textContent = "🌙";
     }
 }
 
-document.getElementById('toggleDarkModeBtn').addEventListener('click', toggleDarkMode);
+elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
+
+document.getElementById("siteLogo").addEventListener("click", () => {
+    window.open("https://finance-brothers.pl", "_blank");
+});
+
+updateLata();
+updateProwizjaInfo();
+updateVariableInputs();
 initializeTheme();
