@@ -919,6 +919,11 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 .variable-inputs {
     margin-top: 10px;
+    display: none; /* Domyślnie ukryte */
+}
+
+.variable-inputs.active {
+    display: block; /* Pokazane po włączeniu checkboxa */
 }
 
 .variable-input-group {
@@ -938,7 +943,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 .variable-input-group .form-group {
     width: 150px;
     min-width: 0;
-    max-width: none;
+    max-width: none/just;
     flex: none;
 }
 
@@ -990,7 +995,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .checkbox-label.header-checkbox {
-        top آزمایش: -15px;
+        top: -15px;
         right: 5px;
     }
 
