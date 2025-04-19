@@ -275,7 +275,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     box-sizing: border-box;
-    line-height: 18px;
+    line-height: normal;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -299,26 +299,26 @@ body {
 #prowizja .input-group .jednostka-select {
     height: 22px;
     font-size: var(--small-font-size);
-    padding: 2px 16px 2px 4px; /* Zmniejszono padding, aby box był bardziej kompaktowy */
+    padding: 2px 12px 2px 4px;
     text-align: center;
     background: var(--input-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     box-sizing: border-box;
-    line-height: 18px;
+    line-height: normal;
     width: 100%;
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"><path fill="%23C2B280" d="M0 1l3 3 3-3z"/></svg>') !important;
     background-repeat: no-repeat !important;
-    background-position: right 4px center !important; /* Zmniejszono odstęp strzałki */
+    background-position: right 3px center !important;
 }
 
 #prowizja .input-group .jednostka-select {
-    flex: none; /* Zmieniono z flex: 1 na flex: none */
-    width: 40px; /* Ustawiono stałą szerokość, aby box był mniejszy */
+    flex: none;
+    width: 36px;
     border-radius: 0 5px 5px 0 !important;
     border-left: 1px solid var(--border-color);
 }
@@ -335,8 +335,8 @@ body {
 .dark-mode #rodzajRat .form-select,
 .dark-mode #prowizja .input-group .jednostka-select {
     border: 1px solid var(--border-color);
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-position: right 4px center !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"><path fill="%23a3945c" d="M0 1l3 3 3-3z"/></svg>') !important;
+    background-position: right 3px center !important;
 }
 
 .dark-mode #prowizja .input-group .form-control {
@@ -362,7 +362,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     box-sizing: border-box;
-    line-height: 18px;
+    line-height: normal;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -967,7 +967,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     font-size: var(--small-font-size);
     padding: 2px 8px;
     height: 22px;
-    line-height: 18px;
+    line-height: normal;
     background: #dc3545;
     border: none;
     border-radius: var(--border-radius);
@@ -1039,12 +1039,11 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-control,
-    #rodzajRat .form-select,
-    #prowizja .input-group .jednostka-select {
-        height: 22px; /* Ujednolicono wysokość z desktopem */
+    #rodzajRat .form-select {
+        height: 22px;
         width: 100px;
-        padding: 2px 16px 2px 4px; /* Dopasowano padding do desktopu */
-        line-height: 18px;
+        padding: 2px;
+        line-height: normal;
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
         text-align: center;
@@ -1061,30 +1060,35 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 150px;
         max-width: 150px;
         min-width: 120px;
+        padding: 2px 12px 2px 4px;
+        background-position: right 3px center !important;
     }
 
-    .input-group-text,
-    #prowizja .input-group .jednostka-select {
-        height: 22px; /* Ujednolicono wysokość z desktopem */
-        width: 40px; /* Zachowano stałą szerokość */
-        padding: 2px 16px 2px 4px; /* Dopasowano padding do desktopu */
-        line-height: 18px;
-        text-align: center;
-        background-position: right 4px center !important;
-    }
-
-    #prowizja .input-group .jednostka-select {
-        flex: none;
+    .input-group-text {
+        height: 22px;
         width: 40px;
+        padding: 2px 5px;
+        line-height: normal;
+        text-align: center;
+    }
+
+    #prowizja .input-group .jednostka-select {
+        height: 22px;
+        width: 36px !important;
+        padding: 2px 12px 2px 4px;
+        line-height: normal;
+        text-align: center;
         border-radius: 0 5px 5px 0 !important;
         border-left: 1px solid var(--border-color);
+        background-position: right 3px center !important;
+        flex: none;
     }
 
     .dark-mode #rodzajRat .form-select,
     .dark-mode #prowizja .input-group .jednostka-select {
         border: 1px solid var(--border-color);
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-position: right 4px center !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"><path fill="%23a3945c" d="M0 1l3 3 3-3z"/></svg>') !important;
+        background-position: right 3px center !important;
     }
 
     .dark-mode #prowizja .input-group .form-control {
@@ -1110,16 +1114,16 @@ input[type="range"].form-range:focus::-ms-thumb {
     .variable-input-group .form-control {
         width: 100px;
         height: 22px;
-        padding: 2px 4px;
-        line-height: 18px;
+        padding: 2px;
+        line-height: normal;
         text-align: center;
     }
 
     .variable-input-group .input-group-text {
         width: 50px;
         height: 22px;
-        padding: 2px 4px;
-        line-height: 18px;
+        padding: 2px 5px;
+        line-height: normal;
         text-align: center;
     }
 
