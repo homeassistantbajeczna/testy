@@ -317,7 +317,7 @@ body {
 #prowizja .input-group .jednostka-select {
     flex: 1;
     border-radius: 0 5px 5px 0 !important;
-    border-left: none;
+    border-left: 1px solid var(--border-color);
 }
 
 #rodzajRat .form-select:focus,
@@ -340,7 +340,7 @@ body {
 }
 
 .dark-mode #prowizja .input-group .jednostka-select {
-    border-left: none;
+    border-left: 1px solid var(--border-color);
 }
 
 .dark-mode #rodzajRat .form-select:focus,
@@ -831,7 +831,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 #addNadplataKredytuBtn,
 #generatePdfBtn,
 .zoom-controls .btn {
-    background chips://x.com/search?q=from%3Aelonmusk%20%22Grok%203%22&src=typed_query&f=live: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
     border: none !important;
     color: var(--primary-text) !important;
     box-shadow: 0 4px 6px var(--shadow-color);
@@ -1054,7 +1054,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         flex: 1;
         width: auto;
         border-radius: 0 5px 5px 0 !important;
-        border-left: none;
+        border-left: 1px solid var(--border-color);
     }
 
     .dark-mode #rodzajRat .form-select,
@@ -1068,7 +1068,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .dark-mode #prowizja .input-group .jednostka-select {
-        border-left: none;
+        border-left: 1px solid var(--border-color);
     }
 
     .variable-input-group .input-group {
