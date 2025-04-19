@@ -56,6 +56,7 @@ function syncInputWithRange(input, range, options = {}) {
     range.addEventListener("input", () => {
         let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
         input.value = isDecimal ? value.toFixed(1) : value;
+        range.value = value; // Ensure range value is updated
         if (onChange) onChange(value);
     });
 }
