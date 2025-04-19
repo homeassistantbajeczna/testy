@@ -315,21 +315,23 @@ body {
     background-position: right 2px center !important;
 }
 
-#prowizja .input-group .jednostka-select {
-    height: 22px;
-    font-size: var(--small-font-size);
-    padding: 2px 8px 2px 4px;
-    text-align: center;
-    background: var(--input-bg);
-    color: var(--primary-text);
-    border: 1px solid var(--border-color);
+/* Bardziej specyficzne i agresywne style dla jednostka-select */
+#prowizjaGroup .input-group .form-select.jednostka-select {
+    height: 22px !important;
+    font-size: var(--small-font-size) !important;
+    padding: 2px 8px 2px 4px !important;
+    text-align: center !important;
+    background: var(--input-bg) !important;
+    color: var(--primary-text) !important;
+    border: 1px solid var(--border-color) !important;
     border-radius: 0 5px 5px 0 !important;
-    border-left: 1px solid var(--border-color);
-    box-sizing: border-box;
-    line-height: normal;
+    border-left: 1px solid var(--border-color) !important;
+    box-sizing: border-box !important;
+    line-height: normal !important;
     width: 32px !important;
     min-width: 32px !important;
-    flex: none;
+    max-width: 32px !important;
+    flex: none !important;
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
@@ -338,18 +340,17 @@ body {
     background-position: right 2px center !important;
 }
 
-#rodzajRat .form-select:focus,
-#prowizja .input-group .jednostka-select:focus {
+#prowizjaGroup .input-group .form-select.jednostka-select:focus {
     outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color);
-    border: 1px solid var(--border-color);
-    background: var(--input-bg);
-    color: var(--primary-text);
+    box-shadow: 0 0 4px var(--accent-color) !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--primary-text) !important;
 }
 
 .dark-mode #rodzajRat .form-select,
-.dark-mode #prowizja .input-group .jednostka-select {
-    border: 1px solid var(--border-color);
+.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
+    border: 1px solid var(--border-color) !important;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23a3945c" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
     background-position: right 2px center !important;
 }
@@ -358,13 +359,13 @@ body {
     border-right: none;
 }
 
-.dark-mode #prowizja .input-group .jednostka-select {
-    border-left: 1px solid var(--border-color);
+.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
+    border-left: 1px solid var(--border-color) !important;
 }
 
 .dark-mode #rodzajRat .form-select:focus,
-.dark-mode #prowizja .input-group .jednostka-select:focus {
-    border: 1px solid var(--border-color);
+.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
+    border: 1px solid var(--border-color) !important;
 }
 
 .input-group-text {
@@ -1083,30 +1084,32 @@ input[type="range"].form-range:focus::-ms-thumb {
         background-position: right 2px center !important;
     }
 
-    .input-group-text {
-        height: 22px;
-        width: 40px;
-        padding: 2px 5px;
-        line-height: normal;
-        text-align: center;
-    }
-
-    #prowizja .input-group .jednostka-select {
-        height: 22px;
+    #prowizjaGroup .input-group .form-select.jednostka-select {
+        height: 22px !important;
         width: 32px !important;
         min-width: 32px !important;
-        padding: 2px 8px 2px 4px;
-        line-height: normal;
-        text-align: center;
+        max-width: 32px !important;
+        padding: 2px 8px 2px 4px !important;
+        line-height: normal !important;
+        text-align: center !important;
         border-radius: 0 5px 5px 0 !important;
-        border-left: 1px solid var(--border-color);
+        border-left: 1px solid var(--border-color) !important;
         background-position: right 2px center !important;
-        flex: none;
+        flex: none !important;
+        font-size: var(--small-font-size) !important;
+        background: var(--input-bg) !important;
+        color: var(--primary-text) !important;
+        border: 1px solid var(--border-color) !important;
+        appearance: none !important;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23C2B280" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
+        background-repeat: no-repeat !important;
     }
 
     .dark-mode #rodzajRat .form-select,
-    .dark-mode #prowizja .input-group .jednostka-select {
-        border: 1px solid var(--border-color);
+    .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
+        border: 1px solid var(--border-color) !important;
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23a3945c" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
         background-position: right 2px center !important;
     }
@@ -1115,8 +1118,8 @@ input[type="range"].form-range:focus::-ms-thumb {
         border-right: none;
     }
 
-    .dark-mode #prowizja .input-group .jednostka-select {
-        border-left: 1px solid var(--border-color);
+    .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
+        border-left: 1px solid var(--border-color) !important;
     }
 
     .variable-input-group .input-group {
