@@ -36,7 +36,7 @@ const state = {
 };
 
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, min, max, step = 1, onChange } = options;
+    const { isDecimal = false, onChange } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found for ${input?.id || "unknown"}`);
@@ -45,11 +45,15 @@ function syncInputWithRange(input, range, options = {}) {
 
     // Synchronizacja z pola tekstowego do suwaka
     input.addEventListener("input", () => {
+        // Odczytujemy aktualne atrybuty z input
+        const min = parseFloat(input.min) || 0;
+        const max = parseFloat(input.max) || Infinity;
+        const step = parseFloat(input.step) || 1;
         let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
         if (isNaN(value)) value = min;
         if (value < min) value = min;
         if (value > max) value = max;
-        input.value = isDecimal ? value.toFixed(1) : value;
+        input.value = isDecimal ? value.toFixed(step === 1 ? 0 : 1) : value;
         range.value = value;
         console.log(`Input changed: ${input.id} = ${value}`);
         if (onChange) onChange(value);
@@ -57,19 +61,26 @@ function syncInputWithRange(input, range, options = {}) {
 
     // Synchronizacja z suwaka do pola tekstowego
     range.addEventListener("input", () => {
+        // Odczytujemy aktualne atrybuty z range
+        const min = parseFloat(range.min) || 0;
+        const max = parseFloat(range.max) || Infinity;
+        const step = parseFloat(range.step) || 1;
         let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
-        input.value = isDecimal ? value.toFixed(1) : value;
-        range.value = value; // Upewnij się, że suwak ma poprawną wartość
+        input.value = isDecimal ? value.toFixed(step === 1 ? 0 : 1) : value;
+        range.value = value;
         console.log(`Range changed: ${input.id} = ${value}`);
         if (onChange) onChange(value);
     });
 
     // Inicjalna synchronizacja przy załadowaniu strony
+    const min = parseFloat(input.min) || 0;
+    const max = parseFloat(input.max) || Infinity;
+    const step = parseFloat(input.step) || 1;
     let initialValue = isDecimal ? parseFloat(range.value) : parseInt(range.value);
     if (isNaN(initialValue)) initialValue = min;
     if (initialValue < min) initialValue = min;
     if (initialValue > max) initialValue = max;
-    input.value = isDecimal ? initialValue.toFixed(1) : initialValue;
+    input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
     range.value = initialValue;
     console.log(`Initial sync: ${input.id} = ${initialValue}`);
 }
@@ -77,9 +88,6 @@ function syncInputWithRange(input, range, options = {}) {
 // Synchronizacja dla kwoty kredytu
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: false,
-    min: 50000,
-    max: 5000000,
-    step: 100,
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo(); // Aktualizacja prowizji przy zmianie kwoty
@@ -89,9 +97,6 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
 // Synchronizacja dla ilości rat
 syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     isDecimal: false,
-    min: 12,
-    max: 420,
-    step: 1,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
         updateLata(); // Aktualizacja tekstu "Ilość lat"
@@ -102,9 +107,6 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
 // Synchronizacja dla oprocentowania
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
-    min: 0.1,
-    max: 25,
-    step: 0.1,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
     },
@@ -113,18 +115,59 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
 // Synchronizacja dla prowizji
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
-    min: 0,
-    max: 25,
-    step: 0.1,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
         updateProwizjaInfo(); // Aktualizacja tekstu "Wartość: X zł"
     },
 });
 
+// Funkcja aktualizująca atrybuty i wartość pola prowizji
+function updateProwizjaInput() {
+    const jednostka = elements.jednostkaProwizji.value;
+    let min, max, step, defaultValue;
+
+    if (jednostka === "procent") {
+        min = 0;
+        max = 25;
+        step = 0.1;
+        defaultValue = 2;
+    } else {
+        min = 0;
+        max = 100000;
+        step = 1;
+        defaultValue = 10000;
+    }
+
+    // Aktualizacja atrybutów input i range
+    elements.prowizja.min = min;
+    elements.prowizja.max = max;
+    elements.prowizja.step = step;
+    elements.prowizjaRange.min = min;
+    elements.prowizjaRange.max = max;
+    elements.prowizjaRange.step = step;
+
+    // Ustawienie wartości domyślnej tylko przy zmianie jednostki
+    const currentValue = parseFloat(elements.prowizja.value);
+    if (state.lastFormData.jednostkaProwizji !== jednostka) {
+        elements.prowizja.value = defaultValue;
+        elements.prowizjaRange.value = defaultValue;
+        state.lastFormData.prowizja = defaultValue;
+    } else {
+        // Zachowanie bieżącej wartości, jeśli jest w zakresie
+        let value = currentValue;
+        if (isNaN(value) || value < min) value = min;
+        if (value > max) value = max;
+        elements.prowizja.value = step === 1 ? value.toFixed(0) : value.toFixed(1);
+        elements.prowizjaRange.value = value;
+        state.lastFormData.prowizja = value;
+    }
+
+    state.lastFormData.jednostkaProwizji = jednostka;
+}
+
 // Nasłuchiwanie zmiany jednostki prowizji
 elements.jednostkaProwizji.addEventListener("change", () => {
-    state.lastFormData.jednostkaProwizji = elements.jednostkaProwizji.value;
+    updateProwizjaInput();
     updateProwizjaInfo();
 });
 
@@ -360,11 +403,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateInput = inputGroup.querySelector(".variable-rate");
         const rateRange = inputGroup.querySelector(".variable-rate-range");
 
-        syncInputWithRange(cyklInput, cykRange, {
+        syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
-            min: minPeriod,
-            max: maxCykl,
-            step: 1,
             onChange: (value) => {
                 changes[index].period = value;
                 updateVariableData(activeType);
@@ -374,9 +414,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         syncInputWithRange(rateInput, rateRange, {
             isDecimal: true,
-            min: activeType === "oprocentowanie" ? 0.1 : 0,
-            max: activeType === "oprocentowanie" ? 50 : 1000000,
-            step: 0.1,
             onChange: (value) => {
                 changes[index].value = value;
                 updateVariableData(activeType);
@@ -487,6 +524,8 @@ document.getElementById("siteLogo").addEventListener("click", () => {
     window.open("https://finance-brothers.pl", "_blank");
 });
 
+// Inicjalizacja prowizji
+updateProwizjaInput();
 updateLata();
 updateProwizjaInfo();
 updateVariableInputs();
