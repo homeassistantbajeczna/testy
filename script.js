@@ -91,6 +91,7 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo(); // Aktualizacja prowizji przy zmianie kwoty
+        updateKwotaInfo(); // Aktualizacja tekstu "Kwota kredytu"
     },
 });
 
@@ -133,7 +134,7 @@ function updateProwizjaInput() {
         defaultValue = 2;
     } else {
         min = 0;
-        max = 100000;
+        max = 125000;
         step = 1;
         defaultValue = 10000;
     }
@@ -213,7 +214,17 @@ elements.obliczBtn.addEventListener("click", () => {
     console.log("Oblicz clicked", state.lastFormData);
     updateLata();
     updateProwizjaInfo();
+    updateKwotaInfo();
 });
+
+// Aktualizacja tekstu "Kwota kredytu"
+function updateKwotaInfo() {
+    const kwota = parseFloat(elements.kwota.value) || 500000;
+    const kwotaInfo = document.getElementById("kwotaInfo");
+    if (kwotaInfo) {
+        kwotaInfo.textContent = `Kwota kredytu: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+    }
+}
 
 // Aktualizacja tekstu "Ilość lat"
 function updateLata() {
@@ -524,8 +535,9 @@ document.getElementById("siteLogo").addEventListener("click", () => {
     window.open("https://finance-brothers.pl", "_blank");
 });
 
-// Inicjalizacja prowizji
+// Inicjalizacja
 updateProwizjaInput();
+updateKwotaInfo();
 updateLata();
 updateProwizjaInfo();
 updateVariableInputs();
