@@ -281,6 +281,8 @@ body {
 
 #prowizja .input-group .form-control {
     flex: 3;
+    border-radius: 5px 0 0 5px !important;
+    border-right: none;
 }
 
 .form-control:focus {
@@ -300,8 +302,7 @@ body {
     background: var(--input-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
-    border-radius: var(--border-radius) !important;
+    border-radius: var(--border-radius);
     box-sizing: border-box;
     line-height: 18px;
     width: 100%;
@@ -315,6 +316,8 @@ body {
 
 #prowizja .input-group .jednostka-select {
     flex: 1;
+    border-radius: 0 5px 5px 0 !important;
+    border-left: none;
 }
 
 #rodzajRat .form-select:focus,
@@ -322,7 +325,6 @@ body {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color);
     border: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
     background: var(--input-bg);
     color: var(--primary-text);
 }
@@ -330,14 +332,20 @@ body {
 .dark-mode #rodzajRat .form-select,
 .dark-mode #prowizja .input-group .jednostka-select {
     border: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23a3945c" d="M0 3l5 5 5-5z"/></svg>') !important;
+}
+
+.dark-mode #prowizja .input-group .form-control {
+    border-right: none;
+}
+
+.dark-mode #prowizja .input-group .jednostka-select {
+    border-left: none;
 }
 
 .dark-mode #rodzajRat .form-select:focus,
 .dark-mode #prowizja .input-group .jednostka-select:focus {
     border: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
 }
 
 .input-group-text {
@@ -823,7 +831,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 #addNadplataKredytuBtn,
 #generatePdfBtn,
 .zoom-controls .btn {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    background chips://x.com/search?q=from%3Aelonmusk%20%22Grok%203%22&src=typed_query&f=live: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
     border: none !important;
     color: var(--primary-text) !important;
     box-shadow: 0 4px 6px var(--shadow-color);
@@ -1010,9 +1018,9 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .form-group,
     .input-group {
-        width: 200px;
-        max-width: 200px;
-        min-width: 200px;
+        width: 150px;
+        max-width: 150px;
+        min-width: 120px;
         margin: 2px auto;
     }
 
@@ -1020,20 +1028,18 @@ input[type="range"].form-range:focus::-ms-thumb {
     #rodzajRat .form-select,
     #prowizja .input-group .jednostka-select {
         height: 26px;
-        width: 130px;
+        width: 100px;
         padding: 4px 24px 4px 8px;
         line-height: 20px;
         border: 1px solid var(--border-color);
-        border-right: 1px solid var(--border-color);
-        border-radius: var(--border-radius) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') !important;
-        background-repeat: no-repeat !important;
-        background-position: right 8px center !important;
+        border-radius: var(--border-radius);
     }
 
     #prowizja .input-group .form-control {
         flex: 3;
         width: auto;
+        border-radius: 5px 0 0 5px !important;
+        border-right: none;
     }
 
     .input-group-text,
@@ -1047,36 +1053,45 @@ input[type="range"].form-range:focus::-ms-thumb {
     #prowizja .input-group .jednostka-select {
         flex: 1;
         width: auto;
+        border-radius: 0 5px 5px 0 !important;
+        border-left: none;
     }
 
     .dark-mode #rodzajRat .form-select,
     .dark-mode #prowizja .input-group .jednostka-select {
         border: 1px solid var(--border-color);
-        border-right: 1px solid var(--border-color);
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23a3945c" d="M0 3l5 5 5-5z"/></svg>') !important;
     }
 
+    .dark-mode #prowizja .input-group .form-control {
+        border-right: none;
+    }
+
+    .dark-mode #prowizja .input-group .jednostka-select {
+        border-left: none;
+    }
+
     .variable-input-group .input-group {
-        max-width: 200px;
-        min-width: 200px;
+        max-width: 150px;
+        min-width: 120px;
     }
 
     .variable-input-group .form-group {
-        width: 200px;
-        max-width: 200px;
-        min-width: 200px;
+        width: 150px;
+        max-width: 150px;
+        min-width: 120px;
         margin: 2px auto;
     }
 
     .variable-input-group .form-control {
-        width: 130px;
+        width: 100px;
         height: 26px;
         padding: 4px 8px;
         line-height: 20px;
     }
 
     .variable-input-group .input-group-text {
-        width: 70px;
+        width: 50px;
         height: 26px;
         padding: 4px 8px;
         line-height: 20px;
@@ -1087,21 +1102,21 @@ input[type="range"].form-range:focus::-ms-thumb {
         justify-content: center;
         align-items: center;
         width: 100%;
-        max-width: 200px;
-        min-width: 200px;
+        max-width: 150px;
+        min-width: 120px;
         gap: 2px;
     }
 
     .variable-input-group .form-group:nth-child(1) .input-group,
     .variable-input-group .form-group:nth-child(2) .input-group {
-        width: 200px;
-        max-width: 200px;
-        min-width: 200px;
+        width: 150px;
+        max-width: 150px;
+        min-width: 120px;
     }
 
     .variable-input-group .form-group:nth-child(1) .form-control,
     .variable-input-group .form-group:nth-child(2) .form-control {
-        width: 130px;
+        width: 100px;
     }
 
     .btn-primary,
@@ -1145,7 +1160,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .chart-legend .legend-item {
         width: 100%;
-        max-width: 200px;
+        max-width: 150px;
         justify-content: flex-start;
         padding-left: 0;
     }
