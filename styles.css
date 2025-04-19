@@ -161,6 +161,12 @@ body {
     position: relative;
     margin: 5px 10px;
     justify-content: center;
+    line-height: 1.5;
+}
+
+#zmienneOprocentowanieLabel,
+#nadplataKredytuLabel {
+    font-size: 0.7em !important;
 }
 
 .checkbox-label input {
@@ -295,7 +301,7 @@ body {
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-right: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) !important;
     box-sizing: border-box;
     line-height: 18px;
     width: 100%;
@@ -309,7 +315,6 @@ body {
 
 #prowizja .input-group .jednostka-select {
     flex: 1;
-    border-radius: 2px !important;
 }
 
 #rodzajRat .form-select:focus,
@@ -1020,6 +1025,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         line-height: 20px;
         border: 1px solid var(--border-color);
         border-right: 1px solid var(--border-color);
+        border-radius: var(--border-radius) !important;
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23C2B280" d="M0 3l5 5 5-5z"/></svg>') !important;
         background-repeat: no-repeat !important;
         background-position: right 8px center !important;
@@ -1041,7 +1047,6 @@ input[type="range"].form-range:focus::-ms-thumb {
     #prowizja .input-group .jednostka-select {
         flex: 1;
         width: auto;
-        border-radius: 2px !important;
     }
 
     .dark-mode #rodzajRat .form-select,
