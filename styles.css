@@ -1017,7 +1017,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group,
-    .input-group {
+    .input-group,
+    #rodzajRat {
         width: 150px;
         max-width: 150px;
         min-width: 120px;
@@ -1029,10 +1030,11 @@ input[type="range"].form-range:focus::-ms-thumb {
     #prowizja .input-group .jednostka-select {
         height: 26px;
         width: 100px;
-        padding: 4px 24px 4px 8px;
+        padding: 4px 8px;
         line-height: 20px;
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
+        text-align: center;
     }
 
     #prowizja .input-group .form-control {
@@ -1042,12 +1044,19 @@ input[type="range"].form-range:focus::-ms-thumb {
         border-right: none;
     }
 
+    #rodzajRat .form-select {
+        width: 150px;
+        max-width: 150px;
+        min-width: 120px;
+    }
+
     .input-group-text,
     #prowizja .input-group .jednostka-select {
         height: 26px;
         width: 40px;
-        padding: 4px 24px 4px 8px;
+        padding: 4px 8px;
         line-height: 20px;
+        text-align: center;
     }
 
     #prowizja .input-group .jednostka-select {
@@ -1055,12 +1064,14 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: auto;
         border-radius: 0 5px 5px 0 !important;
         border-left: 1px solid var(--border-color);
+        background-position: right 8px center !important;
     }
 
     .dark-mode #rodzajRat .form-select,
     .dark-mode #prowizja .input-group .jednostka-select {
         border: 1px solid var(--border-color);
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><path fill="%23a3945c" d="M0 3l5 5 5-5z"/></svg>') !important;
+        background-position: right 8px center !important;
     }
 
     .dark-mode #prowizja .input-group .form-control {
@@ -1088,6 +1099,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         height: 26px;
         padding: 4px 8px;
         line-height: 20px;
+        text-align: center;
     }
 
     .variable-input-group .input-group-text {
@@ -1095,6 +1107,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         height: 26px;
         padding: 4px 8px;
         line-height: 20px;
+        text-align: center;
     }
 
     .variable-input-group .fields-wrapper {
