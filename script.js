@@ -81,7 +81,7 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
     step: 100,
     onChange: (value) => {
         state.lastFormData.kwota = value;
-        updateProwizjaInfo();
+        // updateProwizjaInfo(); // Usunięto, aby nie aktualizować tekstu poniżej
     },
 });
 
@@ -92,8 +92,8 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     step: 1,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
-        updateLata();
-        updateVariableInputs();
+        // updateLata(); // Usunięto, aby nie aktualizować tekstu "Ilość lat"
+        updateVariableInputs(); // Zachowano, aby aktualizować zmienne oprocentowanie/nadpłaty
     },
 });
 
@@ -114,7 +114,7 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     step: 0.1,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
-        updateProwizjaInfo();
+        // updateProwizjaInfo(); // Usunięto, aby nie aktualizować tekstu "Wartość: X zł"
     },
 });
 
@@ -157,6 +157,8 @@ elements.addNadplataKredytuBtn.addEventListener("click", () => {
 
 elements.obliczBtn.addEventListener("click", () => {
     console.log("Oblicz clicked", state.lastFormData);
+    updateLata(); // Wywołanie przy kliknięciu "Oblicz", aby zaktualizować tekst poniżej
+    updateProwizjaInfo(); // Wywołanie przy kliknięciu "Oblicz", aby zaktualizować tekst poniżej
 });
 
 function updateLata() {
