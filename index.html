@@ -31,32 +31,32 @@
             <div class="form-container">
                 <div class="form-wrapper">
                     <form id="obligacjeForm">
-                        <!-- Pierwszy wiersz: Kwota, Okres, Inflacja -->
+                        <!-- Pierwszy wiersz: Kwota kredytu, Ilość rat, Oprocentowanie -->
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="kwota" class="form-label">Kwota inwestycji</label>
+                                <label for="kwota" class="form-label">Kwota kredytu</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="kwota" min="100" max="10000000" step="100" value="10000">
+                                    <input type="number" class="form-control" id="kwota" min="50000" max="5000000" step="100" value="500000">
                                     <span class="input-group-text">zł</span>
                                 </div>
-                                <input type="range" class="form-range" id="kwotaRange" min="100" max="10000000" step="100" value="10000">
+                                <input type="range" class="form-range" id="kwotaRange" min="50000" max="5000000" step="100" value="500000">
                             </div>
-                            <div class="form-group" id="okresInwestycji">
-                                <label for="okresInwestycji" class="form-label">Okres inwestycji</label>
+                            <div class="form-group" id="iloscRat">
+                                <label for="iloscRat" class="form-label">Ilość rat</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="okresInwestycji" min="3" max="144" step="1" value="3">
+                                    <input type="number" class="form-control" id="iloscRat" min="12" max="420" step="1" value="360">
                                     <span class="input-group-text">mc-y</span>
                                 </div>
-                                <input type="range" class="form-range" id="okresInwestycjiRange" min="3" max="144" step="1" value="3">
-                                <div class="sub-info" id="lata">Ilość lat: 0</div>
+                                <input type="range" class="form-range" id="iloscRatRange" min="12" max="420" step="1" value="360">
+                                <div class="sub-info" id="lata">Ilość lat: 30</div>
                             </div>
-                            <div class="form-group" id="inflacja">
-                                <label for="inflacja" class="form-label">Inflacja</label>
+                            <div class="form-group" id="oprocentowanie">
+                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="inflacja" min="0.1" max="50" step="0.1" value="4.90">
+                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="7">
                                     <span class="input-group-text">%</span>
                                 </div>
-                                <input type="range" class="form-range" id="inflacjaRange" min="0.1" max="50" step="0.1" value="4.90">
+                                <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="7">
                             </div>
                         </div>
                         <!-- Drugi wiersz: Rodzaj rat, Prowizja -->
@@ -73,28 +73,14 @@
                             <div class="form-group" id="prowizja">
                                 <label for="prowizja" class="form-label">Prowizja</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="prowizja" min="0.1" max="1000000" step="0.1" value="1000">
+                                    <input type="number" class="form-control" id="prowizja" min="0" max="25" step="0.1" value="2">
                                     <select class="form-select jednostka-select" id="jednostkaProwizji">
-                                        <option value="pln">zł</option>
                                         <option value="procent">%</option>
+                                        <option value="pln">zł</option>
                                     </select>
                                 </div>
-                                <input type="range" class="form-range" id="prowizjaRange" min="0.1" max="1000000" step="0.1" value="1000">
-                                <div class="sub-info" id="prowizjaInfo">Wartość: 1000 zł</div>
-                            </div>
-                        </div>
-                        <!-- Zmienne oprocentowanie -->
-                        <div class="variable-rate-container" id="variableOprocentowanieContainer">
-                            <div class="checkbox-row">
-                                <label class="checkbox-label" id="zmienneOprocentowanieLabel">
-                                    <input type="checkbox" id="zmienneOprocentowanieBtn">
-                                    <span class="checkbox-custom"></span>
-                                    Zmienne Oprocentowanie
-                                </label>
-                            </div>
-                            <div class="variable-inputs" id="variableOprocentowanieInputs">
-                                <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                                <input type="range" class="form-range" id="prowizjaRange" min="0" max="25" step="0.1" value="2">
+                                <div class="sub-info" id="prowizjaInfo">Wartość: 10000 zł</div>
                             </div>
                         </div>
                         <!-- Nadpłata kredytu -->
@@ -111,9 +97,23 @@
                                 <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną zmianę</button>
                             </div>
                         </div>
+                        <!-- Zmienne oprocentowanie -->
+                        <div class="variable-rate-container" id="variableOprocentowanieContainer">
+                            <div class="checkbox-row">
+                                <label class="checkbox-label" id="zmienneOprocentowanieLabel">
+                                    <input type="checkbox" id="zmienneOprocentowanieBtn">
+                                    <span class="checkbox-custom"></span>
+                                    Zmienne Oprocentowanie
+                                </label>
+                            </div>
+                            <div class="variable-inputs" id="variableOprocentowanieInputs">
+                                <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                            </div>
+                        </div>
                         <!-- Przycisk oblicz -->
                         <div class="form-row">
-                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki inwestycji">Oblicz</button>
+                            <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki kredytu">Oblicz</button>
                         </div>
                     </form>
                 </div>
