@@ -281,6 +281,18 @@ body {
     justify-content: center;
 }
 
+/* Styl dla wszystkich pól formularza w stanie :focus */
+.form-group .form-control:focus,
+.form-group .form-select:focus,
+.variable-input-group .form-control:focus,
+.variable-input-group .form-select:focus {
+    outline: none !important;
+    box-shadow: 0 0 4px var(--accent-color) !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--primary-text) !important;
+}
+
 /* Styl dla spinnerów w input type="number" */
 #prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
 #prowizja .input-group .form-control[type="number"]::-webkit-outer-spin-button {
@@ -303,7 +315,7 @@ body {
     border-right: none;
 }
 
-/* Bardziej specyficzne style dla :focus w prowizja */
+/* Specyficzne style dla :focus w prowizja */
 #prowizjaGroup .input-group .form-control:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color) !important;
@@ -1099,6 +1111,11 @@ input[type="range"].form-range:focus::-ms-thumb {
         border-right: none;
     }
 
+    /* Styl :focus dla wszystkich pól w widoku mobilnym */
+    .form-group .form-control:focus,
+    .form-group .form-select:focus,
+    .variable-input-group .form-control:focus,
+    .variable-input-group .form-select:focus,
     #prowizjaGroup .input-group .form-control:focus {
         outline: none !important;
         box-shadow: 0 0 4px var(--accent-color) !important;
