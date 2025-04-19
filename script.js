@@ -36,6 +36,11 @@ const state = {
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, min, max, step = 1, onChange } = options;
 
+    if (!input || !range) {
+        console.error(`Input or range not found for ${input?.id || 'unknown'}`);
+        return;
+    }
+
     input.addEventListener("input", () => {
         let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
         if (isNaN(value)) value = min;
@@ -110,6 +115,7 @@ elements.rodzajRat.addEventListener("change", () => {
 });
 
 elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+    console.log(`Zmienne Oprocentowanie changed to ${elements.zmienneOprocentowanieBtn.checked}`);
     state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     if (!elements.zmienneOprocentowanieBtn.checked) {
         state.variableRates = [];
@@ -120,6 +126,7 @@ elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
 });
 
 elements.nadplataKredytuBtn.addEventListener("change", () => {
+    console.log(`Nadpłata Kredytu changed to ${elements.nadplataKredytuBtn.checked}`);
     state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
     if (!elements.nadplataKredytuBtn.checked) {
         state.overpaymentRates = [];
@@ -129,20 +136,39 @@ elements.nadplataKredytuBtn.addEventListener("change", () => {
     updateVariableInputs();
 });
 
-elements.addVariableOprocentowanieBtn.addEventListener("click", () => addVariableChange("oprocentowanie"));
-elements.addNadplataKredytuBtn.addEventListener("click", () => addVariableChange("nadplata"));
+elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
+    console.log("Adding variable oprocentowanie change");
+    addVariableChange("oprocentowanie");
+});
+
+elements.addNadplataKredytuBtn.addEventListener("click", () => {
+    console.log("Adding nadplata kredytu change");
+    addVariableChange("nadplata");
+});
 
 // F U N K C J E   P O M O C N I C Z E
 function updateLata() {
     const miesiace = parseInt(elements.okresInwestycji.value) || 0;
     const lata = (miesiace / 12).toFixed(0);
-    document.getElementById("lata").textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
+    const lataElement = document.getElementById("lata");
+    if (lataElement) {
+        lataElement.textContent = `Ilość lat: ${miesiace >= 12 ? lata : 0}`;
+        console.log(`Updated lata to: Ilość lat: ${miesiace >= 12 ? lata : 0}`);
+    } else {
+        console.error("Lata element not found!");
+    }
 }
 
 function updateProwizjaInfo() {
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value === "pln" ? "zł" : "%";
-    document.getElementById("prowizjaInfo").textContent = `Wartość: ${prowizja.toFixed(2)} ${jednostka}`;
+    const prowizjaInfo = document.getElementById("prowizjaInfo");
+    if (prowizjaInfo) {
+        prowizjaInfo.textContent = `Wartość: ${prowizja.toFixed(2)} ${jednostka}`;
+        console.log(`Updated prowizjaInfo to: Wartość: ${prowizja.toFixed(2)} ${jednostka}`);
+    } else {
+        console.error("ProwizjaInfo element not found!");
+    }
 }
 
 function updateVariableData(activeType) {
@@ -193,11 +219,18 @@ function updateVariableInputs() {
     const maxCykl = parseInt(elements.okresInwestycji.value) || 3;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
+    console.log("Updating variable inputs...");
+
     // Zmienne Oprocentowanie
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
     const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
+
+    if (!variableOprocentowanieInputs || !variableOprocentowanieWrapper) {
+        console.error("Zmienne Oprocentowanie inputs or wrapper not found!");
+        return;
+    }
 
     if (isZmienneOprocentowanie) {
         console.log("Showing Zmienne Oprocentowanie inputs");
@@ -225,6 +258,11 @@ function updateVariableInputs() {
     const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
+    if (!nadplataKredytuInputs || !nadplataKredytuWrapper) {
+        console.error("Nadpłata Kredytu inputs or wrapper not found!");
+        return;
+    }
+
     if (isNadplataKredytu) {
         console.log("Showing Nadpłata Kredytu inputs");
         nadplataKredytuInputs.style.display = "block";
@@ -247,6 +285,7 @@ function updateVariableInputs() {
 }
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
+    console.log(`Rendering variable inputs for ${activeType} with ${changes.length} changes`);
     wrapper.innerHTML = "";
 
     changes.forEach((change, index) => {
@@ -267,7 +306,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
                 <span class="input-group-text">miesiąca</span>
             </div>
-            <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.01" value="${change.period}">
+            <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
         `;
 
         const rateGroup = document.createElement("div");
@@ -292,6 +331,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
             removeFirstBtn.textContent = "Usuń";
             removeFirstBtn.onclick = () => {
+                console.log(`Removing first ${activeType} change`);
                 if (activeType === "oprocentowanie") {
                     state.variableRates = [];
                     elements.zmienneOprocentowanieBtn.checked = false;
@@ -313,7 +353,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             const removeBtn = document.createElement("button");
             removeBtn.className = "btn btn-danger btn-sm";
             removeBtn.textContent = "Usuń";
-            removeBtn.onclick = () => removeVariableChange(index, activeType);
+            removeBtn.onclick = () => {
+                console.log(`Removing ${activeType} change at index ${index}`);
+                removeVariableChange(index, activeType);
+            };
             removeBtnWrapper.appendChild(removeBtn);
             inputGroup.appendChild(removeBtnWrapper);
         }
@@ -398,6 +441,7 @@ updateVariableInputs();
 
 // F U N K C J A   Z O O M
 document.getElementById('siteLogo').addEventListener('click', () => {
+    console.log("Logo clicked, opening finance-brothers.pl");
     window.open('https://finance-brothers.pl', '_blank');
 });
 
@@ -408,11 +452,17 @@ const maxZoom = 2;
 
 function updateZoom() {
     const container = document.querySelector('.container');
+    if (!container) {
+        console.error("Container not found!");
+        return;
+    }
+    console.log(`Updating zoom to ${currentZoom}`);
     container.style.transform = `scale(${currentZoom})`;
     container.style.transformOrigin = 'top center';
 }
 
 document.getElementById("zoomInBtn").addEventListener("click", () => {
+    console.log("Zoom In clicked");
     if (currentZoom < maxZoom) {
         currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
         updateZoom();
@@ -420,6 +470,7 @@ document.getElementById("zoomInBtn").addEventListener("click", () => {
 });
 
 document.getElementById("zoomOutBtn").addEventListener("click", () => {
+    console.log("Zoom Out clicked");
     if (currentZoom > minZoom) {
         currentZoom = Math.max(minZoom, currentZoom - zoomStep);
         updateZoom();
@@ -428,6 +479,7 @@ document.getElementById("zoomOutBtn").addEventListener("click", () => {
 
 // D A R K   M O D E
 function toggleDarkMode() {
+    console.log("Toggling dark mode");
     const body = document.body;
     const isDarkMode = body.classList.contains('dark-mode');
 
@@ -445,6 +497,7 @@ function toggleDarkMode() {
 }
 
 function initializeTheme() {
+    console.log("Initializing theme");
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
