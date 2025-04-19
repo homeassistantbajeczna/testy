@@ -990,7 +990,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .checkbox-label.header-checkbox {
-        top: -15px;
+        top آزمایش: -15px;
         right: 5px;
     }
 
@@ -1197,5 +1197,21 @@ input[type="range"].form-range:focus::-ms-thumb {
     .checkbox-row,
     .fields-wrapper {
         gap: 5px;
+    }
+}
+
+/* Z A K T U A L I Z O W A N E   I D */
+#iloscRat .input-group,
+#oprocentowanie .input-group {
+    width: 150px;
+}
+
+@media (max-width: 576px) {
+    #iloscRat,
+    #oprocentowanie {
+        width: 150px;
+        max-width: 150px;
+        min-width: 120px;
+        margin: 2px auto;
     }
 }
