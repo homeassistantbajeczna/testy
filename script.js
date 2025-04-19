@@ -74,6 +74,7 @@ function syncInputWithRange(input, range, options = {}) {
     console.log(`Initial sync: ${input.id} = ${initialValue}`);
 }
 
+// Synchronizacja dla kwoty kredytu
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: false,
     min: 50000,
@@ -81,10 +82,11 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
     step: 100,
     onChange: (value) => {
         state.lastFormData.kwota = value;
-        // updateProwizjaInfo(); // Usunięto, aby nie aktualizować tekstu poniżej
+        updateProwizjaInfo(); // Aktualizacja prowizji przy zmianie kwoty
     },
 });
 
+// Synchronizacja dla ilości rat
 syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     isDecimal: false,
     min: 12,
@@ -92,11 +94,12 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     step: 1,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
-        // updateLata(); // Usunięto, aby nie aktualizować tekstu "Ilość lat"
-        updateVariableInputs(); // Zachowano, aby aktualizować zmienne oprocentowanie/nadpłaty
+        updateLata(); // Aktualizacja tekstu "Ilość lat"
+        updateVariableInputs(); // Aktualizacja zmiennych oprocentowań/nadpłat
     },
 });
 
+// Synchronizacja dla oprocentowania
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
     min: 0.1,
@@ -107,6 +110,7 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     },
 });
 
+// Synchronizacja dla prowizji
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
     min: 0,
@@ -114,19 +118,22 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     step: 0.1,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
-        // updateProwizjaInfo(); // Usunięto, aby nie aktualizować tekstu "Wartość: X zł"
+        updateProwizjaInfo(); // Aktualizacja tekstu "Wartość: X zł"
     },
 });
 
+// Nasłuchiwanie zmiany jednostki prowizji
 elements.jednostkaProwizji.addEventListener("change", () => {
     state.lastFormData.jednostkaProwizji = elements.jednostkaProwizji.value;
     updateProwizjaInfo();
 });
 
+// Nasłuchiwanie zmiany rodzaju rat
 elements.rodzajRat.addEventListener("change", () => {
     state.lastFormData.rodzajRat = elements.rodzajRat.value;
 });
 
+// Nasłuchiwanie checkboxa zmiennego oprocentowania
 elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
     state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
     if (!elements.zmienneOprocentowanieBtn.checked) {
@@ -137,6 +144,7 @@ elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
     updateVariableInputs();
 });
 
+// Nasłuchiwanie checkboxa nadpłaty kredytu
 elements.nadplataKredytuBtn.addEventListener("change", () => {
     state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
     if (!elements.nadplataKredytuBtn.checked) {
@@ -147,20 +155,24 @@ elements.nadplataKredytuBtn.addEventListener("change", () => {
     updateVariableInputs();
 });
 
+// Dodawanie zmiennego oprocentowania
 elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
     addVariableChange("oprocentowanie");
 });
 
+// Dodawanie nadpłaty kredytu
 elements.addNadplataKredytuBtn.addEventListener("click", () => {
     addVariableChange("nadplata");
 });
 
+// Obsługa przycisku "Oblicz"
 elements.obliczBtn.addEventListener("click", () => {
     console.log("Oblicz clicked", state.lastFormData);
-    updateLata(); // Wywołanie przy kliknięciu "Oblicz", aby zaktualizować tekst poniżej
-    updateProwizjaInfo(); // Wywołanie przy kliknięciu "Oblicz", aby zaktualizować tekst poniżej
+    updateLata();
+    updateProwizjaInfo();
 });
 
+// Aktualizacja tekstu "Ilość lat"
 function updateLata() {
     const miesiace = parseInt(elements.iloscRat.value) || 0;
     const lata = Math.floor(miesiace / 12);
@@ -170,6 +182,7 @@ function updateLata() {
     }
 }
 
+// Aktualizacja tekstu "Wartość: X zł"
 function updateProwizjaInfo() {
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value;
@@ -347,7 +360,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateInput = inputGroup.querySelector(".variable-rate");
         const rateRange = inputGroup.querySelector(".variable-rate-range");
 
-        syncInputWithRange(cyklInput, cyklRange, {
+        syncInputWithRange(cyklInput, cykRange, {
             isDecimal: false,
             min: minPeriod,
             max: maxCykl,
