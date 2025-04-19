@@ -295,8 +295,7 @@ body {
     color: var(--primary-text);
 }
 
-#rodzajRat .form-select,
-#prowizja .input-group .jednostka-select {
+#rodzajRat .form-select {
     height: 22px;
     font-size: var(--small-font-size);
     padding: 2px 12px 2px 4px;
@@ -311,16 +310,32 @@ body {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"><path fill="%23C2B280" d="M0 1l3 3 3-3z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23C2B280" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
     background-repeat: no-repeat !important;
-    background-position: right 3px center !important;
+    background-position: right 2px center !important;
 }
 
 #prowizja .input-group .jednostka-select {
-    flex: none;
-    width: 36px;
+    height: 22px;
+    font-size: var(--small-font-size);
+    padding: 2px 8px 2px 4px;
+    text-align: center;
+    background: var(--input-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
     border-radius: 0 5px 5px 0 !important;
     border-left: 1px solid var(--border-color);
+    box-sizing: border-box;
+    line-height: normal;
+    width: 32px !important;
+    min-width: 32px !important;
+    flex: none;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23C2B280" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 2px center !important;
 }
 
 #rodzajRat .form-select:focus,
@@ -335,8 +350,8 @@ body {
 .dark-mode #rodzajRat .form-select,
 .dark-mode #prowizja .input-group .jednostka-select {
     border: 1px solid var(--border-color);
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"><path fill="%23a3945c" d="M0 1l3 3 3-3z"/></svg>') !important;
-    background-position: right 3px center !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23a3945c" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
+    background-position: right 2px center !important;
 }
 
 .dark-mode #prowizja .input-group .form-control {
@@ -1038,8 +1053,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         margin: 2px auto;
     }
 
-    .form-control,
-    #rodzajRat .form-select {
+    .form-control {
         height: 22px;
         width: 100px;
         padding: 2px;
@@ -1057,11 +1071,16 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     #rodzajRat .form-select {
+        height: 22px;
         width: 150px;
         max-width: 150px;
         min-width: 120px;
         padding: 2px 12px 2px 4px;
-        background-position: right 3px center !important;
+        line-height: normal;
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        text-align: center;
+        background-position: right 2px center !important;
     }
 
     .input-group-text {
@@ -1074,21 +1093,22 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     #prowizja .input-group .jednostka-select {
         height: 22px;
-        width: 36px !important;
-        padding: 2px 12px 2px 4px;
+        width: 32px !important;
+        min-width: 32px !important;
+        padding: 2px 8px 2px 4px;
         line-height: normal;
         text-align: center;
         border-radius: 0 5px 5px 0 !important;
         border-left: 1px solid var(--border-color);
-        background-position: right 3px center !important;
+        background-position: right 2px center !important;
         flex: none;
     }
 
     .dark-mode #rodzajRat .form-select,
     .dark-mode #prowizja .input-group .jednostka-select {
         border: 1px solid var(--border-color);
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 6 6"><path fill="%23a3945c" d="M0 1l3 3 3-3z"/></svg>') !important;
-        background-position: right 3px center !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="5" height="5" viewBox="0 0 5 5"><path fill="%23a3945c" d="M0 1l2.5 2.5 2.5-2.5z"/></svg>') !important;
+        background-position: right 2px center !important;
     }
 
     .dark-mode #prowizja .input-group .form-control {
