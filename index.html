@@ -41,7 +41,7 @@
                                 </div>
                                 <input type="range" class="form-range" id="kwotaRange" min="50000" max="5000000" step="100" value="500000">
                             </div>
-                            <div class="form-group" id="iloscRat">
+                            <div class="form-group" id="iloscRatGroup">
                                 <label for="iloscRat" class="form-label">Ilość rat</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="iloscRat" min="12" max="420" step="1" value="360">
@@ -51,12 +51,12 @@
                                 <div class="sub-info" id="lata">Ilość lat: 30</div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Oprocentowanie</label>
+                                <label for="oprocentowanie" class="form-label">Oprocentowanie</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" id="oprocentowanie" step="0.1">
+                                    <input type="number" class="form-control" id="oprocentowanie" min="0.1" max="25" step="0.1" value="7">
                                     <span class="input-group-text">%</span>
                                 </div>
-                                <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1">
+                                <input type="range" class="form-range" id="oprocentowanieRange" min="0.1" max="25" step="0.1" value="7">
                             </div>
                         </div>
                         <!-- Drugi wiersz: Rodzaj rat, Prowizja -->
@@ -70,7 +70,7 @@
                                 </select>
                             </div>
                             <!-- Prowizja -->
-                            <div class="form-group" id="prowizja">
+                            <div class="form-group" id="prowizjaGroup">
                                 <label for="prowizja" class="form-label">Prowizja</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="prowizja" min="0" max="25" step="0.1" value="2">
