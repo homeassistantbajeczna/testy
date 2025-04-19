@@ -20,6 +20,13 @@ const elements = {
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
 };
 
+// Debug: Sprawdzanie, czy elementy istnieją
+Object.entries(elements).forEach(([key, value]) => {
+    if (!value) {
+        console.warn(`Element ${key} (#${key}) nie został znaleziony w DOM.`);
+    }
+});
+
 const state = {
     variableRates: [],
     overpaymentRates: [],
@@ -124,7 +131,7 @@ function updateProwizjaInput() {
         defaultValue = 2;
     } else {
         min = 0;
-        max = 1250000; // Zmieniono z 125000 na 1250000
+        max = 1250000;
         step = 1;
         defaultValue = 10000;
     }
@@ -153,51 +160,66 @@ function updateProwizjaInput() {
     state.lastFormData.jednostkaProwizji = jednostka;
 }
 
-elements.jednostkaProwizji.addEventListener("change", () => {
-    updateProwizjaInput();
-    updateProwizjaInfo();
-});
+if (elements.jednostkaProwizji) {
+    elements.jednostkaProwizji.addEventListener("change", () => {
+        updateProwizjaInput();
+        updateProwizjaInfo();
+    });
+}
 
-elements.rodzajRat.addEventListener("change", () => {
-    state.lastFormData.rodzajRat = elements.rodzajRat.value;
-    updateRodzajRatInfo();
-});
+if (elements.rodzajRat) {
+    elements.rodzajRat.addEventListener("change", () => {
+        state.lastFormData.rodzajRat = elements.rodzajRat.value;
+    });
+}
 
-elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-    state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-    if (!elements.zmienneOprocentowanieBtn.checked) {
-        state.variableRates = [];
-    } else {
-        state.variableRates = [{ value: state.lastFormData.oprocentowanie, period: 2 }];
-    }
-    updateVariableInputs();
-});
+if (elements.zmienneOprocentowanieBtn) {
+    elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+        state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
+        if (!elements.zmienneOprocentowanieBtn.checked) {
+            state.variableRates = [];
+        } else {
+            state.variableRates = [{ value: state.lastFormData.oprocentowanie, period: 2 }];
+        }
+        updateVariableInputs();
+    });
+}
 
-elements.nadplataKredytuBtn.addEventListener("change", () => {
-    state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
-    if (!elements.nadplataKredytuBtn.checked) {
-        state.overpaymentRates = [];
-    } else {
-        state.overpaymentRates = [{ value: 0, period: 2 }];
-    }
-    updateVariableInputs();
-});
+if (elements.nadplataKredytuBtn) {
+    elements.nadplataKredytuBtn.addEventListener("change", () => {
+        state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
+        if (!elements.nadplataKredytuBtn.checked) {
+            state.overpaymentRates = [];
+        } else {
+            state.overpaymentRates = [{ value: 0, period: 2 }];
+        }
+        updateVariableInputs();
+    });
+}
 
-elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
-    addVariableChange("oprocentowanie");
-});
+if (elements.addVariableOprocentowanieBtn) {
+    elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
+        console.log("Dodaj zmienną stopę clicked");
+        addVariableChange("oprocentowanie");
+    });
+}
 
-elements.addNadplataKredytuBtn.addEventListener("click", () => {
-    addVariableChange("nadplata");
-});
+if (elements.addNadplataKredytuBtn) {
+    elements.addNadplataKredytuBtn.addEventListener("click", () => {
+        console.log("Dodaj nadpłatę clicked");
+        addVariableChange("nadplata");
+    });
+}
 
-elements.obliczBtn.addEventListener("click", () => {
-    console.log("Oblicz clicked", state.lastFormData);
-    updateLata();
-    updateProwizjaInfo();
-    updateKwotaInfo();
-    updateRodzajRatInfo();
-});
+if (elements.obliczBtn) {
+    elements.obliczBtn.addEventListener("click", () => {
+        console.log("Oblicz clicked", state.lastFormData);
+        updateLata();
+        updateProwizjaInfo();
+        updateKwotaInfo();
+        updateRodzajRatInfo();
+    });
+}
 
 function updateKwotaInfo() {
     const kwota = parseFloat(elements.kwota.value) || 500000;
@@ -278,28 +300,45 @@ function updateVariableData(activeType) {
     }
 }
 
-function addVariableChange(type) {
+function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
-    let changes = type === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
 
-    if (changes.length >= maxChanges) return;
+    const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
+    const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
+    const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
+    const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
-    const lastChange = changes[changes.length - 1];
-    const newPeriod = lastChange ? Math.min(lastChange.period + 12, maxCykl) : 2;
-    const newValue = type === "oprocentowanie" ? state.lastFormData.oprocentowanie : 0;
-
-    changes.push({ value: newValue, period: newPeriod });
-    updateVariableInputs();
-}
-
-function removeVariableChange(index, type) {
-    if (type === "oprocentowanie") {
-        state.variableRates.splice(index, 1);
-    } else if (type === "nadplata") {
-        state.overpaymentRates.splice(index, 1);
+    if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
+        variableOprocentowanieInputs.classList.add("active");
+        addVariableOprocentowanieBtn.style.display = "block";
+        if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
+            state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
+        }
+        renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
+    } else {
+        if (variableOprocentowanieInputs) variableOprocentowanieInputs.classList.remove("active");
+        if (addVariableOprocentowanieBtn) addVariableOprocentowanieBtn.style.display = "none";
+        if (variableOprocentowanieWrapper) variableOprocentowanieWrapper.innerHTML = "";
     }
-    updateVariableInputs();
+
+    const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
+    const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
+    const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
+    const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
+
+    if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
+        nadplataKredytuInputs.classList.add("active");
+        addNadplataKredytuBtn.style.display = "block";
+        if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
+            state.overpaymentRates.push({ value: 0, period: 2 });
+        }
+        renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
+    } else {
+        if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
+        if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
+        if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
+    }
 }
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
@@ -385,66 +424,149 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
-            onChange: () => updateVariableData(activeType),
+            onChange: (value) => {
+                changes[index].period = value;
+                updateVariableData(activeType);
+                updateVariableInputs();
+            },
         });
 
         syncInputWithRange(rateInput, rateRange, {
             isDecimal: true,
-            onChange: () => updateVariableData(activeType),
+            onChange: (value) => {
+                changes[index].value = value;
+                updateVariableData(activeType);
+            },
         });
     });
 
-    addBtn.style.display = changes.length < maxChanges ? "block" : "none";
+    addBtn.textContent = "Dodaj kolejną zmianę";
+    const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+    const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
+    addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
 }
 
-function updateVariableInputs() {
+function addVariableChange(activeType) {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-    const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
-    const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
-    const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
+    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
 
-    if (isZmienneOprocentowanie) {
-        variableOprocentowanieInputs.classList.add("active");
-        addVariableOprocentowanieBtn.style.display = "block";
-        if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
-            state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
+    const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+    const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
+
+    if (changes.length >= maxChanges || isMaxPeriodReached) {
+        if (changes.length >= maxChanges) {
+            alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
         }
-        renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
-    } else {
-        variableOprocentowanieInputs.classList.remove("active");
-        addVariableOprocentowanieBtn.style.display = "none";
-        variableOprocentowanieWrapper.innerHTML = "";
+        if (activeType === "oprocentowanie") {
+            elements.addVariableOprocentowanieBtn.style.display = "none";
+        } else {
+            elements.addNadplataKredytuBtn.style.display = "none";
+        }
+        return;
     }
 
-    const isNadplataKredytu = elements.nadplataKredytuBtn.checked;
-    const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
-    const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
-    const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
+    const lastCykl = lastChange ? lastChange.period : 1;
+    const newCykl = Math.min(lastCykl + 1, maxCykl);
+    const newValue = activeType === "oprocentowanie" ? state.lastFormData.oprocentowanie : 0;
 
-    if (isNadplataKredytu) {
-        nadplataKredytuInputs.classList.add("active");
-        addNadplataKredytuBtn.style.display = "block";
-        if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates.push({ value: 0, period: 2 });
-        }
-        renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
-    } else {
-        nadplataKredytuInputs.classList.remove("active");
-        addNadplataKredytuBtn.style.display = "none";
-        nadplataKredytuWrapper.innerHTML = "";
-    }
-}
-
-function initialize() {
-    updateProwizjaInput();
-    updateProwizjaInfo();
-    updateKwotaInfo();
-    updateLata();
-    updateRodzajRatInfo();
+    changes.push({ period: newCykl, value: newValue });
     updateVariableInputs();
 }
 
-initialize();
+function removeVariableChange(index, activeType) {
+    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+    if (changes.length > 1) {
+        changes.splice(index, 1);
+        updateVariableInputs();
+    }
+}
+
+let currentZoom = 1;
+const zoomStep = 0.1;
+const minZoom = 0.5;
+const maxZoom = 2;
+
+function updateZoom() {
+    const container = document.querySelector(".container");
+    if (!container) {
+        console.warn("Container (.container) nie został znaleziony w DOM.");
+        return;
+    }
+    container.style.transform = `scale(${currentZoom})`;
+    container.style.transformOrigin = "top center";
+    console.log(`Zoom updated: ${currentZoom}`);
+}
+
+if (elements.zoomInBtn) {
+    elements.zoomInBtn.addEventListener("click", () => {
+        console.log("Zoom In clicked");
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+            updateZoom();
+        }
+    });
+}
+
+if (elements.zoomOutBtn) {
+    elements.zoomOutBtn.addEventListener("click", () => {
+        console.log("Zoom Out clicked");
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+            updateZoom();
+        }
+    });
+}
+
+function toggleDarkMode() {
+    const body = document.body;
+    const isDarkMode = body.classList.contains("dark-mode");
+
+    if (isDarkMode) {
+        body.classList.remove("dark-mode");
+        body.classList.add("light-mode");
+        localStorage.setItem("theme", "light");
+        elements.toggleDarkModeBtn.textContent = "🌙";
+    } else {
+        body.classList.remove("light-mode");
+        body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+        elements.toggleDarkModeBtn.textContent = "☀️";
+    }
+    console.log(`Dark mode toggled: ${!isDarkMode}`);
+}
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        if (elements.toggleDarkModeBtn) elements.toggleDarkModeBtn.textContent = "☀️";
+    } else {
+        document.body.classList.add("light-mode");
+        if (elements.toggleDarkModeBtn) elements.toggleDarkModeBtn.textContent = "🌙";
+    }
+    console.log(`Theme initialized: ${savedTheme || "light"}`);
+}
+
+if (elements.toggleDarkModeBtn) {
+    elements.toggleDarkModeBtn.addEventListener("click", () => {
+        console.log("Toggle Dark Mode clicked");
+        toggleDarkMode();
+    });
+}
+
+const siteLogo = document.getElementById("siteLogo");
+if (siteLogo) {
+    siteLogo.addEventListener("click", () => {
+        window.open("https://finance-brothers.pl", "_blank");
+    });
+}
+
+updateProwizjaInput();
+updateKwotaInfo();
+updateLata();
+updateProwizjaInfo();
+updateRodzajRatInfo();
+updateVariableInputs();
+initializeTheme();
