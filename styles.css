@@ -255,6 +255,13 @@ body {
     justify-content: flex-start;
 }
 
+.variable-input-group[data-type="nadplata"] .fields-wrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 150px);
+    gap: 15px;
+    justify-content: center;
+}
+
 #obligacjeForm .form-row:first-child {
     margin-bottom: 30px;
 }
@@ -327,7 +334,9 @@ body {
     color: var(--primary-text) !important;
 }
 
-#rodzajRat .form-select {
+#rodzajRat .form-select,
+.variable-input-group .nadplata-type-select,
+.variable-input-group .nadplata-effect-select {
     height: 22px;
     font-size: var(--small-font-size);
     padding: 2px 12px 2px 4px;
@@ -384,6 +393,8 @@ body {
 }
 
 .dark-mode #rodzajRat .form-select,
+.dark-mode .variable-input-group .nadplata-type-select,
+.dark-mode .variable-input-group .nadplata-effect-select,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
     border: 1px solid var(--border-color) !important;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
@@ -405,6 +416,8 @@ body {
 }
 
 .dark-mode #rodzajRat .form-select:focus,
+.dark-mode .variable-input-group .nadplata-type-select:focus,
+.dark-mode .variable-input-group .nadplata-effect-select:focus,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     border: 1px solid var(--border-color) !important;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
@@ -1011,7 +1024,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     width: 150px;
     min-width: 0;
     max-width: none;
-    flex: none;
+ Horiz flex: none;
 }
 
 .variable-input-group .input-group {
@@ -1053,6 +1066,11 @@ input[type="range"].form-range:focus::-ms-thumb {
         flex-direction: column;
         padding: clamp(10px, 2vw, 15px);
     }
+
+    .variable-input-group[data-type="nadplata"] .fields-wrapper {
+        grid-template-columns: 150px;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 576px) {
@@ -1086,6 +1104,11 @@ input[type="range"].form-range:focus::-ms-thumb {
         flex-direction: column;
         align-items: center;
         gap: 2px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .fields-wrapper {
+        grid-template-columns: 150px;
+        justify-content: center;
     }
 
     .form-group,
@@ -1142,7 +1165,9 @@ input[type="range"].form-range:focus::-ms-thumb {
         -moz-appearance: textfield;
     }
 
-    #rodzajRat .form-select {
+    #rodzajRat .form-select,
+    .variable-input-group .nadplata-type-select,
+    .variable-input-group .nadplata-effect-select {
         height: 22px;
         width: 150px;
         max-width: 150px;
@@ -1192,6 +1217,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .dark-mode #rodzajRat .form-select,
+    .dark-mode .variable-input-group .nadplata-type-select,
+    .dark-mode .variable-input-group .nadplata-effect-select,
     .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
         border: 1px solid var(--border-color) !important;
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
@@ -1213,6 +1240,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .dark-mode #rodzajRat .form-select:focus,
+    .dark-mode .variable-input-group .nadplata-type-select:focus,
+    .dark-mode .variable-input-group .nadplata-effect-select:focus,
     .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
         border: 1px solid var(--border-color) !important;
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
@@ -1334,5 +1363,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     .checkbox-row,
     .fields-wrapper {
         gap: 5px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .fields-wrapper {
+        grid-template-columns: 150px;
+        justify-content: center;
     }
 }
