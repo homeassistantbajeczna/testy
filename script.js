@@ -191,7 +191,7 @@ if (elements.nadplataKredytuBtn) {
         if (!elements.nadplataKredytuBtn.checked) {
             state.overpaymentRates = [];
         } else {
-            state.overpaymentRates = [{ value: 0, period: 2 }];
+            state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres kredytu" }];
         }
         updateVariableInputs();
     });
@@ -264,8 +264,12 @@ function updateVariableData(activeType) {
     inputs.forEach((inputGroup, index) => {
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const rateInput = inputGroup.querySelector(".variable-rate");
+        const typeSelect = inputGroup.querySelector(".nadplata-type-select");
+        const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
         let period = Math.round(parseFloat(cyklInput.value));
         const value = parseFloat(rateInput.value);
+        const type = typeSelect ? typeSelect.value : null;
+        const effect = effectSelect ? effectSelect.value : null;
 
         const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 2;
         if (period < minPeriod) {
@@ -281,7 +285,10 @@ function updateVariableData(activeType) {
             cyklRange.value = period;
         }
 
-        newChanges.push({ period, value });
+        const change = { period, value };
+        if (type) change.type = type;
+        if (effect) change.effect = effect;
+        newChanges.push(change);
     });
 
     for (let i = 0; i < newChanges.length; i++) {
@@ -331,7 +338,7 @@ function updateVariableInputs() {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates.push({ value: 0, period: 2 });
+            state.overpaymentRates.push({ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres kredytu" });
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
@@ -354,30 +361,90 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         const minPeriod = index > 0 ? changes[index - 1].period + 1 : 2;
 
-        const cyklGroup = document.createElement("div");
-        cyklGroup.className = "form-group";
-        cyklGroup.innerHTML = `
-            <label class="form-label">Od</label>
-            <div class="input-group">
-                <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
-                <span class="input-group-text">miesiąca</span>
-            </div>
-            <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
-        `;
+        if (activeType === "nadplata") {
+            // Select NADPŁATA
+            const nadplataTypeGroup = document.createElement("div");
+            nadplataTypeGroup.className = "form-group";
+            nadplataTypeGroup.innerHTML = `
+                <label class="form-label">Nadpłata</label>
+                <select class="form-select nadplata-type-select">
+                    <option value="Jednorazowa" ${change.type === "Jednorazowa" ? "selected" : ""}>Jednorazowa</option>
+                    <option value="Miesięczna" ${change.type === "Miesięczna" ? "selected" : ""}>Miesięczna</option>
+                    <option value="Kwartalna" ${change.type === "Kwartalna" ? "selected" : ""}>Kwartalna</option>
+                    <option value="Roczna" ${change.type === "Roczna" ? "selected" : ""}>Roczna</option>
+                </select>
+            `;
 
-        const rateGroup = document.createElement("div");
-        rateGroup.className = "form-group";
-        rateGroup.innerHTML = `
-            <label class="form-label">${activeType === "oprocentowanie" ? "Oprocentowanie" : "Nadpłata"}</label>
-            <div class="input-group">
-                <input type="number" class="form-control variable-rate" min="${activeType === "oprocentowanie" ? 0.1 : 0}" max="${activeType === "oprocentowanie" ? 50 : 1000000}" step="0.1" value="${change.value}">
-                <span class="input-group-text">${activeType === "oprocentowanie" ? "%" : "zł"}</span>
-            </div>
-            <input type="range" class="form-range variable-rate-range" min="${activeType === "oprocentowanie" ? 0.1 : 0}" max="${activeType === "oprocentowanie" ? 50 : 1000000}" step="0.1" value="${change.value}">
-        `;
+            // Select PO NADPŁACIE
+            const nadplataEffectGroup = document.createElement("div");
+            nadplataEffectGroup.className = "form-group";
+            nadplataEffectGroup.innerHTML = `
+                <label class="form-label">Po nadpłacie</label>
+                <select class="form-select nadplata-effect-select">
+                    <option value="Skróć okres kredytu" ${change.effect === "Skróć okres kredytu" ? "selected" : ""}>Skróć okres kredytu</option>
+                    <option value="Zmniejsz ratę" ${change.effect === "Zmniejsz ratę" ? "selected" : ""}>Zmniejsz ratę</option>
+                </select>
+            `;
 
-        fieldsWrapper.appendChild(cyklGroup);
-        fieldsWrapper.appendChild(rateGroup);
+            // Input OD/W
+            const isJednorazowa = change.type === "Jednorazowa";
+            const cyklLabel = isJednorazowa ? "W" : "Od";
+            const cyklUnit = isJednorazowa ? "miesiącu" : "miesiąca";
+            const cyklGroup = document.createElement("div");
+            cyklGroup.className = "form-group";
+            cyklGroup.innerHTML = `
+                <label class="form-label">${cyklLabel}</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+                    <span class="input-group-text">${cyklUnit}</span>
+                </div>
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+            `;
+
+            // Input Nadpłata (wartość)
+            const rateGroup = document.createElement("div");
+            rateGroup.className = "form-group";
+            rateGroup.innerHTML = `
+                <label class="form-label">Kwota</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-rate" min="100" max="1000000" step="0.1" value="${change.value}">
+                    <span class="input-group-text">zł</span>
+                </div>
+                <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="0.1" value="${change.value}">
+            `;
+
+            fieldsWrapper.appendChild(nadplataTypeGroup);
+            fieldsWrapper.appendChild(nadplataEffectGroup);
+            fieldsWrapper.appendChild(cyklGroup);
+            fieldsWrapper.appendChild(rateGroup);
+        } else {
+            // Dla oprocentowania (bez zmian)
+            const cyklGroup = document.createElement("div");
+            cyklGroup.className = "form-group";
+            cyklGroup.innerHTML = `
+                <label class="form-label">Od</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+                    <span class="input-group-text">miesiąca</span>
+                </div>
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+            `;
+
+            const rateGroup = document.createElement("div");
+            rateGroup.className = "form-group";
+            rateGroup.innerHTML = `
+                <label class="form-label">Oprocentowanie</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.1" value="${change.value}">
+                    <span class="input-group-text">%</span>
+                </div>
+                <input type="range" class="form-range variable-rate-range" min="0.1" max="50" step="0.1" value="${change.value}">
+            `;
+
+            fieldsWrapper.appendChild(cyklGroup);
+            fieldsWrapper.appendChild(rateGroup);
+        }
+
         inputGroup.appendChild(fieldsWrapper);
 
         if (index === 0 && changes.length === 1) {
@@ -421,6 +488,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const cyklRange = inputGroup.querySelector(".variable-cykl-range");
         const rateInput = inputGroup.querySelector(".variable-rate");
         const rateRange = inputGroup.querySelector(".variable-rate-range");
+        const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
@@ -438,9 +506,25 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 updateVariableData(activeType);
             },
         });
+
+        if (nadplataTypeSelect) {
+            nadplataTypeSelect.addEventListener("change", () => {
+                changes[index].type = nadplataTypeSelect.value;
+                updateVariableData(activeType);
+                updateVariableInputs();
+            });
+        }
+
+        const nadplataEffectSelect = inputGroup.querySelector(".nadplata-effect-select");
+        if (nadplataEffectSelect) {
+            nadplataEffectSelect.addEventListener("change", () => {
+                changes[index].effect = nadplataEffectSelect.value;
+                updateVariableData(activeType);
+            });
+        }
     });
 
-    addBtn.textContent = "Dodaj kolejną zmianę";
+    addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
     addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
@@ -469,9 +553,11 @@ function addVariableChange(activeType) {
 
     const lastCykl = lastChange ? lastChange.period : 1;
     const newCykl = Math.min(lastCykl + 1, maxCykl);
-    const newValue = activeType === "oprocentowanie" ? state.lastFormData.oprocentowanie : 0;
+    const newChange = activeType === "oprocentowanie" 
+        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
+        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres kredytu" };
 
-    changes.push({ period: newCykl, value: newValue });
+    changes.push(newChange);
     updateVariableInputs();
 }
 
