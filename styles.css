@@ -255,15 +255,9 @@ body {
     justify-content: flex-start;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group {
-    width: 108px;
-    max-width: 108px;
-    min-width: 108px;
-}
-
 .variable-input-group[data-type="nadplata"] .fields-wrapper {
     display: grid;
-    grid-template-columns: repeat(4, 108px);
+    grid-template-columns: repeat(4, 150px);
     gap: 15px;
     justify-content: center;
 }
@@ -295,14 +289,6 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-}
-
-.variable-input-group[data-type="nadplata"] .form-control {
-    width: 68px;
-}
-
-.variable-input-group[data-type="nadplata"] .form-select {
-    width: 108px;
 }
 
 /* Styl dla wszystkich pól formularza w stanie :focus */
@@ -370,6 +356,19 @@ body {
     background-position: right 4px center !important;
 }
 
+/* Style dla :focus w selectach nadpłaty */
+.variable-input-group .nadplata-type-select:focus,
+.variable-input-group .nadplata-effect-select:focus {
+    outline: none !important;
+    box-shadow: 0 0 4px var(--accent-color) !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--primary-text) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
+}
+
 /* Bardziej specyficzne i agresywne style dla jednostka-select */
 #prowizjaGroup .input-group .form-select.jednostka-select {
     height: 22px !important;
@@ -415,6 +414,13 @@ body {
     background-position: right 4px center !important;
 }
 
+.dark-mode .variable-input-group .nadplata-type-select:focus,
+.dark-mode .variable-input-group .nadplata-effect-select:focus {
+    border: 1px solid var(--border-color) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-position: right 4px center !important;
+}
+
 .dark-mode #prowizja .input-group .form-control {
     border-right: none;
 }
@@ -430,13 +436,10 @@ body {
 }
 
 .dark-mode #rodzajRat .form-select:focus,
-.dark-mode .variable-input-group .nadplata-type-select:focus,
-.dark-mode .variable-input-group .nadplata-effect-select:focus,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     border: 1px solid var(--border-color) !important;
-    box-shadow: 0 0 4px var(--accent-color) !important;
-    background: var(--input-bg) !important;
-    color: var(--primary-text) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-position: right 4px center !important;
 }
 
 .input-group-text {
@@ -456,7 +459,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .input-group-text {
-    width: 40px;
+    width: 50px;
 }
 
 .input-group {
@@ -468,10 +471,6 @@ body {
 #prowizja .input-group {
     display: flex;
     width: 150px;
-}
-
-.variable-input-group[data-type="nadplata"] .input-group {
-    width: 108px;
 }
 
 input[type="range"].form-range {
@@ -1084,6 +1083,27 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 /* R E S P O N S Y W N O Ś Ć */
+@media (min-width: 577px) and (max-width: 768px) {
+    .variable-input-group[data-type="nadplata"] .fields-wrapper {
+        grid-template-columns: repeat(4, 108px);
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-control {
+        width: 58px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .input-group {
+        width: 108px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group {
+        min-width: 108px;
+        max-width: 108px;
+    }
+}
+
 @media (max-width: 768px) {
     .calculator-container {
         flex-direction: column;
@@ -1094,32 +1114,12 @@ input[type="range"].form-range:focus::-ms-thumb {
         grid-template-columns: 150px;
         justify-content: center;
     }
-
-    .variable-input-group[data-type="nadplata"] .form-group,
-    .variable-input-group[data-type="nadplata"] .input-group,
-    .variable-input-group[data-type="nadplata"] .form-control,
-    .variable-input-group[data-type="nadplata"] .form-select {
-        width: 150px;
-        max-width: 150px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-control {
-        width: 100px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .input-group-text {
-        width: 50px;
-    }
 }
 
 @media (max-width: 576px) {
     .header-row h4,
     .result-header h4 {
-        font-size: 0.9375em;
-    }
-
-    .variable-input-group[data-type="nadplata"] {
-        --small-font-size: 0.6375em;
+        font-size: 1em;
     }
 
     .checkbox-label.header-checkbox {
@@ -1173,6 +1173,10 @@ input[type="range"].form-range:focus::-ms-thumb {
         text-align: center;
     }
 
+    .variable-input-group[data-type="nadplata"] .form-control {
+        width: 100px;
+    }
+
     #prowizja .input-group .form-control {
         flex: 3;
         width: auto;
@@ -1191,6 +1195,25 @@ input[type="range"].form-range:focus::-ms-thumb {
         border: 1px solid var(--border-color) !important;
         background: var(--input-bg) !important;
         color: var(--primary-text) !important;
+    }
+
+    .variable-input-group .nadplata-type-select:focus,
+    .variable-input-group .nadplata-effect-select:focus {
+        outline: none !important;
+        box-shadow: 0 0 4px var(--accent-color) !important;
+        border: 1px solid var(--border-color) !important;
+        background: var(--input-bg) !important;
+        color: var(--primary-text) !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+        background-repeat: no-repeat !important;
+        background-position: right 4px center !important;
+    }
+
+    .dark-mode .variable-input-group .nadplata-type-select:focus,
+    .dark-mode .variable-input-group .nadplata-effect-select:focus {
+        border: 1px solid var(--border-color) !important;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+        background-position: right 4px center !important;
     }
 
     #prowizjaGroup .input-group .form-control[type="number"]::-webkit-inner-spin-button,
