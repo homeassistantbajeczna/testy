@@ -257,7 +257,7 @@ body {
 
 .variable-input-group[data-type="nadplata"] .fields-wrapper {
     display: grid;
-    grid-template-columns: repeat(4, 150px);
+    grid-template-columns: repeat(4, 108px);
     gap: 15px;
     justify-content: center;
 }
@@ -289,6 +289,10 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+.variable-input-group[data-type="nadplata"] .form-control {
+    width: 53px;
 }
 
 /* Styl dla wszystkich pól formularza w stanie :focus */
@@ -459,7 +463,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .input-group-text {
-    width: 50px;
+    width: 55px;
 }
 
 .input-group {
@@ -471,6 +475,10 @@ body {
 #prowizja .input-group {
     display: flex;
     width: 150px;
+}
+
+.variable-input-group[data-type="nadplata"] .input-group {
+    width: 108px;
 }
 
 input[type="range"].form-range {
@@ -1049,6 +1057,11 @@ input[type="range"].form-range:focus::-ms-thumb {
     flex: none;
 }
 
+.variable-input-group[data-type="nadplata"] .form-group {
+    min-width: 108px;
+    max-width: 108px;
+}
+
 .variable-input-group .input-group {
     display: flex;
     align-items: center;
@@ -1083,27 +1096,6 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 /* R E S P O N S Y W N O Ś Ć */
-@media (min-width: 577px) and (max-width: 768px) {
-    .variable-input-group[data-type="nadplata"] .fields-wrapper {
-        grid-template-columns: repeat(4, 108px);
-        gap: 15px;
-        justify-content: center;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-control {
-        width: 58px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .input-group {
-        width: 108px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group {
-        min-width: 108px;
-        max-width: 108px;
-    }
-}
-
 @media (max-width: 768px) {
     .calculator-container {
         flex-direction: column;
@@ -1119,7 +1111,18 @@ input[type="range"].form-range:focus::-ms-thumb {
 @media (max-width: 576px) {
     .header-row h4,
     .result-header h4 {
-        font-size: 1em;
+        font-size: 0.9375em;
+    }
+
+    .form-control,
+    .form-select,
+    .input-group-text {
+        font-size: 0.6375em;
+    }
+
+    .form-label,
+    .checkbox-label {
+        font-size: 0.575em;
     }
 
     .checkbox-label.header-checkbox {
@@ -1174,7 +1177,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 100px;
+        width: 95px;
     }
 
     #prowizja .input-group .form-control {
@@ -1262,7 +1265,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         background-repeat: no-repeat !important;
         background-position: right 4px center !important;
         flex: none !important;
-        font-size: var(--small-font-size) !important;
+        font-size: 0.6375em !important;
         background: var(--input-bg) !important;
         color: var(--primary-text) !important;
         border: 1px solid var(--border-color) !important;
@@ -1335,7 +1338,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group .input-group-text {
-        width: 50px;
+        width: 55px;
         height: 22px;
         padding: 2px 5px;
         line-height: normal;
