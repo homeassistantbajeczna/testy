@@ -71,7 +71,7 @@ function syncInputWithRange(input, range, options = {}) {
         const min = parseFloat(range.min) || 0;
         const max = parseFloat(range.max) || Infinity;
         const step = parseFloat(range.step) || 1;
-        let value = isDecimal ? parseFloat(range.value) : parseFloat(range.value);
+        let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
         if (input.classList.contains("variable-cykl")) {
             value = Math.round(value); // Zaokrąglanie dla OD/W
         }
@@ -200,7 +200,7 @@ if (elements.nadplataKredytuBtn) {
         if (!elements.nadplataKredytuBtn.checked) {
             state.overpaymentRates = [];
         } else {
-            state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres kredytu" }];
+            state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" }];
         }
         updateVariableInputs();
     });
@@ -347,7 +347,7 @@ function updateVariableInputs() {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates.push({ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres kredytu" });
+            state.overpaymentRates.push({ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" });
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
@@ -374,176 +374,294 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             // Select NADPŁATA
             const nadplataTypeGroup = document.createElement("div");
             nadplataTypeGroup.className = "form-group";
-            const nadplataTypeLabel = document.createElement("label");
-            nadplataTypeLabel.className = "form-label";
-            nadplataTypeLabel.textContent = "NADPŁATA";
-            const nadplataTypeSelect = document.createElement("select");
-            nadplataTypeSelect.className = "form-select nadplata-type-select";
-            ["Jednorazowa", "Miesięczna", "Kwartalna", "Roczna"].forEach((type) => {
-                const option = document.createElement("option");
-                option.value = type;
-                option.textContent = type;
-                if (change.type === type) option.selected = true;
-                nadplataTypeSelect.appendChild(option);
-            });
-            nadplataTypeGroup.appendChild(nadplataTypeLabel);
-            nadplataTypeGroup.appendChild(nadplataTypeSelect);
-            fieldsWrapper.appendChild(nadplataTypeGroup);
+            nadplataTypeGroup.innerHTML = `
+                <label class="form-label">Nadpłata</label>
+                <select class="form-select nadplata-type-select">
+                    <option value="Jednorazowa" ${change.type === "Jednorazowa" ? "selected" : ""}>Jednorazowa</option>
+                    <option value="Miesięczna" ${change.type === "Miesięczna" ? "selected" : ""}>Miesięczna</option>
+                    <option value="Kwartalna" ${change.type === "Kwartalna" ? "selected" : ""}>Kwartalna</option>
+                    <option value="Roczna" ${change.type === "Roczna" ? "selected" : ""}>Roczna</option>
+                </select>
+            `;
 
             // Select PO NADPŁACIE
             const nadplataEffectGroup = document.createElement("div");
             nadplataEffectGroup.className = "form-group";
-            const nadplataEffectLabel = document.createElement("label");
-            nadplataEffectLabel.className = "form-label";
-            nadplataEffectLabel.textContent = "PO NADPŁACIE";
-            const nadplataEffectSelect = document.createElement("select");
-            nadplataEffectSelect.className = "form-select nadplata-effect-select";
-            ["Skróć okres kredytu", "Zmniejsz ratę"].forEach((effect) => {
-                const option = document.createElement("option");
-                option.value = effect;
-                option.textContent = effect;
-                if (change.effect === effect) option.selected = true;
-                nadplataEffectSelect.appendChild(option);
-            });
-            nadplataEffectGroup.appendChild(nadplataEffectLabel);
-            nadplataEffectGroup.appendChild(nadplataEffectSelect);
+            nadplataEffectGroup.innerHTML = `
+                <label class="form-label">Po nadpłacie</label>
+                <select class="form-select nadplata-effect-select">
+                    <option value="Skróć okres" ${change.effect === "Skróć okres" ? "selected" : ""}>Skróć okres</option>
+                    <option value="Zmniejsz ratę" ${change.effect === "Zmniejsz ratę" ? "selected" : ""}>Zmniejsz ratę</option>
+                </select>
+            `;
+
+            // Input OD/W
+            const isJednorazowa = change.type === "Jednorazowa";
+            const cyklLabel = isJednorazowa ? "W" : "Od";
+            const cyklUnit = isJednorazowa ? "miesiącu" : "miesiąca";
+            const cyklGroup = document.createElement("div");
+            cyklGroup.className = "form-group";
+            cyklGroup.innerHTML = `
+                <label class="form-label">${cyklLabel}</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+                    <span class="input-group-text">${cyklUnit}</span>
+                </div>
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+            `;
+
+            // Input Nadpłata (wartość)
+            const rateGroup = document.createElement("div");
+            rateGroup.className = "form-group";
+            rateGroup.innerHTML = `
+                <label class="form-label">Kwota</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-rate" min="100" max="1000000" step="0.1" value="${change.value}">
+                    <span class="input-group-text">zł</span>
+                </div>
+                <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="0.1" value="${change.value}">
+            `;
+
+            fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
+            fieldsWrapper.appendChild(cyklGroup);
+            fieldsWrapper.appendChild(rateGroup);
+        } else {
+            // Dla oprocentowania
+            const cyklGroup = document.createElement("div");
+            cyklGroup.className = "form-group";
+            cyklGroup.innerHTML = `
+                <label class="form-label">Od</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+                    <span class="input-group-text">miesiąca</span>
+                </div>
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
+            `;
 
-            nadplataTypeSelect.addEventListener("change", () => {
-                updateVariableData(activeType);
-                updateVariableInputs();
-            });
-            nadplataEffectSelect.addEventListener("change", () => {
-                updateVariableData(activeType);
-            });
+            const rateGroup = document.createElement("div");
+            rateGroup.className = "form-group";
+            rateGroup.innerHTML = `
+                <label class="form-label">Oprocentowanie</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.1" value="${change.value}">
+                    <span class="input-group-text">%</span>
+                </div>
+                <input type="range" class="form-range variable-rate-range" min="0.1" max="50" step="0.1" value="${change.value}">
+            `;
+
+            fieldsWrapper.appendChild(cyklGroup);
+            fieldsWrapper.appendChild(rateGroup);
         }
-
-        // Pole OD/W
-        const cyklGroup = document.createElement("div");
-        cyklGroup.className = "form-group";
-        const cyklLabel = document.createElement("label");
-        cyklLabel.className = "form-label";
-        cyklLabel.textContent = activeType === "nadplata" && change.type === "Jednorazowa" ? "W" : "OD";
-        const cyklInputGroup = document.createElement("div");
-        cyklInputGroup.className = "input-group";
-        const cyklInput = document.createElement("input");
-        cyklInput.type = "number";
-        cyklInput.className = "form-control variable-cykl";
-        cyklInput.min = minPeriod;
-        cyklInput.max = maxCykl;
-        cyklInput.step = 1;
-        cyklInput.value = change.period;
-        const cyklUnit = document.createElement("span");
-        cyklUnit.className = "input-group-text";
-        cyklUnit.textContent = activeType === "nadplata" && change.type === "Jednorazowa" ? "miesiącu" : "miesiąca";
-        cyklInputGroup.appendChild(cyklInput);
-        cyklInputGroup.appendChild(cyklUnit);
-        const cyklRange = document.createElement("input");
-        cyklRange.type = "range";
-        cyklRange.className = "form-range variable-cykl-range";
-        cyklRange.min = minPeriod;
-        cyklRange.max = maxCykl;
-        cyklRange.step = 0.1; // Płynne przesuwanie
-        cyklRange.value = change.period;
-        cyklGroup.appendChild(cyklLabel);
-        cyklGroup.appendChild(cyklInputGroup);
-        cyklGroup.appendChild(cyklRange);
-        fieldsWrapper.appendChild(cyklGroup);
-
-        // Pole Wartość
-        const rateGroup = document.createElement("div");
-        rateGroup.className = "form-group";
-        const rateLabel = document.createElement("label");
-        rateLabel.className = "form-label";
-        rateLabel.textContent = activeType === "nadplata" ? "KWOTA" : "STOPA";
-        const rateInputGroup = document.createElement("div");
-        rateInputGroup.className = "input-group";
-        const rateInput = document.createElement("input");
-        rateInput.type = "number";
-        rateInput.className = "form-control variable-rate";
-        rateInput.min = activeType === "nadplata" ? 100 : 0;
-        rateInput.max = activeType === "nadplata" ? 1000000 : 25;
-        rateInput.step = activeType === "nadplata" ? 1 : 0.1;
-        rateInput.value = activeType === "nadplata" ? change.value || 1000 : change.value;
-        const rateUnit = document.createElement("span");
-        rateUnit.className = "input-group-text";
-        rateUnit.textContent = activeType === "nadplata" ? "zł" : "%";
-        rateInputGroup.appendChild(rateInput);
-        rateInputGroup.appendChild(rateUnit);
-        const rateRange = document.createElement("input");
-        rateRange.type = "range";
-        rateRange.className = "form-range variable-rate-range";
-        rateRange.min = activeType === "nadplata" ? 100 : 0;
-        rateRange.max = activeType === "nadplata" ? 1000000 : 25;
-        rateRange.step = activeType === "nadplata" ? 1 : 0.1;
-        rateRange.value = activeType === "nadplata" ? change.value || 1000 : change.value;
-        rateGroup.appendChild(rateLabel);
-        rateGroup.appendChild(rateInputGroup);
-        rateGroup.appendChild(rateRange);
-        fieldsWrapper.appendChild(rateGroup);
 
         inputGroup.appendChild(fieldsWrapper);
 
-        // Przycisk usuwania
-        if (index > 0 || changes.length > 1) {
-            const removeBtnWrapper = document.createElement("div");
-            removeBtnWrapper.className = index === 0 ? "remove-first-btn-wrapper" : "remove-btn-wrapper";
-            const removeBtn = document.createElement("button");
-            removeBtn.className = "btn btn-danger btn-sm" + (index === 0 ? " remove-first-btn" : "");
-            removeBtn.textContent = "Usuń";
-            removeBtn.addEventListener("click", () => {
+        if (index === 0 && changes.length === 1) {
+            const removeFirstBtnWrapper = document.createElement("div");
+            removeFirstBtnWrapper.className = "remove-first-btn-wrapper";
+            const removeFirstBtn = document.createElement("button");
+            removeFirstBtn.className = "btn btn-danger btn-sm remove-first-btn";
+            removeFirstBtn.textContent = "Usuń";
+            removeFirstBtn.onclick = () => {
                 if (activeType === "oprocentowanie") {
-                    state.variableRates.splice(index, 1);
+                    state.variableRates = [];
+                    elements.zmienneOprocentowanieBtn.checked = false;
+                    state.lastFormData.zmienneOprocentowanie = false;
                 } else if (activeType === "nadplata") {
-                    state.overpaymentRates.splice(index, 1);
+                    state.overpaymentRates = [];
+                    elements.nadplataKredytuBtn.checked = false;
+                    state.lastFormData.nadplataKredytu = false;
                 }
                 updateVariableInputs();
-            });
+            };
+            removeFirstBtnWrapper.appendChild(removeFirstBtn);
+            inputGroup.appendChild(removeFirstBtnWrapper);
+        }
+
+        if (index === changes.length - 1 && changes.length > 1) {
+            const removeBtnWrapper = document.createElement("div");
+            removeBtnWrapper.className = "remove-btn-wrapper";
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "btn btn-danger btn-sm";
+            removeBtn.textContent = "Usuń";
+            removeBtn.onclick = () => {
+                removeVariableChange(index, activeType);
+            };
             removeBtnWrapper.appendChild(removeBtn);
             inputGroup.appendChild(removeBtnWrapper);
         }
 
         wrapper.appendChild(inputGroup);
 
+        const cyklInput = inputGroup.querySelector(".variable-cykl");
+        const cyklRange = inputGroup.querySelector(".variable-cykl-range");
+        const rateInput = inputGroup.querySelector(".variable-rate");
+        const rateRange = inputGroup.querySelector(".variable-rate-range");
+        const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
+
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
-            onChange: () => updateVariableData(activeType),
+            onChange: (value) => {
+                changes[index].period = value;
+                updateVariableData(activeType);
+                updateVariableInputs();
+            },
         });
 
         syncInputWithRange(rateInput, rateRange, {
-            isDecimal: activeType !== "nadplata",
-            onChange: () => updateVariableData(activeType),
+            isDecimal: true,
+            onChange: (value) => {
+                changes[index].value = value;
+                updateVariableData(activeType);
+            },
         });
+
+        if (nadplataTypeSelect) {
+            nadplataTypeSelect.addEventListener("change", () => {
+                changes[index].type = nadplataTypeSelect.value;
+                updateVariableData(activeType);
+                updateVariableInputs();
+            });
+        }
+
+        const nadplataEffectSelect = inputGroup.querySelector(".nadplata-effect-select");
+        if (nadplataEffectSelect) {
+            nadplataEffectSelect.addEventListener("change", () => {
+                changes[index].effect = nadplataEffectSelect.value;
+                updateVariableData(activeType);
+            });
+        }
     });
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
-    addBtn.disabled = changes.length >= maxChanges;
+    const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+    const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
+    addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
 }
 
 function addVariableChange(activeType) {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
-    let newPeriod;
 
-    if (activeType === "oprocentowanie") {
-        if (state.variableRates.length >= maxChanges) return;
-        newPeriod = state.variableRates.length > 0 ? state.variableRates[state.variableRates.length - 1].period + 1 : 2;
-        if (newPeriod > maxCykl) newPeriod = maxCykl;
-        state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: newPeriod });
-    } else if (activeType === "nadplata") {
-        if (state.overpaymentRates.length >= maxChanges) return;
-        newPeriod = state.overpaymentRates.length > 0 ? state.overpaymentRates[state.overpaymentRates.length - 1].period + 1 : 2;
-        if (newPeriod > maxCykl) newPeriod = maxCykl;
-        state.overpaymentRates.push({ value: 1000, period: newPeriod, type: "Jednorazowa", effect: "Skróć okres kredytu" });
+    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+
+    const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+    const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
+
+    if (changes.length >= maxChanges || isMaxPeriodReached) {
+        if (changes.length >= maxChanges) {
+            alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
+        }
+        if (activeType === "oprocentowanie") {
+            elements.addVariableOprocentowanieBtn.style.display = "none";
+        } else {
+            elements.addNadplataKredytuBtn.style.display = "none";
+        }
+        return;
     }
 
+    const lastCykl = lastChange ? lastChange.period : 1;
+    const newCykl = Math.min(lastCykl + 1, maxCykl);
+    const newChange = activeType === "oprocentowanie" 
+        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
+        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
+
+    changes.push(newChange);
     updateVariableInputs();
 }
 
-// Inicjalizacja
+function removeVariableChange(index, activeType) {
+    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+    if (changes.length > 1) {
+        changes.splice(index, 1);
+        updateVariableInputs();
+    }
+}
+
+let currentZoom = 1;
+const zoomStep = 0.1;
+const minZoom = 0.5;
+const maxZoom = 2;
+
+function updateZoom() {
+    const container = document.querySelector(".container");
+    if (!container) {
+        console.warn("Container (.container) nie został znaleziony w DOM.");
+        return;
+    }
+    container.style.transform = `scale(${currentZoom})`;
+    container.style.transformOrigin = "top center";
+    console.log(`Zoom updated: ${currentZoom}`);
+}
+
+if (elements.zoomInBtn) {
+    elements.zoomInBtn.addEventListener("click", () => {
+        console.log("Zoom In clicked");
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+            updateZoom();
+        }
+    });
+}
+
+if (elements.zoomOutBtn) {
+    elements.zoomOutBtn.addEventListener("click", () => {
+        console.log("Zoom Out clicked");
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+            updateZoom();
+        }
+    });
+}
+
+function toggleDarkMode() {
+    const body = document.body;
+    const isDarkMode = body.classList.contains("dark-mode");
+
+    if (isDarkMode) {
+        body.classList.remove("dark-mode");
+        body.classList.add("light-mode");
+        localStorage.setItem("theme", "light");
+        elements.toggleDarkModeBtn.textContent = "🌙";
+    } else {
+        body.classList.remove("light-mode");
+        body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+        elements.toggleDarkModeBtn.textContent = "☀️";
+    }
+    console.log(`Dark mode toggled: ${!isDarkMode}`);
+}
+
+function initializeTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        if (elements.toggleDarkModeBtn) elements.toggleDarkModeBtn.textContent = "☀️";
+    } else {
+        document.body.classList.add("light-mode");
+        if (elements.toggleDarkModeBtn) elements.toggleDarkModeBtn.textContent = "🌙";
+    }
+    console.log(`Theme initialized: ${savedTheme || "light"}`);
+}
+
+if (elements.toggleDarkModeBtn) {
+    elements.toggleDarkModeBtn.addEventListener("click", () => {
+        console.log("Toggle Dark Mode clicked");
+        toggleDarkMode();
+    });
+}
+
+const siteLogo = document.getElementById("siteLogo");
+if (siteLogo) {
+    siteLogo.addEventListener("click", () => {
+        window.open("https://finance-brothers.pl", "_blank");
+    });
+}
+
 updateProwizjaInput();
-updateVariableInputs();
 updateKwotaInfo();
 updateLata();
 updateProwizjaInfo();
 updateRodzajRatInfo();
+updateVariableInputs();
+initializeTheme();
