@@ -255,9 +255,15 @@ body {
     justify-content: flex-start;
 }
 
+.variable-input-group[data-type="nadplata"] .form-group {
+    width: 108px;
+    max-width: 108px;
+    min-width: 108px;
+}
+
 .variable-input-group[data-type="nadplata"] .fields-wrapper {
     display: grid;
-    grid-template-columns: repeat(4, 150px);
+    grid-template-columns: repeat(4, 108px);
     gap: 15px;
     justify-content: center;
 }
@@ -289,6 +295,14 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+}
+
+.variable-input-group[data-type="nadplata"] .form-control {
+    width: 68px;
+}
+
+.variable-input-group[data-type="nadplata"] .form-select {
+    width: 108px;
 }
 
 /* Styl dla wszystkich pól formularza w stanie :focus */
@@ -420,8 +434,9 @@ body {
 .dark-mode .variable-input-group .nadplata-effect-select:focus,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     border: 1px solid var(--border-color) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-position: right 4px center !important;
+    box-shadow: 0 0 4px var(--accent-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--primary-text) !important;
 }
 
 .input-group-text {
@@ -440,6 +455,10 @@ body {
     justify-content: center;
 }
 
+.variable-input-group[data-type="nadplata"] .input-group-text {
+    width: 40px;
+}
+
 .input-group {
     width: 150px;
     display: flex;
@@ -449,6 +468,10 @@ body {
 #prowizja .input-group {
     display: flex;
     width: 150px;
+}
+
+.variable-input-group[data-type="nadplata"] .input-group {
+    width: 108px;
 }
 
 input[type="range"].form-range {
@@ -1024,7 +1047,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     width: 150px;
     min-width: 0;
     max-width: none;
- Horiz flex: none;
+    flex: none;
 }
 
 .variable-input-group .input-group {
@@ -1071,12 +1094,32 @@ input[type="range"].form-range:focus::-ms-thumb {
         grid-template-columns: 150px;
         justify-content: center;
     }
+
+    .variable-input-group[data-type="nadplata"] .form-group,
+    .variable-input-group[data-type="nadplata"] .input-group,
+    .variable-input-group[data-type="nadplata"] .form-control,
+    .variable-input-group[data-type="nadplata"] .form-select {
+        width: 150px;
+        max-width: 150px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-control {
+        width: 100px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .input-group-text {
+        width: 50px;
+    }
 }
 
 @media (max-width: 576px) {
     .header-row h4,
     .result-header h4 {
-        font-size: 1em;
+        font-size: 0.9375em;
+    }
+
+    .variable-input-group[data-type="nadplata"] {
+        --small-font-size: 0.6375em;
     }
 
     .checkbox-label.header-checkbox {
