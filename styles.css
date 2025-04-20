@@ -460,6 +460,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .variable-input-group[data-type="nadplata"] .input-group-text {
@@ -470,6 +471,7 @@ body {
     width: 150px;
     display: flex;
     justify-content: center;
+    align-items: center;
 }
 
 #prowizja .input-group {
@@ -945,11 +947,13 @@ input[type="range"].form-range:focus::-ms-thumb {
     color: var(--primary-text) !important;
     box-shadow: 0 4px 6px var(--shadow-color);
     transition: transform 0.2s ease, box-shadow 0.3s ease;
-    border-radius: 25px;
+    border-radius: 15px;
     display: block;
     margin: 0 auto;
     transform: translateY(0);
     cursor: pointer;
+    font-size: var(--small-font-size);
+    padding: 3px 10px;
 }
 
 .btn-primary:hover,
@@ -982,8 +986,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start, #8b7d47)) !important;
 }
 
-.btn-primary,
-.btn-secondary {
+.btn-primary {
     font-size: 0.9em;
     padding: 8px 20px;
     margin: 25px auto 0;
@@ -991,25 +994,12 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 #addVariableOprocentowanieBtn,
 #addNadplataKredytuBtn {
-    font-size: var(--small-font-size);
-    padding: 3px 10px;
-    border-radius: 15px;
+    margin: 0;
 }
 
 #generatePdfBtn {
     margin: 0 0 15px auto;
     padding: 6px 15px;
-}
-
-.zoom-controls .btn {
-    padding: 2px 8px;
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
 }
 
 .btn-toggle {
@@ -1096,6 +1086,12 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 /* R E S P O N S Y W N O Ś Ć */
+@media (min-width: 769px) {
+    #kwotaInfo {
+        font-size: 0.4em;
+    }
+}
+
 @media (max-width: 768px) {
     .calculator-container {
         flex-direction: column;
@@ -1320,6 +1316,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     .variable-input-group .input-group {
         max-width: 150px;
         min-width: 120px;
+        display: flex;
+        align-items: center;
     }
 
     .variable-input-group .form-group {
@@ -1330,7 +1328,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group .form-control {
-        width: 100px;
+        width: 95px;
         height: 22px;
         padding: 2px;
         line-height: normal;
@@ -1370,21 +1368,17 @@ input[type="range"].form-range:focus::-ms-thumb {
     .btn-primary,
     #addVariableOprocentowanieBtn,
     #addNadplataKredytuBtn,
-    #generatePdfBtn {
+    #generatePdfBtn,
+    .zoom-controls .btn {
         margin: 2.5px auto;
-        padding: 6px 10px;
+        padding: 3px 10px;
+        font-size: 0.6375em;
     }
 
     .btn-primary,
     #addVariableOprocentowanieBtn,
     #addNadplataKredytuBtn {
         width: auto;
-    }
-
-    .zoom-controls .btn {
-        width: 30px;
-        height: 30px;
-        padding: 4px 10px;
     }
 
     .chart-container {
