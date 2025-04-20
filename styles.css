@@ -461,11 +461,18 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .variable-input-group[data-type="nadplata"] .input-group-text {
-    width: 55px;
+    width: auto;
+    min-width: 40px;
 }
+
+.input-group-text.unit-miesiacu { min-width: 60px; }
+.input-group-text.unit-miesiaca { min-width: 65px; }
+.input-group-text.unit-miesiacach { min-width: 75px; }
+.input-group-text.unit-zl { min-width: 40px; }
 
 .input-group {
     width: 150px;
@@ -724,6 +731,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     box-sizing: border-box;
 }
 
+/mixins.css
 .result-wrapper-chart {
     width: 100%;
     max-width: 600px;
@@ -956,6 +964,12 @@ input[type="range"].form-range:focus::-ms-thumb {
     padding: 3px 10px;
 }
 
+#addNadplataKredytuBtn,
+#addVariableOprocentowanieBtn {
+    display: block;
+    margin: 10px auto;
+}
+
 .btn-primary:hover,
 .btn-secondary:hover,
 #addVariableOprocentowanieBtn:hover,
@@ -992,11 +1006,6 @@ input[type="range"].form-range:focus::-ms-thumb {
     margin: 25px auto 0;
 }
 
-#addVariableOprocentowanieBtn,
-#addNadplataKredytuBtn {
-    margin: 0;
-}
-
 #generatePdfBtn {
     margin: 0 0 15px auto;
     padding: 6px 15px;
@@ -1030,6 +1039,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 10px;
 }
 
@@ -1173,8 +1183,29 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 95px;
+        width: 90px;
     }
+
+    .variable-input-group[data-type="nadplata"] .input-group {
+        display: flex;
+        align-items: center;
+        width: 150px;
+        max-width: 150px;
+    }
+
+    .variable-input-group .input-group-text {
+        width: auto;
+        min-width: 40px;
+        height: 22px;
+        padding: 2px 5px;
+        line-height: normal;
+        text-align: center;
+    }
+
+    .input-group-text.unit-miesiacu { min-width: 60px; }
+    .input-group-text.unit-miesiaca { min-width: 65px; }
+    .input-group-text.unit-miesiacach { min-width: 75px; }
+    .input-group-text.unit-zl { min-width: 40px; }
 
     #prowizja .input-group .form-control {
         flex: 3;
@@ -1328,17 +1359,9 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group .form-control {
-        width: 95px;
+        width: 90px;
         height: 22px;
         padding: 2px;
-        line-height: normal;
-        text-align: center;
-    }
-
-    .variable-input-group .input-group-text {
-        width: 55px;
-        height: 22px;
-        padding: 2px 5px;
         line-height: normal;
         text-align: center;
     }
@@ -1362,7 +1385,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .variable-input-group .form-group:nth-child(1) .form-control,
     .variable-input-group .form-group:nth-child(2) .form-control {
-        width: 100px;
+        width: 90px;
     }
 
     .btn-primary,
@@ -1370,7 +1393,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     #addNadplataKredytuBtn,
     #generatePdfBtn,
     .zoom-controls .btn {
-        margin: 2.5px auto;
+        margin: 5px auto;
         padding: 3px 10px;
         font-size: 0.6375em;
     }
