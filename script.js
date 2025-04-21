@@ -69,7 +69,7 @@ function syncInputWithRange(input, range, options = {}) {
         return;
     }
 
-    const debouncedOnChange = onChange ? debounce(onChange, 300) : null;
+    const debouncedOnChange = onChange ? debounce(onChange, 100) : null;
 
     input.addEventListener("input", () => {
         const min = parseFloat(input.min) || 0;
@@ -406,7 +406,7 @@ function updateVariableData(activeType) {
         const rateInput = inputGroup.querySelector(".variable-rate");
         const typeSelect = inputGroup.querySelector(".nadplata-type-select");
         const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
-        let period = parseFloat(cyklInput.value);
+        let period = parseInt(cyklInput.value);
         const value = activeType === "nadplata" ? parseInt(rateInput.value) : parseFloat(rateInput.value);
         const type = typeSelect ? typeSelect.value : null;
         const effect = effectSelect ? effectSelect.value : null;
@@ -487,7 +487,7 @@ const updateVariableInputs = debounce(() => {
         if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
     }
-}, 300);
+}, 100);
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
     wrapper.innerHTML = "";
@@ -532,14 +532,14 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             const cyklLabel = isJednorazowa ? "W" : "Od";
             const cyklUnit = isJednorazowa ? "miesiącu" : "miesiąca";
             const cyklGroup = document.createElement("div");
-            cyklGroup.className = "form-group";
-            cyklGroup.innerHTML = `
+            cykGroup.className = "form-group";
+            cykGroup.innerHTML = `
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="0.1" value="${change.period}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
                     <span class="input-group-text">${cyklUnit}</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.1" value="${change.period}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
             `;
 
             // Input Nadpłata (KWOTA)
@@ -561,14 +561,14 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         } else {
             // Dla oprocentowania
             const cyklGroup = document.createElement("div");
-            cyklGroup.className = "form-group";
-            cyklGroup.innerHTML = `
+            cykGroup.className = "form-group";
+            cykGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="0.1" value="${change.period}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="0.1" value="${change.period}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
             `;
 
             const rateGroup = document.createElement("div");
@@ -632,7 +632,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
         syncInputWithRange(cyklInput, cyklRange, {
-            isDecimal: true,
+            isDecimal: false,
             onChange: (value) => {
                 changes[index].period = value;
                 updateVariableData(activeType);
@@ -778,7 +778,7 @@ if (elements.zmienneOprocentowanieBtn) {
         } else {
             state.variableRates = [{ value: state.lastFormData.oprocentowanie, period: 2 }];
         }
-        updateVariableInputs();
+        updateVariableInputs(); // Natychmiastowe wywołanie bez debounce
     });
 }
 
@@ -790,7 +790,7 @@ if (elements.nadplataKredytuBtn) {
         } else {
             state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" }];
         }
-        updateVariableInputs();
+        updateVariableInputs(); // Natychmiastowe wywołanie bez debounce
     });
 }
 
