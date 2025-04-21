@@ -367,13 +367,8 @@ body {
 /* Styl dla spinnerów w input type="number" */
 #prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
 #prowizja .input-group .form-control[type="number"]::-webkit-outer-spin-button {
-    height: 16px;
-    width: 12px;
-    margin: 0;
-    opacity: 1;
     -webkit-appearance: none;
-    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23C2B280" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
-    background-size: 12px 16px;
+    margin: 0;
 }
 
 #prowizja .input-group .form-control[type="number"] {
@@ -492,8 +487,8 @@ body {
 
 .dark-mode #prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
 .dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
-    background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23a3945c" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
-    background-size: 12px 16px;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .dark-mode #rodzajRat .form-select:focus,
@@ -970,6 +965,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     width: 100%;
 }
 
+#prowizjaGroup .sub-info::after {
+    content: "Prowizja: 1 000,00 zł";
+}
+
 .opis-container {
     margin-top: 20px;
     text-align: center;
@@ -1306,7 +1305,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm:hover {
     background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(---shadow-color);
+    box-shadow: 0 6px 12px var(--shadow-color);
 }
 
 #toggleDarkModeBtn.btn.btn-sm,
@@ -1330,7 +1329,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 #zoomOutBtn.btn.btn-sm:hover {
     background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(---shadow-color);
+    box-shadow: 0 6px 12px var(--shadow-color);
 }
 
 .variable-input-group .btn-danger,
@@ -1574,15 +1573,15 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 100px;
+        width: 108px;
         margin: 0;
         padding: 0 2px;
         border-right: none;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu {
-        width: 60px;
-        min-width: 60px;
+        width: 52px;
+        min-width: 52px;
         margin: 0;
         padding: 0 2px;
         font-size: 0.6em;
@@ -1629,201 +1628,136 @@ input[type="range"].form-range:focus::-ms-thumb {
         min-width: 100px;
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .form-group {
+    .variable-input-group .input-group {
         width: 160px;
         max-width: 160px;
         min-width: 100px;
-        margin: 2px 0;
-        align-items: flex-start;
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 100px;
-        margin: 0;
-        padding: 0 2px;
-        border-right: none;
-    }
-
-    .variable-input-group[data-type="oprocentowanie"] .input-group-text {
-        width: 60px;
-        min-width: 60px;
-        margin: 0;
-        padding: 0 2px;
-        font-size: 0.6em;
-    }
-
-    /* Styl :focus dla wszystkich pól w widoku mobilnym */
-    .form-group .form-control:focus,
-    .form-group .form-select:focus,
-    .variable-input-group .form-control:focus,
-    .variable-input-group .form-select:focus,
-    #prowizjaGroup .input-group .form-control:focus {
-        outline: none !important;
-        box-shadow: 0 0 4px var(--accent-color) !important;
-        border: 1px solid var(--border-color) !important;
-        background: var(--input-bg) !important;
-        color: var(--primary-text) !important;
-    }
-
-    .variable-input-group .nadplata-type-select:focus,
-    .variable-input-group .nadplata-effect-select:focus {
-        outline: none !important;
-        box-shadow: 0 0 4px var(--accent-color) !important;
-        border: 1px solid var(--border-color) !important;
-        background: var(--input-bg) !important;
-        color: var(--primary-text) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-repeat: no-repeat !important;
-        background-position: right 4px center !important;
-    }
-
-    .dark-mode .variable-input-group .nadplata-type-select:focus,
-    .dark-mode .variable-input-group .nadplata-effect-select:focus {
-        border: 1px solid var(--border-color) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-position: right 4px center !important;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-webkit-slider-thumb,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-webkit-slider-thumb {
-        width: 11px;
-        height: 11px;
-        transition: transform 0.2s ease, background 0.2s ease;
-        will-change: transform;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-thumb,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-thumb {
-        width: 11px;
-        height: 11px;
-        transition: transform 0.2s ease, background 0.2s ease;
-        will-change: transform;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-ms-thumb,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-ms-thumb {
-        width: 11px;
-        height: 11px;
-        transition: transform 0.2s ease, background 0.2s ease;
-        will-change: transform;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-progress,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
-        background: var(--accent-gradient-start);
-        height: 6px;
-        border-radius: var(--border-radius);
-        transition: width 0.2s ease;
-    }
-
-    .dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-progress,
-    .dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
-        background: var(--accent-gradient-start-black);
-        height: 6px;
-        border-radius: var(--border-radius);
-        transition: width 0.2s ease;
-    }
-
-    #prowizjaGroup .input-group .form-control[type="number"]::-webkit-inner-spin-button,
-    #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
-        height: 16px;
-        width: 12px;
-        margin: 0;
-        opacity: 1;
-        -webkit-appearance: none;
-        background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23C2B280" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
-        background-size: 12px 16px;
-    }
-
-    #prowizjaGroup .input-group .form-control[type="number"] {
-        -moz-appearance: textfield;
-        appearance: textfield;
-    }
-
-    #rodzajRat .form-select,
-    .variable-input-group .nadplata-type-select,
-    .variable-input-group .nadplata-effect-select {
-        height: 22px;
+    #prowizja .input-group {
         width: 160px;
         max-width: 160px;
         min-width: 100px;
-        padding: 2px 12px 2px 4px;
-        line-height: normal;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        text-align: center;
+    }
+
+    .chart-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .chart-legend {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .chart-legend .legend-item {
+        flex: 0 0 auto;
+        margin-bottom: 5px;
+        padding-left: 0;
+    }
+
+    .chart-legend .color-box {
+        width: 120px;
+        min-width: 120px;
     }
 
     #prowizjaGroup .input-group .form-select.jednostka-select {
-        height: 22px !important;
-        width: 60px !important;
-        min-width: 60px !important;
-        max-width: 60px !important;
-        padding: 2px 12px 2px 4px !important;
-        line-height: normal !important;
-        text-align: center !important;
-        border-radius: 0 5px 5px 0 !important;
-        border-left: 1px solid var(--border-color) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-repeat: no-repeat !important;
-        background-position: right 4px center !important;
-        flex: none !important;
-        font-size: 0.6375em !important;
-        background: var(--input-bg) !important;
-        color: var(--primary-text) !important;
-        border: 1px solid var(--border-color) !important;
-        appearance: none !important;
-        -webkit-appearance: none !important;
-        -moz-appearance: none !important;
+        width: 52px !important;
+        min-width: 52px !important;
+        max-width: 52px !important;
     }
 
-    #prowizjaGroup .input-group .form-select.jednostka-select:focus {
-        outline: none !important;
-        box-shadow: 0 0 4px var(--accent-color) !important;
-        border: 1px solid var(--border-color) !important;
-        background: var(--input-bg) !important;
-        color: var(--primary-text) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-repeat: no-repeat !important;
-        background-position: right 4px center !important;
+    #prowizja .input-group .form-control {
+        width: 108px;
     }
 
-    .dark-mode #rodzajRat .form-select,
-    .dark-mode .variable-input-group .nadplata-type-select,
-    .dark-mode .variable-input-group .nadplata-effect-select,
-    .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
-        border: 1px solid var(--border-color) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-position: right 4px center !important;
+    .sub-info {
+        font-size: 0.5em;
+    }
+}
+
+@media (max-width: 400px) {
+    .form-group,
+    .input-group,
+    #rodzajRat {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100px;
     }
 
-    .dark-mode #prowizja .input-group .form-control {
-        border-right: none;
+    .variable-input-group[data-type="nadplata"] .form-group {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100px;
     }
 
-    .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
-        border-left: 1px solid var(--border-color) !important;
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100px;
     }
 
-    .dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-inner-spin-button,
-    .dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
-        background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23a3945c" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
-        background-size: 12px 16px;
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
+        width: calc(100% - 52px);
     }
 
-    .dark-mode #rodzajRat .form-select:focus,
-    .dark-mode .variable-input-group .nadplata-type-select:focus,
-    .dark-mode .variable-input-group .nadplata-effect-select:focus,
-    .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
-        border: 1px solid var(--border-color) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-position: right 4px center !important;
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
+        width: calc(100% - 60px);
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .input-group {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100px;
+    }
+
+    .variable-input-group .input-group {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100px;
+    }
+
+    #prowizja .input-group {
+        width: 100%;
+        max-width: 100%;
+        min-width: 100px;
+    }
+
+    #prowizja .input-group .form-control {
+        width: calc(100% - 52px);
+    }
+
+    .harmonogram th,
+    .harmonogram td {
+        font-size: clamp(0.2625em, 0.7125vw, 0.7125em);
+        padding: clamp(1px, 0.4vw, 8px);
+    }
+
+    .harmonogram-opis {
+        font-size: clamp(0.2125em, 0.5125vw, 0.3125em);
+    }
+
+    .summary-footer .highlight {
+        width: clamp(180px, 18vw, 220px);
+        font-size: clamp(0.475em, 0.95vw, 0.775em);
+        padding: clamp(4px, 0.8vw, 6px) clamp(6px, 1.5vw, 10px);
     }
 
     .btn-primary {
-        font-size: 0.9em;
-        padding: 8px 20px;
-        margin: 5px auto;
-        width: auto;
+        font-size: 0.8em;
+        padding: 6px 16px;
+    }
+
+    #generatePdfBtn {
+        font-size: 0.6375em;
+        padding: 4px 12px;
     }
 }
