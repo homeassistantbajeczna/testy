@@ -302,13 +302,24 @@ body {
     width: 53px;
 }
 
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 108px;
+}
+
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
     width: 68px;
+    margin: 0;
+    padding: 2px;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text {
     width: 40px;
     min-width: 40px;
+    margin: 0;
+    padding: 2px 5px;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
@@ -498,6 +509,8 @@ body {
 .input-group {
     width: 150px;
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
 }
@@ -1004,23 +1017,12 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .round-btn.accent {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070));
-    color: var(--primary-text);
+    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    color: var(--primary-text) !important;
 }
 
 .round-btn.accent:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280));
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-color);
-}
-
-.round-btn.danger {
-    background: #dc3545;
-    color: #fff;
-}
-
-.round-btn.danger:hover {
-    background: #c82333;
+    background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -1029,8 +1031,8 @@ input[type="range"].form-range:focus::-ms-thumb {
 #addVariableOprocentowanieBtn.round-btn.accent,
 .toggle-dark-mode-btn.round-btn.accent,
 .zoom-controls .btn.round-btn.accent {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070));
-    color: var(--primary-text);
+    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    color: var(--primary-text) !important;
 }
 
 .variable-input-group .btn-danger,
@@ -1038,10 +1040,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     font-size: var(--small-font-size);
     padding: 2px 8px;
     height: 22px;
-    background: #dc3545;
+    background: #dc3545 !important;
     border: none;
     border-radius: var(--border-radius);
-    color: #fff;
+    color: #fff !important;
     box-shadow: 0 4px 6px var(--shadow-color);
     transition: transform 0.2s ease, box-shadow 0.3s ease;
     cursor: pointer;
@@ -1049,7 +1051,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 .variable-input-group .btn-danger:hover,
 .variable-input-group .btn-danger.remove-first-btn:hover {
-    background: #c82333;
+    background: #c82333 !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -1061,13 +1063,17 @@ input[type="range"].form-range:focus::-ms-thumb {
     color: #ffffff !important;
 }
 
-.dark-mode .round-btn.accent {
-    background: linear-gradient(135deg, var(--accent-gradient-start-black, #a3945c), var(--accent-gradient-end, #70673b));
-    color: #ffffff;
+.dark-mode .round-btn.accent,
+.dark-mode #addNadplataKredytuBtn.round-btn.accent,
+.dark-mode #addVariableOprocentowanieBtn.round-btn.accent,
+.dark-mode .toggle-dark-mode-btn.round-btn.accent,
+.dark-mode .zoom-controls .btn.round-btn.accent {
+    background: linear-gradient(135deg, var(--accent-gradient-start-black, #a3945c), var(--accent-gradient-end, #70673b)) !important;
+    color: #ffffff !important;
 }
 
 .dark-mode .round-btn.accent:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start-black, #a3945c));
+    background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start-black, #a3945c)) !important;
 }
 
 .btn-primary {
@@ -1234,13 +1240,25 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 90px;
     }
 
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 150px;
+        max-width: 150px;
+    }
+
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
         width: 90px;
+        margin: 0;
+        padding: 2px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text {
         width: 60px;
         min-width: 60px;
+        margin: 0;
+        padding: 2px 5px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
