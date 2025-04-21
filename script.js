@@ -45,11 +45,12 @@ const state = {
         zmienneOprocentowanie: false,
         nadplataKredytu: false,
     },
+    tempValues: {}, // Bufor dla tymczasowych wartości podczas przeciągania
 };
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, useChangeEvent = false } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found for ${input?.id || "unknown"}`);
@@ -88,21 +89,34 @@ function syncInputWithRange(input, range, options = {}) {
         input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
         range.value = parsedValue;
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}`);
-        if (onChange) onChange(parsedValue);
+
+        if (isVariableCykl) {
+            state.tempValues[input.id || range.id] = parsedValue; // Buforowanie wartości
+        } else if (onChange) {
+            onChange(parsedValue);
+        }
     };
 
     const inputHandler = () => updateValue(input.value, "Input");
     const rangeHandler = () => updateValue(range.value, "Range");
 
-    input._eventListeners[useChangeEvent ? "change" : "input"] = inputHandler;
-    range._eventListeners[useChangeEvent ? "change" : "input"] = rangeHandler;
+    input._eventListeners.input = inputHandler;
+    range._eventListeners.input = rangeHandler;
+    input.addEventListener("input", inputHandler);
+    range.addEventListener("input", rangeHandler);
 
-    if (useChangeEvent) {
-        input.addEventListener("change", inputHandler);
-        range.addEventListener("change", rangeHandler);
-    } else {
-        input.addEventListener("input", inputHandler);
-        range.addEventListener("input", rangeHandler);
+    // Dodatkowe zdarzenie change dla .variable-cykl-range do zapisu stanu
+    if (isVariableCykl) {
+        const changeHandler = () => {
+            const value = state.tempValues[input.id || range.id];
+            if (value !== undefined && onChange) {
+                console.log(`Change committed: ${input.id || range.className} = ${value}`);
+                onChange(value);
+                delete state.tempValues[input.id || range.id];
+            }
+        };
+        range._eventListeners.change = changeHandler;
+        range.addEventListener("change", changeHandler);
     }
 
     const min = parseFloat(input.min) || 0;
@@ -657,10 +671,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateRange = inputGroup.querySelector(".variable-rate-range");
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
-        // Używamy zdarzenia change dla .variable-cykl, aby uniknąć rerenderowania podczas przeciągania
+        // Synchronizacja dla .variable-cykl z buforowaniem
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
-            useChangeEvent: true,
+            isVariableCykl: true,
             onChange: (value) => {
                 changes[index].period = value;
                 updateVariableData(activeType);
@@ -668,6 +682,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             },
         });
 
+        // Synchronizacja dla .variable-rate
         syncInputWithRange(rateInput, rateRange, {
             isDecimal: activeType === "oprocentowanie",
             onChange: (value) => {
@@ -901,4 +916,3 @@ updateProwizjaInfo();
 updateRodzajRatInfo();
 updateVariableInputs();
 initializeTheme();
-
