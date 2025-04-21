@@ -1567,9 +1567,6 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
         width: 160px;
         max-width: 160px;
         min-width: 100px;
@@ -1592,9 +1589,6 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
         width: 160px;
         max-width: 160px;
         min-width: 100px;
@@ -1764,3 +1758,4 @@ input[type="range"].form-range:focus::-ms-thumb {
         font-size: 0.6375em;
         padding: 4px 12px;
     }
+}
