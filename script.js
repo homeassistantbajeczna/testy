@@ -447,8 +447,9 @@ function updateVariableData(activeType) {
     }
 }
 
-// Funkcja updateVariableInputs z debounce
-const updateVariableInputs = debounce(() => {
+// Funkcja updateVariableInputs bez debounce
+function updateVariableInputs() {
+    console.log("updateVariableInputs called");
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
@@ -456,6 +457,14 @@ const updateVariableInputs = debounce(() => {
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
     const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
+
+    console.log("Zmienne oprocentowanie:", {
+        isZmienneOprocentowanie,
+        variableOprocentowanieInputs: !!variableOprocentowanieInputs,
+        addVariableOprocentowanieBtn: !!addVariableOprocentowanieBtn,
+        variableOprocentowanieWrapper: !!variableOprocentowanieWrapper,
+        variableRates: state.variableRates,
+    });
 
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
         variableOprocentowanieInputs.classList.add("active");
@@ -475,6 +484,14 @@ const updateVariableInputs = debounce(() => {
     const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
+    console.log("Nadpłata kredytu:", {
+        isNadplataKredytu,
+        nadplataKredytuInputs: !!nadplataKredytuInputs,
+        addNadplataKredytuBtn: !!addNadplataKredytuBtn,
+        nadplataKredytuWrapper: !!nadplataKredytuWrapper,
+        overpaymentRates: state.overpaymentRates,
+    });
+
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
@@ -487,9 +504,10 @@ const updateVariableInputs = debounce(() => {
         if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
     }
-}, 100);
+}
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
+    console.log(`renderVariableInputs called for ${activeType}`, { changes, maxCykl, maxChanges });
     wrapper.innerHTML = "";
 
     changes.forEach((change, index) => {
@@ -532,8 +550,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             const cyklLabel = isJednorazowa ? "W" : "Od";
             const cyklUnit = isJednorazowa ? "miesiącu" : "miesiąca";
             const cyklGroup = document.createElement("div");
-            cykGroup.className = "form-group";
-            cykGroup.innerHTML = `
+            cyklGroup.className = "form-group";
+            cyklGroup.innerHTML = `
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
@@ -561,8 +579,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         } else {
             // Dla oprocentowania
             const cyklGroup = document.createElement("div");
-            cykGroup.className = "form-group";
-            cykGroup.innerHTML = `
+            cyklGroup.className = "form-group";
+            cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
@@ -669,6 +687,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const isMaxPeriodReached = lastChange && lastChange.period >= maxCykl;
     addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
+    console.log(`renderVariableInputs completed for ${activeType}, inputs rendered: ${changes.length}`);
 }
 
 function addVariableChange(activeType) {
@@ -772,25 +791,27 @@ if (elements.rodzajRat) {
 
 if (elements.zmienneOprocentowanieBtn) {
     elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+        console.log("Zmienne oprocentowanie changed:", elements.zmienneOprocentowanieBtn.checked);
         state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
         if (!elements.zmienneOprocentowanieBtn.checked) {
             state.variableRates = [];
         } else {
             state.variableRates = [{ value: state.lastFormData.oprocentowanie, period: 2 }];
         }
-        updateVariableInputs(); // Natychmiastowe wywołanie bez debounce
+        updateVariableInputs();
     });
 }
 
 if (elements.nadplataKredytuBtn) {
     elements.nadplataKredytuBtn.addEventListener("change", () => {
+        console.log("Nadpłata kredytu changed:", elements.nadplataKredytuBtn.checked);
         state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
         if (!elements.nadplataKredytuBtn.checked) {
             state.overpaymentRates = [];
         } else {
             state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" }];
         }
-        updateVariableInputs(); // Natychmiastowe wywołanie bez debounce
+        updateVariableInputs();
     });
 }
 
