@@ -1,4 +1,4 @@
-```javascript
+javascript
 const elements = {
     formSection: document.getElementById("formSection"),
     kwota: document.getElementById("kwota"),
@@ -660,4 +660,4 @@ updateProwizjaInfo();
 updateRodzajRatInfo();
 updateVariableInputs();
 initializeTheme();
-```
+
