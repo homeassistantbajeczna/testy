@@ -49,37 +49,61 @@ const state = {
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange } = options;
+    const { isDecimal = false, onChange, useChangeEvent = false } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found for ${input?.id || "unknown"}`);
         return;
     }
 
-    input.addEventListener("input", () => {
+    // Funkcja do usuwania listenerów
+    input._eventListeners = input._eventListeners || {};
+    range._eventListeners = range._eventListeners || {};
+
+    const removeListeners = () => {
+        if (input._eventListeners.input) {
+            input.removeEventListener("input", input._eventListeners.input);
+        }
+        if (input._eventListeners.change) {
+            input.removeEventListener("change", input._eventListeners.change);
+        }
+        if (range._eventListeners.input) {
+            range.removeEventListener("input", range._eventListeners.input);
+        }
+        if (range._eventListeners.change) {
+            range.removeEventListener("change", range._eventListeners.change);
+        }
+    };
+
+    removeListeners();
+
+    const updateValue = (value, source) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(input.step) || 1;
-        let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
-        if (isNaN(value)) value = min;
-        if (value < min) value = min;
-        if (value > max) value = max;
-        input.value = isDecimal ? value.toFixed(step === 1 ? 0 : 1) : value;
-        range.value = value;
-        console.log(`Input changed: ${input.id} = ${value}`);
-        if (onChange) onChange(value);
-    });
+        let parsedValue = isDecimal ? parseFloat(value) : parseInt(value);
+        if (isNaN(parsedValue)) parsedValue = min;
+        if (parsedValue < min) parsedValue = min;
+        if (parsedValue > max) parsedValue = max;
+        input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
+        range.value = parsedValue;
+        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}`);
+        if (onChange) onChange(parsedValue);
+    };
 
-    range.addEventListener("input", () => {
-        const min = parseFloat(range.min) || 0;
-        const max = parseFloat(range.max) || Infinity;
-        const step = parseFloat(range.step) || 1;
-        let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
-        input.value = isDecimal ? value.toFixed(step === 1 ? 0 : 1) : value;
-        range.value = value;
-        console.log(`Range changed: ${range.className} = ${value}`);
-        if (onChange) onChange(value);
-    });
+    const inputHandler = () => updateValue(input.value, "Input");
+    const rangeHandler = () => updateValue(range.value, "Range");
+
+    input._eventListeners[useChangeEvent ? "change" : "input"] = inputHandler;
+    range._eventListeners[useChangeEvent ? "change" : "input"] = rangeHandler;
+
+    if (useChangeEvent) {
+        input.addEventListener("change", inputHandler);
+        range.addEventListener("change", rangeHandler);
+    } else {
+        input.addEventListener("input", inputHandler);
+        range.addEventListener("input", rangeHandler);
+    }
 
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
@@ -90,7 +114,7 @@ function syncInputWithRange(input, range, options = {}) {
     if (initialValue > max) initialValue = max;
     input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
     range.value = initialValue;
-    console.log(`Initial sync: ${input.id} = ${initialValue}`);
+    console.log(`Initial sync: ${input.id || range.className} = ${initialValue}`);
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
@@ -633,15 +657,14 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateRange = inputGroup.querySelector(".variable-rate-range");
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
-        // Ogranicz ponowne renderowanie tylko do zmiany okresu
+        // Używamy zdarzenia change dla .variable-cykl, aby uniknąć rerenderowania podczas przeciągania
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
+            useChangeEvent: true,
             onChange: (value) => {
-                if (changes[index].period !== value) {
-                    changes[index].period = value;
-                    updateVariableData(activeType);
-                    updateVariableInputs();
-                }
+                changes[index].period = value;
+                updateVariableData(activeType);
+                updateVariableInputs();
             },
         });
 
