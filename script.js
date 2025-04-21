@@ -901,3 +901,4 @@ updateProwizjaInfo();
 updateRodzajRatInfo();
 updateVariableInputs();
 initializeTheme();
+
