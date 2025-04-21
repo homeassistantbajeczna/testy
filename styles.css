@@ -307,19 +307,22 @@ body {
     flex-direction: row;
     flex-wrap: nowrap;
     width: 108px;
+    align-items: center;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
     width: 68px;
     margin: 0;
-    padding: 2px;
+    padding: 0 2px;
+    border-right: none;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text {
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu {
     width: 40px;
     min-width: 40px;
     margin: 0;
-    padding: 2px 5px;
+    padding: 0 2px;
+    font-size: 0.6em;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
@@ -501,7 +504,7 @@ body {
     min-width: 40px;
 }
 
-.input-group-text.unit-miesiacu { min-width: 60px; }
+.input-group-text.unit-miesiacu { min-width: 40px; }
 .input-group-text.unit-miesiaca { min-width: 65px; }
 .input-group-text.unit-miesiacach { min-width: 75px; }
 .input-group-text.unit-zl { min-width: 40px; }
@@ -771,7 +774,6 @@ input[type="range"].form-range:focus::-ms-thumb {
     box-sizing: border-box;
 }
 
-/*mixins.css*/
 .result-wrapper-chart {
     width: 100%;
     max-width: 600px;
@@ -1027,12 +1029,32 @@ input[type="range"].form-range:focus::-ms-thumb {
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
-#addNadplataKredytuBtn.round-btn.accent,
-#addVariableOprocentowanieBtn.round-btn.accent,
-.toggle-dark-mode-btn.round-btn.accent,
-.zoom-controls .btn.round-btn.accent {
+#addNadplataKredytuBtn.btn.btn-secondary.btn-sm,
+#addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm,
+#toggleDarkModeBtn.btn.btn-sm,
+#zoomInBtn.btn.btn-sm,
+#zoomOutBtn.btn.btn-sm {
     background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
     color: var(--primary-text) !important;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+#addNadplataKredytuBtn.btn.btn-secondary.btn-sm:hover,
+#addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm:hover,
+#toggleDarkModeBtn.btn.btn-sm:hover,
+#zoomInBtn.btn.btn-sm:hover,
+#zoomOutBtn.btn.btn-sm:hover {
+    background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow-color);
 }
 
 .variable-input-group .btn-danger,
@@ -1041,7 +1063,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     padding: 2px 8px;
     height: 22px;
     background: #dc3545 !important;
-    border: none;
+    border: none !important;
     border-radius: var(--border-radius);
     color: #fff !important;
     box-shadow: 0 4px 6px var(--shadow-color);
@@ -1063,16 +1085,20 @@ input[type="range"].form-range:focus::-ms-thumb {
     color: #ffffff !important;
 }
 
-.dark-mode .round-btn.accent,
-.dark-mode #addNadplataKredytuBtn.round-btn.accent,
-.dark-mode #addVariableOprocentowanieBtn.round-btn.accent,
-.dark-mode .toggle-dark-mode-btn.round-btn.accent,
-.dark-mode .zoom-controls .btn.round-btn.accent {
+.dark-mode #addNadplataKredytuBtn.btn.btn-secondary.btn-sm,
+.dark-mode #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm,
+.dark-mode #toggleDarkModeBtn.btn.btn-sm,
+.dark-mode #zoomInBtn.btn.btn-sm,
+.dark-mode #zoomOutBtn.btn.btn-sm {
     background: linear-gradient(135deg, var(--accent-gradient-start-black, #a3945c), var(--accent-gradient-end, #70673b)) !important;
     color: #ffffff !important;
 }
 
-.dark-mode .round-btn.accent:hover {
+.dark-mode #addNadplataKredytuBtn.btn.btn-secondary.btn-sm:hover,
+.dark-mode #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm:hover,
+.dark-mode #toggleDarkModeBtn.btn.btn-sm:hover,
+.dark-mode #zoomInBtn.btn.btn-sm:hover,
+.dark-mode #zoomOutBtn.btn.btn-sm:hover {
     background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start-black, #a3945c)) !important;
 }
 
@@ -1246,19 +1272,22 @@ input[type="range"].form-range:focus::-ms-thumb {
         flex-wrap: nowrap;
         width: 150px;
         max-width: 150px;
+        align-items: center;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
         width: 90px;
         margin: 0;
-        padding: 2px;
+        padding: 0 2px;
+        border-right: none;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text {
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu {
         width: 60px;
         min-width: 60px;
         margin: 0;
-        padding: 2px 5px;
+        padding: 0 2px;
+        font-size: 0.6em;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
@@ -1374,7 +1403,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         text-align: center !important;
         border-radius: 0 5px 5px 0 !important;
         border-left: 1px solid var(--border-color) !important;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+        backgroundRC
         background-repeat: no-repeat !important;
         background-position: right 4px center !important;
         flex: none !important;
