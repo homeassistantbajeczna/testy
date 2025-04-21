@@ -1480,7 +1480,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 @media (max-width: 576px) {
     .header-row h4,
     .result-header h4 {
-        font-size: 0.9375em;
+        font-size: 1.2em;
     }
 
     .form-control,
@@ -1522,22 +1522,27 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .fields-wrapper {
-        grid-template-columns: 150px;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
+        width: 100%;
+        max-width: 180px;
+        min-width: 120px;
+        gap: 2px;
     }
 
     .form-group,
     .input-group,
     #rodzajRat {
-        width: 150px;
-        max-width: 150px;
+        width: 180px;
+        max-width: 180px;
         min-width: 120px;
         margin: 2px auto;
     }
 
     .form-control {
         height: 22px;
-        width: 100px;
+        width: 120px;
         padding: 2px;
         line-height: normal;
         border: 1px solid var(--border-color);
@@ -1546,20 +1551,28 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 90px;
+        width: 120px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group {
+        width: 180px;
+        max-width: 180px;
+        min-width: 120px;
+        margin: 2px auto;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        width: 150px;
-        max-width: 150px;
+        width: 180px;
+        max-width: 180px;
+        min-width: 120px;
         align-items: center;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 90px;
+        width: 120px;
         margin: 0;
         padding: 0 2px;
         border-right: none;
@@ -1574,7 +1587,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 90px;
+        width: 120px;
         margin: 0;
         padding: 0 2px;
         border-right: none;
@@ -1584,8 +1597,9 @@ input[type="range"].form-range:focus::-ms-thumb {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        width: 150px;
-        max-width: 150px;
+        width: 180px;
+        max-width: 180px;
+        min-width: 120px;
         align-items: center;
     }
 
@@ -1597,8 +1611,14 @@ input[type="range"].form-range:focus::-ms-thumb {
         font-size: 0.6em;
     }
 
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(2) .form-label,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-label {
+        text-align: left;
+        width: 100%;
+    }
+
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 90px;
+        width: 120px;
     }
 
     /* Styl :focus dla wszystkich pól w widoku mobilnym */
@@ -1692,17 +1712,14 @@ input[type="range"].form-range:focus::-ms-thumb {
     .variable-input-group .nadplata-type-select,
     .variable-input-group .nadplata-effect-select {
         height: 22px;
-        width: 150px;
-        max-width: 150px;
+        width: 180px;
+        max-width: 180px;
         min-width: 120px;
         padding: 2px 12px 2px 4px;
         line-height: normal;
         border: 1px solid var(--border-color);
         border-radius: var(--border-radius);
         text-align: center;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-        background-repeat: no-repeat !important;
-        background-position: right 4px center !important;
     }
 
     #prowizjaGroup .input-group .form-select.jednostka-select {
@@ -1771,110 +1788,10 @@ input[type="range"].form-range:focus::-ms-thumb {
         background-position: right 4px center !important;
     }
 
-    .variable-input-group .input-group {
-        max-width: 150px;
-        min-width: 120px;
-        display: flex;
-        align-items: center;
-    }
-
-    .variable-input-group .form-group {
-        width: 150px;
-        max-width: 150px;
-        min-width: 120px;
-        margin: 2px auto;
-    }
-
-    .variable-input-group .form-control {
-        width: 90px;
-        height: 22px;
-        padding: 2px;
-        line-height: normal;
-        text-align: center;
-    }
-
-    .variable-input-group .fields-wrapper {
-        flex-wrap: nowrap;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        max-width: 150px;
-        min-width: 120px;
-        gap: 2px;
-    }
-
-    .variable-input-group .form-group:nth-child(1) .input-group,
-    .variable-input-group .form-group:nth-child(2) .input-group {
-        width: 150px;
-        max-width: 150px;
-        min-width: 120px;
-    }
-
-    .variable-input-group .form-group:nth-child(1) .form-control,
-    .variable-input-group .form-group:nth-child(2) .form-control {
-        width: 90px;
-    }
-
-    .btn-primary,
-    #generatePdfBtn {
-        margin: 5px auto;
-        padding: 3px 10px;
-        font-size: 0.6375em;
-    }
-
     .btn-primary {
+        font-size: 0.9em;
+        padding: 8px 20px;
+        margin: 5px auto;
         width: auto;
-    }
-
-    .chart-container {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .chart {
-        width: 120px;
-        height: 120px;
-    }
-
-    .chart-legend {
-        max-width: 100%;
-        align-items: center;
-        margin-top: 10px;
-    }
-
-    .chart-legend .legend-item {
-        width: 100%;
-        max-width: 150px;
-        justify-content: flex-start;
-        padding-left: 0;
-    }
-
-    .chart-legend .legend-text {
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        margin: 0;
-        padding: 0;
-    }
-
-    .calculator-container {
-        padding: 10px;
-    }
-
-    .form-row,
-    .checkbox-row,
-    .fields-wrapper {
-        gap: 5px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .fields-wrapper {
-        grid-template-columns: 150px;
-        justify-content: center;
     }
 }
