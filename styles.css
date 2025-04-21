@@ -1054,19 +1054,22 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 #addNadplataKredytuBtn.btn.btn-secondary.btn-sm,
 #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm {
-    background: #6c757d !important;
-    color: #fff !important;
-    border-radius: 4px;
+    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    color: var(--primary-text) !important;
+    border: none !important;
+    border-radius: 20px;
     padding: 3px 8px;
     font-size: var(--small-font-size);
     box-shadow: 0 4px 6px var(--shadow-color);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 }
 
 #addNadplataKredytuBtn.btn.btn-secondary.btn-sm:hover,
 #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm:hover {
-    background: #5a6268 !important;
+    background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-color);
+    box-shadow: 0 6px 12px var(---shadow-color);
 }
 
 #toggleDarkModeBtn.btn.btn-sm,
@@ -1090,7 +1093,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 #zoomOutBtn.btn.btn-sm:hover {
     background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-color);
+    box-shadow: 0 6px 12px var(---shadow-color);
 }
 
 .variable-input-group .btn-danger,
@@ -1123,13 +1126,13 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 .dark-mode #addNadplataKredytuBtn.btn.btn-secondary.btn-sm,
 .dark-mode #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm {
-    background: #5a6268 !important;
-    color: #fff !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start, #8b7d47), var(--accent-gradient-end, #70673b)) !important;
+    color: #ffffff !important;
 }
 
 .dark-mode #addNadplataKredytuBtn.btn.btn-secondary.btn-sm:hover,
 .dark-mode #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm:hover {
-    background: #4b5156 !important;
+    background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start, #8b7d47)) !important;
 }
 
 .dark-mode #toggleDarkModeBtn.btn.btn-sm,
