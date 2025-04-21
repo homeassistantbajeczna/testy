@@ -348,10 +348,6 @@ body {
     font-size: 0.6em;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .sub-info::after {
-    content: "Kwota nadpłaty: 100,00 zł" !important;
-}
-
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
     width: 53px;
 }
@@ -1562,48 +1558,33 @@ input[type="range"].form-range:focus::-ms-thumb {
         align-items: flex-start;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
-        width: 160px !important;
-        max-width: 160px;
-        min-width: 100px;
-        align-items: center;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 100px !important;
-        margin: 0;
-        padding: 0 2px;
-        border-right: none;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu {
-        width: 60px !important;
-        min-width: 60px;
-        margin: 0;
-        padding: 0 2px;
-        font-size: 0.6em;
-    }
-
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         width: 160px !important;
-        max-width: 160px;
-        min-width: 100px;
+        max-width: 160px !important;
+        min-width: 160px !important;
         align-items: center;
+        display: flex;
+        box-sizing: border-box;
     }
 
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
         width: 100px !important;
         margin: 0;
         padding: 0 2px;
         border-right: none;
+        box-sizing: border-box;
     }
 
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
         width: 60px !important;
-        min-width: 60px;
+        min-width: 60px !important;
         margin: 0;
         padding: 0 2px;
         font-size: 0.6em;
+        box-sizing: border-box;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(2) .form-label,
@@ -1687,20 +1668,15 @@ input[type="range"].form-range:focus::-ms-thumb {
         min-width: 100px;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100px;
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100px !important;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
         width: calc(100% - 52px);
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
