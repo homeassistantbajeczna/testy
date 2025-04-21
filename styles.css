@@ -325,6 +325,29 @@ body {
     font-size: 0.6em;
 }
 
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
+    width: 68px;
+    margin: 0;
+    padding: 0 2px;
+    border-right: none;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 108px;
+    align-items: center;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
+    width: 40px;
+    min-width: 40px;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 0.6em;
+}
+
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
     width: 53px;
 }
@@ -626,6 +649,29 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-ms-thumb {
+    width: 10px;
+    height: 10px;
+    transition: transform 0.1s ease;
+}
+
+/* Płynny suwak w KWOTA */
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range {
+    transition: all 0.1s ease;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-webkit-slider-thumb {
+    width: 10px;
+    height: 10px;
+    transition: transform 0.1s ease;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    transition: transform 0.1s ease;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-ms-thumb {
     width: 10px;
     height: 10px;
     transition: transform 0.1s ease;
@@ -1336,43 +1382,32 @@ input[type="range"].form-range:focus::-ms-thumb {
         font-size: 0.6em;
     }
 
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
+        width: 90px;
+        margin: 0;
+        padding: 0 2px;
+        border-right: none;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        width: 150px;
+        max-width: 150px;
+        align-items: center;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
+        width: 60px;
+        min-width: 60px;
+        margin: 0;
+        padding: 0 2px;
+        font-size: 0.6em;
+    }
+
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
         width: 90px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .input-group {
-        display: flex;
-        align-items: center;
-        width: 150px;
-        max-width: 150px;
-    }
-
-    .variable-input-group[data-type="oprocentowanie"] .input-group {
-        display: flex;
-        align-items: center;
-        width: 150px;
-        max-width: 150px;
-    }
-
-    .variable-input-group .input-group-text {
-        width: auto;
-        min-width: 40px;
-        height: 22px;
-        padding: 2px 5px;
-        line-height: normal;
-        text-align: center;
-    }
-
-    .input-group-text.unit-miesiacu { min-width: 60px; }
-    .input-group-text.unit-miesiaca { min-width: 65px; }
-    .input-group-text.unit-miesiacach { min-width: 75px; }
-    .input-group-text.unit-zl { min-width: 40px; }
-
-    #prowizja .input-group .form-control {
-        flex: 3;
-        width: auto;
-        border-radius: 5px 0 0 5px !important;
-        border-right: none;
     }
 
     /* Styl :focus dla wszystkich pól w widoku mobilnym */
