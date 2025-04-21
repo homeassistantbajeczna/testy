@@ -412,7 +412,13 @@ body {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%StdClass Object
+(
+    [scalar] => #C2B280
+)StdClass Object
+(
+    [scalar] => #C2B280
+)" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: right 4px center !important;
 }
@@ -573,18 +579,21 @@ input[type="range"].form-range::-webkit-slider-runnable-track {
     background: var(--input-group-bg);
     height: 6px;
     border-radius: var(--border-radius);
+    transition: background 0.3s ease;
 }
 
 input[type="range"].form-range::-moz-range-track {
     background: var(--input-group-bg);
     height: 6px;
     border-radius: var(--border-radius);
+    transition: background 0.3s ease;
 }
 
 input[type="range"].form-range::-ms-track {
     background: var(--input-group-bg);
     height: 6px;
     border-radius: var(--border-radius);
+    transition: background 0.3s ease;
 }
 
 input[type="range"].form-range::-webkit-slider-thumb {
@@ -596,7 +605,8 @@ input[type="range"].form-range::-webkit-slider-thumb {
     cursor: pointer;
     appearance: none;
     transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 input[type="range"].form-range::-moz-range-thumb {
@@ -606,7 +616,8 @@ input[type="range"].form-range::-moz-range-thumb {
     border-radius: 50%;
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 input[type="range"].form-range::-ms-thumb {
@@ -616,128 +627,146 @@ input[type="range"].form-range::-ms-thumb {
     border-radius: 50%;
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
-input[type="range"].form-range:focus::-webkit-slider-thumb {
+input[type="range"].form-range:focus::-webkit-slider-thumb,
+input[type="range"].form-range:active::-webkit-slider-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: translateY(2px) scale(1.1);
+    transform: translateY(2px) scale(1.2);
 }
 
-input[type="range"].form-range:focus::-moz-range-thumb {
+input[type="range"].form-range:focus::-moz-range-thumb,
+input[type="range"].form-range:active::-moz-range-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: scale(1.1);
+    transform: scale(1.2);
 }
 
-input[type="range"].form-range:focus::-ms-thumb {
+input[type="range"].form-range:focus::-ms-thumb,
+input[type="range"].form-range:active::-ms-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: scale(1.1);
+    transform: scale(1.2);
 }
 
 /* Płynny suwak w W/OD */
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range {
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-webkit-slider-thumb {
     width: 11px;
     height: 11px;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-thumb {
     width: 11px;
     height: 11px;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-ms-thumb {
     width: 11px;
     height: 11px;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-progress {
     background: var(--accent-gradient-start);
     height: 6px;
     border-radius: var(--border-radius);
-    transition: width 0.2s ease;
+    transition: width 0.3s ease;
 }
 
 /* Płynny suwak w KWOTA */
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range {
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-webkit-slider-thumb {
     width: 11px;
     height: 11px;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-thumb {
     width: 11px;
     height: 11px;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-ms-thumb {
     width: 11px;
     height: 11px;
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
     background: var(--accent-gradient-start);
     height: 6px;
     border-radius: var(--border-radius);
-    transition: width 0.2s ease;
+    transition: width 0.3s ease;
 }
 
 /* D A R K   M O D E   -   S P E C Y F I C Z N E */
 .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
     background: var(--input-group-bg);
     border-radius: var(--border-radius);
+    transition: background 0.3s ease;
 }
 
 .dark-mode input[type="range"].form-range::-moz-range-track {
     background: var(--input-group-bg);
     border-radius: var(--border-radius);
+    transition: background 0.3s ease;
 }
 
 .dark-mode input[type="range"].form-range::-ms-track {
     background: var(--input-group-bg);
     border-radius: var(--border-radius);
+    transition: background 0.3s ease;
 }
 
 .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
     background: var(--accent-gradient-start-black);
     transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
 .dark-mode input[type="range"].form-range::-moz-range-thumb,
 .dark-mode input[type="range"].form-range::-ms-thumb {
     background: var(--accent-gradient-start-black);
-    transition: transform 0.2s ease, background 0.2s ease;
+    transition: transform 0.3s ease, background 0.3s ease;
+    will-change: transform;
 }
 
-.dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb {
-    transform: translateY(2px) scale(1.1);
+.dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb,
+.dark-mode input[type="range"].form-range:active::-webkit-slider-thumb {
+    transform: translateY(2px) scale(1.2);
 }
 
 .dark-mode input[type="range"].form-range:focus::-moz-range-thumb,
-.dark-mode input[type="range"].form-range:focus::-ms-thumb {
-    transform: scale(1.1);
+.dark-mode input[type="range"].form-range:active::-moz-range-thumb,
+.dark-mode input[type="range"].form-range:focus::-ms-thumb,
+.dark-mode input[type="range"].form-range:active::-ms-thumb {
+    transform: scale(1.2);
 }
 
 .dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-progress,
 .dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
     background: var(--accent-gradient-start-black);
-    transition: width 0.2s ease;
+    transition: width 0.3s ease;
 }
 
 .dark-mode .harmonogram table {
@@ -1483,21 +1512,24 @@ input[type="range"].form-range:focus::-ms-thumb {
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-webkit-slider-thumb {
         width: 11px;
         height: 11px;
-        transition: transform 0.2s ease, background 0.2s ease;
+        transition: transform 0.3s ease, background 0.3s ease;
+        will-change: transform;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-thumb,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-thumb {
         width: 11px;
         height: 11px;
-        transition: transform 0.2s ease, background 0.2s ease;
+        transition: transform 0.3s ease, background 0.3s ease;
+        will-change: transform;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-ms-thumb,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-ms-thumb {
         width: 11px;
         height: 11px;
-        transition: transform 0.2s ease, background 0.2s ease;
+        transition: transform 0.3s ease, background 0.3s ease;
+        will-change: transform;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-progress,
@@ -1505,13 +1537,13 @@ input[type="range"].form-range:focus::-ms-thumb {
         background: var(--accent-gradient-start);
         height: 6px;
         border-radius: var(--border-radius);
-        transition: width 0.2s ease;
+        transition: width 0.3s ease;
     }
 
     .dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range::-moz-range-progress,
     .dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
         background: var(--accent-gradient-start-black);
-        transition: width 0.2s ease;
+        transition: width 0.3s ease;
     }
 
     #prowizjaGroup .input-group .form-control[type="number"]::-webkit-inner-spin-button,
@@ -1523,6 +1555,27 @@ input[type="range"].form-range:focus::-ms-thumb {
         -webkit-appearance: none;
         background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="16" viewBox="0 0 12 16"><path fill="%23C2B280" d="M6 4l-4 4h8l-4-4zM6 12l4-4h-8l4 4z"/></svg>') no-repeat center center;
         background-size: 12px 16px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range:focus::-webkit-slider-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range:active::-webkit-slider-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range:focus::-webkit-slider-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range:active::-webkit-slider-thumb {
+        transform: translateY(2px) scale(1.2);
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range:focus::-moz-range-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range:active::-moz-range-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range:focus::-moz-range-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range:active::-moz-range-thumb {
+        transform: scale(1.2);
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range:focus::-ms-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-range:active::-ms-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range:focus::-ms-thumb,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range:active::-ms-thumb {
+        transform: scale(1.2);
     }
 
     #prowizjaGroup .input-group .form-control[type="number"] {
