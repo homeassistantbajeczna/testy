@@ -1874,4 +1874,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .fields-wrapper {
-        grid-template
+        grid-template-columns: 150px;
+        justify-content: center;
+    }
+}
