@@ -595,6 +595,17 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <div class="sub-info"></div>
             `;
 
+            // Ustawienie początkowego tekstu w .sub-info
+            const subInfo = rateGroup.querySelector(".sub-info");
+            const rateInput = rateGroup.querySelector(".variable-rate");
+            const updateSubInfo = () => {
+                const value = parseFloat(rateInput.value) || 0;
+                subInfo.textContent = `Kwota nadpłaty: ${value.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+            };
+            updateSubInfo(); // Ustawienie początkowej wartości
+            rateInput.addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie wartości
+            rateGroup.querySelector(".variable-rate-range").addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie suwaka
+
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
             fieldsWrapper.appendChild(cyklGroup);
