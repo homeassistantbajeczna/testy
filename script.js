@@ -47,19 +47,6 @@ const state = {
     },
 };
 
-// Funkcja debounce
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange } = options;
@@ -68,8 +55,6 @@ function syncInputWithRange(input, range, options = {}) {
         console.error(`Input or range not found for ${input?.id || "unknown"}`);
         return;
     }
-
-    const debouncedOnChange = onChange ? debounce(onChange, 100) : null;
 
     input.addEventListener("input", () => {
         const min = parseFloat(input.min) || 0;
@@ -82,7 +67,7 @@ function syncInputWithRange(input, range, options = {}) {
         input.value = isDecimal ? value.toFixed(step === 1 ? 0 : 1) : value;
         range.value = value;
         console.log(`Input changed: ${input.id} = ${value}`);
-        if (debouncedOnChange) debouncedOnChange(value);
+        if (onChange) onChange(value);
     });
 
     range.addEventListener("input", () => {
@@ -92,8 +77,8 @@ function syncInputWithRange(input, range, options = {}) {
         let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
         input.value = isDecimal ? value.toFixed(step === 1 ? 0 : 1) : value;
         range.value = value;
-        console.log(`Range changed: ${input.id} = ${value}`);
-        if (debouncedOnChange) debouncedOnChange(value);
+        console.log(`Range changed: ${range.className} = ${value}`);
+        if (onChange) onChange(value);
     });
 
     const min = parseFloat(input.min) || 0;
@@ -447,7 +432,6 @@ function updateVariableData(activeType) {
     }
 }
 
-// Funkcja updateVariableInputs bez debounce
 function updateVariableInputs() {
     console.log("updateVariableInputs called");
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
@@ -649,12 +633,15 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateRange = inputGroup.querySelector(".variable-rate-range");
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
+        // Ogranicz ponowne renderowanie tylko do zmiany okresu
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             onChange: (value) => {
-                changes[index].period = value;
-                updateVariableData(activeType);
-                updateVariableInputs();
+                if (changes[index].period !== value) {
+                    changes[index].period = value;
+                    updateVariableData(activeType);
+                    updateVariableInputs();
+                }
             },
         });
 
