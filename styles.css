@@ -349,7 +349,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .sub-info::after {
-    content: "Kwota nadpłaty: 1 000,00 zł";
+    content: "Kwota nadpłaty: 100,00 zł" !important;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
@@ -970,7 +970,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 #prowizjaGroup .sub-info::after {
-    content: "Prowizja: 1 000,00 zł";
+    content: "Prowizja: 10 000,00 zł" !important;
 }
 
 .opis-container {
@@ -1555,7 +1555,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 100px;
+        width: 100px !important;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group {
@@ -1567,14 +1567,14 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
-        width: 160px;
+        width: 160px !important;
         max-width: 160px;
         min-width: 100px;
         align-items: center;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 100px;
+        width: 100px !important;
         margin: 0;
         padding: 0 2px;
         border-right: none;
@@ -1589,14 +1589,14 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-        width: 160px;
+        width: 160px !important;
         max-width: 160px;
         min-width: 100px;
         align-items: center;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 100px;
+        width: 100px !important;
         margin: 0;
         padding: 0 2px;
         border-right: none;
