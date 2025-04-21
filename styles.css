@@ -348,6 +348,10 @@ body {
     font-size: 0.6em;
 }
 
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .sub-info::after {
+    content: "Kwota nadpłaty: 1 000,00 zł";
+}
+
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
     width: 53px;
 }
@@ -1573,15 +1577,15 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 108px;
+        width: 100px;
         margin: 0;
         padding: 0 2px;
         border-right: none;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu {
-        width: 52px;
-        min-width: 52px;
+        width: 60px;
+        min-width: 60px;
         margin: 0;
         padding: 0 2px;
         font-size: 0.6em;
@@ -1674,7 +1678,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .sub-info {
-        font-size: 0.5em;
+        font-size: 0.4em;
     }
 }
 
