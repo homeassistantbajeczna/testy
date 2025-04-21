@@ -1490,7 +1490,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-label,
-    .checkbox-label {
+    .checkbox-label,
+    .variable-input-group .form-label {
         font-size: 0.575em;
     }
 
@@ -1619,6 +1620,27 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
         width: 120px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .input-group {
+        width: 180px;
+        max-width: 180px;
+        min-width: 120px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-control {
+        width: 120px;
+        margin: 0;
+        padding: 0 2px;
+        border-right: none;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .input-group-text {
+        width: 60px;
+        min-width: 60px;
+        margin: 0;
+        padding: 0 2px;
+        font-size: 0.6em;
     }
 
     /* Styl :focus dla wszystkich pól w widoku mobilnym */
