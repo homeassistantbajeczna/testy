@@ -1527,23 +1527,23 @@ input[type="range"].form-range:focus::-ms-thumb {
         align-items: center;
         justify-content: center;
         width: 100%;
-        max-width: 180px;
-        min-width: 120px;
+        max-width: 160px;
+        min-width: 100px;
         gap: 2px;
     }
 
     .form-group,
     .input-group,
     #rodzajRat {
-        width: 180px;
-        max-width: 180px;
-        min-width: 120px;
+        width: 160px;
+        max-width: 160px;
+        min-width: 100px;
         margin: 2px auto;
     }
 
     .form-control {
         height: 22px;
-        width: 120px;
+        width: 100px;
         padding: 2px;
         line-height: normal;
         border: 1px solid var(--border-color);
@@ -1552,28 +1552,29 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 120px;
+        width: 100px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group {
-        width: 180px;
-        max-width: 180px;
-        min-width: 120px;
-        margin: 2px auto;
+        width: 160px;
+        max-width: 160px;
+        min-width: 100px;
+        margin: 2px 0;
+        align-items: flex-start;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        width: 180px;
-        max-width: 180px;
-        min-width: 120px;
+        width: 160px;
+        max-width: 160px;
+        min-width: 100px;
         align-items: center;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 120px;
+        width: 100px;
         margin: 0;
         padding: 0 2px;
         border-right: none;
@@ -1587,21 +1588,21 @@ input[type="range"].form-range:focus::-ms-thumb {
         font-size: 0.6em;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 120px;
-        margin: 0;
-        padding: 0 2px;
-        border-right: none;
-    }
-
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
-        width: 180px;
-        max-width: 180px;
-        min-width: 120px;
+        width: 160px;
+        max-width: 160px;
+        min-width: 100px;
         align-items: center;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
+        width: 100px;
+        margin: 0;
+        padding: 0 2px;
+        border-right: none;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
@@ -1619,17 +1620,25 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 120px;
+        width: 100px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .input-group {
-        width: 180px;
-        max-width: 180px;
-        min-width: 120px;
+        width: 160px;
+        max-width: 160px;
+        min-width: 100px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group {
+        width: 160px;
+        max-width: 160px;
+        min-width: 100px;
+        margin: 2px 0;
+        align-items: flex-start;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 120px;
+        width: 100px;
         margin: 0;
         padding: 0 2px;
         border-right: none;
@@ -1728,15 +1737,16 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     #prowizjaGroup .input-group .form-control[type="number"] {
         -moz-appearance: textfield;
+        appearance: textfield;
     }
 
     #rodzajRat .form-select,
     .variable-input-group .nadplata-type-select,
     .variable-input-group .nadplata-effect-select {
         height: 22px;
-        width: 180px;
-        max-width: 180px;
-        min-width: 120px;
+        width: 160px;
+        max-width: 160px;
+        min-width: 100px;
         padding: 2px 12px 2px 4px;
         line-height: normal;
         border: 1px solid var(--border-color);
@@ -1746,9 +1756,9 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     #prowizjaGroup .input-group .form-select.jednostka-select {
         height: 22px !important;
-        width: 40px !important;
-        min-width: 40px !important;
-        max-width: 40px !important;
+        width: 60px !important;
+        min-width: 60px !important;
+        max-width: 60px !important;
         padding: 2px 12px 2px 4px !important;
         line-height: normal !important;
         text-align: center !important;
