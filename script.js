@@ -577,7 +577,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
-                    <span class="input-group-text">${cyklUnit}</span>
+                    <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${change.period}">
             `;
@@ -589,9 +589,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-rate" min="100" max="1000000" step="1" value="${Math.floor(change.value)}">
-                    <span class="input-group-text">zł</span>
+                    <span class="input-group-text unit-zl">zł</span>
                 </div>
                 <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="1" value="${Math.floor(change.value)}">
+                <div class="sub-info"></div>
             `;
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
