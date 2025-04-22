@@ -260,12 +260,12 @@ body {
     flex-wrap: nowrap;
     gap: 15px;
     justify-content: center;
-    min-width: 492px; /* 4 * 108px + 3 * 15px */
+    min-width: 570px; /* 4 * 150px + 3 * 15px */
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 108px;
-    max-width: 108px;
+    min-width: 150px;
+    max-width: 150px;
     flex: none;
 }
 
@@ -299,19 +299,19 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-control {
-    width: 53px;
+    width: 110px;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    width: 108px;
+    width: 150px;
     align-items: center;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-    width: 68px;
+    width: 110px;
     margin: 0;
     padding: 0 2px;
     border-right: none;
@@ -542,7 +542,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .input-group {
-    width: 108px;
+    width: 150px;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .input-group {
@@ -1085,7 +1085,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .harmonogram td {
-    padding: clamp(1px, 0.5vw, 10px);
+    padding: clamp(1 But: 1px, 0.5vw, 10px);
     font-weight: 400;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--harmonogram-bg);
