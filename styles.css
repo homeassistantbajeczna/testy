@@ -260,12 +260,26 @@ body {
     flex-wrap: nowrap;
     gap: 15px;
     justify-content: center;
-    min-width: 480px; /* 4 * 109px + 3 * 15px */
+    min-width: 630px; /* 4 * 150px + 3 * 15px */
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 109px;
-    max-width: 109px;
+    min-width: 150px;
+    max-width: 150px;
+    flex: none;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 15px;
+    justify-content: center;
+    min-width: 315px; /* 2 * 150px + 15px */
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group {
+    min-width: 150px;
+    max-width: 150px;
     flex: none;
 }
 
@@ -298,27 +312,34 @@ body {
     justify-content: center;
 }
 
-.variable-input-group[data-type="nadplata"] .form-control {
-    width: 109px;
+/* Ujednolicenie szerokości w sekcji "Zmienne oprocentowanie" i "Nadpłata kredytu" */
+.variable-input-group[data-type="nadplata"] .form-control,
+.variable-input-group[data-type="oprocentowanie"] .form-control {
+    width: 110px; /* Dla spójności z innymi polami, uwzględniając miejsce na jednostkę */
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group {
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    width: 109px;
+    width: 150px;
     align-items: center;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-    width: 49px;
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control,
+.variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
+    width: 90px;
     margin: 0;
     padding: 0 2px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
     width: 60px;
     min-width: 60px;
     margin: 0;
@@ -329,23 +350,17 @@ body {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-    width: 69px;
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
+    width: 110px;
     margin: 0;
     padding: 0 2px;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    width: 109px;
-    align-items: center;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
     width: 40px;
     min-width: 40px;
     margin: 0;
@@ -353,10 +368,6 @@ body {
     font-size: 0.6em;
     border: 1px solid var(--border-color);
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-    width: 53px;
 }
 
 /* Styl dla wszystkich pól formularza w stanie :focus */
@@ -548,14 +559,11 @@ body {
     width: 150px;
 }
 
-.variable-input-group[data-type="nadplata"] .input-group {
-    width: 109px;
-}
-
+.variable-input-group[data-type="nadplata"] .input-group,
 .variable-input-group[data-type="oprocentowanie"] .input-group {
     display: flex;
     align-items: center;
-    width: 108px;
+    width: 150px;
 }
 
 input[type="range"].form-range {
@@ -754,6 +762,142 @@ input[type="range"].form-range:focus::-ms-thumb {
     transition: width 0.2s ease;
 }
 
+/* Płynny suwak w ZMIENNE OPROCENTOWANIE - OD */
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range {
+    transition: all 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-runnable-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    transform: translateY(2px);
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-progress {
+    background: var(--accent-gradient-start);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: width 0.2s ease;
+}
+
+/* Płynny suwak w ZMIENNE OPROCENTOWANIE - OPROCENTOWANIE */
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range {
+    transition: all 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-runnable-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    transform: translateY(2px);
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-progress {
+    background: var(--accent-gradient-start);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: width 0.2s ease;
+}
+
 /* D A R K   M O D E   -   S P E C Y F I C Z N E */
 .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
     background: var(--input-group-bg);
@@ -890,6 +1034,134 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
+    background: var(--accent-gradient-start-black);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: width 0.2s ease;
+}
+
+/* Dark mode dla ZMIENNE OPROCENTOWANIE - OD */
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-runnable-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-thumb {
+    background: var(--accent-gradient-start-black);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    transform: translateY(2px);
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-thumb {
+    background: var(--accent-gradient-start-black);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-thumb {
+    background: var(--accent-gradient-start-black);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-progress {
+    background: var(--accent-gradient-start-black);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: width 0.2s ease;
+}
+
+/* Dark mode dla ZMIENNE OPROCENTOWANIE - OPROCENTOWANIE */
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-runnable-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-thumb {
+    background: var(--accent-gradient-start-black);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    appearance: none;
+    transform: translateY(2px);
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-thumb {
+    background: var(--accent-gradient-start-black);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-thumb {
+    background: var(--accent-gradient-start-black);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-progress {
     background: var(--accent-gradient-start-black);
     height: 6px;
     border-radius: var(--border-radius);
@@ -1168,7 +1440,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     margin-bottom: 6px;
     font-size: var(--small-font-size);
     cursor: pointer;
-    transition: transform 0.3 shifting ease;
+    transition: transform 0.3s ease;
     padding-left: 8px;
 }
 
@@ -1448,271 +1720,118 @@ input[type="range"].form-range:focus::-ms-thumb {
     display: flex;
     align-items: center;
     max-width: 150px;
-    width: 150px;
 }
 
-.remove-btn-wrapper,
-.remove-first-btn-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 5px;
-    align-self: center;
-    width: 100%;
-}
-
-/* R E S P O N S Y W N O Ś Ć */
-@media (min-width: 769px) {
-    #kwotaInfo {
-        font-size: 0.4em;
-    }
-}
-
-@media (max-width: 768px) {
-    .calculator-container {
-        flex-direction: column;
-        padding: clamp(10px, 2vw, 15px);
-    }
-
-    .variable-input-group[data-type="nadplata"] .fields-wrapper {
-        grid-template-columns: 150px;
-        justify-content: center;
-    }
-}
-
+/* R E S P O N S I W N O Ś Ć */
 @media (max-width: 576px) {
-    .header-row h4,
-    .result-header h4 {
-        font-size: 1.2em;
-    }
-
-    .form-control,
-    .form-select,
-    .input-group-text {
-        font-size: 0.6375em;
-    }
-
-    .form-label,
-    .checkbox-label,
-    .variable-input-group .form-label {
-        font-size: 0.575em;
-    }
-
-    .checkbox-label.header-checkbox {
-        top: -15px;
-        right: 5px;
-    }
-
-    .summary-footer {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 5px;
-        text-align: center;
-        width: auto;
-    }
-
-    .summary-footer .highlight {
-        margin: 2px 0;
-    }
-
     .form-row,
     .checkbox-row,
-    .fields-wrapper,
-    .variable-inputs-wrapper {
+    .fields-wrapper {
         flex-direction: column;
         align-items: center;
-        gap: 2px;
+    }
+
+    .form-group {
+        min-width: 160px;
+        max-width: 160px;
     }
 
     .variable-input-group[data-type="nadplata"] .fields-wrapper {
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        max-width: 160px;
-        min-width: 100px;
-        gap: 2px;
+        min-width: auto;
     }
 
-    .form-group,
-    .input-group,
-    #rodzajRat {
-        width: 160px;
-        max-width: 160px;
-        min-width: 100px;
-        margin: 2px auto;
-    }
-
-    .form-control {
-        height: 22px;
-        width: 100px;
-        padding: 2px;
-        line-height: normal;
-        border: 1px solid var(--border-color);
-        border-radius: var(--border-radius);
-        text-align: center;
-    }
-
-    /* Ustawienie szerokości dla wszystkich boxów w sekcji NADPŁATA KREDYTU */
     .variable-input-group[data-type="nadplata"] .form-group {
-        width: 160px !important;
-        max-width: 160px !important;
-        min-width: 100px !important;
-        margin: 2px 0;
-        align-items: flex-start;
+        min-width: 160px;
+        max-width: 160px;
     }
 
-    /* Ustawienie szerokości dla .form-control w sekcji NADPŁATA KREDYTU */
-    .variable-input-group[data-type="nadplata"] .form-control {
-        width: 160px !important;
-        margin: 0;
-        padding: 0 2px;
-        border: 1px solid var(--border-color);
-        box-sizing: border-box;
-    }
-
-    /* Ustawienie szerokości dla .form-select w sekcji NADPŁATA KREDYTU */
-    .variable-input-group[data-type="nadplata"] .form-select {
-        width: 160px !important;
-        margin: 0;
-        padding: 0 2px;
-        box-sizing: border-box;
-    }
-
-    /* Specyficzne style dla boxu OD/W (trzeci form-group) */
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group {
-        width: 160px !important;
-        max-width: 160px !important;
-        min-width: 160px !important;
-        align-items: center;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        box-sizing: border-box;
-        position: static;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-        width: 100px !important;
-        margin: 0;
-        padding: 0 2px;
-        border: 1px solid var(--border-color);
-        box-sizing: border-box;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-        width: 60px !important;
-        min-width: 60px !important;
-        margin: 0;
-        padding: 0 2px;
-        font-size: 0.6em;
-        box-sizing: border-box;
-        position: static;
-        background: var(--input-group-bg);
-        border: 1px solid var(--border-color);
-        pointer-events: auto;
-        border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    }
-
-    /* Specyficzne style dla boxu KWOTA (czwarty form-group) */
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-        width: 160px !important;
-        max-width: 160px !important;
-        min-width: 160px !important;
-        align-items: center;
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        box-sizing: border-box;
-        position: static;
-    }
-
+    .variable-input-group[data-type="nadplata"] .form-control,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 120px !important;
-        margin: 0;
-        padding: 0 2px;
-        border: 1px solid var(--border-color);
-        box-sizing: border-box;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
-        width: 40px !important;
-        min-width: 40px !important;
-        margin: 0;
-        padding: 0 2px;
-        font-size: 0.6em;
-        box-sizing: border-box;
-        position: static;
-        background: var(--input-group-bg);
-        border: 1px solid var(--border-color);
-        pointer-events: auto;
-        border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-label,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(2) .form-label {
-        text-align: left;
-        width: 100%;
-    }
-
-    .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
         width: 100px;
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .input-group {
+    .variable-input-group[data-type="nadplata"] .input-group {
         width: 160px;
-        max-width: 160px;
-        min-width: 100px;
     }
 
-    .variable-input-group .input-group {
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         width: 160px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
+        flex-direction: column;
+        min-width: auto;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group {
+        min-width: 160px;
         max-width: 160px;
-        min-width: 100px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-control,
+    .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl,
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
+        width: 100px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .input-group,
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
+        width: 160px;
+    }
+
+    .input-group {
+        width: 160px;
     }
 
     #prowizja .input-group {
         width: 160px;
-        max-width: 160px;
-        min-width: 100px;
     }
 
     .chart-container {
         flex-direction: column;
-        gap: 10px;
+        align-items: center;
     }
 
     .chart-legend {
+        max-width: 100%;
         flex-direction: row;
         flex-wrap: wrap;
-        gap: 5px;
         justify-content: center;
+        gap: 10px;
     }
 
     .chart-legend .legend-item {
         flex: 0 0 auto;
-        margin-bottom: 5px;
-        padding-left: 0;
+        margin-bottom: 0;
     }
 
-    .chart-legend .color-box {
-        width: 120px;
-        min-width: 120px;
+    .summary-footer {
+        flex-direction: column;
+        align-items: center;
     }
 
-    #prowizjaGroup .input-group .form-select.jednostka-select {
-        width: 52px !important;
-        min-width: 52px !important;
-        max-width: 52px !important;
+    .summary-footer .highlight {
+        width: 100%;
+        max-width: 300px;
     }
 
-    #prowizja .input-group .form-control {
-        width: 108px;
+    .calculator-container {
+        flex-direction: column;
+        align-items: center;
     }
 
-    .sub-info {
-        font-size: 0.4em;
+    .form-section,
+    .result-section {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .result-wrapper-chart,
+    .result-wrapper-harmonogram {
+        max-width: 100%;
     }
 }
