@@ -57,7 +57,7 @@ function formatNumberWithSpaces(number) {
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found for ${input?.id || "unknown"}`);
@@ -93,7 +93,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (isNaN(parsedValue)) parsedValue = min;
 
         // Walidacja minimalnej wartości dla boxu KWOTA w nadpłacie (tylko gdy applyMinValidation jest true)
-        if (applyMinValidation && input.classList.contains("variable-rate") && parsedValue < 100) {
+        if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
             parsedValue = 100;
         }
 
@@ -101,13 +101,13 @@ function syncInputWithRange(input, range, options = {}) {
         if (parsedValue > max) parsedValue = max;
 
         // Dla oprocentowania formatujemy z dokładnością do 2 miejsc po przecinku
-        if (input.id === "oprocentowanie") {
+        if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
             input.value = parsedValue.toFixed(2);
         } else {
             input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
         }
         range.value = parsedValue;
-        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}`);
+        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, activeType=${activeType}, index=${index}`);
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
@@ -152,11 +152,11 @@ function syncInputWithRange(input, range, options = {}) {
     if (initialValue > max) initialValue = max;
 
     // Walidacja minimalnej wartości dla boxu KWOTA w nadpłacie przy inicjalizacji
-    if (input.classList.contains("variable-rate") && initialValue < 100) {
+    if (activeType === "nadplata" && input.classList.contains("variable-rate") && initialValue < 100) {
         initialValue = 100;
     }
 
-    if (input.id === "oprocentowanie") {
+    if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
         input.value = initialValue.toFixed(2);
     } else {
         input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
@@ -190,7 +190,7 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
         // Synchronizuj wartości w sekcji "Zmienne oprocentowanie" z głównym boxem
         if (elements.zmienneOprocentowanieBtn.checked) {
             state.variableRates.forEach((rate, index) => {
-                // Aktualizuj tylko pierwszą wartość oprocentowania, jeśli użytkownik jej nie zmienił
+                rate.value = value; // Aktualizuj wartości w state.variableRates
                 const inputGroup = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]')[index];
                 if (inputGroup) {
                     const rateInput = inputGroup.querySelector(".variable-rate");
@@ -198,7 +198,6 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
                     if (rateInput && rateRange) {
                         rateInput.value = value.toFixed(2);
                         rateRange.value = value;
-                        rate.value = value;
                     }
                 }
             });
@@ -632,7 +631,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             // Synchronizacja inputu i suwaka
             const rateInput = rateGroup.querySelector(".variable-rate");
             const rateRange = rateGroup.querySelector(".variable-rate-range");
-            syncInputWithRange(rateInput, rateRange, { isDecimal: false });
+            syncInputWithRange(rateInput, rateRange, { isDecimal: false, activeType: "nadplata" });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -651,16 +650,16 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || state.lastFormData.oprocentowanie);
+            const inputValue = change.value !== undefined ? change.value : state.lastFormData.oprocentowanie;
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.01" value="${inputValue.toFixed(2)}">
+                    <input type="number" class="form-control variable-rate" min="0.1" step="0.01" value="${inputValue.toFixed(2)}">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0.1" max="50" step="0.01" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0.1" step="0.01" value="${inputValue}">
             `;
 
             fieldsWrapper.appendChild(cyklGroup);
@@ -716,6 +715,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             isVariableCykl: true,
+            activeType,
             onChange: (value) => {
                 console.log(`Cykl changed: index=${index}, value=${value}`);
                 changes[index].period = value;
@@ -723,11 +723,14 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             },
         });
 
-        // Synchronizacja dla .variable-rate (już wywołana wcześniej dla nadpłaty)
+        // Synchronizacja dla .variable-rate
         if (activeType === "oprocentowanie") {
             syncInputWithRange(rateInput, rateRange, {
                 isDecimal: true,
+                activeType,
+                index,
                 onChange: (value) => {
+                    console.log(`Oprocentowanie changed: index=${index}, value=${value}`);
                     changes[index].value = value;
                 },
             });
@@ -738,7 +741,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 console.log(`Nadplata type changed: index=${index}, value=${nadplataTypeSelect.value}`);
                 changes[index].type = nadplataTypeSelect.value;
                 const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
-                // Znajdź odpowiedni element .form-group dla "Od/W" w tym inputGroup
                 const currentInputGroup = e.target.closest(".variable-input-group");
                 const cyklGroup = currentInputGroup.querySelector(".form-group:has(.variable-cykl)");
                 const label = cyklGroup?.querySelector(".form-label");
@@ -964,8 +966,8 @@ if (siteLogo) {
 }
 
 // Inicjalizacja
-elements.oprocentowanie.step = "0.01"; // Ustawiamy mniejszy krok dla płynniejszego działania
-elements.oprocentowanieRange.step = "0.01"; // Ustawiamy mniejszy krok dla suwaka
+elements.oprocentowanie.step = "0.01";
+elements.oprocentowanieRange.step = "0.01";
 updateProwizjaInput();
 updateKwotaInfo();
 updateLata();
