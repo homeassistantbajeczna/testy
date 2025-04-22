@@ -85,15 +85,15 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    const updateValue = (value, source) => {
+    const updateValue = (value, source, applyMinValidation = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(input.step) || 1;
         let parsedValue = isDecimal ? parseFloat(value) : parseInt(value);
         if (isNaN(parsedValue)) parsedValue = min;
 
-        // Specjalna walidacja dla boxu KWOTA w nadpłacie: minimalna wartość to 100
-        if (input.classList.contains("variable-rate") && parsedValue < 100) {
+        // Walidacja minimalnej wartości dla boxu KWOTA w nadpłacie (tylko gdy applyMinValidation jest true)
+        if (applyMinValidation && input.classList.contains("variable-rate") && parsedValue < 100) {
             parsedValue = 100;
         }
 
@@ -111,13 +111,18 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
-    const inputHandler = () => updateValue(input.value, "Input");
-    const rangeHandler = () => updateValue(range.value, "Range");
+    const inputHandler = () => updateValue(input.value, "Input", false); // Bez walidacji minimalnej podczas wpisywania
+    const rangeHandler = () => updateValue(range.value, "Range", true); // Suwak zawsze stosuje walidację
+
+    // Walidacja minimalnej wartości po zakończeniu edycji (zdarzenie change)
+    const inputChangeHandler = () => updateValue(input.value, "Input", true);
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
+    input._eventListeners.change = inputChangeHandler;
     input.addEventListener("input", inputHandler);
     range.addEventListener("input", rangeHandler);
+    input.addEventListener("change", inputChangeHandler);
 
     if (isVariableCykl) {
         const changeHandler = () => {
@@ -140,7 +145,7 @@ function syncInputWithRange(input, range, options = {}) {
     if (initialValue < min) initialValue = min;
     if (initialValue > max) initialValue = max;
 
-    // Specjalna walidacja dla boxu KWOTA w nadpłacie: minimalna wartość to 100
+    // Walidacja minimalnej wartości dla boxu KWOTA w nadpłacie przy inicjalizacji
     if (input.classList.contains("variable-rate") && initialValue < 100) {
         initialValue = 100;
     }
@@ -611,7 +616,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             // Dla oprocentowania
             const cyklGroup = document.createElement("div");
             cyklGroup.className = "form-group";
-            cykgroup.innerHTML = `
+            cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
@@ -682,7 +687,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
         // Synchronizacja dla .variable-cykl
-        syncInputWithRange(cyklInput, cykRange, {
+        syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             isVariableCykl: true,
             onChange: (value) => {
