@@ -311,18 +311,21 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-    width: 69px;
+    width: 49px;
     margin: 0;
     padding: 0 2px;
     border-right: none;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-    width: 40px;
-    min-width: 40px;
+    width: 60px;
+    min-width: 60px;
     margin: 0;
     padding: 0 2px;
     font-size: 0.6em;
+    border-left: 1px solid var(--border-color);
+    background: var(--input-group-bg);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
@@ -522,7 +525,7 @@ body {
     min-width: 40px;
 }
 
-.input-group-text.unit-miesiacu { min-width: 40px; }
+.input-group-text.unit-miesiacu { min-width: 60px; }
 .input-group-text.unit-miesiaca { min-width: 65px; }
 .input-group-text.unit-miesiacach { min-width: 75px; }
 .input-group-text.unit-zl { min-width: 40px; }
@@ -1481,7 +1484,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     .form-control,
     .form-select,
     .input-group-text {
-        font-size: 0.637 арти5em;
+        font-size: 0.6375em;
     }
 
     .form-label,
