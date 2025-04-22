@@ -476,7 +476,7 @@ body {
 /* Dostosowanie selectów w sekcji "Nadpłata kredytu" */
 .variable-input-group[data-type="nadplata"] .nadplata-type-select,
 .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-    width: 105px; /* Zwiększone z 65px do 105px, aby dopasować do szerokości boxów */
+    width: 105px;
 }
 
 /* Style dla :focus w selectach nadpłaty */
@@ -517,7 +517,6 @@ body {
     background-position: right 4px center !important;
 }
 
-#prowizjaGroup .input-group .form-select.jednostka Converts to:
 #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color) !important;
@@ -1795,14 +1794,8 @@ input[type="range"].form-range:focus::-ms-thumb {
         max-width: 160px;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-control,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 100px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .input-group {
-        width: 160px;
+    .variable-input-group[data-type="nadplata"] .form-control {
+        width: 120px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
@@ -1810,9 +1803,33 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 160px;
     }
 
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
+        width: 110px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
+        width: 50px;
+        min-width: 50px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
+        width: 120px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
+        width: 40px;
+        min-width: 40px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .input-group {
+        width: 160px;
+    }
+
     .variable-input-group[data-type="nadplata"] .nadplata-type-select,
     .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-        width: 160px; /* Dopasowane do szerokości boxów na małych ekranach */
+        width: 160px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
@@ -1825,10 +1842,28 @@ input[type="range"].form-range:focus::-ms-thumb {
         max-width: 160px;
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .form-control,
-    .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl,
-    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
+    .variable-input-group[data-type="oprocentowanie"] .form-control {
+        width: 120px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
         width: 100px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
+        width: 60px;
+        min-width: 60px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
+        width: 120px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
+        width: 40px;
+        min-width: 40px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .input-group,
