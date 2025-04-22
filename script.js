@@ -437,7 +437,6 @@ function updateVariableData(activeType) {
         const typeSelect = inputGroup.querySelector(".nadplata-type-select");
         const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
         let period = parseInt(cyklInput.value);
-        // Używamy parseFloat dla nadpłaty, aby zachować spójność
         const value = parseFloat(rateInput.value);
         const type = typeSelect ? typeSelect.value : null;
         const effect = effectSelect ? effectSelect.value : null;
@@ -530,8 +529,8 @@ function updateVariableInputs() {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates.push({ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" });
-            console.log("Initialized state.overpaymentRates:", state.overpaymentRates);
+            state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" }]; // Reset stanu
+            console.log("Reset state.overpaymentRates:", state.overpaymentRates);
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
@@ -543,6 +542,17 @@ function updateVariableInputs() {
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
     console.log(`renderVariableInputs called for ${activeType}`, { changes, maxCykl, maxChanges });
+    
+    // Zachowaj wartości z istniejących inputów przed ponownym renderowaniem
+    const existingInputs = wrapper.querySelectorAll(".variable-input-group");
+    const existingValues = [];
+    existingInputs.forEach((inputGroup, index) => {
+        const rateInput = inputGroup.querySelector(".variable-rate");
+        const value = rateInput ? parseFloat(rateInput.value) : changes[index]?.value;
+        existingValues[index] = value;
+        console.log(`Preserving value for index ${index}: ${value}`);
+    });
+
     wrapper.innerHTML = "";
 
     changes.forEach((change, index) => {
@@ -596,15 +606,17 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             `;
 
             // Input Nadpłata (KWOTA)
+            // Użyj zachowanej wartości z inputu, jeśli istnieje
+            const inputValue = existingValues[index] !== undefined ? existingValues[index] : change.value;
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="100" max="1000000" step="1" value="${change.value}">
+                    <input type="number" class="form-control variable-rate" min="100" max="1000000" step="1" value="${inputValue}">
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="1" value="${change.value}">
+                <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="1" value="${inputValue}">
                 <div class="sub-info"></div>
             `;
 
@@ -614,9 +626,9 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             const rateRange = rateGroup.querySelector(".variable-rate-range");
             const updateSubInfo = () => {
                 const value = parseFloat(rateInput.value) || 0;
-                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
                 changes[index].value = value; // Aktualizacja wartości w changes
                 updateVariableData(activeType); // Aktualizacja stanu
+                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`; // Ustawienie tekstu PO aktualizacji stanu
                 console.log(`updateSubInfo: index=${index}, value=${value}, state.overpaymentRates=`, state.overpaymentRates);
             };
             updateSubInfo(); // Ustawienie początkowej wartości
@@ -630,7 +642,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         } else {
             // Dla oprocentowania
             const cyklGroup = document.createElement("div");
-            cyklGroup.className = "form-group";
+            cykGroup.className = "form-group";
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
@@ -717,7 +729,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             onChange: (value) => {
                 changes[index].value = value;
                 updateVariableData(activeType);
-                // Nie wywołujemy updateVariableInputs, bo updateSubInfo już to robi
             },
         });
 
