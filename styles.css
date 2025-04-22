@@ -314,7 +314,8 @@ body {
     width: 49px;
     margin: 0;
     padding: 0 2px;
-    border-right: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
@@ -323,7 +324,7 @@ body {
     margin: 0;
     padding: 0 2px;
     font-size: 0.6em;
-    border-left: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
     background: var(--input-group-bg);
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
@@ -332,7 +333,8 @@ body {
     width: 69px;
     margin: 0;
     padding: 0 2px;
-    border-right: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
@@ -349,7 +351,8 @@ body {
     margin: 0;
     padding: 0 2px;
     font-size: 0.6em;
-    border-left: 1px solid var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
@@ -1165,7 +1168,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     margin-bottom: 6px;
     font-size: var(--small-font-size);
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: transform 0.3 shifting ease;
     padding-left: 8px;
 }
 
@@ -1594,7 +1597,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         margin: 0;
         padding: 0 2px;
         border: 1px solid var(--border-color);
-        border-right: none;
         box-sizing: border-box;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
@@ -1609,7 +1611,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         position: static;
         background: var(--input-group-bg);
         border: 1px solid var(--border-color);
-        border-left: 1px solid var(--border-color);
         pointer-events: auto;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
@@ -1632,7 +1633,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         margin: 0;
         padding: 0 2px;
         border: 1px solid var(--border-color);
-        border-right: none;
         box-sizing: border-box;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
@@ -1647,7 +1647,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         position: static;
         background: var(--input-group-bg);
         border: 1px solid var(--border-color);
-        border-left: 1px solid var(--border-color);
         pointer-events: auto;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
