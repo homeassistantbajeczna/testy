@@ -1795,34 +1795,37 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 130px; /* 160px - 30px dla jednostki */
+        width: 120px; /* 160px - 40px dla jednostki "miesiącu" */
+        border: none; /* Usuwamy border z inputa */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         width: 160px;
-        flex-direction: row; /* Jednostki z powrotem obok inputów */
+        flex-direction: row;
         align-items: center;
+        border: 1px solid var(--border-color); /* Border na całym .input-group */
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-        width: 130px;
+        width: 120px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-        width: 30px;
-        min-width: 30px;
+        width: 40px;
+        min-width: 40px;
         font-size: 0.6em;
-        border: 1px solid var(--border-color);
+        border: none; /* Usuwamy border z jednostki */
         background: var(--input-group-bg);
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 130px;
+        width: 130px; /* 160px - 30px dla jednostki "zł" */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1830,7 +1833,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 30px;
         min-width: 30px;
         font-size: 0.6em;
-        border: 1px solid var(--border-color);
+        border: none;
         background: var(--input-group-bg);
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
@@ -1856,34 +1859,37 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 130px; /* 160px - 30px dla jednostki */
+        width: 115px; /* 160px - 45px dla jednostki "miesiąca" */
+        border: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 130px;
+        width: 115px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
         width: 160px;
-        flex-direction: row; /* Jednostki z powrotem obok inputów */
+        flex-direction: row;
         align-items: center;
+        border: 1px solid var(--border-color); /* Border na całym .input-group */
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
-        width: 30px;
-        min-width: 30px;
+        width: 45px;
+        min-width: 45px;
         font-size: 0.6em;
-        border: 1px solid var(--border-color);
+        border: none;
         background: var(--input-group-bg);
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-        width: 130px;
+        width: 130px; /* 160px - 30px dla jednostki "%" */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1891,7 +1897,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 30px;
         min-width: 30px;
         font-size: 0.6em;
-        border: 1px solid var(--border-color);
+        border: none;
         background: var(--input-group-bg);
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
