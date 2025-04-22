@@ -505,7 +505,7 @@ function updateVariableInputs() {
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
     console.log(`renderVariableInputs called for ${activeType}`, { changes, maxCykl, maxChanges });
-    
+
     // Zachowaj wartości z istniejących inputów przed ponownym renderowaniem
     const existingInputs = wrapper.querySelectorAll(".variable-input-group");
     const existingValues = [];
@@ -513,8 +513,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     existingInputs.forEach((inputGroup, index) => {
         const rateInput = inputGroup.querySelector(".variable-rate");
         const cyklInput = inputGroup.querySelector(".variable-cykl");
-        const value = rateInput ? parseFloat(rateInput.value) : changes[index]?.value;
-        const period = cyklInput ? parseInt(cyklInput.value) : changes[index]?.period;
+        const value = rateInput ? parseFloat(rateInput.value) : (changes[index]?.value || 1000);
+        const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || 2);
         existingValues[index] = value;
         existingPeriods[index] = period;
         console.log(`Preserving value for index ${index}: value=${value}, period=${period}`);
@@ -574,7 +574,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             `;
 
             // Input Nadpłata (KWOTA)
-            const inputValue = existingValues[index] !== undefined ? existingValues[index] : change.value;
+            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || 1000);
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
@@ -587,19 +587,26 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <div class="sub-info">Kwota nadpłaty: ${formatNumberWithSpaces(inputValue)} zł</div>
             `;
 
-            // Nasłuchiwanie wartości w boxie KWOTA i aktualizacja tekstu w .sub-info
+            // Synchronizacja i nasłuchiwanie wartości w boxie KWOTA
             const rateInput = rateGroup.querySelector(".variable-rate");
             const rateRange = rateGroup.querySelector(".variable-rate-range");
             const subInfo = rateGroup.querySelector(".sub-info");
+
+            // Ustawienie wartości początkowej
+            rateInput.value = inputValue;
+            rateRange.value = inputValue;
+            subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(inputValue)} zł`;
 
             const updateSubInfo = () => {
                 const value = parseFloat(rateInput.value) || 0;
                 subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
             };
 
-            // Dodajemy nasłuchiwanie na zmiany w input i range
             rateInput.addEventListener("input", updateSubInfo);
             rateRange.addEventListener("input", updateSubInfo);
+
+            // Synchronizacja inputu i suwaka
+            syncInputWithRange(rateInput, rateRange, { isDecimal: false });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -618,7 +625,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = existingValues[index] !== undefined ? existingValues[index] : change.value;
+            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || state.lastFormData.oprocentowanie);
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
@@ -690,10 +697,12 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             },
         });
 
-        // Synchronizacja dla .variable-rate (bez aktualizacji stanu)
-        syncInputWithRange(rateInput, rateRange, {
-            isDecimal: activeType === "oprocentowanie",
-        });
+        // Synchronizacja dla .variable-rate (już wywołana wcześniej dla nadpłaty)
+        if (activeType === "oprocentowanie") {
+            syncInputWithRange(rateInput, rateRange, {
+                isDecimal: true,
+            });
+        }
 
         if (nadplataTypeSelect) {
             nadplataTypeSelect.addEventListener("change", () => {
