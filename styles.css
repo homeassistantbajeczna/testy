@@ -1568,7 +1568,23 @@ input[type="range"].form-range:focus::-ms-thumb {
         box-sizing: border-box;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control,
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
+        width: 100px !important;
+        margin: 0;
+        padding: 0 2px;
+        border-right: none;
+        box-sizing: border-box;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu {
+        width: 60px !important;
+        min-width: 60px !important;
+        margin: 0;
+        padding: 0 2px;
+        font-size: 0.6em;
+        box-sizing: border-box;
+    }
+
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
         width: 100px !important;
         margin: 0;
@@ -1577,7 +1593,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         box-sizing: border-box;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
         width: 60px !important;
         min-width: 60px !important;
