@@ -100,6 +100,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue; // Buforowanie wartości
         } else if (onChange) {
+            console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
         }
     };
@@ -606,7 +607,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             `;
 
             // Input Nadpłata (KWOTA)
-            // Użyj zachowanej wartości z inputu, jeśli istnieje
             const inputValue = existingValues[index] !== undefined ? existingValues[index] : change.value;
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
@@ -626,14 +626,23 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             const rateRange = rateGroup.querySelector(".variable-rate-range");
             const updateSubInfo = () => {
                 const value = parseFloat(rateInput.value) || 0;
+                console.log(`updateSubInfo triggered: index=${index}, inputValue=${value}`);
                 changes[index].value = value; // Aktualizacja wartości w changes
                 updateVariableData(activeType); // Aktualizacja stanu
-                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`; // Ustawienie tekstu PO aktualizacji stanu
-                console.log(`updateSubInfo: index=${index}, value=${value}, state.overpaymentRates=`, state.overpaymentRates);
+                // Użyj wartości z changes po aktualizacji stanu
+                const updatedValue = changes[index].value;
+                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(updatedValue)} zł`;
+                console.log(`updateSubInfo completed: index=${index}, updatedValue=${updatedValue}, state.overpaymentRates=`, state.overpaymentRates);
             };
             updateSubInfo(); // Ustawienie początkowej wartości
-            rateInput.addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie wartości
-            rateRange.addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie suwaka
+            rateInput.addEventListener("input", () => {
+                console.log(`Input event on rateInput: value=${rateInput.value}`);
+                updateSubInfo();
+            });
+            rateRange.addEventListener("input", () => {
+                console.log(`Input event on rateRange: value=${rateRange.value}`);
+                updateSubInfo();
+            });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -642,7 +651,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         } else {
             // Dla oprocentowania
             const cyklGroup = document.createElement("div");
-            cykGroup.className = "form-group";
+            cyklGroup.className = "form-group";
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
@@ -717,6 +726,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             isDecimal: false,
             isVariableCykl: true,
             onChange: (value) => {
+                console.log(`Cykl changed: index=${index}, value=${value}`);
                 changes[index].period = value;
                 updateVariableData(activeType);
                 updateVariableInputs();
@@ -727,13 +737,16 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         syncInputWithRange(rateInput, rateRange, {
             isDecimal: activeType === "oprocentowanie",
             onChange: (value) => {
+                console.log(`Rate changed: index=${index}, value=${value}`);
                 changes[index].value = value;
                 updateVariableData(activeType);
+                updateSubInfo(); // Wywołaj updateSubInfo, aby zaktualizować tekst
             },
         });
 
         if (nadplataTypeSelect) {
             nadplataTypeSelect.addEventListener("change", () => {
+                console.log(`Nadplata type changed: index=${index}, value=${nadplataTypeSelect.value}`);
                 changes[index].type = nadplataTypeSelect.value;
                 updateVariableData(activeType);
                 updateVariableInputs();
@@ -743,6 +756,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const nadplataEffectSelect = inputGroup.querySelector(".nadplata-effect-select");
         if (nadplataEffectSelect) {
             nadplataEffectSelect.addEventListener("change", () => {
+                console.log(`Nadplata effect changed: index=${index}, value=${nadplataEffectSelect.value}`);
                 changes[index].effect = nadplataEffectSelect.value;
                 updateVariableData(activeType);
             });
@@ -792,6 +806,7 @@ function removeVariableChange(index, activeType) {
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
     if (changes.length > 1) {
         changes.splice(index, 1);
+        console.log(`removeVariableChange: index=${index}, activeType=${activeType}, remaining changes=`, changes);
         updateVariableInputs();
     }
 }
