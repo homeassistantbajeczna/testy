@@ -1780,8 +1780,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group {
-        min-width: 184px; /* Zwiększamy, aby dopasować do wizualnej szerokości suwaka z thumb */
-        max-width: 184px;
+        min-width: 186px; /* Zwiększamy, aby dopasować do wizualnej szerokości suwaka z thumb */
+        max-width: 186px;
     }
 
     .variable-input-group[data-type="nadplata"] .fields-wrapper {
@@ -1790,29 +1790,30 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group {
-        min-width: 184px;
-        max-width: 184px;
+        min-width: 186px;
+        max-width: 186px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 129px; /* 184px - 55px dla jednostki "miesiącu" */
-        border: none;
+        width: 131px; /* 186px - 55px dla jednostki "miesiącu" */
+        border: 1px solid var(--border-color); /* Przywrócenie obramowania */
+        border-right: none; /* Brak obramowania po prawej */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-        width: 184px;
+        width: 186px;
         flex-direction: row;
         align-items: center;
-        border: 1px solid var(--border-color);
+        border: none; /* Usuwamy obramowanie z .input-group */
         border-radius: var(--border-radius);
         padding: 0 1px;
         height: 22px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-        width: 129px;
+        width: 131px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1820,14 +1821,15 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 55px;
         min-width: 55px;
         font-size: 0.6em;
-        border: none;
-        background: var(--input-group-bg);
+        border: 1px solid var(--border-color); /* Przywrócenie obramowania */
+        border-left: none; /* Brak obramowania po lewej */
+        background: transparent; /* Usuwamy tło */
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 154px; /* 184px - 30px dla jednostki "zł" */
+        width: 156px; /* 186px - 30px dla jednostki "zł" */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1835,19 +1837,20 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 30px;
         min-width: 30px;
         font-size: 0.6em;
-        border: none;
-        background: var(--input-group-bg);
+        border: 1px solid var(--border-color);
+        border-left: none;
+        background: transparent;
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="nadplata"] .input-group {
-        width: 184px;
+        width: 186px;
     }
 
     .variable-input-group[data-type="nadplata"] .nadplata-type-select,
     .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-        width: 184px;
+        width: 186px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
@@ -1856,27 +1859,28 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group {
-        min-width: 184px;
-        max-width: 184px;
+        min-width: 186px;
+        max-width: 186px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 124px; /* 184px - 60px dla jednostki "miesiąca" */
-        border: none;
+        width: 126px; /* 186px - 60px dla jednostki "miesiąca" */
+        border: 1px solid var(--border-color);
+        border-right: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 124px;
+        width: 126px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
-        width: 184px;
+        width: 186px;
         flex-direction: row;
         align-items: center;
-        border: 1px solid var(--border-color);
+        border: none;
         border-radius: var(--border-radius);
         padding: 0 1px;
         height: 22px;
@@ -1886,14 +1890,15 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 60px;
         min-width: 60px;
         font-size: 0.6em;
-        border: none;
-        background: var(--input-group-bg);
+        border: 1px solid var(--border-color);
+        border-left: none;
+        background: transparent;
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-        width: 154px; /* 184px - 30px dla jednostki "%" */
+        width: 156px; /* 186px - 30px dla jednostki "%" */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1901,28 +1906,29 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 30px;
         min-width: 30px;
         font-size: 0.6em;
-        border: none;
-        background: var(--input-group-bg);
+        border: 1px solid var(--border-color);
+        border-left: none;
+        background: transparent;
         padding: 0 2px;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .input-group {
-        width: 184px;
+        width: 186px;
     }
 
     .input-group {
-        width: 184px;
+        width: 186px;
     }
 
     #prowizja .input-group {
-        width: 184px;
+        width: 186px;
     }
 
     /* Dopasowanie suwaków */
     input[type="range"].form-range {
         box-sizing: border-box;
-        width: 184px;
+        width: 186px;
         padding: 0;
     }
 
