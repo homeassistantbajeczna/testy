@@ -264,7 +264,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 105px; /* Zmniejszone z 120px, aby lepiej pasować do 150px z pierwszego wiersza */
+    min-width: 105px;
     max-width: 105px;
     flex: none;
 }
@@ -314,7 +314,7 @@ body {
 
 /* Ujednolicenie szerokości w sekcji "Zmienne oprocentowanie" i "Nadpłata kredytu" */
 .variable-input-group[data-type="nadplata"] .form-control {
-    width: 65px; /* Zmniejszone z 80px, aby lepiej pasować do mniejszych boxów */
+    width: 65px;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
@@ -322,12 +322,12 @@ body {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    width: 105px; /* Dopasowane do szerokości form-group */
+    width: 105px;
     align-items: center;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-    width: 55px; /* Zmniejszone z 60px */
+    width: 55px;
     margin: 0;
     padding: 0 2px;
     border: 1px solid var(--border-color);
@@ -335,7 +335,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-    width: 50px; /* Zmniejszone z 60px */
+    width: 50px;
     min-width: 50px;
     margin: 0;
     padding: 0 2px;
@@ -346,7 +346,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-    width: 65px; /* Zmniejszone z 80px */
+    width: 65px;
     margin: 0;
     padding: 0 2px;
     border: 1px solid var(--border-color);
@@ -364,7 +364,7 @@ body {
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-control {
-    width: 110px; /* Dla spójności z innymi polami, uwzględniając miejsce na jednostkę */
+    width: 110px;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
@@ -476,7 +476,7 @@ body {
 /* Dostosowanie selectów w sekcji "Nadpłata kredytu" */
 .variable-input-group[data-type="nadplata"] .nadplata-type-select,
 .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-    width: 65px; /* Zmniejszone, aby pasowały do mniejszych boxów */
+    width: 105px; /* Zwiększone z 65px do 105px, aby dopasować do szerokości boxów */
 }
 
 /* Style dla :focus w selectach nadpłaty */
@@ -517,6 +517,7 @@ body {
     background-position: right 4px center !important;
 }
 
+#prowizjaGroup .input-group .form-select.jednostka Converts to:
 #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     outline: none !important;
     box-shadow: 0 0 4px var(--accent-color) !important;
@@ -589,7 +590,7 @@ body {
     min-width: 40px;
 }
 
-.input-group-text.unit-miesiacu { min-width: 50px; } /* Zmniejszone z 60px */
+.input-group-text.unit-miesiacu { min-width: 50px; }
 .input-group-text.unit-miesiaca { min-width: 65px; }
 .input-group-text.unit-miesiacach { min-width: 75px; }
 .input-group-text.unit-zl { min-width: 40px; }
@@ -1807,6 +1808,11 @@ input[type="range"].form-range:focus::-ms-thumb {
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         width: 160px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .nadplata-type-select,
+    .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
+        width: 160px; /* Dopasowane do szerokości boxów na małych ekranach */
     }
 
     .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
