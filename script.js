@@ -584,28 +584,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
                 <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="1" value="${inputValue}">
-                <div class="sub-info">Kwota nadpłaty: ${formatNumberWithSpaces(inputValue)} zł</div>
             `;
 
-            // Synchronizacja i nasłuchiwanie wartości w boxie KWOTA
+            // Synchronizacja inputu i suwaka
             const rateInput = rateGroup.querySelector(".variable-rate");
             const rateRange = rateGroup.querySelector(".variable-rate-range");
-            const subInfo = rateGroup.querySelector(".sub-info");
-
-            // Ustawienie wartości początkowej
-            rateInput.value = inputValue;
-            rateRange.value = inputValue;
-            subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(inputValue)} zł`;
-
-            const updateSubInfo = () => {
-                const value = parseFloat(rateInput.value) || 0;
-                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
-            };
-
-            rateInput.addEventListener("input", updateSubInfo);
-            rateRange.addEventListener("input", updateSubInfo);
-
-            // Synchronizacja inputu i suwaka
             syncInputWithRange(rateInput, rateRange, { isDecimal: false });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
