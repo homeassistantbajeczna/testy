@@ -605,14 +605,16 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             // Ustawienie początkowego tekstu w .sub-info
             const subInfo = rateGroup.querySelector(".sub-info");
             const rateInput = rateGroup.querySelector(".variable-rate");
+            const rateRange = rateGroup.querySelector(".variable-rate-range");
             const updateSubInfo = () => {
                 const value = parseFloat(rateInput.value) || 0;
                 subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
-                changes[index].value = value; // Aktualizacja wartości w state.overpaymentRates
+                changes[index].value = value; // Aktualizacja wartości w changes
+                updateVariableData(activeType); // Aktualizacja stanu
             };
             updateSubInfo(); // Ustawienie początkowej wartości
             rateInput.addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie wartości
-            rateGroup.querySelector(".variable-rate-range").addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie suwaka
+            rateRange.addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie suwaka
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -708,6 +710,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             onChange: (value) => {
                 changes[index].value = value;
                 updateVariableData(activeType);
+                // Nie wywołujemy updateVariableInputs, bo updateSubInfo już to robi
             },
         });
 
