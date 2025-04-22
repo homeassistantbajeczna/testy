@@ -656,10 +656,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" step="0.01" value="${inputValue.toFixed(2)}">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${inputValue.toFixed(2)}">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0.1" step="0.01" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
             `;
 
             fieldsWrapper.appendChild(cyklGroup);
