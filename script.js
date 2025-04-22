@@ -618,7 +618,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.className = "form-group";
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
-                <div class="input-group">
+                <divundasdasdasdasdasdasd class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
@@ -705,14 +705,20 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         }
 
         if (nadplataTypeSelect) {
-            nadplataTypeSelect.addEventListener("change", () => {
+            nadplataTypeSelect.addEventListener("change", (e) => {
                 console.log(`Nadplata type changed: index=${index}, value=${nadplataTypeSelect.value}`);
                 changes[index].type = nadplataTypeSelect.value;
                 const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
-                const label = cyklGroup.querySelector(".form-label");
-                const unit = cyklGroup.querySelector(".unit-miesiacu");
-                label.textContent = isJednorazowa ? "W" : "Od";
-                unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
+                // Znajdź odpowiedni element .form-group dla "Od/W" w tym inputGroup
+                const currentInputGroup = e.target.closest(".variable-input-group");
+                const label = currentInputGroup.querySelector(".form-group .form-label");
+                const unit = currentInputGroup.querySelector(".unit-miesiacu");
+                if (label && unit) {
+                    label.textContent = isJednorazowa ? "W" : "Od";
+                    unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
+                } else {
+                    console.warn("Label or unit element not found for dynamic update.");
+                }
             });
         }
 
