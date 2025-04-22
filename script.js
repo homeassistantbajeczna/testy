@@ -99,7 +99,13 @@ function syncInputWithRange(input, range, options = {}) {
 
         if (parsedValue < min) parsedValue = min;
         if (parsedValue > max) parsedValue = max;
-        input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
+
+        // Dla oprocentowania formatujemy z dokładnością do 2 miejsc po przecinku
+        if (input.id === "oprocentowanie") {
+            input.value = parsedValue.toFixed(2);
+        } else {
+            input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
+        }
         range.value = parsedValue;
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}`);
 
@@ -150,7 +156,11 @@ function syncInputWithRange(input, range, options = {}) {
         initialValue = 100;
     }
 
-    input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
+    if (input.id === "oprocentowanie") {
+        input.value = initialValue.toFixed(2);
+    } else {
+        input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
+    }
     range.value = initialValue;
     console.log(`Initial sync: ${input.id || range.className} = ${initialValue}`);
 }
@@ -177,6 +187,22 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
+        // Synchronizuj wartości w sekcji "Zmienne oprocentowanie" z głównym boxem
+        if (elements.zmienneOprocentowanieBtn.checked) {
+            state.variableRates.forEach((rate, index) => {
+                // Aktualizuj tylko pierwszą wartość oprocentowania, jeśli użytkownik jej nie zmienił
+                const inputGroup = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]')[index];
+                if (inputGroup) {
+                    const rateInput = inputGroup.querySelector(".variable-rate");
+                    const rateRange = inputGroup.querySelector(".variable-rate-range");
+                    if (rateInput && rateRange) {
+                        rateInput.value = value.toFixed(2);
+                        rateRange.value = value;
+                        rate.value = value;
+                    }
+                }
+            });
+        }
     },
 });
 
@@ -530,7 +556,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     existingInputs.forEach((inputGroup, index) => {
         const rateInput = inputGroup.querySelector(".variable-rate");
         const cyklInput = inputGroup.querySelector(".variable-cykl");
-        const value = rateInput ? parseFloat(rateInput.value) : (changes[index]?.value || 1000);
+        const value = rateInput ? parseFloat(rateInput.value) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
         const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || 2);
         existingValues[index] = value;
         existingPeriods[index] = period;
@@ -631,10 +657,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.1" value="${inputValue}">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="50" step="0.01" value="${inputValue.toFixed(2)}">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0.1" max="50" step="0.1" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0.1" max="50" step="0.01" value="${inputValue}">
             `;
 
             fieldsWrapper.appendChild(cyklGroup);
@@ -701,6 +727,9 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         if (activeType === "oprocentowanie") {
             syncInputWithRange(rateInput, rateRange, {
                 isDecimal: true,
+                onChange: (value) => {
+                    changes[index].value = value;
+                },
             });
         }
 
@@ -935,6 +964,8 @@ if (siteLogo) {
 }
 
 // Inicjalizacja
+elements.oprocentowanie.step = "0.01"; // Ustawiamy mniejszy krok dla płynniejszego działania
+elements.oprocentowanieRange.step = "0.01"; // Ustawiamy mniejszy krok dla suwaka
 updateProwizjaInput();
 updateKwotaInfo();
 updateLata();
