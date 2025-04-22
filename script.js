@@ -627,22 +627,16 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             const updateSubInfo = () => {
                 const value = parseFloat(rateInput.value) || 0;
                 console.log(`updateSubInfo triggered: index=${index}, inputValue=${value}`);
-                changes[index].value = value; // Aktualizacja wartości w changes
-                updateVariableData(activeType); // Aktualizacja stanu
-                // Użyj wartości z changes po aktualizacji stanu
-                const updatedValue = changes[index].value;
-                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(updatedValue)} zł`;
-                console.log(`updateSubInfo completed: index=${index}, updatedValue=${updatedValue}, state.overpaymentRates=`, state.overpaymentRates);
+                // Aktualizacja tekstu bezpośrednio z wartości inputu, jak w KWOTA KREDYTU
+                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
+                // Nadal aktualizujemy stan, ale nie wpływa to na tekst
+                changes[index].value = value;
+                updateVariableData(activeType);
+                console.log(`updateSubInfo completed: index=${index}, value=${value}, state.overpaymentRates=`, state.overpaymentRates);
             };
             updateSubInfo(); // Ustawienie początkowej wartości
-            rateInput.addEventListener("input", () => {
-                console.log(`Input event on rateInput: value=${rateInput.value}`);
-                updateSubInfo();
-            });
-            rateRange.addEventListener("input", () => {
-                console.log(`Input event on rateRange: value=${rateRange.value}`);
-                updateSubInfo();
-            });
+            rateInput.addEventListener("input", updateSubInfo);
+            rateRange.addEventListener("input", updateSubInfo);
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
