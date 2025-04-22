@@ -1558,21 +1558,21 @@ input[type="range"].form-range:focus::-ms-thumb {
         align-items: flex-start;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
         width: 160px !important;
         max-width: 160px !important;
         min-width: 160px !important;
         align-items: center;
         display: flex;
         box-sizing: border-box;
+        position: relative;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 100px !important;
+        width: 160px !important;
         margin: 0;
         padding: 0 2px;
-        border-right: none;
+        border-right: 1px solid var(--border-color);
         box-sizing: border-box;
     }
 
@@ -1582,6 +1582,20 @@ input[type="range"].form-range:focus::-ms-thumb {
         margin: 0;
         padding: 0 2px;
         font-size: 0.6em;
+        box-sizing: border-box;
+        position: absolute;
+        right: 0;
+        background: transparent;
+        border: none;
+        pointer-events: none;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+        width: 160px !important;
+        max-width: 160px !important;
+        min-width: 160px !important;
+        align-items: center;
+        display: flex;
         box-sizing: border-box;
     }
 
@@ -1691,11 +1705,11 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: calc(100% - 52px);
+        width: 100% !important;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: calc(100% - 60px);
+        width: calc(100% - 60px) !important;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .input-group {
