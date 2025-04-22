@@ -1795,32 +1795,44 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 120px;
+        width: 160px;
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         width: 160px;
+        flex-direction: column;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-        width: 110px;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
+        width: 160px;
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-        width: 50px;
-        min-width: 50px;
+        width: 100%;
+        min-width: 0;
+        font-size: 0.6em;
+        border: none;
+        background: none;
+        padding: 0;
+        margin-top: 2px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 120px;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
+        width: 160px;
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
-        width: 40px;
-        min-width: 40px;
+        width: 100%;
+        min-width: 0;
+        font-size: 0.6em;
+        border: none;
+        background: none;
+        padding: 0;
+        margin-top: 2px;
     }
 
     .variable-input-group[data-type="nadplata"] .input-group {
@@ -1843,32 +1855,47 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 120px;
+        width: 160px;
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 100px;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
+        width: 160px;
+        border-radius: var(--border-radius);
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
+        width: 160px;
+        flex-direction: column;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
-        width: 60px;
-        min-width: 60px;
+        width: 100%;
+        min-width: 0;
+        font-size: 0.6em;
+        border: none;
+        background: none;
+        padding: 0;
+        margin-top: 2px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-        width: 120px;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
+        width: 160px;
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
-        width: 40px;
-        min-width: 40px;
+        width: 100%;
+        min-width: 0;
+        font-size: 0.6em;
+        border: none;
+        background: none;
+        padding: 0;
+        margin-top: 2px;
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .input-group,
-    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
-    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
+    .variable-input-group[data-type="oprocentowanie"] .input-group {
         width: 160px;
     }
 
