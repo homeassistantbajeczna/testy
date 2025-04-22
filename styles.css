@@ -1582,17 +1582,20 @@ input[type="range"].form-range:focus::-ms-thumb {
         min-width: 160px !important;
         align-items: center;
         display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
         box-sizing: border-box;
-        position: relative;
+        position: static;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-        width: 160px !important;
+        width: 100px !important;
         margin: 0;
         padding: 0 2px;
         border: 1px solid var(--border-color);
+        border-right: none;
         box-sizing: border-box;
-        border-radius: var(--border-radius);
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
@@ -1602,11 +1605,12 @@ input[type="range"].form-range:focus::-ms-thumb {
         padding: 0 2px;
         font-size: 0.6em;
         box-sizing: border-box;
-        position: absolute;
-        right: 0;
-        background: transparent;
-        border: none;
-        pointer-events: none;
+        position: static;
+        background: var(--input-group-bg);
+        border: 1px solid var(--border-color);
+        border-left: none;
+        pointer-events: auto;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     /* Specyficzne style dla boxu KWOTA (czwarty form-group) */
@@ -1616,31 +1620,35 @@ input[type="range"].form-range:focus::-ms-thumb {
         min-width: 160px !important;
         align-items: center;
         display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
         box-sizing: border-box;
-        position: relative;
+        position: static;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 160px !important;
+        width: 120px !important;
         margin: 0;
         padding: 0 2px;
         border: 1px solid var(--border-color);
+        border-right: none;
         box-sizing: border-box;
-        border-radius: var(--border-radius);
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
-        width: 60px !important;
-        min-width: 60px !important;
+        width: 40px !important;
+        min-width: 40px !important;
         margin: 0;
         padding: 0 2px;
         font-size: 0.6em;
         box-sizing: border-box;
-        position: absolute;
-        right: 0;
-        background: transparent;
-        border: none;
-        pointer-events: none;
+        position: static;
+        background: var(--input-group-bg);
+        border: 1px solid var(--border-color);
+        border-left: none;
+        pointer-events: auto;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-label,
