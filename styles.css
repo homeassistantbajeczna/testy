@@ -1546,18 +1546,25 @@ input[type="range"].form-range:focus::-ms-thumb {
         text-align: center;
     }
 
-    .variable-input-group[data-type="nadplata"] .form-control {
-        width: 160px !important;
-    }
-
+    /* Ustawienie szerokości dla wszystkich boxów w sekcji NADPŁATA KREDYTU */
     .variable-input-group[data-type="nadplata"] .form-group {
-        width: 160px;
-        max-width: 160px;
-        min-width: 100px;
+        width: 160px !important;
+        max-width: 160px !important;
+        min-width: 100px !important;
         margin: 2px 0;
         align-items: flex-start;
     }
 
+    /* Ustawienie szerokości dla .form-control w sekcji NADPŁATA KREDYTU */
+    .variable-input-group[data-type="nadplata"] .form-control {
+        width: 160px !important;
+        margin: 0;
+        padding: 0 2px;
+        border: 1px solid var(--border-color);
+        box-sizing: border-box;
+    }
+
+    /* Specyficzne style dla boxu OD/W */
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group {
         width: 160px !important;
         max-width: 160px !important;
@@ -1572,8 +1579,9 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 160px !important;
         margin: 0;
         padding: 0 2px;
-        border-right: 1px solid var(--border-color);
+        border: 1px solid var(--border-color);
         box-sizing: border-box;
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group-text.unit-miesiacu {
@@ -1590,6 +1598,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         pointer-events: none;
     }
 
+    /* Specyficzne style dla boxu KWOTA */
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         width: 160px !important;
         max-width: 160px !important;
@@ -1597,14 +1606,16 @@ input[type="range"].form-range:focus::-ms-thumb {
         align-items: center;
         display: flex;
         box-sizing: border-box;
+        position: relative;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 100px !important;
+        width: 160px !important;
         margin: 0;
         padding: 0 2px;
-        border-right: none;
+        border: 1px solid var(--border-color);
         box-sizing: border-box;
+        border-radius: var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
@@ -1614,6 +1625,11 @@ input[type="range"].form-range:focus::-ms-thumb {
         padding: 0 2px;
         font-size: 0.6em;
         box-sizing: border-box;
+        position: absolute;
+        right: 0;
+        background: transparent;
+        border: none;
+        pointer-events: none;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(2) .form-label,
@@ -1679,84 +1695,5 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .sub-info {
         font-size: 0.4em;
-    }
-}
-
-@media (max-width: 400px) {
-    .form-group,
-    .input-group,
-    #rodzajRat {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100px;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .input-group,
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 100px !important;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(1) .form-control {
-        width: 100% !important;
-    }
-
-    .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: calc(100% - 60px) !important;
-    }
-
-    .variable-input-group[data-type="oprocentowanie"] .input-group {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100px;
-    }
-
-    .variable-input-group .input-group {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100px;
-    }
-
-    #prowizja .input-group {
-        width: 100%;
-        max-width: 100%;
-        min-width: 100px;
-    }
-
-    #prowizja .input-group .form-control {
-        width: calc(100% - 52px);
-    }
-
-    .harmonogram th,
-    .harmonogram td {
-        font-size: clamp(0.2625em, 0.7125vw, 0.7125em);
-        padding: clamp(1px, 0.4vw, 8px);
-    }
-
-    .harmonogram-opis {
-        font-size: clamp(0.2125em, 0.5125vw, 0.3125em);
-    }
-
-    .summary-footer .highlight {
-        width: clamp(180px, 18vw, 220px);
-        font-size: clamp(0.475em, 0.95vw, 0.775em);
-        padding: clamp(4px, 0.8vw, 6px) clamp(6px, 1.5vw, 10px);
-    }
-
-    .btn-primary {
-        font-size: 0.8em;
-        padding: 6px 16px;
-    }
-
-    #generatePdfBtn {
-        font-size: 0.6375em;
-        padding: 4px 12px;
     }
 }
