@@ -618,7 +618,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.className = "form-group";
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
-                <divundasdasdasdasdasdasd class="input-group">
+                <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
@@ -711,13 +711,14 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
                 // Znajdź odpowiedni element .form-group dla "Od/W" w tym inputGroup
                 const currentInputGroup = e.target.closest(".variable-input-group");
-                const label = currentInputGroup.querySelector(".form-group .form-label");
-                const unit = currentInputGroup.querySelector(".unit-miesiacu");
+                const cyklGroup = currentInputGroup.querySelector(".form-group:has(.variable-cykl)");
+                const label = cyklGroup?.querySelector(".form-label");
+                const unit = cyklGroup?.querySelector(".unit-miesiacu");
                 if (label && unit) {
                     label.textContent = isJednorazowa ? "W" : "Od";
                     unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
                 } else {
-                    console.warn("Label or unit element not found for dynamic update.");
+                    console.warn("Cykl group, label, or unit element not found for dynamic update.");
                 }
             });
         }
