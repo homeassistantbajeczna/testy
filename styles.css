@@ -1780,7 +1780,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group {
-        min-width: 213px; /* Zwiększamy o 25px w stosunku do poprzedniej wartości (188px) */
+        min-width: 213px;
         max-width: 213px;
     }
 
@@ -1795,7 +1795,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 158px; /* 213px - 55px dla jednostki "miesiącu" */
+        width: 158px;
         border: 1px solid var(--border-color);
         border-right: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -1829,7 +1829,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 183px; /* 213px - 30px dla jednostki "zł" */
+        width: 183px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1850,7 +1850,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .variable-input-group[data-type="nadplata"] .nadplata-type-select,
     .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-        width: 213px;
+        width: 238px; /* Zwiększamy o 25px w stosunku do poprzedniej wartości (213px) */
     }
 
     .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
@@ -1864,7 +1864,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 153px; /* 213px - 60px dla jednostki "miesiąca" */
+        width: 153px;
         border: 1px solid var(--border-color);
         border-right: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -1898,7 +1898,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-        width: 183px; /* 213px - 30px dla jednostki "%" */
+        width: 183px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
