@@ -1850,7 +1850,12 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .variable-input-group[data-type="nadplata"] .nadplata-type-select,
     .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-        width: 238px; /* Zwiększamy o 25px w stosunku do poprzedniej wartości (213px) */
+        width: 213px; /* Przywracamy poprzednią szerokość */
+    }
+
+    /* Zwiększamy szerokość przycisków "Dodaj kolejną nadpłatę" */
+    .variable-input-group[data-type="nadplata"] .btn {
+        width: 238px; /* Zwiększamy o 25px w stosunku do innych boxów (213px) */
     }
 
     .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
@@ -1859,6 +1864,11 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group {
+        min-width: 213px;
+        max-width: 213px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group {
         min-width: 213px;
         max-width: 213px;
     }
@@ -1915,6 +1925,11 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .variable-input-group[data-type="oprocentowanie"] .input-group {
         width: 213px;
+    }
+
+    /* Zwiększamy szerokość przycisków "Dodaj kolejną zmianę" */
+    .variable-input-group[data-type="oprocentowanie"] .btn {
+        width: 238px; /* Zwiększamy o 25px w stosunku do innych boxów (213px) */
     }
 
     .input-group {
