@@ -48,6 +48,13 @@ const state = {
     tempValues: {}, // Bufor dla tymczasowych wartości podczas przeciągania
 };
 
+// Funkcja formatująca liczby z separatorem tysięcy (spacja) i przecinkiem dziesiętnym
+function formatNumberWithSpaces(number) {
+    const parts = number.toFixed(2).split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return parts.join(",");
+}
+
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false } = options;
@@ -388,7 +395,7 @@ function updateKwotaInfo() {
     const kwota = parseFloat(elements.kwota.value) || 500000;
     const kwotaInfo = document.getElementById("kwotaInfo");
     if (kwotaInfo) {
-        kwotaInfo.textContent = `Kwota kredytu: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`;
     }
 }
 
@@ -408,7 +415,7 @@ function updateProwizjaInfo() {
     const prowizjaInfo = document.getElementById("prowizjaInfo");
     if (prowizjaInfo) {
         const wartosc = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
-        prowizjaInfo.textContent = `Prowizja: ${wartosc.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+        prowizjaInfo.textContent = `Prowizja: ${formatNumberWithSpaces(wartosc)} zł`;
     }
 }
 
@@ -588,10 +595,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="100" max="1000000" step="1" value="${Math.floor(change.value)}">
+                    <input type="number" class="form-control variable-rate" min="100" max="1000000" step="1" value="${change.value}">
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="1" value="${Math.floor(change.value)}">
+                <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="1" value="${change.value}">
                 <div class="sub-info"></div>
             `;
 
@@ -600,7 +607,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             const rateInput = rateGroup.querySelector(".variable-rate");
             const updateSubInfo = () => {
                 const value = parseFloat(rateInput.value) || 0;
-                subInfo.textContent = `Kwota nadpłaty: ${value.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+                subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
+                changes[index].value = value; // Aktualizacja wartości w state.overpaymentRates
             };
             updateSubInfo(); // Ustawienie początkowej wartości
             rateInput.addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie wartości
