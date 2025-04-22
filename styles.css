@@ -1795,44 +1795,45 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 160px;
-        border-radius: var(--border-radius);
+        width: 130px; /* 160px - 30px dla jednostki */
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
         width: 160px;
-        flex-direction: column;
+        flex-direction: row; /* Jednostki z powrotem obok inputów */
+        align-items: center;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-        width: 160px;
-        border-radius: var(--border-radius);
+        width: 130px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-        width: 100%;
-        min-width: 0;
+        width: 30px;
+        min-width: 30px;
         font-size: 0.6em;
-        border: none;
-        background: none;
-        padding: 0;
-        margin-top: 2px;
+        border: 1px solid var(--border-color);
+        background: var(--input-group-bg);
+        padding: 0 2px;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 160px;
-        border-radius: var(--border-radius);
+        width: 130px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
-        width: 100%;
-        min-width: 0;
+        width: 30px;
+        min-width: 30px;
         font-size: 0.6em;
-        border: none;
-        background: none;
-        padding: 0;
-        margin-top: 2px;
+        border: 1px solid var(--border-color);
+        background: var(--input-group-bg);
+        padding: 0 2px;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="nadplata"] .input-group {
@@ -1855,44 +1856,45 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 160px;
-        border-radius: var(--border-radius);
+        width: 130px; /* 160px - 30px dla jednostki */
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 160px;
-        border-radius: var(--border-radius);
+        width: 130px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
         width: 160px;
-        flex-direction: column;
+        flex-direction: row; /* Jednostki z powrotem obok inputów */
+        align-items: center;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
-        width: 100%;
-        min-width: 0;
+        width: 30px;
+        min-width: 30px;
         font-size: 0.6em;
-        border: none;
-        background: none;
-        padding: 0;
-        margin-top: 2px;
+        border: 1px solid var(--border-color);
+        background: var(--input-group-bg);
+        padding: 0 2px;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-        width: 160px;
-        border-radius: var(--border-radius);
+        width: 130px;
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
-        width: 100%;
-        min-width: 0;
+        width: 30px;
+        min-width: 30px;
         font-size: 0.6em;
-        border: none;
-        background: none;
-        padding: 0;
-        margin-top: 2px;
+        border: 1px solid var(--border-color);
+        background: var(--input-group-bg);
+        padding: 0 2px;
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .input-group {
