@@ -260,12 +260,12 @@ body {
     flex-wrap: nowrap;
     gap: 15px;
     justify-content: center;
-    min-width: 630px; /* 4 * 150px + 3 * 15px */
+    min-width: 480px; /* 4 * 120px */
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 150px;
-    max-width: 150px;
+    min-width: 120px;
+    max-width: 120px;
     flex: none;
 }
 
@@ -313,13 +313,60 @@ body {
 }
 
 /* Ujednolicenie szerokości w sekcji "Zmienne oprocentowanie" i "Nadpłata kredytu" */
-.variable-input-group[data-type="nadplata"] .form-control,
+.variable-input-group[data-type="nadplata"] .form-control {
+    width: 80px; /* Dla spójności z innymi polami, uwzględniając miejsce na jednostkę */
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: 120px;
+    align-items: center;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
+    width: 60px;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
+    width: 60px;
+    min-width: 60px;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 0.6em;
+    border: 1px solid var(--border-color);
+    background: var(--input-group-bg);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
+    width: 80px;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
+    width: 40px;
+    min-width: 40px;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 0.6em;
+    border: 1px solid var(--border-color);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
 .variable-input-group[data-type="oprocentowanie"] .form-control {
     width: 110px; /* Dla spójności z innymi polami, uwzględniając miejsce na jednostkę */
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group,
 .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
 .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
     display: flex;
@@ -329,7 +376,6 @@ body {
     align-items: center;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control,
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
     width: 90px;
     margin: 0;
@@ -338,7 +384,6 @@ body {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu,
 .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
     width: 60px;
     min-width: 60px;
@@ -350,7 +395,6 @@ body {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control,
 .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
     width: 110px;
     margin: 0;
@@ -359,7 +403,6 @@ body {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl,
 .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
     width: 40px;
     min-width: 40px;
@@ -563,7 +606,6 @@ body {
 .variable-input-group[data-type="oprocentowanie"] .input-group {
     display: flex;
     align-items: center;
-    width: 150px;
 }
 
 input[type="range"].form-range {
