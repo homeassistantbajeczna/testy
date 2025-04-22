@@ -1547,7 +1547,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 100px !important;
+        width: 160px !important;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group {
