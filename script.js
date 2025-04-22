@@ -91,6 +91,12 @@ function syncInputWithRange(input, range, options = {}) {
         const step = parseFloat(input.step) || 1;
         let parsedValue = isDecimal ? parseFloat(value) : parseInt(value);
         if (isNaN(parsedValue)) parsedValue = min;
+
+        // Specjalna walidacja dla boxu KWOTA w nadpłacie: minimalna wartość to 100
+        if (input.classList.contains("variable-rate") && parsedValue < 100) {
+            parsedValue = 100;
+        }
+
         if (parsedValue < min) parsedValue = min;
         if (parsedValue > max) parsedValue = max;
         input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
@@ -133,6 +139,12 @@ function syncInputWithRange(input, range, options = {}) {
     if (isNaN(initialValue)) initialValue = min;
     if (initialValue < min) initialValue = min;
     if (initialValue > max) initialValue = max;
+
+    // Specjalna walidacja dla boxu KWOTA w nadpłacie: minimalna wartość to 100
+    if (input.classList.contains("variable-rate") && initialValue < 100) {
+        initialValue = 100;
+    }
+
     input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
     range.value = initialValue;
     console.log(`Initial sync: ${input.id || range.className} = ${initialValue}`);
@@ -580,10 +592,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="100" max="1000000" step="1" value="${inputValue}">
+                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="1" value="${inputValue}">
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="100" max="1000000" step="1" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
             `;
 
             // Synchronizacja inputu i suwaka
@@ -599,7 +611,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             // Dla oprocentowania
             const cyklGroup = document.createElement("div");
             cyklGroup.className = "form-group";
-            cyklGroup.innerHTML = `
+            cykgroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
@@ -670,7 +682,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
         // Synchronizacja dla .variable-cykl
-        syncInputWithRange(cyklInput, cyklRange, {
+        syncInputWithRange(cyklInput, cykRange, {
             isDecimal: false,
             isVariableCykl: true,
             onChange: (value) => {
