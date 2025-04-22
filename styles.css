@@ -349,6 +349,7 @@ body {
     margin: 0;
     padding: 0 2px;
     font-size: 0.6em;
+    border-left: 1px solid var(--border-color);
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
@@ -1608,7 +1609,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         position: static;
         background: var(--input-group-bg);
         border: 1px solid var(--border-color);
-        border-left: none;
+        border-left: 1px solid var(--border-color);
         pointer-events: auto;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
@@ -1646,7 +1647,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         position: static;
         background: var(--input-group-bg);
         border: 1px solid var(--border-color);
-        border-left: none;
+        border-left: 1px solid var(--border-color);
         pointer-events: auto;
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
