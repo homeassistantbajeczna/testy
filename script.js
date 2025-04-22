@@ -437,9 +437,12 @@ function updateVariableData(activeType) {
         const typeSelect = inputGroup.querySelector(".nadplata-type-select");
         const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
         let period = parseInt(cyklInput.value);
-        const value = activeType === "nadplata" ? parseInt(rateInput.value) : parseFloat(rateInput.value);
+        // Używamy parseFloat dla nadpłaty, aby zachować spójność
+        const value = parseFloat(rateInput.value);
         const type = typeSelect ? typeSelect.value : null;
         const effect = effectSelect ? effectSelect.value : null;
+
+        console.log(`updateVariableData: index=${index}, period=${period}, value=${value}, type=${type}, effect=${effect}`);
 
         const minPeriod = index > 0 ? newChanges[index - 1].period + 1 : 2;
         if (period < minPeriod) {
@@ -472,8 +475,10 @@ function updateVariableData(activeType) {
 
     if (activeType === "oprocentowanie") {
         state.variableRates = newChanges;
+        console.log("Updated state.variableRates:", state.variableRates);
     } else if (activeType === "nadplata") {
         state.overpaymentRates = newChanges;
+        console.log("Updated state.overpaymentRates:", state.overpaymentRates);
     }
 }
 
@@ -526,6 +531,7 @@ function updateVariableInputs() {
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
             state.overpaymentRates.push({ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" });
+            console.log("Initialized state.overpaymentRates:", state.overpaymentRates);
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
@@ -611,6 +617,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
                 changes[index].value = value; // Aktualizacja wartości w changes
                 updateVariableData(activeType); // Aktualizacja stanu
+                console.log(`updateSubInfo: index=${index}, value=${value}, state.overpaymentRates=`, state.overpaymentRates);
             };
             updateSubInfo(); // Ustawienie początkowej wartości
             rateInput.addEventListener("input", updateSubInfo); // Aktualizacja przy zmianie wartości
@@ -766,6 +773,7 @@ function addVariableChange(activeType) {
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
+    console.log(`addVariableChange: new change added for ${activeType}`, newChange);
     updateVariableInputs();
 }
 
