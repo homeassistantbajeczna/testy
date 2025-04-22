@@ -264,8 +264,8 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 120px;
-    max-width: 120px;
+    min-width: 105px; /* Zmniejszone z 120px, aby lepiej pasować do 150px z pierwszego wiersza */
+    max-width: 105px;
     flex: none;
 }
 
@@ -314,7 +314,7 @@ body {
 
 /* Ujednolicenie szerokości w sekcji "Zmienne oprocentowanie" i "Nadpłata kredytu" */
 .variable-input-group[data-type="nadplata"] .form-control {
-    width: 80px; /* Dla spójności z innymi polami, uwzględniając miejsce na jednostkę */
+    width: 65px; /* Zmniejszone z 80px, aby lepiej pasować do mniejszych boxów */
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
@@ -322,12 +322,12 @@ body {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    width: 120px;
+    width: 105px; /* Dopasowane do szerokości form-group */
     align-items: center;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-    width: 60px;
+    width: 55px; /* Zmniejszone z 60px */
     margin: 0;
     padding: 0 2px;
     border: 1px solid var(--border-color);
@@ -335,8 +335,8 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-    width: 60px;
-    min-width: 60px;
+    width: 50px; /* Zmniejszone z 60px */
+    min-width: 50px;
     margin: 0;
     padding: 0 2px;
     font-size: 0.6em;
@@ -346,7 +346,7 @@ body {
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-    width: 80px;
+    width: 65px; /* Zmniejszone z 80px */
     margin: 0;
     padding: 0 2px;
     border: 1px solid var(--border-color);
@@ -473,6 +473,12 @@ body {
     background-position: right 4px center !important;
 }
 
+/* Dostosowanie selectów w sekcji "Nadpłata kredytu" */
+.variable-input-group[data-type="nadplata"] .nadplata-type-select,
+.variable-input-group[data-type="nadplata"] .nadplata-effect-select {
+    width: 65px; /* Zmniejszone, aby pasowały do mniejszych boxów */
+}
+
 /* Style dla :focus w selectach nadpłaty */
 .variable-input-group .nadplata-type-select:focus,
 .variable-input-group .nadplata-effect-select:focus {
@@ -583,7 +589,7 @@ body {
     min-width: 40px;
 }
 
-.input-group-text.unit-miesiacu { min-width: 60px; }
+.input-group-text.unit-miesiacu { min-width: 50px; } /* Zmniejszone z 60px */
 .input-group-text.unit-miesiaca { min-width: 65px; }
 .input-group-text.unit-miesiacach { min-width: 75px; }
 .input-group-text.unit-zl { min-width: 40px; }
