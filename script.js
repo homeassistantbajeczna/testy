@@ -34,7 +34,7 @@ Object.entries(elements).forEach(([key, value]) => {
 
 const state = {
     variableRates: [],
-    overpaymentRates: [], // Nadal istnieje, ale używane tylko przy obliczaniu
+    overpaymentRates: [],
     lastFormData: {
         kwota: 500000,
         iloscRat: 360,
@@ -45,7 +45,7 @@ const state = {
         zmienneOprocentowanie: false,
         nadplataKredytu: false,
     },
-    tempValues: {}, // Bufor dla tymczasowych wartości podczas przeciągania
+    tempValues: {},
 };
 
 // Funkcja formatująca liczby z separatorem tysięcy (spacja) i przecinkiem dziesiętnym
@@ -98,7 +98,7 @@ function syncInputWithRange(input, range, options = {}) {
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}`);
 
         if (isVariableCykl) {
-            state.tempValues[input.id || range.id] = parsedValue; // Buforowanie wartości
+            state.tempValues[input.id || range.id] = parsedValue;
         } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
@@ -113,7 +113,6 @@ function syncInputWithRange(input, range, options = {}) {
     input.addEventListener("input", inputHandler);
     range.addEventListener("input", rangeHandler);
 
-    // Dodatkowe zdarzenie change dla .variable-cykl-range do zapisu stanu
     if (isVariableCykl) {
         const changeHandler = () => {
             const value = state.tempValues[input.id || range.id];
@@ -258,7 +257,7 @@ function calculateLoan() {
             if (isActive) {
                 nadplata = parseFloat(overpayment.value);
                 if (overpayment.effect === "Skróć okres") {
-                    pozostalyKapital -= nandplata;
+                    pozostalyKapital -= nadplata;
                 } else {
                     rata -= nadplata / (iloscRat - i + 1);
                 }
@@ -493,7 +492,7 @@ function updateVariableInputs() {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" }]; // Reset stanu
+            state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" }];
             console.log("Reset state.overpaymentRates:", state.overpaymentRates);
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
@@ -588,14 +587,17 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <div class="sub-info">Kwota nadpłaty: ${formatNumberWithSpaces(inputValue)} zł</div>
             `;
 
-            // Prosta synchronizacja tekstu w .sub-info
+            // Nasłuchiwanie wartości w boxie KWOTA i aktualizacja tekstu w .sub-info
             const rateInput = rateGroup.querySelector(".variable-rate");
             const rateRange = rateGroup.querySelector(".variable-rate-range");
             const subInfo = rateGroup.querySelector(".sub-info");
+
             const updateSubInfo = () => {
                 const value = parseFloat(rateInput.value) || 0;
                 subInfo.textContent = `Kwota nadpłaty: ${formatNumberWithSpaces(value)} zł`;
             };
+
+            // Dodajemy nasłuchiwanie na zmiany w input i range
             rateInput.addEventListener("input", updateSubInfo);
             rateRange.addEventListener("input", updateSubInfo);
 
