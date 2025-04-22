@@ -1780,8 +1780,8 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group {
-        min-width: 213px;
-        max-width: 213px;
+        min-width: 170px; /* Przywracamy pierwotną szerokość */
+        max-width: 170px;
     }
 
     .variable-input-group[data-type="nadplata"] .fields-wrapper {
@@ -1790,12 +1790,12 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group {
-        min-width: 213px;
-        max-width: 213px;
+        min-width: 170px;
+        max-width: 170px;
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 158px;
+        width: 115px; /* 170px - 55px dla jednostki "miesiącu" */
         border: 1px solid var(--border-color);
         border-right: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -1803,7 +1803,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
-        width: 213px;
+        width: 170px;
         flex-direction: row;
         align-items: center;
         border: none;
@@ -1813,7 +1813,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-        width: 158px;
+        width: 115px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1829,7 +1829,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 183px;
+        width: 140px; /* 170px - 30px dla jednostki "zł" */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1845,18 +1845,12 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .input-group {
-        width: 213px;
+        width: 170px;
     }
 
     .variable-input-group[data-type="nadplata"] .nadplata-type-select,
     .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-        width: 213px;
-    }
-
-    /* Zwiększamy szerokość przycisków "Dodaj kolejną nadpłatę" */
-    .variable-input-group[data-type="nadplata"] .btn {
-        width: 262px; /* 238px (wizualna szerokość) + 24px (padding Bootstrap) */
-        box-sizing: border-box;
+        width: 170px; /* Przywracamy pierwotną szerokość */
     }
 
     .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
@@ -1865,25 +1859,25 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group {
-        min-width: 213px;
-        max-width: 213px;
+        min-width: 170px;
+        max-width: 170px;
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 153px;
+    .variable-input-group[data-type="oprocentowanie"] .form Université
+        width: 110px; /* 170px - 60px dla jednostki "miesiąca" */
         border: 1px solid var(--border-color);
         border-right: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 153px;
+        width: 110px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
-        width: 213px;
+        width: 170px;
         flex-direction: row;
         align-items: center;
         border: none;
@@ -1904,7 +1898,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-        width: 183px;
+        width: 140px; /* 170px - 30px dla jednostki "%" */
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1920,27 +1914,21 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .input-group {
-        width: 213px;
-    }
-
-    /* Zwiększamy szerokość przycisków "Dodaj kolejną zmianę" */
-    .variable-input-group[data-type="oprocentowanie"] .btn {
-        width: 262px; /* 238px (wizualna szerokość) + 24px (padding Bootstrap) */
-        box-sizing: border-box;
+        width: 170px;
     }
 
     .input-group {
-        width: 213px;
+        width: 170px;
     }
 
     #prowizja .input-group {
-        width: 213px;
+        width: 170px;
     }
 
     /* Dopasowanie suwaków */
     input[type="range"].form-range {
         box-sizing: border-box;
-        width: 213px;
+        width: 170px;
         padding: 0;
     }
 
@@ -1954,11 +1942,6 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     input[type="range"].form-range::-ms-thumb {
         transform: none;
-    }
-
-    .chart-container {
-        flex-direction: column;
-        align-items: center;
     }
 
     .chart-container {
