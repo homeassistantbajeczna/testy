@@ -1780,7 +1780,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group {
-        min-width: 148px; /* 158px - 10px */
+        min-width: 148px;
         max-width: 148px;
     }
 
@@ -1795,7 +1795,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-control {
-        width: 93px; /* 148px - 55px dla jednostki "miesiącu" */
+        width: 93px;
         border: 1px solid var(--border-color);
         border-right: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -1829,7 +1829,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-        width: 118px; /* 148px - 30px dla jednostki "zł" */
+        width: 118px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1864,7 +1864,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-control {
-        width: 88px; /* 148px - 60px dla jednostki "miesiąca" */
+        width: 88px;
         border: 1px solid var(--border-color);
         border-right: none;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -1898,7 +1898,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-        width: 118px; /* 148px - 30px dla jednostki "%" */
+        width: 118px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
@@ -1986,5 +1986,20 @@ input[type="range"].form-range:focus::-ms-thumb {
     .result-wrapper-chart,
     .result-wrapper-harmonogram {
         max-width: 100%;
+    }
+
+    /* Wyrównanie logo do lewej strony */
+    .logo-container {
+        text-align: left;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    .logo,
+    #siteLogo {
+        margin-left: 0;
+        margin-right: 0;
+        display: block;
     }
 }
