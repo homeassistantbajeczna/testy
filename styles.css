@@ -1770,6 +1770,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     max-width: 150px;
 }
 
+#porownajKredytLabel {
+    font-size: 14px; /* Domyślna czcionka 16px - 2px = 14px */
+}
+
 /* R E S P O N S I W N O Ś Ć */
 @media (max-width: 576px) {
     .form-row,
@@ -2002,4 +2006,10 @@ input[type="range"].form-range:focus::-ms-thumb {
         margin-right: 0 !important;
         display: block !important;
     }
+
+    /* Upewnienie się, że "Porównaj Kredyt" jest zawsze po prawej stronie */
+    .compare-credit-row {
+        justify-content: flex-end !important;
+    }
 }
+
