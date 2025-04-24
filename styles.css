@@ -1771,7 +1771,8 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 #porownajKredytLabel {
-    font-size: 14px; /* Domyślna czcionka 16px - 2px = 14px */
+    font-size: 10px; 
+    align-items: right;
 }
 
 /* R E S P O N S I W N O Ś Ć */
