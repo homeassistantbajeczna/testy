@@ -619,7 +619,7 @@ body {
 
 /* S U W A K I */
 input[type="range"].form-range {
-    margin-top: 2px;
+    margin-top: 5px;
     height: 6px;
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -665,7 +665,7 @@ input[type="range"].form-range::-webkit-slider-thumb {
     border: none;
     cursor: pointer;
     appearance: none;
-    transform: translateY(3px);
+    transform: translateY(2px);
     transition: transform 0.2s ease, background 0.2s ease;
     will-change: transform;
 }
@@ -1429,7 +1429,7 @@ input[type="range"].form-range::-ms-thumb {
     }
 
     input[type="range"].form-range::-webkit-slider-thumb {
-        transform: translateY(3px);
+        transform: translateY(2px);
     }
 
     input[type="range"].form-range::-moz-range-thumb,
