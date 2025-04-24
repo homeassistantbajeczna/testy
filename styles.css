@@ -214,11 +214,11 @@ body {
 }
 
 #nadplataKredytuLabel {
-    font-size: 0.6em !important;
+    font-size: 10px !important;
 }
 
 #zmienneOprocentowanieLabel {
-    font-size: 10px !important; /* Zmiana na 10px */
+    font-size: 10px !important;
 }
 
 #porownajKredytLabel {
@@ -349,7 +349,7 @@ body {
     flex-wrap: nowrap;
     gap: 15px;
     justify-content: center;
-    min-width: 480px; /* 4 * 120px */
+    min-width: 480px;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
@@ -363,7 +363,7 @@ body {
     flex-wrap: nowrap;
     gap: 15px;
     justify-content: center;
-    min-width: 315px; /* 2 * 150px + 15px */
+    min-width: 315px;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-group {
@@ -531,7 +531,6 @@ body {
     width: 150px;
 }
 
-/* Specyficzne style dla prowizji */
 #prowizja .input-group .form-control {
     flex: 3;
     border-radius: 5px 0 0 5px !important;
@@ -630,13 +629,13 @@ input[type="range"].form-range {
     margin-right: auto;
     outline: none;
     transition: all 0.2s ease;
-    background: transparent; /* Usunięto background, aby uniknąć nadpisywania */
+    background: transparent;
 }
 
 input[type="range"].form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg); /* Użycie koloru tła jednostek stałych */
+    background: var(--input-group-bg);
     height: 6px;
-    border: none; /* Usunięto obramowanie, bo jest już w input */
+    border: none;
     border-radius: var(--border-radius);
     transition: background 0.2s ease;
 }
@@ -655,7 +654,7 @@ input[type="range"].form-range::-ms-track {
     border: none;
     border-radius: var(--border-radius);
     transition: background 0.2s ease;
-    color: transparent; /* Dla IE, aby ukryć domyślne style */
+    color: transparent;
 }
 
 input[type="range"].form-range::-webkit-slider-thumb {
@@ -689,41 +688,7 @@ input[type="range"].form-range::-ms-thumb {
     border-radius: 50%;
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-input[type="range"].form-range::-moz-range-progress {
-    background: var(--accent-gradient-start);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-input[type="range"].form-range::-ms-fill-lower {
-    background: var(--accent-gradient-start);
-    border-radius: var(--border-radius);
-}
-
-input[type="range"].form-range::-ms-fill-upper {
-    background: var(--input-group-bg);
-    border-radius: var(--border-radius);
-}
-
-input[type="range"].form-range:focus::-webkit-slider-thumb {
-    outline: none;
-    box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: translateY(3px) scale(1.1);
-}
-
-input[type="range"].form-range:focus::-moz-range-thumb {
-    outline: none;
-    box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: scale(1.1);
-}
-
-input[type="range"].form-range:focus::-ms-thumb {
-    outline: none;
+    transition: transform 0.2 trout: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
     transform: scale(1.1);
 }
@@ -1150,7 +1115,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg); /* Użycie koloru tła jednostek stałych w trybie ciemnym */
+    background: var(--input-group-bg);
     border-radius: var(--border-radius);
 }
 
@@ -1517,7 +1482,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         max-width: 100%;
     }
 
-    /* Wyrównanie logo do lewej strony */
     .logo-container {
         text-align: left !important;
         display: flex !important;
@@ -1532,7 +1496,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         display: block !important;
     }
 
-    /* Poprawka dla "Porównaj Kredyt" - wyrównanie do prawej strony w widoku mobilnym */
     .compare-credit-row {
         align-items: flex-end !important;
     }
