@@ -187,21 +187,7 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
-        // Synchronizuj wartości w sekcji "Zmienne oprocentowanie" z głównym boxem
-        if (elements.zmienneOprocentowanieBtn.checked) {
-            state.variableRates.forEach((rate, index) => {
-                rate.value = value; // Aktualizuj wartości w state.variableRates
-                const inputGroup = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]')[index];
-                if (inputGroup) {
-                    const rateInput = inputGroup.querySelector(".variable-rate");
-                    const rateRange = inputGroup.querySelector(".variable-rate-range");
-                    if (rateInput && rateRange) {
-                        rateInput.value = value.toFixed(2);
-                        rateRange.value = value;
-                    }
-                }
-            });
-        }
+        // Usunięto synchronizację z sekcją "Zmienne oprocentowanie"
     },
 });
 
@@ -650,7 +636,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = change.value !== undefined ? change.value : state.lastFormData.oprocentowanie;
+            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || state.lastFormData.oprocentowanie);
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
