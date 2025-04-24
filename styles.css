@@ -77,7 +77,7 @@ body {
     display: block;
     padding: 10px;
     position: relative;
-    margin-top: -10px; /* Przesunięcie całej sekcji formularza o 10px do góry */
+    margin-top: -20px;
 }
 
 .result-section {
@@ -222,7 +222,7 @@ body {
 }
 
 #porownajKredytLabel {
-    font-size: 14px; /* Zmniejszona czcionka o 2px (z 16px na 14px) */
+    font-size: 10px;
 }
 
 .checkbox-label.header-checkbox {
@@ -650,7 +650,7 @@ input[type="range"].form-range::-webkit-slider-thumb {
     border: none;
     cursor: pointer;
     appearance: none;
-    transform: translateY(2px);
+    transform: translateY(5px); /* Przesunięcie o 3px niżej (z 2px na 5px) */
     transition: transform 0.2s ease, background 0.2s ease;
     will-change: transform;
 }
@@ -677,7 +677,7 @@ input[type="range"].form-range::-moz-range-progress {
 input[type="range"].form-range:focus::-webkit-slider-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: translateY(2px) scale(1.1);
+    transform: translateY(5px) scale(1.1); /* Przesunięcie o 3px niżej (z 2px na 5px) */
 }
 
 input[type="range"].form-range:focus::-moz-range-thumb,
@@ -1111,13 +1111,13 @@ input[type="range"].form-range:focus::-ms-thumb {
 .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track,
 .dark-mode input[type="range"].form-range::-moz-range-track,
 .dark-mode input[type="range"].form-range::-ms-track {
-    background: var(--input-group-bg);
+    background: var(--range-bg); /* Przywrócenie oryginalnego koloru tła suwaka w trybie ciemnym */
     border-radius: var(--border-radius);
 }
 
 .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
     background: var(--accent-gradient-start-black);
-    transform: translateY(2px);
+    transform: translateY(5px); /* Przesunięcie o 3px niżej (z 2px na 5px) */
     transition: transform 0.2s ease, background 0.2s ease;
 }
 
@@ -1128,7 +1128,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb {
-    transform: translateY(2px) scale(1.1);
+    transform: translateY(5px) scale(1.1); /* Przesunięcie o 3px niżej (z 2px na 5px) */
 }
 
 .dark-mode input[type="range"].form-range:focus::-moz-range-thumb,
@@ -1399,7 +1399,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     input[type="range"].form-range::-webkit-slider-thumb {
-        transform: translateY(2px);
+        transform: translateY(5px); /* Przesunięcie o 3px niżej (z 2px na 5px) */
     }
 
     input[type="range"].form-range::-moz-range-thumb,
