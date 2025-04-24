@@ -1770,9 +1770,12 @@ input[type="range"].form-range:focus::-ms-thumb {
     max-width: 150px;
 }
 
+.compare-credit-row {
+    justify-content: flex-end !important; 
+}
+
 #porownajKredytLabel {
-    font-size: 10px; 
-    text-align: right;
+    font-size: 10px;
 }
 
 /* R E S P O N S I W N O Ś Ć */
@@ -1875,11 +1878,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-        width: 88px;
-        border-radius: var(--border-radius) 0 0 var(--border-radius);
-    }
-
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
     .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
         width: 148px;
@@ -1935,18 +1933,6 @@ input[type="range"].form-range:focus::-ms-thumb {
         box-sizing: border-box;
         width: 148px;
         padding: 0;
-    }
-
-    input[type="range"].form-range::-webkit-slider-thumb {
-        transform: translateY(2px);
-    }
-
-    input[type="range"].form-range::-moz-range-thumb {
-        transform: none;
-    }
-
-    input[type="range"].form-range::-ms-thumb {
-        transform: none;
     }
 
     .chart-container {
@@ -2008,9 +1994,8 @@ input[type="range"].form-range:focus::-ms-thumb {
         display: block !important;
     }
 
-    /* Upewnienie się, że "Porównaj Kredyt" jest zawsze po prawej stronie */
+    /* Poprawka dla "Porównaj Kredyt" - wyrównanie do prawej strony w widoku mobilnym */
     .compare-credit-row {
-        justify-content: flex-end !important;
+        align-items: flex-end !important;
     }
 }
-
