@@ -622,7 +622,7 @@ body {
 input[type="range"].form-range {
     margin-top: 5px;
     height: 6px;
-    background: var(--input-group-bg);
+    background: var(--range-bg); /* Użycie --range-bg zamiast --input-group-bg */
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     appearance: none;
@@ -636,7 +636,7 @@ input[type="range"].form-range {
 input[type="range"].form-range::-webkit-slider-runnable-track,
 input[type="range"].form-range::-moz-range-track,
 input[type="range"].form-range::-ms-track {
-    background: var(--input-group-bg);
+    background: var(--range-bg); /* Użycie --range-bg */
     height: 6px;
     border-radius: var(--border-radius);
     transition: background 0.2s ease;
@@ -1073,7 +1073,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     --input-group-bg: #666666;
     --range-track: #666666;
     --harmonogram-bg: #404040;
-    --range-bg: #2b2b2b;
+    --range-bg: #4a4a4a; /* Ciemniejszy szary dla tła suwaków w trybie ciemnym */
 }
 
 .dark-mode #prowizja .input-group .form-control {
@@ -1111,7 +1111,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track,
 .dark-mode input[type="range"].form-range::-moz-range-track,
 .dark-mode input[type="range"].form-range::-ms-track {
-    background: var(--input-group-bg); /* Użycie koloru tła jednostek stałych w trybie ciemnym */
+    background: var(--range-bg); /* Użycie --range-bg w trybie ciemnym */
     border-radius: var(--border-radius);
 }
 
