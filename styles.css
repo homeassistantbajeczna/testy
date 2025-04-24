@@ -677,6 +677,7 @@ input[type="range"].form-range::-moz-range-thumb {
     border-radius: 50%;
     border: none;
     cursor: pointer;
+    transform: translateY(-1px);
     transition: transform 0.2s ease, background 0.2s ease;
     will-change: transform;
 }
@@ -688,9 +689,44 @@ input[type="range"].form-range::-ms-thumb {
     border-radius: 50%;
     border: none;
     cursor: pointer;
-    transition: transform 0.2 trout: none;
+    transform: translateY(-1px);
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+input[type="range"].form-range::-moz-range-progress {
+    background: var(--accent-gradient-start);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: width 0.2s ease;
+}
+
+input[type="range"].form-range::-ms-fill-lower {
+    background: var(--accent-gradient-start);
+    border-radius: var(--border-radius);
+}
+
+input[type="range"].form-range::-ms-fill-upper {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
+}
+
+input[type="range"].form-range:focus::-webkit-slider-thumb {
+    outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: scale(1.1);
+    transform: translateY(2px) scale(1.1);
+}
+
+input[type="range"].form-range:focus::-moz-range-thumb {
+    outline: none;
+    box-shadow: 0 0 4px var(--accent-gradient-start);
+    transform: translateY(-1px) scale(1.1);
+}
+
+input[type="range"].form-range:focus::-ms-thumb {
+    outline: none;
+    box-shadow: 0 0 4px var(--accent-gradient-start);
+    transform: translateY(-1px) scale(1.1);
 }
 
 /* O P I S Y   I   D A N E */
