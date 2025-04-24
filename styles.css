@@ -21,26 +21,6 @@
     --range-bg: #e5e5e5;
 }
 
-/* D A R K   M O D E */
-.dark-mode {
-    --primary-bg: #2b2b2b;
-    --primary-text: #e0e0e0;
-    --secondary-bg: #3a3a3a;
-    --accent-color: #8b7d47;
-    --accent-gradient-start: #8b7d47;
-    --accent-gradient-end: #70673b;
-    --accent-gradient-start-black: #a3945c;
-    --border-color: #f5f5f5;
-    --border-color-rgb: 245, 245, 245;
-    --shadow-color: rgba(0, 0, 0, 0.5);
-    --logo-bg: #3a3a3a;
-    --input-bg: #3a3a3a;
-    --input-group-bg: #666666;
-    --range-track: #666666;
-    --harmonogram-bg: #404040;
-    --range-bg: #333333;
-}
-
 /* R E S E T   I   B A Z A */
 *,
 ::after,
@@ -93,6 +73,61 @@ body {
     box-sizing: border-box;
 }
 
+.form-section {
+    display: block;
+    padding: 10px;
+    position: relative;
+    margin-top: -10px; /* Przesunięcie całej sekcji formularza o 10px do góry */
+}
+
+.result-section {
+    display: none;
+    padding: 10px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.form-container,
+.result-container,
+.harmonogram-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.harmonogram-container {
+    margin-top: 20px;
+    padding: clamp(2px, 2vw, 20px);
+    width: 100%;
+    max-width: clamp(98%, 100vw, 1100px);
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.harmonogram-chart-wrapper {
+    background-color: var(--harmonogram-bg);
+    padding: clamp(2px, 2vw, 20px);
+    border-radius: 10px;
+    width: 100%;
+    max-width: clamp(98%, 100vw, 1100px);
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.result-wrapper-chart {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.result-wrapper-harmonogram {
+    flex: 1;
+    max-width: 1000px;
+}
+
 /* L O G O   I   N A G Ł Ó W E K */
 .logo-container {
     background-color: var(--logo-bg);
@@ -105,15 +140,6 @@ body {
     align-items: center;
 }
 
-.zoom-controls {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    gap: 5px;
-}
-
 .logo,
 #siteLogo {
     max-width: 200px;
@@ -122,6 +148,15 @@ body {
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+.zoom-controls {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 5px;
 }
 
 .header-row,
@@ -151,6 +186,20 @@ body {
 }
 
 /* C H E C K B O X Y */
+.checkbox-row {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 15px;
+    flex-wrap: wrap;
+    text-align: left;
+}
+
+.compare-credit-row {
+    justify-content: flex-end !important;
+}
+
 .checkbox-label {
     display: flex;
     align-items: center;
@@ -170,6 +219,16 @@ body {
 
 #zmienneOprocentowanieLabel {
     font-size: 0.65em !important;
+}
+
+#porownajKredytLabel {
+    font-size: 14px; /* Zmniejszona czcionka o 2px (z 16px na 14px) */
+}
+
+.checkbox-label.header-checkbox {
+    position: static;
+    top: auto;
+    right: auto;
 }
 
 .checkbox-label input {
@@ -213,29 +272,8 @@ body {
     opacity: 1;
 }
 
-.checkbox-label.header-checkbox {
-    position: static;
-    top: auto;
-    right: auto;
-}
-
-/* F O R M U L A R Z E   I   W Y N I K I */
-.form-section {
-    display: block;
-    padding: 10px;
-    position: relative;
-    margin-top: -20px;
-}
-
-.result-section {
-    display: none;
-    padding: 10px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
+/* F O R M U L A R Z */
 .form-row,
-.checkbox-row,
 .fields-wrapper {
     display: flex;
     justify-content: center;
@@ -246,6 +284,10 @@ body {
     text-align: left;
 }
 
+#obligacjeForm .form-row:first-child {
+    margin-bottom: 30px;
+}
+
 .form-group {
     flex: 1;
     min-width: 120px;
@@ -254,6 +296,52 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
+}
+
+.form-label,
+.variable-input-group .form-label {
+    font-size: var(--small-font-size);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    text-align: left;
+    width: 100%;
+}
+
+.variable-rate-container {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.variable-inputs {
+    margin-top: 10px;
+    display: none;
+}
+
+.variable-inputs.active {
+    display: block;
+}
+
+.variable-inputs-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.variable-input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.variable-input-group .form-group {
+    width: 150px;
+    min-width: 0;
+    max-width: none;
+    flex: none;
 }
 
 .variable-input-group[data-type="nadplata"] .fields-wrapper {
@@ -284,17 +372,19 @@ body {
     flex: none;
 }
 
-#obligacjeForm .form-row:first-child {
-    margin-bottom: 30px;
+/* I N P U T Y   I   S E L E C T Y */
+.input-group {
+    width: 150px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
 }
 
-.form-label,
-.variable-input-group .form-label {
-    font-size: var(--small-font-size);
-    text-transform: uppercase;
-    margin-bottom: 2px;
-    text-align: left;
-    width: 100%;
+#prowizja .input-group {
+    display: flex;
+    width: 150px;
 }
 
 .form-control {
@@ -313,17 +403,40 @@ body {
     justify-content: center;
 }
 
-/* Ujednolicenie szerokości w sekcji "Zmienne oprocentowanie" i "Nadpłata kredytu" */
+.input-group-text {
+    height: 22px;
+    font-size: var(--small-font-size);
+    padding: 2px 5px;
+    text-align: center;
+    background: var(--input-group-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    line-height: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.input-group-text.unit-miesiacu { min-width: 50px; }
+.input-group-text.unit-miesiaca { min-width: 65px; }
+.input-group-text.unit-miesiacach { min-width: 75px; }
+.input-group-text.unit-zl { min-width: 40px; }
+
 .variable-input-group[data-type="nadplata"] .form-control {
     width: 65px;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group {
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    width: 105px;
     align-items: center;
 }
 
@@ -364,17 +477,17 @@ body {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
-.variable-input-group[data-type="oprocentowanie"] .form-control {
-    width: 110px;
+.variable-input-group[data-type="nadplata"] .input-group {
+    width: 105px;
 }
 
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    width: 150px;
-    align-items: center;
+.variable-input-group[data-type="nadplata"] .nadplata-type-select,
+.variable-input-group[data-type="nadplata"] .nadplata-effect-select {
+    width: 105px;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-control {
+    width: 110px;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
@@ -414,19 +527,17 @@ body {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
-/* Styl dla wszystkich pól formularza w stanie :focus */
-.form-group .form-control:focus,
-.form-group .form-select:focus,
-.variable-input-group .form-control:focus,
-.variable-input-group .form-select:focus {
-    outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color) !important;
-    border: 1px solid var(--border-color) !important;
-    background: var(--input-bg) !important;
-    color: var(--primary-text) !important;
+.variable-input-group[data-type="oprocentowanie"] .input-group {
+    width: 150px;
 }
 
-/* Styl dla spinnerów w input type="number" */
+/* Specyficzne style dla prowizji */
+#prowizja .input-group .form-control {
+    flex: 3;
+    border-radius: 5px 0 0 5px !important;
+    border-right: none;
+}
+
 #prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
 #prowizja .input-group .form-control[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -434,66 +545,9 @@ body {
 }
 
 #prowizja .input-group .form-control[type="number"] {
-    -moz-appearance: textfield; /* Usuwa spinnery w Firefox */
+    -moz-appearance: textfield;
 }
 
-#prowizja .input-group .form-control {
-    flex: 3;
-    border-radius: 5px 0 0 5px !important;
-    border-right: none;
-}
-
-/* Specyficzne style dla :focus w prowizja */
-#prowizjaGroup .input-group .form-control:focus {
-    outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color) !important;
-    border: 1px solid var(--border-color) !important;
-    background: var(--input-bg) !important;
-    color: var(--primary-text) !important;
-}
-
-#rodzajRat .form-select,
-.variable-input-group .nadplata-type-select,
-.variable-input-group .nadplata-effect-select {
-    height: 22px;
-    font-size: var(--small-font-size);
-    padding: 2px 12px 2px 4px;
-    text-align: center;
-    background: var(--input-bg);
-    color: var(--primary-text);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
-    box-sizing: border-box;
-    line-height: normal;
-    width: 100%;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 4px center !important;
-}
-
-/* Dostosowanie selectów w sekcji "Nadpłata kredytu" */
-.variable-input-group[data-type="nadplata"] .nadplata-type-select,
-.variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-    width: 105px;
-}
-
-/* Style dla :focus w selectach nadpłaty */
-.variable-input-group .nadplata-type-select:focus,
-.variable-input-group .nadplata-effect-select:focus {
-    outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color) !important;
-    border: 1px solid var(--border-color) !important;
-    background: var(--input-bg) !important;
-    color: var(--primary-text) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 4px center !important;
-}
-
-/* Bardziej specyficzne i agresywne style dla jednostka-select */
 #prowizjaGroup .input-group .form-select.jednostka-select {
     height: 22px !important;
     font-size: var(--small-font-size) !important;
@@ -518,103 +572,53 @@ body {
     background-position: right 4px center !important;
 }
 
-#prowizjaGroup .input-group .form-select.jednostka-select:focus {
-    outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color) !important;
-    border: 1px solid var(--border-color) !important;
-    background: var(--input-bg) !important;
-    color: var(--primary-text) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 4px center !important;
-}
-
-.dark-mode #rodzajRat .form-select,
-.dark-mode .variable-input-group .nadplata-type-select,
-.dark-mode .variable-input-group .nadplata-effect-select,
-.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
-    border: 1px solid var(--border-color) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-position: right 4px center !important;
-}
-
-.dark-mode .variable-input-group .nadplata-type-select:focus,
-.dark-mode .variable-input-group .nadplata-effect-select:focus {
-    border: 1px solid var(--border-color) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-position: right 4px center !important;
-}
-
-.dark-mode #prowizja .input-group .form-control {
-    border-right: none;
-}
-
-.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
-    border-left: 1px solid var(--border-color) !important;
-}
-
-.dark-mode #prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
-.dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.dark-mode #rodzajRat .form-select:focus,
-.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
-    border: 1px solid var(--border-color) !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-position: right 4px center !important;
-}
-
-.input-group-text {
+#rodzajRat .form-select,
+.variable-input-group .nadplata-type-select,
+.variable-input-group .nadplata-effect-select {
     height: 22px;
     font-size: var(--small-font-size);
-    padding: 2px 5px;
+    padding: 2px 12px 2px 4px;
     text-align: center;
-    background: var(--input-group-bg);
+    background: var(--input-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     box-sizing: border-box;
     line-height: normal;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    white-space: nowrap;
+    width: 100%;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
 }
 
-.variable-input-group[data-type="nadplata"] .input-group-text,
-.variable-input-group[data-type="oprocentowanie"] .input-group-text {
-    width: auto;
-    min-width: 40px;
+/* Style dla :focus */
+.form-group .form-control:focus,
+.form-group .form-select:focus,
+.variable-input-group .form-control:focus,
+.variable-input-group .form-select:focus,
+#prowizjaGroup .input-group .form-control:focus,
+#prowizjaGroup .input-group .form-select.jednostka-select:focus,
+.variable-input-group .nadplata-type-select:focus,
+.variable-input-group .nadplata-effect-select:focus {
+    outline: none !important;
+    box-shadow: 0 0 4px var(--accent-color) !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    color: var(--primary-text) !important;
 }
 
-.input-group-text.unit-miesiacu { min-width: 50px; }
-.input-group-text.unit-miesiaca { min-width: 65px; }
-.input-group-text.unit-miesiacach { min-width: 75px; }
-.input-group-text.unit-zl { min-width: 40px; }
-
-.input-group {
-    width: 150px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
+#prowizjaGroup .input-group .form-select.jednostka-select:focus,
+.variable-input-group .nadplata-type-select:focus,
+.variable-input-group .nadplata-effect-select:focus {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
 }
 
-#prowizja .input-group {
-    display: flex;
-    width: 150px;
-}
-
-.variable-input-group[data-type="nadplata"] .input-group,
-.variable-input-group[data-type="oprocentowanie"] .input-group {
-    display: flex;
-    align-items: center;
-}
-
+/* S U W A K I */
 input[type="range"].form-range {
     margin-top: 5px;
     height: 6px;
@@ -626,24 +630,16 @@ input[type="range"].form-range {
     margin-left: auto;
     margin-right: auto;
     outline: none;
+    transition: all 0.2s ease;
 }
 
-input[type="range"].form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-}
-
-input[type="range"].form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-}
-
+input[type="range"].form-range::-webkit-slider-runnable-track,
+input[type="range"].form-range::-moz-range-track,
 input[type="range"].form-range::-ms-track {
     background: var(--input-group-bg);
     height: 6px;
     border-radius: var(--border-radius);
+    transition: background 0.2s ease;
 }
 
 input[type="range"].form-range::-webkit-slider-thumb {
@@ -656,18 +652,10 @@ input[type="range"].form-range::-webkit-slider-thumb {
     appearance: none;
     transform: translateY(2px);
     transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
 }
 
-input[type="range"].form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
+input[type="range"].form-range::-moz-range-thumb,
 input[type="range"].form-range::-ms-thumb {
     background: var(--accent-gradient-start);
     width: 11px;
@@ -676,6 +664,14 @@ input[type="range"].form-range::-ms-thumb {
     border: none;
     cursor: pointer;
     transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
+input[type="range"].form-range::-moz-range-progress {
+    background: var(--accent-gradient-start);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: width 0.2s ease;
 }
 
 input[type="range"].form-range:focus::-webkit-slider-thumb {
@@ -684,604 +680,11 @@ input[type="range"].form-range:focus::-webkit-slider-thumb {
     transform: translateY(2px) scale(1.1);
 }
 
-input[type="range"].form-range:focus::-moz-range-thumb {
-    outline: none;
-    box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: scale(1.1);
-}
-
+input[type="range"].form-range:focus::-moz-range-thumb,
 input[type="range"].form-range:focus::-ms-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
     transform: scale(1.1);
-}
-
-/* Płynny suwak w W/OD */
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range {
-    transition: all 0.2s ease;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-ms-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-/* Płynny suwak w KWOTA */
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range {
-    transition: all 0.2s ease;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-/* Płynny suwak w ZMIENNE OPROCENTOWANIE - OD */
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range {
-    transition: all 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-/* Płynny suwak w ZMIENNE OPROCENTOWANIE - OPROCENTOWANIE */
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range {
-    transition: all 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-/* D A R K   M O D E   -   S P E C Y F I C Z N E */
-.dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    border-radius: var(--border-radius);
-}
-
-.dark-mode input[type="range"].form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    border-radius: var(--border-radius);
-}
-
-.dark-mode input[type="range"].form-range::-ms-track {
-    background: var(--input-group-bg);
-    border-radius: var(--border-radius);
-}
-
-.dark-mode input[type="range"].form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start-black);
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.dark-mode input[type="range"].form-range::-moz-range-thumb,
-.dark-mode input[type="range"].form-range::-ms-thumb {
-    background: var(--accent-gradient-start-black);
-    transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb {
-    transform: translateY(2px) scale(1.1);
-}
-
-.dark-mode input[type="range"].form-range:focus::-moz-range-thumb,
-.dark-mode input[type="range"].form-range:focus::-ms-thumb {
-    transform: scale(1.1);
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-ms-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start-black);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start-black);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-/* Dark mode dla ZMIENNE OPROCENTOWANIE - OD */
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start-black);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-/* Dark mode dla ZMIENNE OPROCENTOWANIE - OPROCENTOWANIE */
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-runnable-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-track {
-    background: var(--input-group-bg);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: background 0.2s ease;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-webkit-slider-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    appearance: none;
-    transform: translateY(2px);
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-ms-thumb {
-    background: var(--accent-gradient-start-black);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease;
-    will-change: transform;
-}
-
-.dark-mode .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-range::-moz-range-progress {
-    background: var(--accent-gradient-start-black);
-    height: 6px;
-    border-radius: var(--border-radius);
-    transition: width 0.2s ease;
-}
-
-.dark-mode .harmonogram table {
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    border: 1px solid #666666;
-}
-
-.dark-mode .harmonogram th {
-    border-bottom: 2px solid #666666;
-    border-right: 1px solid #666666;
-}
-
-.dark-mode .harmonogram td {
-    border-bottom: 1px solid #666666;
-    border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
-}
-
-.dark-mode .harmonogram td .star,
-.dark-mode #harmonogramOpis .star {
-    color: #c2b280;
-}
-
-.dark-mode .dropdown-btn {
-    border: 2px solid var(--accent-gradient-start);
-    background-size: cover;
-    background-position: center;
-    background-color: transparent;
-    padding: 2px;
-    background-clip: padding-box;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn {
-    background: transparent !important;
-    border: 2px solid var(--accent-gradient-start) !important;
-    background-clip: padding-box;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"] {
-    background-image: url('flag-pl.png') !important;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"] {
-    background-image: url('flag-en.png') !important;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"] {
-    background-image: url('flag-ua.png') !important;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn:hover {
-    border: 2px solid var(--accent-gradient-start) !important;
-    background: transparent !important;
-    background-size: cover;
-    background-position: center;
-    background-clip: padding-box;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"]:hover {
-    background-image: url('flag-pl.png') !important;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"]:hover {
-    background-image: url('flag-en.png') !important;
-}
-
-.dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"]:hover {
-    background-image: url('flag-ua.png') !important;
 }
 
 /* O P I S Y   I   D A N E */
@@ -1327,47 +730,6 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 /* W Y N I K I   I   H A R M O N O G R A M */
-.result-container,
-.form-container,
-.harmonogram-container {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
-    position: relative;
-}
-
-.harmonogram-container {
-    margin-top: 20px;
-    padding: clamp(2px, 2vw, 20px);
-    width: 100%;
-    max-width: clamp(98%, 100vw, 1100px);
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box;
-}
-
-.harmonogram-chart-wrapper {
-    background-color: var(--harmonogram-bg);
-    padding: clamp(2px, 2vw, 20px);
-    border-radius: 10px;
-    width: 100%;
-    max-width: clamp(98%, 100vw, 1100px);
-    margin: 0 auto;
-    box-sizing: border-box;
-}
-
-.result-wrapper-chart {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.result-wrapper-harmonogram {
-    flex: 1;
-    max-width: 1000px;
-}
-
 .harmonogram {
     padding: 0;
     width: 100%;
@@ -1424,15 +786,6 @@ input[type="range"].form-range:focus::-ms-thumb {
 .harmonogram th:last-child,
 .harmonogram td:last-child {
     border-right: none;
-}
-
-.harmonogram .btn-toggle {
-    cursor: pointer;
-    font-size: 0.65em;
-    text-decoration: underline;
-    margin-bottom: 25px;
-    position: relative;
-    color: var(--primary-text);
 }
 
 /* W Y K R E S Y */
@@ -1572,7 +925,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 .btn-primary,
 .btn-secondary,
 #generatePdfBtn {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
     border: none !important;
     color: var(--primary-text) !important;
     box-shadow: 0 4px 6px var(--shadow-color);
@@ -1584,6 +937,32 @@ input[type="range"].form-range:focus::-ms-thumb {
     cursor: pointer;
     font-size: var(--small-font-size);
     padding: 3px 10px;
+}
+
+.btn-primary {
+    font-size: 0.9em;
+    padding: 8px 20px;
+    margin: 25px auto 0;
+}
+
+#generatePdfBtn {
+    margin: 0 0 15px auto;
+    padding: 6px 15px;
+}
+
+.btn-toggle {
+    cursor: pointer;
+    font-size: 0.8em;
+    color: #007bff;
+    text-decoration: underline;
+    margin-bottom: 10px;
+}
+
+.harmonogram .btn-toggle {
+    font-size: 0.65em;
+    margin-bottom: 25px;
+    position: relative;
+    color: var(--primary-text);
 }
 
 .round-btn {
@@ -1602,19 +981,19 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .round-btn.accent {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
     color: var(--primary-text) !important;
 }
 
 .round-btn.accent:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
 #addNadplataKredytuBtn.btn.btn-secondary.btn-sm,
 #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
     color: var(--primary-text) !important;
     border: none !important;
     border-radius: 20px;
@@ -1627,7 +1006,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 #addNadplataKredytuBtn.btn.btn-secondary.btn-sm:hover,
 #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -1635,7 +1014,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 #toggleDarkModeBtn.btn.btn-sm,
 #zoomInBtn.btn.btn-sm,
 #zoomOutBtn.btn.btn-sm {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #c2b280), var(--accent-gradient-end, #b0a070)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
     color: var(--primary-text) !important;
     border-radius: 50%;
     width: 25px;
@@ -1651,7 +1030,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 #toggleDarkModeBtn.btn.btn-sm:hover,
 #zoomInBtn.btn.btn-sm:hover,
 #zoomOutBtn.btn.btn-sm:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end, #b0a070), var(--accent-gradient-start, #c2b280)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -1677,106 +1056,189 @@ input[type="range"].form-range:focus::-ms-thumb {
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
+/* D A R K   M O D E */
+.dark-mode {
+    --primary-bg: #2b2b2b;
+    --primary-text: #e0e0e0;
+    --secondary-bg: #3a3a3a;
+    --accent-color: #8b7d47;
+    --accent-gradient-start: #8b7d47;
+    --accent-gradient-end: #70673b;
+    --accent-gradient-start-black: #a3945c;
+    --border-color: #f5f5f5;
+    --border-color-rgb: 245, 245, 245;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --logo-bg: #3a3a3a;
+    --input-bg: #3a3a3a;
+    --input-group-bg: #666666;
+    --range-track: #666666;
+    --harmonogram-bg: #404040;
+    --range-bg: #333333;
+}
+
+.dark-mode #prowizja .input-group .form-control {
+    border-right: none;
+}
+
+.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
+    border-left: 1px solid var(--border-color) !important;
+}
+
+.dark-mode #prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
+.dark-mode #prowizjaGroup .input-group .form-control[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.dark-mode #rodzajRat .form-select,
+.dark-mode .variable-input-group .nadplata-type-select,
+.dark-mode .variable-input-group .nadplata-effect-select,
+.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
+    border: 1px solid var(--border-color) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-position: right 4px center !important;
+}
+
+.dark-mode .variable-input-group .nadplata-type-select:focus,
+.dark-mode .variable-input-group .nadplata-effect-select:focus,
+.dark-mode #rodzajRat .form-select:focus,
+.dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
+    border: 1px solid var(--border-color) !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-position: right 4px center !important;
+}
+
+.dark-mode input[type="range"].form-range::-webkit-slider-runnable-track,
+.dark-mode input[type="range"].form-range::-moz-range-track,
+.dark-mode input[type="range"].form-range::-ms-track {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
+}
+
+.dark-mode input[type="range"].form-range::-webkit-slider-thumb {
+    background: var(--accent-gradient-start-black);
+    transform: translateY(2px);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.dark-mode input[type="range"].form-range::-moz-range-thumb,
+.dark-mode input[type="range"].form-range::-ms-thumb {
+    background: var(--accent-gradient-start-black);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb {
+    transform: translateY(2px) scale(1.1);
+}
+
+.dark-mode input[type="range"].form-range:focus::-moz-range-thumb,
+.dark-mode input[type="range"].form-range:focus::-ms-thumb {
+    transform: scale(1.1);
+}
+
+.dark-mode input[type="range"].form-range::-moz-range-progress {
+    background: var(--accent-gradient-start-black);
+    height: 6px;
+    border-radius: var(--border-radius);
+    transition: width 0.2s ease;
+}
+
+.dark-mode .harmonogram table {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    border: 1px solid #666666;
+}
+
+.dark-mode .harmonogram th {
+    border-bottom: 2px solid #666666;
+    border-right: 1px solid #666666;
+}
+
+.dark-mode .harmonogram td {
+    border-bottom: 1px solid #666666;
+    border-right: 1px solid rgba(var(--border-color-rgb), 0.3);
+}
+
+.dark-mode .harmonogram td .star,
+.dark-mode #harmonogramOpis .star {
+    color: #c2b280;
+}
+
+.dark-mode .dropdown-btn {
+    border: 2px solid var(--accent-gradient-start);
+    background-size: cover;
+    background-position: center;
+    background-color: transparent;
+    padding: 2px;
+    background-clip: padding-box;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn {
+    background: transparent !important;
+    border: 2px solid var(--accent-gradient-start) !important;
+    background-clip: padding-box;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"] {
+    background-image: url('flag-pl.png') !important;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"] {
+    background-image: url('flag-en.png') !important;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"] {
+    background-image: url('flag-ua.png') !important;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn:hover {
+    border: 2px solid var(--accent-gradient-start) !important;
+    background: transparent !important;
+    background-size: cover;
+    background-position: center;
+    background-clip: padding-box;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn[data-lang="PL"]:hover {
+    background-image: url('flag-pl.png') !important;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn[data-lang="EN"]:hover {
+    background-image: url('flag-en.png') !important;
+}
+
+.dark-mode .zoom-controls button.dropdown-btn[data-lang="UA"]:hover {
+    background-image: url('flag-ua.png') !important;
+}
+
 .dark-mode .btn-primary,
 .dark-mode .btn-secondary,
 .dark-mode #generatePdfBtn {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #8b7d47), var(--accent-gradient-end, #70673b)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
     color: #ffffff !important;
 }
 
 .dark-mode #addNadplataKredytuBtn.btn.btn-secondary.btn-sm,
 .dark-mode #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm {
-    background: linear-gradient(135deg, var(--accent-gradient-start, #8b7d47), var(--accent-gradient-end, #70673b)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
     color: #ffffff !important;
 }
 
 .dark-mode #addNadplataKredytuBtn.btn.btn-secondary.btn-sm:hover,
 .dark-mode #addVariableOprocentowanieBtn.btn.btn-secondary.btn-sm:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start, #8b7d47)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
 }
 
 .dark-mode #toggleDarkModeBtn.btn.btn-sm,
 .dark-mode #zoomInBtn.btn.btn-sm,
 .dark-mode #zoomOutBtn.btn.btn-sm {
-    background: linear-gradient(135deg, var(--accent-gradient-start-black, #a3945c), var(--accent-gradient-end, #70673b)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-start-black), var(--accent-gradient-end)) !important;
     color: #ffffff !important;
 }
 
 .dark-mode #toggleDarkModeBtn.btn.btn-sm:hover,
 .dark-mode #zoomInBtn.btn.btn-sm:hover,
 .dark-mode #zoomOutBtn.btn.btn-sm:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end, #70673b), var(--accent-gradient-start-black, #a3945c)) !important;
-}
-
-.btn-primary {
-    font-size: 0.9em;
-    padding: 8px 20px;
-    margin: 25px auto 0;
-}
-
-#generatePdfBtn {
-    margin: 0 0 15px auto;
-    padding: 6px 15px;
-}
-
-.btn-toggle {
-    cursor: pointer;
-    font-size: 0.8em;
-    color: #007bff;
-    text-decoration: underline;
-    margin-bottom: 10px;
-}
-
-/* Z M I E N N E   S T O P Y */
-.variable-rate-container {
-    margin-top: 15px;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-.variable-inputs {
-    margin-top: 10px;
-    display: none;
-}
-
-.variable-inputs.active {
-    display: block;
-}
-
-.variable-inputs-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.variable-input-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
-    align-items: center;
-}
-
-.variable-input-group .form-group {
-    width: 150px;
-    min-width: 0;
-    max-width: none;
-    flex: none;
-}
-
-.variable-input-group .input-group {
-    display: flex;
-    align-items: center;
-    max-width: 150px;
-}
-
-.compare-credit-row {
-    justify-content: flex-end !important; 
-}
-
-#porownajKredytLabel {
-    font-size: 10px;
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start-black)) !important;
 }
 
 /* R E S P O N S I W N O Ś Ć */
@@ -1934,6 +1396,15 @@ input[type="range"].form-range:focus::-ms-thumb {
         box-sizing: border-box;
         width: 148px;
         padding: 0;
+    }
+
+    input[type="range"].form-range::-webkit-slider-thumb {
+        transform: translateY(2px);
+    }
+
+    input[type="range"].form-range::-moz-range-thumb,
+    input[type="range"].form-range::-ms-thumb {
+        transform: none;
     }
 
     .chart-container {
