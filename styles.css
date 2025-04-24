@@ -622,7 +622,6 @@ body {
 input[type="range"].form-range {
     margin-top: 5px;
     height: 6px;
-    background: var(--range-bg); /* Użycie --range-bg zamiast --input-group-bg */
     border: 2px solid var(--border-color);
     border-radius: var(--border-radius);
     appearance: none;
@@ -631,15 +630,32 @@ input[type="range"].form-range {
     margin-right: auto;
     outline: none;
     transition: all 0.2s ease;
+    background: transparent; /* Usunięto background, aby uniknąć nadpisywania */
 }
 
-input[type="range"].form-range::-webkit-slider-runnable-track,
-input[type="range"].form-range::-moz-range-track,
-input[type="range"].form-range::-ms-track {
-    background: var(--range-bg); /* Użycie --range-bg */
+input[type="range"].form-range::-webkit-slider-runnable-track {
+    background: var(--input-group-bg); /* Użycie koloru tła jednostek stałych */
     height: 6px;
+    border: none; /* Usunięto obramowanie, bo jest już w input */
     border-radius: var(--border-radius);
     transition: background 0.2s ease;
+}
+
+input[type="range"].form-range::-moz-range-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+}
+
+input[type="range"].form-range::-ms-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border: none;
+    border-radius: var(--border-radius);
+    transition: background 0.2s ease;
+    color: transparent; /* Dla IE, aby ukryć domyślne style */
 }
 
 input[type="range"].form-range::-webkit-slider-thumb {
@@ -655,7 +671,17 @@ input[type="range"].form-range::-webkit-slider-thumb {
     will-change: transform;
 }
 
-input[type="range"].form-range::-moz-range-thumb,
+input[type="range"].form-range::-moz-range-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+    will-change: transform;
+}
+
 input[type="range"].form-range::-ms-thumb {
     background: var(--accent-gradient-start);
     width: 11px;
@@ -674,13 +700,28 @@ input[type="range"].form-range::-moz-range-progress {
     transition: width 0.2s ease;
 }
 
+input[type="range"].form-range::-ms-fill-lower {
+    background: var(--accent-gradient-start);
+    border-radius: var(--border-radius);
+}
+
+input[type="range"].form-range::-ms-fill-upper {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
+}
+
 input[type="range"].form-range:focus::-webkit-slider-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
     transform: translateY(3px) scale(1.1);
 }
 
-input[type="range"].form-range:focus::-moz-range-thumb,
+input[type="range"].form-range:focus::-moz-range-thumb {
+    outline: none;
+    box-shadow: 0 0 4px var(--accent-gradient-start);
+    transform: scale(1.1);
+}
+
 input[type="range"].form-range:focus::-ms-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
@@ -1073,7 +1114,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     --input-group-bg: #666666;
     --range-track: #666666;
     --harmonogram-bg: #404040;
-    --range-bg: #4a4a4a; /* Ciemniejszy szary dla tła suwaków w trybie ciemnym */
+    --range-bg: #4a4a4a;
 }
 
 .dark-mode #prowizja .input-group .form-control {
@@ -1108,10 +1149,18 @@ input[type="range"].form-range:focus::-ms-thumb {
     background-position: right 4px center !important;
 }
 
-.dark-mode input[type="range"].form-range::-webkit-slider-runnable-track,
-.dark-mode input[type="range"].form-range::-moz-range-track,
+.dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
+    background: var(--input-group-bg); /* Użycie koloru tła jednostek stałych w trybie ciemnym */
+    border-radius: var(--border-radius);
+}
+
+.dark-mode input[type="range"].form-range::-moz-range-track {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
+}
+
 .dark-mode input[type="range"].form-range::-ms-track {
-    background: var(--range-bg); /* Użycie --range-bg w trybie ciemnym */
+    background: var(--input-group-bg);
     border-radius: var(--border-radius);
 }
 
@@ -1121,7 +1170,11 @@ input[type="range"].form-range:focus::-ms-thumb {
     transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.dark-mode input[type="range"].form-range::-moz-range-thumb,
+.dark-mode input[type="range"].form-range::-moz-range-thumb {
+    background: var(--accent-gradient-start-black);
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
 .dark-mode input[type="range"].form-range::-ms-thumb {
     background: var(--accent-gradient-start-black);
     transition: transform 0.2s ease, background 0.2s ease;
@@ -1131,7 +1184,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     transform: translateY(3px) scale(1.1);
 }
 
-.dark-mode input[type="range"].form-range:focus::-moz-range-thumb,
+.dark-mode input[type="range"].form-range:focus::-moz-range-thumb {
+    transform: scale(1.1);
+}
+
 .dark-mode input[type="range"].form-range:focus::-ms-thumb {
     transform: scale(1.1);
 }
@@ -1141,6 +1197,16 @@ input[type="range"].form-range:focus::-ms-thumb {
     height: 6px;
     border-radius: var(--border-radius);
     transition: width 0.2s ease;
+}
+
+.dark-mode input[type="range"].form-range::-ms-fill-lower {
+    background: var(--accent-gradient-start-black);
+    border-radius: var(--border-radius);
+}
+
+.dark-mode input[type="range"].form-range::-ms-fill-upper {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
 }
 
 .dark-mode .harmonogram table {
@@ -1368,7 +1434,7 @@ input[type="range"].form-range:focus::-ms-thumb {
         border-radius: var(--border-radius) 0 0 var(--border-radius);
     }
 
-    .variable-input-group[data-type="oprocentowanie"] .form-group:bnth-child(2) .input-group-text {
+    .variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
         width: 30px;
         min-width: 30px;
         font-size: 0.6em;
