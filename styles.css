@@ -218,7 +218,7 @@ body {
 }
 
 #zmienneOprocentowanieLabel {
-    font-size: 0.65em !important;
+    font-size: 10px !important; /* Zmiana na 10px */
 }
 
 #porownajKredytLabel {
