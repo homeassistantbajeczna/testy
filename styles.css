@@ -1772,7 +1772,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 #porownajKredytLabel {
     font-size: 10px; 
-    align-items: right;
+    text-align: right;
 }
 
 /* R E S P O N S I W N O Ś Ć */
