@@ -224,6 +224,7 @@ body {
     display: block;
     padding: 10px;
     position: relative;
+    margin-top: -10px;
 }
 
 .result-section {
