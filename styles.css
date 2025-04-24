@@ -1990,16 +1990,16 @@ input[type="range"].form-range:focus::-ms-thumb {
 
     /* Wyrównanie logo do lewej strony */
     .logo-container {
-        text-align: left;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
+        text-align: left !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
     }
 
-    .logo,
-    #siteLogo {
-        margin-left: 0;
-        margin-right: 0;
-        display: block;
+    .logo-container .logo,
+    .logo-container #siteLogo {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        display: block !important;
     }
 }
