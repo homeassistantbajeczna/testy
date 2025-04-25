@@ -1198,13 +1198,13 @@ if (elements.generatePdfBtn) {
             startY: 20,
             styles: { fontSize: 8 },
             columnStyles: {
-                0: { cellWidth: 20 },
-                1: { cellWidth: 30 },
-                2: { cellWidth: 20 },
-                3: { cellWidth: 30 },
-                4: { cellWidth: 30 },
-                5: { cellWidth: 30 },
-                6: { cellWidth: 30 },
+                0: { cellWidth: 20 }, // Miesiąc
+                1: { cellWidth: 30 }, // Rata
+                2: { cellWidth: 20 }, // Oproc.
+                3: { cellWidth: 30 }, // Nadpłata
+                4: { cellWidth: 30 }, // Kapitał
+                5: { cellWidth: 30 }, // Odsetki
+                6: { cellWidth: 30 }, // Kapitał do spłaty
             },
         });
         doc.save("harmonogram.pdf");
