@@ -1,7 +1,7 @@
+// Elementy DOM
 const elements = {
     formSection: document.getElementById("formSection"),
     resultSection: document.getElementById("resultSection"),
-    porownajKredytBtn: document.getElementById("porownajKredytBtn"),
     kwota: document.getElementById("kwota"),
     kwotaRange: document.getElementById("kwotaRange"),
     iloscRat: document.getElementById("iloscRat"),
@@ -13,27 +13,27 @@ const elements = {
     prowizjaRange: document.getElementById("prowizjaRange"),
     jednostkaProwizji: document.getElementById("jednostkaProwizji"),
     zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
-    variableOprocentowanieInputs: document.getElementById("variableOprocentowanieInputs"),
-    addVariableOprocentowanieBtn: document.getElementById("addVariableOprocentowanieBtn"),
     nadplataKredytuBtn: document.getElementById("nadplataKredytuBtn"),
-    nadplataKredytuInputs: document.getElementById("nadplataKredytuInputs"),
+    addVariableOprocentowanieBtn: document.getElementById("addVariableOprocentowanieBtn"),
     addNadplataKredytuBtn: document.getElementById("addNadplataKredytuBtn"),
     obliczBtn: document.getElementById("obliczBtn"),
+    zoomInBtn: document.getElementById("zoomInBtn"),
+    zoomOutBtn: document.getElementById("zoomOutBtn"),
+    toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
+    generatePdfBtn: document.getElementById("generatePdfBtn"),
+    chartContainer: document.getElementById("creditChart"),
+    harmonogramContainer: document.getElementById("harmonogramTabela"),
     valueKapital: document.getElementById("valueKapital"),
     valueOdsetki: document.getElementById("valueOdsetki"),
     valueNadplata: document.getElementById("valueNadplata"),
     valueProwizja: document.getElementById("valueProwizja"),
     okresPoNadplacie: document.getElementById("okresPoNadplacie"),
     koszt: document.getElementById("koszt"),
-    harmonogramContainer: document.getElementById("harmonogramTabela"),
-    chartContainer: document.getElementById("creditChart"),
-    zoomInBtn: document.getElementById("zoomInBtn"),
-    zoomOutBtn: document.getElementById("zoomOutBtn"),
-    toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
-    generatePdfBtn: document.getElementById("generatePdfBtn"),
 };
 
 const state = {
+    variableRates: [],
+    overpaymentRates: [],
     lastFormData: {
         kwota: 500000,
         iloscRat: 360,
@@ -44,108 +44,66 @@ const state = {
         zmienneOprocentowanie: false,
         nadplataKredytu: false,
     },
-    variableRates: [],
-    overpaymentRates: [],
 };
 
+// Funkcja do formatowania liczb z separatorem tysięcy
 function formatNumberWithSpaces(number) {
-    if (isNaN(number)) return "0";
-    const roundedNumber = Number(number).toFixed(2);
-    const [integerPart, decimalPart] = roundedNumber.split(".");
-    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    return decimalPart === "00" ? formattedInteger : `${formattedInteger},${decimalPart}`;
+    const roundedNumber = Math.round(number * 100) / 100;
+    return roundedNumber.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, " ").replace('.', ',');
 }
 
+// Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    console.log(`syncInputWithRange called for ${input?.id || "unknown"}`, options);
-
-    const isDecimal = options.isDecimal || false;
-    const isVariableCykl = options.isVariableCykl || false;
-    const activeType = options.activeType || null;
-    const index = options.index !== undefined ? options.index : null;
-    const onChange = options.onChange || null;
-
-    if (!input || !range) {
-        console.error("Input or range element not found:", { input, range });
-        return;
-    }
+    const { isDecimal = false, activeType = null, isVariableCykl = false, onChange = null, index = null } = options;
 
     const updateRange = () => {
         let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
-        if (isNaN(value)) {
-            value = parseFloat(input.min) || 0;
-            input.value = isDecimal ? value.toFixed(2) : value;
-        }
+        if (isNaN(value) || value < parseFloat(input.min)) value = parseFloat(input.min);
+        if (value > parseFloat(input.max)) value = parseFloat(input.max);
         range.value = value;
         if (onChange) onChange(value);
-    };
-
-    const validateInput = () => {
-        let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
-        const min = parseFloat(input.min) || 0;
-        const max = parseFloat(input.max) || Infinity;
-
-        if (isNaN(value) || value < min) {
-            value = min;
-            input.value = isDecimal ? value.toFixed(2) : value;
-        } else if (value > max) {
-            value = max;
-            input.value = isDecimal ? value.toFixed(2) : value;
-        }
-
-        range.value = value;
-        if (onChange) onChange(value);
-
-        if (input.id === "kwota") updateKwotaInfo();
-        if (input.id === "iloscRat") updateLata();
-        if (input.id === "prowizja") updateProwizjaInfo();
-        if (isVariableCykl) updateVariableInputs();
     };
 
     const updateInput = () => {
         let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
-        const min = parseFloat(range.min) || 0;
-        const max = parseFloat(range.max) || Infinity;
-
-        if (isNaN(value) || value < min) {
-            value = min;
-        } else if (value > max) {
-            value = max;
-        }
-
         input.value = isDecimal ? value.toFixed(2) : value;
         if (onChange) onChange(value);
 
         if (input.id === "kwota") updateKwotaInfo();
-        if (input.id === "iloscRat") updateLata();
+        if (input.id === "iloscRat") {
+            updateLata();
+            updateVariableInputs();
+        }
+        if (input.id === "oprocentowanie") {
+            state.lastFormData.oprocentowanie = value;
+        }
         if (input.id === "prowizja") updateProwizjaInfo();
-        if (isVariableCykl) updateVariableInputs();
     };
 
-    input.addEventListener("input", () => {
-        let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
-        if (isNaN(value)) {
-            value = parseFloat(input.min) || 0;
-            input.value = isDecimal ? value.toFixed(2) : value;
-        }
-        range.value = value;
-        if (onChange) onChange(value);
-
-        if (input.id === "kwota") updateKwotaInfo();
-        if (input.id === "iloscRat") updateLata();
-        if (input.id === "prowizja") updateProwizjaInfo();
-        if (isVariableCykl) updateVariableInputs();
-    });
-
-    input.addEventListener("blur", validateInput);
-
+    input.addEventListener("input", updateRange);
     range.addEventListener("input", updateInput);
+
+    if (isVariableCykl && activeType) {
+        input.addEventListener("input", () => {
+            const value = parseInt(input.value);
+            const changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+            changes[index].period = value;
+            updateVariableInputs();
+        });
+        range.addEventListener("input", () => {
+            const value = parseInt(range.value);
+            const changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+            changes[index].period = value;
+            updateVariableInputs();
+        });
+    }
 
     updateRange();
 }
 
-syncInputWithRange(elements.kwota, elements.kwotaRange, { isDecimal: false });
-syncInputWithRange(elements.iloscRat, elements.iloscRatRange, { isDecimal: false });
+// Synchronizacja początkowa
+syncInputWithRange(elements.kwota, elements.kwotaRange);
+syncInputWithRange(elements.iloscRat, elements.iloscRatRange);
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, { isDecimal: true });
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, { isDecimal: true });
 
@@ -156,7 +114,7 @@ function calculateLoan() {
     console.log("Before getting rodzajRat:", elements.rodzajRat);
     console.log("rodzajRat value before calculation:", elements.rodzajRat.value);
 
-    const kwota = parseInt(elements.kwota.value) || 0; // Używamy parseInt, aby upewnić się, że kwota jest całkowita
+    const kwota = parseInt(elements.kwota.value) || 0;
     let iloscRat = parseInt(elements.iloscRat.value) || 0;
     let oprocentowanie = parseFloat(elements.oprocentowanie.value) || 0;
     const rodzajRat = elements.rodzajRat.value || "rowne";
@@ -626,12 +584,12 @@ function updateProwizjaInput() {
     if (jednostka === "procent") {
         min = 0;
         max = 25;
-        step = 0.01;
+        step = 0.1;
         defaultValue = 2;
     } else {
         min = 0;
         max = 1250000;
-        step = 0.01;
+        step = 0.1;
         defaultValue = 10000;
     }
 
@@ -661,13 +619,11 @@ function updateProwizjaInput() {
 
 function updateKwotaInfo() {
     console.log("updateKwotaInfo called");
-    const kwota = parseInt(elements.kwota.value) || 500000; // Używamy parseInt, aby uniknąć miejsc po przecinku
+    const kwota = parseInt(elements.kwota.value) || 500000;
     const kwotaInfo = document.getElementById("kwotaInfo");
     if (kwotaInfo) {
-        kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`; // formatNumberWithSpaces już usuwa ",00"
+        kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`;
     }
-    // Upewniamy się, że wartość w polu input jest całkowita
-    elements.kwota.value = kwota; // Usuwa wszelkie miejsca po przecinku w polu wejściowym
 }
 
 function updateLata() {
@@ -684,7 +640,7 @@ function updateProwizjaInfo() {
     console.log("updateProwizjaInfo called");
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value;
-    const kwota = parseInt(elements.kwota.value) || 500000; // Używamy parseInt dla kwoty
+    const kwota = parseInt(elements.kwota.value) || 500000;
     const prowizjaInfo = document.getElementById("prowizjaInfo");
     if (prowizjaInfo) {
         const wartosc = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
@@ -818,10 +774,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="0.01" value="${inputValue.toFixed(2)}">
+                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="0.1" value="${inputValue.toFixed(2)}">
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="0.01" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="0.1" value="${inputValue}">
             `;
 
             const rateInput = rateGroup.querySelector(".variable-rate");
@@ -834,7 +790,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             fieldsWrapper.appendChild(rateGroup);
         } else {
             const cyklGroup = document.createElement("div");
-            cyklGroup.className = "form-group";
+            cykGroup.className = "form-group";
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
@@ -850,10 +806,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${inputValue.toFixed(2)}">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="${inputValue.toFixed(2)}">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.1" value="${inputValue}">
             `;
 
             fieldsWrapper.appendChild(cyklGroup);
@@ -1152,8 +1108,8 @@ if (siteLogo) {
 }
 
 // Inicjalizacja
-elements.oprocentowanie.step = "0.01";
-elements.oprocentowanieRange.step = "0.01";
+elements.oprocentowanie.step = "0.1";
+elements.oprocentowanieRange.step = "0.1";
 updateProwizjaInput();
 updateKwotaInfo();
 updateLata();
