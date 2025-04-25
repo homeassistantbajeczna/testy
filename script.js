@@ -1,4 +1,3 @@
-// SEKCJA: Elementy DOM
 const elements = {
     formSection: document.getElementById("formSection"),
     kwota: document.getElementById("kwota"),
@@ -56,12 +55,14 @@ const state = {
     tempValues: {},
 };
 
-// Funkcja formatująca liczby z separatorem tysięcy (spacja) i przecinkiem dziesiętnym
+// Funkcja formatująca liczby z separatorem tysięcy (spacja) i przecinkiem dziesiętnym tylko dla wartości niecałkowitych
 function formatNumberWithSpaces(number) {
-    if (isNaN(number)) return "0,00";
-    const parts = number.toFixed(2).split(".");
+    if (isNaN(number)) return "0";
+    const isInteger = Number.isInteger(number);
+    const formattedNumber = isInteger ? number.toString() : number.toFixed(2);
+    const parts = formattedNumber.split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    return parts.join(",");
+    return isInteger ? parts[0] : parts.join(",");
 }
 
 // Synchronizacja inputów z suwakami
@@ -97,14 +98,15 @@ function syncInputWithRange(input, range, options = {}) {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(input.step) || 1;
-        let parsedValue = isDecimal ? parseFloat(value) : parseInt(value);
-        if (isNaN(parsedValue)) parsedValue = min;
+        let parsedValue = parseFloat(value);
+        if (isNaN(parsedValue)) parsedValue = 0; // Zmieniamy domyślną wartość na 0 zamiast min
 
-        // Stosujemy ograniczenie minimalne TYLKO, jeśli wartość jest mniejsza niż min
-        if (parsedValue < min) {
+        // Usuwamy wymuszanie minimalnej wartości podczas wpisywania
+        if (parsedValue < min && source === "Input" && !applyMinValidation) {
+            // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy dopiero przy zatwierdzeniu
+        } else if (parsedValue < min) {
             parsedValue = min;
         }
-        // Nadal stosujemy ograniczenie maksymalne
         if (parsedValue > max) {
             parsedValue = max;
         }
@@ -114,10 +116,14 @@ function syncInputWithRange(input, range, options = {}) {
             parsedValue = 100;
         }
 
+        // Formatowanie wartości: pokazujemy miejsca po przecinku tylko dla wartości niecałkowitych
+        const isInteger = Number.isInteger(parsedValue);
         if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-            input.value = parsedValue.toFixed(2);
+            input.value = isInteger ? parsedValue.toString() : parsedValue.toFixed(2);
+        } else if (input.id === "kwota" || input.id === "prowizja") {
+            input.value = isInteger ? parsedValue.toString() : parsedValue.toFixed(2);
         } else {
-            input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
+            input.value = isDecimal ? (isInteger ? parsedValue.toString() : parsedValue.toFixed(step === 1 ? 0 : 2)) : parsedValue;
         }
         range.value = parsedValue;
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, activeType=${activeType}, index=${index}`);
@@ -156,11 +162,9 @@ function syncInputWithRange(input, range, options = {}) {
 
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
-    const step = parseFloat(input.step) || 1;
-    let initialValue = isDecimal ? parseFloat(range.value) : parseInt(range.value);
+    let initialValue = parseFloat(range.value);
     if (isNaN(initialValue)) initialValue = min;
 
-    // Stosujemy ograniczenie minimalne TYLKO, jeśli wartość początkowa jest mniejsza niż min
     if (initialValue < min) {
         initialValue = min;
     }
@@ -172,17 +176,20 @@ function syncInputWithRange(input, range, options = {}) {
         initialValue = 100;
     }
 
+    const isInteger = Number.isInteger(initialValue);
     if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-        input.value = initialValue.toFixed(2);
+        input.value = isInteger ? initialValue.toString() : initialValue.toFixed(2);
+    } else if (input.id === "kwota" || input.id === "prowizja") {
+        input.value = isInteger ? initialValue.toString() : initialValue.toFixed(2);
     } else {
-        input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
+        input.value = isDecimal ? (isInteger ? initialValue.toString() : initialValue.toFixed(step === 1 ? 0 : 2)) : initialValue;
     }
     range.value = initialValue;
     console.log(`Initial sync: ${input.id || range.className} = ${initialValue}`);
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
-    isDecimal: false,
+    isDecimal: true, // Zmieniamy na true, aby umożliwić wartości dziesiętne
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
