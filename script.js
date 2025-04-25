@@ -347,6 +347,7 @@ function calculateLoan() {
                 console.error("Invalid rata calculation (malejące):", { kapital, odsetki, rata });
                 rata = 0;
             }
+            console.log(`Month ${i} (malejące): kapital=${kapital}, odsetki=${odsetki}, rata=${rata}`);
         }
 
         // Obsługa nadpłat
@@ -993,6 +994,7 @@ if (elements.jednostkaProwizji) {
 if (elements.rodzajRat) {
     elements.rodzajRat.addEventListener("change", () => {
         state.lastFormData.rodzajRat = elements.rodzajRat.value;
+        console.log("Rodzaj rat changed to:", elements.rodzajRat.value);
     });
 }
 
