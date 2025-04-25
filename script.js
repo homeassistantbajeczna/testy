@@ -19,8 +19,8 @@ const elements = {
     zoomOutBtn: document.getElementById("zoomOutBtn"),
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
     resultSection: document.getElementById("resultSection"),
-    harmonogramContainer: document.getElementById("harmonogramTabela"), // Dostosowane do Twojego HTML
-    chartContainer: document.getElementById("creditChart"), // Dostosowane do Twojego HTML
+    harmonogramContainer: document.getElementById("harmonogramTabela"),
+    chartContainer: document.getElementById("creditChart"),
     generatePdfBtn: document.getElementById("generatePdfBtn"),
     valueKapital: document.getElementById("valueKapital"),
     valueOdsetki: document.getElementById("valueOdsetki"),
@@ -217,6 +217,7 @@ function calculateLoan() {
         nadplataKredytu: elements.nadplataKredytuBtn.checked
     };
 
+    // Pobieranie zmiennych stóp oprocentowania
     if (elements.zmienneOprocentowanieBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
         state.variableRates = [];
@@ -227,9 +228,11 @@ function calculateLoan() {
             const value = parseFloat(rateInput.value);
             state.variableRates.push({ period, value });
         });
+        state.variableRates.sort((a, b) => a.period - b.period);
         console.log("state.variableRates updated before calculation:", state.variableRates);
     }
 
+    // Pobieranie nadpłat
     if (elements.nadplataKredytuBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
         state.overpaymentRates = [];
@@ -244,6 +247,7 @@ function calculateLoan() {
             const effect = effectSelect.value;
             state.overpaymentRates.push({ period, value, type, effect });
         });
+        state.overpaymentRates.sort((a, b) => a.period - b.period);
         console.log("state.overpaymentRates updated before calculation:", state.overpaymentRates);
     }
 
@@ -256,44 +260,44 @@ function calculateLoan() {
 
     let monthlyRate = oprocentowanie / 100 / 12;
     let rata = 0;
+    let remainingMonths = iloscRat;
+    let baseKapital = rodzajRat === "malejace" ? kwota / iloscRat : 0; // Dla rat malejących
 
+    // Początkowe obliczenie raty dla rat równych
     if (rodzajRat === "rowne") {
         rata = (kwota * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat));
+        if (isNaN(rata) || rata < 0) rata = 0;
     }
 
-    state.variableRates.sort((a, b) => a.period - b.period);
-    state.overpaymentRates.sort((a, b) => a.period - b.period);
-
     let i = 1;
-    while (i <= iloscRat && pozostalyKapital > 0) {
+    while (i <= iloscRat && pozostalyKapital > 0.01) { // Używamy 0.01 jako próg, aby uniknąć błędów zaokrągleń
         let odsetki = pozostalyKapital * monthlyRate;
         let kapital;
 
+        // Obsługa zmiennych stóp procentowych
+        let currentOprocentowanie = oprocentowanie;
         state.variableRates.forEach((rate) => {
             if (i >= rate.period) {
-                oprocentowanie = parseFloat(rate.value);
-                monthlyRate = oprocentowanie / 100 / 12;
-                if (rodzajRat === "rowne") {
-                    rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(iloscRat - i + 1)));
-                    if (isNaN(rata) || rata < 0) rata = 0;
-                    odsetki = pozostalyKapital * monthlyRate;
-                    kapital = rata - odsetki;
-                } else {
-                    odsetki = pozostalyKapital * monthlyRate;
-                    kapital = kwota / iloscRat;
-                    rata = kapital + odsetki;
-                }
+                currentOprocentowanie = parseFloat(rate.value);
+                monthlyRate = currentOprocentowanie / 100 / 12;
             }
         });
 
+        // Ponowne obliczenie raty po zmianie oprocentowania
         if (rodzajRat === "rowne") {
+            // Przeliczamy ratę dla pozostałego kapitału i okresu
+            rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
+            if (isNaN(rata) || rata < 0) rata = 0;
+            odsetki = pozostalyKapital * monthlyRate;
             kapital = rata - odsetki;
         } else {
-            kapital = kwota / iloscRat;
+            // Raty malejące: część kapitałowa jest stała, ale może być przeliczona po nadpłacie
+            kapital = baseKapital;
             odsetki = pozostalyKapital * monthlyRate;
             rata = kapital + odsetki;
         }
 
+        // Obsługa nadpłat
         let nadplata = 0;
         state.overpaymentRates.forEach((overpayment) => {
             let isActive = false;
@@ -310,28 +314,46 @@ function calculateLoan() {
             if (isActive) {
                 nadplata += parseFloat(overpayment.value);
                 sumaNadplat += nadplata;
+                pozostalyKapital -= nadplata;
+                if (pozostalyKapital < 0) pozostalyKapital = 0;
+
                 if (overpayment.effect === "Skróć okres") {
-                    pozostalyKapital -= nadplata;
-                    if (pozostalyKapital <= 0) {
-                        iloscRat = i;
+                    if (rodzajRat === "rowne") {
+                        // Przeliczamy ratę dla nowego okresu
+                        remainingMonths = i < iloscRat ? calculateRemainingMonths(pozostalyKapital, rata, monthlyRate) : 0;
+                        if (remainingMonths <= 0) {
+                            iloscRat = i;
+                            remainingMonths = 0;
+                        } else {
+                            iloscRat = i + remainingMonths;
+                            rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
+                            if (isNaN(rata) || rata < 0) rata = 0;
+                        }
+                    } else {
+                        // Raty malejące: przeliczamy część kapitałową
+                        remainingMonths = i < iloscRat ? Math.ceil(pozostalyKapital / baseKapital) : 0;
+                        if (remainingMonths <= 0) {
+                            iloscRat = i;
+                            remainingMonths = 0;
+                        } else {
+                            iloscRat = i + remainingMonths;
+                            baseKapital = pozostalyKapital / remainingMonths;
+                        }
                     }
                 } else {
+                    // Zmniejsz ratę
                     if (rodzajRat === "rowne") {
-                        rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(iloscRat - i + 1)));
+                        rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
                         if (isNaN(rata) || rata < 0) rata = 0;
-                        odsetki = pozostalyKapital * monthlyRate;
-                        kapital = rata - odsetki;
                     } else {
-                        kapital = (pozostalyKapital - nadplata) / (iloscRat - i + 1);
-                        if (kapital < 0) kapital = pozostalyKapital;
-                        odsetki = pozostalyKapital * monthlyRate;
-                        rata = kapital + odsetki;
+                        baseKapital = pozostalyKapital / remainingMonths;
                     }
                 }
             }
         });
 
-        if (pozostalyKapital <= 0) {
+        // Sprawdzenie, czy kapitał został spłacony
+        if (pozostalyKapital <= 0.01) {
             harmonogram.push({
                 rata: i,
                 kwotaRaty: (0).toFixed(2),
@@ -341,6 +363,13 @@ function calculateLoan() {
                 pozostalyKapital: (0).toFixed(2),
             });
             break;
+        }
+
+        // Korekta kapitału i odsetek w przypadku ostatniej raty
+        if (kapital > pozostalyKapital) {
+            kapital = pozostalyKapital;
+            odsetki = pozostalyKapital * monthlyRate;
+            rata = kapital + odsetki;
         }
 
         pozostalyKapital -= kapital;
@@ -359,9 +388,21 @@ function calculateLoan() {
         });
 
         i++;
+        remainingMonths--;
+        if (remainingMonths <= 0 && pozostalyKapital > 0) {
+            remainingMonths = calculateRemainingMonths(pozostalyKapital, rata, monthlyRate);
+            il loscRat = i + remainingMonths;
+        }
     }
 
     displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat);
+}
+
+// Funkcja pomocnicza do obliczania pozostałych miesięcy dla rat równych
+function calculateRemainingMonths(pozostalyKapital, rata, monthlyRate) {
+    if (monthlyRate === 0 || rata <= 0 || pozostalyKapital <= 0) return 0;
+    const n = Math.log(rata / (rata - pozostalyKapital * monthlyRate)) / Math.log(1 + monthlyRate);
+    return Math.ceil(n);
 }
 
 // Wyświetlanie wyników
@@ -369,7 +410,6 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
     elements.formSection.style.display = "none";
     elements.resultSection.style.display = "block";
 
-    // Aktualizacja podsumowania w legendzie i stopce
     const calkowityKoszt = sumaKapitalu + sumaOdsetek + prowizjaKwota + sumaNadplat;
     elements.valueKapital.textContent = formatNumberWithSpaces(sumaKapitalu) + " zł";
     elements.valueOdsetki.textContent = formatNumberWithSpaces(sumaOdsetek) + " zł";
@@ -378,13 +418,11 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
     elements.okresPoNadplacie.textContent = iloscRat;
     elements.koszt.textContent = formatNumberWithSpaces(calkowityKoszt);
 
-    // Aktualizacja tooltipów w legendzie
     document.querySelector('.legend-item[data-index="0"] .color-box').setAttribute('data-tooltip', `Kapitał: ${formatNumberWithSpaces(sumaKapitalu)} zł`);
     document.querySelector('.legend-item[data-index="1"] .color-box').setAttribute('data-tooltip', `Odsetki: ${formatNumberWithSpaces(sumaOdsetek)} zł`);
     document.querySelector('.legend-item[data-index="2"] .color-box').setAttribute('data-tooltip', `Nadpłaty: ${formatNumberWithSpaces(sumaNadplat)} zł`);
     document.querySelector('.legend-item[data-index="3"] .color-box').setAttribute('data-tooltip', `Prowizja: ${formatNumberWithSpaces(prowizjaKwota)} zł`);
 
-    // Harmonogram
     let harmonogramHTML = "";
     harmonogram.forEach((row) => {
         harmonogramHTML += `
@@ -400,9 +438,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
     });
     elements.harmonogramContainer.innerHTML = harmonogramHTML;
 
-    // Wykres kołowy
     const ctx = elements.chartContainer.getContext("2d");
-    // Usuń istniejący wykres, jeśli istnieje
     if (elements.chartContainer.chart) {
         elements.chartContainer.chart.destroy();
     }
@@ -419,7 +455,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
             responsive: true,
             plugins: {
                 legend: {
-                    display: false, // Wyłączamy domyślną legendę, bo masz własną
+                    display: false,
                 },
                 tooltip: {
                     callbacks: {
@@ -435,7 +471,6 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
     });
 }
 
-// Funkcja do pokazywania formularza (dla przycisku "Powrót do edycji")
 function showForm() {
     elements.formSection.style.display = "block";
     elements.resultSection.style.display = "none";
