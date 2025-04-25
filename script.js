@@ -99,12 +99,19 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = isDecimal ? parseFloat(value) : parseInt(value);
         if (isNaN(parsedValue)) parsedValue = min;
 
+        // Stosujemy ograniczenie minimalne TYLKO, jeśli wartość jest mniejsza niż min
+        if (parsedValue < min) {
+            parsedValue = min;
+        }
+        // Nadal stosujemy ograniczenie maksymalne
+        if (parsedValue > max) {
+            parsedValue = max;
+        }
+
+        // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100, ale tylko jeśli wartość jest mniejsza
         if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
             parsedValue = 100;
         }
-
-        if (parsedValue < min) parsedValue = min;
-        if (parsedValue > max) parsedValue = max;
 
         if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
             input.value = parsedValue.toFixed(2);
@@ -151,8 +158,14 @@ function syncInputWithRange(input, range, options = {}) {
     const step = parseFloat(input.step) || 1;
     let initialValue = isDecimal ? parseFloat(range.value) : parseInt(range.value);
     if (isNaN(initialValue)) initialValue = min;
-    if (initialValue < min) initialValue = min;
-    if (initialValue > max) initialValue = max;
+
+    // Stosujemy ograniczenie minimalne TYLKO, jeśli wartość początkowa jest mniejsza niż min
+    if (initialValue < min) {
+        initialValue = min;
+    }
+    if (initialValue > max) {
+        initialValue = max;
+    }
 
     if (activeType === "nadplata" && input.classList.contains("variable-rate") && initialValue < 100) {
         initialValue = 100;
