@@ -287,42 +287,58 @@ function calculateLoan() {
             rata = (kwota * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat));
         }
         if (isNaN(rata) || rata <= 0) {
-            console.error("Invalid rata calculation:", { kwota, monthlyRate, iloscRat, rata });
+            console.error("Invalid rata calculation (równe):", { kwota, monthlyRate, iloscRat, rata });
             alert("Błąd w obliczeniach raty. Sprawdź dane wejściowe.");
             return;
         }
         console.log("Initial rata (równe):", rata);
     } else {
-        // Dla rat malejących: początkowa część kapitałowa
         console.log("Initial baseKapital (malejące):", baseKapital);
     }
 
     let i = 1;
+    let lastRateChangeMonth = 0;
     while (i <= iloscRat && pozostalyKapital > 0.01) {
         // Obsługa zmiennych stóp procentowych
         let currentOprocentowanie = oprocentowanie;
+        let rateChanged = false;
         state.variableRates.forEach((rate) => {
             if (i >= rate.period) {
                 currentOprocentowanie = parseFloat(rate.value);
                 monthlyRate = currentOprocentowanie / 100 / 12;
+                if (i >= rate.period && lastRateChangeMonth < rate.period) {
+                    rateChanged = true;
+                    lastRateChangeMonth = rate.period;
+                }
             }
         });
 
-        let odsetki = pozostalyKapital * monthlyRate;
-        let kapital;
-
-        if (rodzajRat === "rowne") {
-            // Przeliczenie raty po zmianie oprocentowania
+        // Przeliczenie raty po zmianie oprocentowania (tylko dla rat równych)
+        if (rateChanged && rodzajRat === "rowne") {
             if (monthlyRate === 0) {
                 rata = pozostalyKapital / remainingMonths;
             } else {
                 rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
             }
             if (isNaN(rata) || rata <= 0) rata = 0;
+            console.log(`Rata recalculated after rate change at month ${i}:`, rata);
+        }
+
+        let odsetki = pozostalyKapital * monthlyRate;
+        let kapital;
+
+        if (rodzajRat === "rowne") {
             kapital = rata - odsetki;
+            if (kapital < 0) {
+                kapital = pozostalyKapital;
+                odsetki = rata - kapital;
+            }
         } else {
             // Raty malejące
-            kapital = baseKapital; // Część kapitałowa jest stała, chyba że zmieniona przez nadpłatę
+            kapital = baseKapital;
+            if (kapital > pozostalyKapital) {
+                kapital = pozostalyKapital;
+            }
             odsetki = pozostalyKapital * monthlyRate;
             rata = kapital + odsetki;
             if (isNaN(rata) || rata <= 0) {
@@ -359,22 +375,16 @@ function calculateLoan() {
                             remainingMonths = 0;
                         } else {
                             iloscRat = i + remainingMonths;
-                            if (monthlyRate === 0) {
-                                rata = pozostalyKapital / remainingMonths;
-                            } else {
-                                rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
-                            }
-                            if (isNaN(rata) || rata <= 0) rata = 0;
+                            // Rata pozostaje taka sama
                         }
                     } else {
-                        // Raty malejące: skracamy okres, ale część kapitałowa pozostaje taka sama
                         remainingMonths = i < iloscRat ? Math.ceil(pozostalyKapital / baseKapital) : 0;
                         if (remainingMonths <= 0) {
                             iloscRat = i;
                             remainingMonths = 0;
                         } else {
                             iloscRat = i + remainingMonths;
-                            // Nie przeliczamy baseKapital, pozostaje taka sama
+                            // baseKapital pozostaje taka sama
                         }
                     }
                 } else {
@@ -387,11 +397,11 @@ function calculateLoan() {
                         }
                         if (isNaN(rata) || rata <= 0) rata = 0;
                     } else {
-                        // Raty malejące: przeliczamy część kapitałową
-                        baseKapital = pozostalyKapital / remainingMonths;
+                        baseKapital = remainingMonths > 0 ? pozostalyKapital / remainingMonths : 0;
                         if (isNaN(baseKapital) || baseKapital <= 0) baseKapital = 0;
                     }
                 }
+                console.log(`After overpayment at month ${i}: pozostalyKapital=${pozostalyKapital}, remainingMonths=${remainingMonths}, rata=${rata}, baseKapital=${baseKapital}`);
             }
         });
 
@@ -405,12 +415,6 @@ function calculateLoan() {
                 pozostalyKapital: (0).toFixed(2),
             });
             break;
-        }
-
-        if (kapital > pozostalyKapital) {
-            kapital = pozostalyKapital;
-            odsetki = pozostalyKapital * monthlyRate;
-            rata = kapital + odsetki;
         }
 
         pozostalyKapital -= kapital;
