@@ -313,21 +313,23 @@ function calculateLoan() {
             }
         });
 
-        // Przeliczenie raty po zmianie oprocentowania (tylko dla rat równych)
-        if (rateChanged && rodzajRat === "rowne") {
-            if (monthlyRate === 0) {
-                rata = pozostalyKapital / remainingMonths;
-            } else {
-                rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
-            }
-            if (isNaN(rata) || rata <= 0) rata = 0;
-            console.log(`Rata recalculated after rate change at month ${i}:`, rata);
-        }
+        let kapital = 0;
+        let odsetki = 0;
 
-        let odsetki = pozostalyKapital * monthlyRate;
-        let kapital;
-
+        // Obliczenia w zależności od rodzaju rat
         if (rodzajRat === "rowne") {
+            // Przeliczenie raty po zmianie oprocentowania
+            if (rateChanged) {
+                if (monthlyRate === 0) {
+                    rata = pozostalyKapital / remainingMonths;
+                } else {
+                    rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
+                }
+                if (isNaN(rata) || rata <= 0) rata = 0;
+                console.log(`Rata recalculated after rate change at month ${i}:`, rata);
+            }
+
+            odsetki = pozostalyKapital * monthlyRate;
             kapital = rata - odsetki;
             if (kapital < 0) {
                 kapital = pozostalyKapital;
@@ -375,7 +377,6 @@ function calculateLoan() {
                             remainingMonths = 0;
                         } else {
                             iloscRat = i + remainingMonths;
-                            // Rata pozostaje taka sama
                         }
                     } else {
                         remainingMonths = i < iloscRat ? Math.ceil(pozostalyKapital / baseKapital) : 0;
@@ -384,14 +385,13 @@ function calculateLoan() {
                             remainingMonths = 0;
                         } else {
                             iloscRat = i + remainingMonths;
-                            // baseKapital pozostaje taka sama
                         }
                     }
                 } else {
                     // Zmniejsz ratę
                     if (rodzajRat === "rowne") {
                         if (monthlyRate === 0) {
-                            rata = pozostalyKapital / remainingMonths;
+                            rata = remainingMonths > 0 ? pozostalyKapital / remainingMonths : 0;
                         } else {
                             rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
                         }
@@ -437,10 +437,10 @@ function calculateLoan() {
         if (remainingMonths <= 0 && pozostalyKapital > 0) {
             if (rodzajRat === "rowne") {
                 remainingMonths = calculateRemainingMonths(pozostalyKapital, rata, monthlyRate);
-                iloscRat = i + remainingMonths;
+                iloscRat = i + remainingMonths - 1;
             } else {
                 remainingMonths = Math.ceil(pozostalyKapital / baseKapital);
-                iloscRat = i + remainingMonths;
+                iloscRat = i + remainingMonths - 1;
             }
         }
     }
