@@ -59,10 +59,10 @@ const state = {
 function formatNumberWithSpaces(number) {
     if (isNaN(number)) return "0";
     const isInteger = Number.isInteger(number);
-    const formattedNumber = isInteger ? number.toString() : number.toFixed(2);
-    const parts = formattedNumber.split(".");
+    const formattedNumber = isInteger ? number.toString() : number.toFixed(2).replace(".", ",");
+    const parts = formattedNumber.split(",");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    return isInteger ? parts[0] : parts.join(",");
+    return parts.join(",");
 }
 
 // Synchronizacja inputów z suwakami
@@ -98,12 +98,17 @@ function syncInputWithRange(input, range, options = {}) {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(input.step) || 1;
+        
+        // Zamiana przecinka na kropkę podczas parsowania wartości
+        if (typeof value === "string") {
+            value = value.replace(",", ".");
+        }
         let parsedValue = parseFloat(value);
-        if (isNaN(parsedValue)) parsedValue = 0; // Zmieniamy domyślną wartość na 0 zamiast min
+        if (isNaN(parsedValue)) parsedValue = 0;
 
         // Usuwamy wymuszanie minimalnej wartości podczas wpisywania
         if (parsedValue < min && source === "Input" && !applyMinValidation) {
-            // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy dopiero przy zatwierdzeniu
+            // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy przy zatwierdzeniu
         } else if (parsedValue < min) {
             parsedValue = min;
         }
@@ -111,7 +116,7 @@ function syncInputWithRange(input, range, options = {}) {
             parsedValue = max;
         }
 
-        // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100, ale tylko jeśli wartość jest mniejsza
+        // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100
         if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
             parsedValue = 100;
         }
@@ -119,11 +124,11 @@ function syncInputWithRange(input, range, options = {}) {
         // Formatowanie wartości: pokazujemy miejsca po przecinku tylko dla wartości niecałkowitych
         const isInteger = Number.isInteger(parsedValue);
         if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-            input.value = isInteger ? parsedValue.toString() : parsedValue.toFixed(2);
+            input.value = isInteger ? parsedValue.toString() : parsedValue.toFixed(2).replace(".", ",");
         } else if (input.id === "kwota" || input.id === "prowizja") {
-            input.value = isInteger ? parsedValue.toString() : parsedValue.toFixed(2);
+            input.value = isInteger ? parsedValue.toString() : parsedValue.toFixed(2).replace(".", ",");
         } else {
-            input.value = isDecimal ? (isInteger ? parsedValue.toString() : parsedValue.toFixed(step === 1 ? 0 : 2)) : parsedValue;
+            input.value = isDecimal ? (isInteger ? parsedValue.toString() : parsedValue.toFixed(step === 1 ? 0 : 2).replace(".", ",")) : parsedValue;
         }
         range.value = parsedValue;
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, activeType=${activeType}, index=${index}`);
@@ -178,18 +183,18 @@ function syncInputWithRange(input, range, options = {}) {
 
     const isInteger = Number.isInteger(initialValue);
     if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-        input.value = isInteger ? initialValue.toString() : initialValue.toFixed(2);
+        input.value = isInteger ? initialValue.toString() : initialValue.toFixed(2).replace(".", ",");
     } else if (input.id === "kwota" || input.id === "prowizja") {
-        input.value = isInteger ? initialValue.toString() : initialValue.toFixed(2);
+        input.value = isInteger ? initialValue.toString() : initialValue.toFixed(2).replace(".", ",");
     } else {
-        input.value = isDecimal ? (isInteger ? initialValue.toString() : initialValue.toFixed(step === 1 ? 0 : 2)) : initialValue;
+        input.value = isDecimal ? (isInteger ? initialValue.toString() : initialValue.toFixed(step === 1 ? 0 : 2).replace(".", ",")) : initialValue;
     }
     range.value = initialValue;
     console.log(`Initial sync: ${input.id || range.className} = ${initialValue}`);
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
-    isDecimal: true, // Zmieniamy na true, aby umożliwić wartości dziesiętne
+    isDecimal: true,
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
@@ -264,7 +269,7 @@ function calculateLoan() {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
             const rateInput = inputGroup.querySelector(".variable-rate");
             const period = parseInt(cyklInput.value) || 0;
-            const value = parseFloat(rateInput.value) || 0;
+            const value = parseFloat(rateInput.value.replace(",", ".")) || 0; // Zamiana przecinka na kropkę
             if (period > 0 && value >= 0) {
                 state.variableRates.push({ period, value });
             }
@@ -286,7 +291,7 @@ function calculateLoan() {
             const typeSelect = inputGroup.querySelector(".nadplata-type-select");
             const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
             const period = parseInt(cyklInput.value) || 0;
-            const value = parseFloat(rateInput.value) || 0;
+            const value = parseFloat(rateInput.value.replace(",", ".")) || 0; // Zamiana przecinka na kropkę
             const type = typeSelect.value || "Jednorazowa";
             const effect = effectSelect.value || "Skróć okres";
             if (period > 0 && value >= 0) {
@@ -442,7 +447,7 @@ function calculateLoan() {
                 odsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
-                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
+                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
             // Zapisujemy ratę jako poprzednią dla następnego miesiąca
@@ -552,7 +557,7 @@ function calculateLoan() {
                     odsetki: (0).toFixed(2),
                     nadplata: nadplata.toFixed(2),
                     pozostalyKapital: (0).toFixed(2),
-                    oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
+                    oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
                 });
                 break;
             }
@@ -570,7 +575,7 @@ function calculateLoan() {
                 odsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
-                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
+                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
             // Zapisujemy ratę jako poprzednią dla następnego miesiąca
@@ -634,15 +639,23 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
 
     let harmonogramHTML = "";
     harmonogram.forEach((row) => {
+        // Formatowanie wartości w harmonogramie z przecinkiem
+        const kwotaRaty = parseFloat(row.kwotaRaty);
+        const kapital = parseFloat(row.kapital);
+        const odsetki = parseFloat(row.odsetki);
+        const nadplata = parseFloat(row.nadplata);
+        const pozostalyKapital = parseFloat(row.pozostalyKapital);
+        const oprocentowanie = parseFloat(row.oprocentowanie);
+
         harmonogramHTML += `
             <tr>
                 <td>${row.rata}</td>
-                <td>${formatNumberWithSpaces(parseFloat(row.kwotaRaty))} zł</td>
-                <td>${row.oprocentowanie}%</td> <!-- Dodajemy kolumnę Oproc. -->
-                <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</td>
-                <td>${formatNumberWithSpaces(parseFloat(row.kapital))} zł</td>
-                <td>${formatNumberWithSpaces(parseFloat(row.odsetki))} zł</td>
-                <td>${formatNumberWithSpaces(parseFloat(row.pozostalyKapital))} zł</td>
+                <td>${formatNumberWithSpaces(kwotaRaty)} zł</td>
+                <td>${formatNumberWithSpaces(oprocentowanie)}%</td>
+                <td>${formatNumberWithSpaces(nadplata)} zł</td>
+                <td>${formatNumberWithSpaces(kapital)} zł</td>
+                <td>${formatNumberWithSpaces(odsetki)} zł</td>
+                <td>${formatNumberWithSpaces(pozostalyKapital)} zł</td>
             </tr>
         `;
     });
@@ -740,7 +753,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        elements.prowizja.value = step === 1 ? value.toFixed(0) : value.toFixed(1);
+        elements.prowizja.value = step === 1 ? value.toFixed(0) : value.toFixed(1).replace(".", ",");
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
     }
@@ -843,7 +856,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     existingInputs.forEach((inputGroup, index) => {
         const rateInput = inputGroup.querySelector(".variable-rate");
         const cyklInput = inputGroup.querySelector(".variable-cykl");
-        const value = rateInput ? parseFloat(rateInput.value) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
+        const value = rateInput ? parseFloat(rateInput.value.replace(",", ".")) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
         const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || 2);
         existingValues[index] = value;
         existingPeriods[index] = period;
@@ -905,7 +918,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="1" value="${inputValue}">
+                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formatNumberWithSpaces(inputValue)}">
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
                 <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
@@ -937,7 +950,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${inputValue.toFixed(2)}">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${formatNumberWithSpaces(inputValue)}">
                     <span class="input-group-text">%</span>
                 </div>
                 <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
