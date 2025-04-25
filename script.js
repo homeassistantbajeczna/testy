@@ -20,6 +20,7 @@ const elements = {
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
     resultSection: document.getElementById("resultSection"),
     harmonogramContainer: document.getElementById("harmonogramContainer"),
+    summaryContainer: document.getElementById("summaryContainer"),
     chartContainer: document.getElementById("chartContainer"),
     chartLine: document.getElementById("chartLine"),
     generatePdfBtn: document.getElementById("generatePdfBtn"),
@@ -368,16 +369,30 @@ function calculateLoan() {
         i++;
     }
 
-    displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat);
+    displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat);
 }
 
 // Wyświetlanie wyników
-function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat) {
+function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat) {
     elements.formSection.style.display = "none";
     elements.resultSection.style.display = "block";
 
+    // Podsumowanie
+    const calkowityKoszt = sumaKapitalu + sumaOdsetek + prowizjaKwota + sumaNadplat;
+    let summaryHTML = `
+        <h3>Podsumowanie</h3>
+        <p><strong>Kwota kredytu:</strong> ${formatNumberWithSpaces(state.lastFormData.kwota)} zł</p>
+        <p><strong>Okres spłaty (po nadpłacie):</strong> ${iloscRat} miesięcy (${Math.floor(iloscRat / 12)} lat)</p>
+        <p><strong>Całkowity koszt kredytu:</strong> ${formatNumberWithSpaces(calkowityKoszt)} zł</p>
+        <p><strong>Suma odsetek:</strong> ${formatNumberWithSpaces(sumaOdsetek)} zł</p>
+        <p><strong>Suma nadpłat:</strong> ${formatNumberWithSpaces(sumaNadplat)} zł</p>
+        <p><strong>Prowizja:</strong> ${formatNumberWithSpaces(prowizjaKwota)} zł</p>
+    `;
+    elements.summaryContainer.innerHTML = summaryHTML;
+
     // Harmonogram
     let harmonogramHTML = `
+        <h3>Harmonogram spłat</h3>
         <table>
             <thead>
                 <tr>
