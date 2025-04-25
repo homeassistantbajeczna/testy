@@ -1,5 +1,7 @@
 const elements = {
     formSection: document.getElementById("formSection"),
+    resultSection: document.getElementById("resultSection"),
+    porownajKredytBtn: document.getElementById("porownajKredytBtn"),
     kwota: document.getElementById("kwota"),
     kwotaRange: document.getElementById("kwotaRange"),
     iloscRat: document.getElementById("iloscRat"),
@@ -11,37 +13,27 @@ const elements = {
     prowizjaRange: document.getElementById("prowizjaRange"),
     jednostkaProwizji: document.getElementById("jednostkaProwizji"),
     zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
-    nadplataKredytuBtn: document.getElementById("nadplataKredytuBtn"),
+    variableOprocentowanieInputs: document.getElementById("variableOprocentowanieInputs"),
     addVariableOprocentowanieBtn: document.getElementById("addVariableOprocentowanieBtn"),
+    nadplataKredytuBtn: document.getElementById("nadplataKredytuBtn"),
+    nadplataKredytuInputs: document.getElementById("nadplataKredytuInputs"),
     addNadplataKredytuBtn: document.getElementById("addNadplataKredytuBtn"),
     obliczBtn: document.getElementById("obliczBtn"),
-    zoomInBtn: document.getElementById("zoomInBtn"),
-    zoomOutBtn: document.getElementById("zoomOutBtn"),
-    toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
-    resultSection: document.getElementById("resultSection"),
-    harmonogramContainer: document.getElementById("harmonogramTabela"),
-    chartContainer: document.getElementById("creditChart"),
-    generatePdfBtn: document.getElementById("generatePdfBtn"),
     valueKapital: document.getElementById("valueKapital"),
     valueOdsetki: document.getElementById("valueOdsetki"),
     valueNadplata: document.getElementById("valueNadplata"),
     valueProwizja: document.getElementById("valueProwizja"),
     okresPoNadplacie: document.getElementById("okresPoNadplacie"),
     koszt: document.getElementById("koszt"),
+    harmonogramContainer: document.getElementById("harmonogramTabela"),
+    chartContainer: document.getElementById("creditChart"),
+    zoomInBtn: document.getElementById("zoomInBtn"),
+    zoomOutBtn: document.getElementById("zoomOutBtn"),
+    toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
+    generatePdfBtn: document.getElementById("generatePdfBtn"),
 };
 
-// Debug: Sprawdzanie, czy elementy istnieją
-Object.entries(elements).forEach(([key, value]) => {
-    if (!value) {
-        console.warn(`Element ${key} (#${key}) nie został znaleziony w DOM.`);
-    } else {
-        console.log(`Element ${key} (#${key}) znaleziony.`);
-    }
-});
-
 const state = {
-    variableRates: [],
-    overpaymentRates: [],
     lastFormData: {
         kwota: 500000,
         iloscRat: 360,
@@ -52,167 +44,110 @@ const state = {
         zmienneOprocentowanie: false,
         nadplataKredytu: false,
     },
-    tempValues: {},
+    variableRates: [],
+    overpaymentRates: [],
 };
 
-// Funkcja formatująca liczby z separatorem tysięcy (spacja) i przecinkiem dziesiętnym
 function formatNumberWithSpaces(number) {
-    if (isNaN(number)) return "0,00";
-    const parts = number.toFixed(2).split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    return parts.join(",");
+    if (isNaN(number)) return "0";
+    const roundedNumber = Number(number).toFixed(2);
+    const [integerPart, decimalPart] = roundedNumber.split(".");
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return decimalPart === "00" ? formattedInteger : `${formattedInteger},${decimalPart}`;
 }
 
-// Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType } = options;
+    console.log(`syncInputWithRange called for ${input?.id || "unknown"}`, options);
+
+    const isDecimal = options.isDecimal || false;
+    const isVariableCykl = options.isVariableCykl || false;
+    const activeType = options.activeType || null;
+    const index = options.index !== undefined ? options.index : null;
+    const onChange = options.onChange || null;
 
     if (!input || !range) {
-        console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
+        console.error("Input or range element not found:", { input, range });
         return;
     }
 
-    input._eventListeners = input._eventListeners || {};
-    range._eventListeners = range._eventListeners || {};
-
-    const removeListeners = () => {
-        if (input._eventListeners.input) {
-            input.removeEventListener("input", input._eventListeners.input);
+    const updateRange = () => {
+        let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
+        if (isNaN(value)) {
+            value = parseFloat(input.min) || 0;
+            input.value = isDecimal ? value.toFixed(2) : value;
         }
-        if (input._eventListeners.change) {
-            input.removeEventListener("change", input._eventListeners.change);
-        }
-        if (range._eventListeners.input) {
-            range.removeEventListener("input", range._eventListeners.input);
-        }
-        if (range._eventListeners.change) {
-            range.removeEventListener("change", range._eventListeners.change);
-        }
+        range.value = value;
+        if (onChange) onChange(value);
     };
 
-    removeListeners();
-
-    const updateValue = (value, source, applyMinValidation = false) => {
+    const validateInput = () => {
+        let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
-        const step = parseFloat(input.step) || 1;
-        let parsedValue = isDecimal ? parseFloat(value) : parseInt(value);
-        if (isNaN(parsedValue)) parsedValue = min;
 
-        // Stosujemy ograniczenie minimalne TYLKO, jeśli wartość jest mniejsza niż min
-        if (parsedValue < min) {
-            parsedValue = min;
-        }
-        // Stosujemy ograniczenie maksymalne
-        if (parsedValue > max) {
-            parsedValue = max;
+        if (isNaN(value) || value < min) {
+            value = min;
+            input.value = isDecimal ? value.toFixed(2) : value;
+        } else if (value > max) {
+            value = max;
+            input.value = isDecimal ? value.toFixed(2) : value;
         }
 
-        // Dodatkowa walidacja dla nadpłaty (minimalna wartość 100)
-        if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
-            parsedValue = 100;
-        }
+        range.value = value;
+        if (onChange) onChange(value);
 
-        // Formatowanie wartości w polu tekstowym
-        if (input.id === "oprocentowanie" || input.id === "prowizja" || input.id === "kwota" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-            input.value = parsedValue.toFixed(2); // Zawsze pokazujemy dwie cyfry po przecinku
-        } else {
-            input.value = isDecimal ? parsedValue.toFixed(2) : parsedValue;
-        }
-        range.value = parsedValue;
-        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, activeType=${activeType}, index=${index}`);
-
-        if (isVariableCykl) {
-            state.tempValues[input.id || range.id] = parsedValue;
-        } else if (onChange) {
-            console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
-            onChange(parsedValue);
-        }
+        if (input.id === "kwota") updateKwotaInfo();
+        if (input.id === "iloscRat") updateLata();
+        if (input.id === "prowizja") updateProwizjaInfo();
+        if (isVariableCykl) updateVariableInputs();
     };
 
-    const inputHandler = () => updateValue(input.value, "Input", false);
-    const rangeHandler = () => updateValue(range.value, "Range", true);
-    const inputChangeHandler = () => updateValue(input.value, "Input", true);
+    const updateInput = () => {
+        let value = isDecimal ? parseFloat(range.value) : parseInt(range.value);
+        const min = parseFloat(range.min) || 0;
+        const max = parseFloat(range.max) || Infinity;
 
-    input._eventListeners.input = inputHandler;
-    range._eventListeners.input = rangeHandler;
-    input._eventListeners.change = inputChangeHandler;
-    input.addEventListener("input", inputHandler);
-    range.addEventListener("input", rangeHandler);
-    input.addEventListener("change", inputChangeHandler);
+        if (isNaN(value) || value < min) {
+            value = min;
+        } else if (value > max) {
+            value = max;
+        }
 
-    if (isVariableCykl) {
-        const changeHandler = () => {
-            const value = state.tempValues[input.id || range.id];
-            if (value !== undefined && onChange) {
-                console.log(`Change committed: ${input.id || range.className} = ${value}`);
-                onChange(value);
-                delete state.tempValues[input.id || range.id];
-            }
-        };
-        range._eventListeners.change = changeHandler;
-        range.addEventListener("change", changeHandler);
-    }
+        input.value = isDecimal ? value.toFixed(2) : value;
+        if (onChange) onChange(value);
 
-    const min = parseFloat(input.min) || 0;
-    const max = parseFloat(input.max) || Infinity;
-    const step = parseFloat(input.step) || 1;
-    let initialValue = isDecimal ? parseFloat(range.value) : parseInt(range.value);
-    if (isNaN(initialValue)) initialValue = min;
+        if (input.id === "kwota") updateKwotaInfo();
+        if (input.id === "iloscRat") updateLata();
+        if (input.id === "prowizja") updateProwizjaInfo();
+        if (isVariableCykl) updateVariableInputs();
+    };
 
-    // Stosujemy ograniczenie minimalne TYLKO, jeśli wartość początkowa jest mniejsza niż min
-    if (initialValue < min) {
-        initialValue = min;
-    }
-    if (initialValue > max) {
-        initialValue = max;
-    }
+    input.addEventListener("input", () => {
+        let value = isDecimal ? parseFloat(input.value) : parseInt(input.value);
+        if (isNaN(value)) {
+            value = parseFloat(input.min) || 0;
+            input.value = isDecimal ? value.toFixed(2) : value;
+        }
+        range.value = value;
+        if (onChange) onChange(value);
 
-    if (activeType === "nadplata" && input.classList.contains("variable-rate") && initialValue < 100) {
-        initialValue = 100;
-    }
+        if (input.id === "kwota") updateKwotaInfo();
+        if (input.id === "iloscRat") updateLata();
+        if (input.id === "prowizja") updateProwizjaInfo();
+        if (isVariableCykl) updateVariableInputs();
+    });
 
-    if (input.id === "oprocentowanie" || input.id === "prowizja" || input.id === "kwota" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-        input.value = initialValue.toFixed(2); // Zawsze pokazujemy dwie cyfry po przecinku
-    } else {
-        input.value = isDecimal ? initialValue.toFixed(2) : initialValue;
-    }
-    range.value = initialValue;
-    console.log(`Initial sync: ${input.id || range.className} = ${initialValue}`);
+    input.addEventListener("blur", validateInput);
+
+    range.addEventListener("input", updateInput);
+
+    updateRange();
 }
 
-syncInputWithRange(elements.kwota, elements.kwotaRange, {
-    isDecimal: true, // Zmienione na true
-    onChange: (value) => {
-        state.lastFormData.kwota = value;
-        updateProwizjaInfo();
-        updateKwotaInfo();
-    },
-});
-
-syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
-    isDecimal: false,
-    onChange: (value) => {
-        state.lastFormData.iloscRat = value;
-        updateLata();
-        updateVariableInputs();
-    },
-});
-
-syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
-    isDecimal: true,
-    onChange: (value) => {
-        state.lastFormData.oprocentowanie = value;
-    },
-});
-
-syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
-    isDecimal: true,
-    onChange: (value) => {
-        state.lastFormData.prowizja = value;
-        updateProwizjaInfo();
-    },
-});
+syncInputWithRange(elements.kwota, elements.kwotaRange, { isDecimal: false });
+syncInputWithRange(elements.iloscRat, elements.iloscRatRange, { isDecimal: false });
+syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, { isDecimal: true });
+syncInputWithRange(elements.prowizja, elements.prowizjaRange, { isDecimal: true });
 
 // Funkcja obliczania kredytu
 function calculateLoan() {
@@ -691,12 +626,12 @@ function updateProwizjaInput() {
     if (jednostka === "procent") {
         min = 0;
         max = 25;
-        step = 0.01; // Zmienione z 0.1 na 0.01
+        step = 0.01;
         defaultValue = 2;
     } else {
         min = 0;
         max = 1250000;
-        step = 0.01; // Zmienione z 1 na 0.01
+        step = 0.01;
         defaultValue = 10000;
     }
 
@@ -716,7 +651,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        elements.prowizja.value = value.toFixed(2); // Zawsze dwie cyfry po przecinku
+        elements.prowizja.value = value.toFixed(2);
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
     }
@@ -726,7 +661,7 @@ function updateProwizjaInput() {
 
 function updateKwotaInfo() {
     console.log("updateKwotaInfo called");
-    const kwota = parseFloat(elements.kwota.value) || 500000;
+    const kwota = parseInt(elements.kwota.value) || 500000;
     const kwotaInfo = document.getElementById("kwotaInfo");
     if (kwotaInfo) {
         kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`;
@@ -747,7 +682,7 @@ function updateProwizjaInfo() {
     console.log("updateProwizjaInfo called");
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value;
-    const kwota = parseFloat(elements.kwota.value) || 500000;
+    const kwota = parseInt(elements.kwota.value) || 500000;
     const prowizjaInfo = document.getElementById("prowizjaInfo");
     if (prowizjaInfo) {
         const wartosc = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
@@ -994,7 +929,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 changes[index].type = nadplataTypeSelect.value;
                 const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
                 const currentInputGroup = e.target.closest(".variable-input-group");
-                const cyklGroup = currentInputGroup.querySelector(".form PROMOTOWANY-group:has(.variable-cykl)");
+                const cyklGroup = currentInputGroup.querySelector(".form-group:has(.variable-cykl)");
                 const label = cyklGroup?.querySelector(".form-label");
                 const unit = cyklGroup?.querySelector(".unit-miesiacu");
                 if (label && unit) {
