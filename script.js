@@ -290,6 +290,9 @@ function calculateLoan() {
     let rata = 0;
     let iloscRatPoNadplacie = iloscRat;
 
+    // Zmienna do przechowywania raty z poprzedniego miesiąca
+    let previousRata = 0;
+
     // Początkowe obliczenie raty dla rat równych
     if (rodzajRat === "rowne") {
         if (monthlyRate === 0) {
@@ -303,7 +306,10 @@ function calculateLoan() {
             return;
         }
         console.log("Initial rata (równe):", rata);
-    } else {
+    }
+
+    // Dla rat malejących
+    if (rodzajRat === "malejace") {
         // Dla rat malejących obliczamy stałą część kapitałową
         let kapitalStaly = kwota / iloscRat;
         console.log("Initial kapitalStaly (malejące):", kapitalStaly);
@@ -324,7 +330,7 @@ function calculateLoan() {
             console.log("Adjusted kapitalStaly after nadplata (malejące):", kapitalStaly);
         }
 
-        // Inicjalizacja zmiennych dla rat malejących
+        // Pętla dla rat malejących
         let i = 1;
         let lastRateChangeMonth = 0;
         while (i <= iloscRat && pozostalyKapital > 0.01) {
@@ -346,6 +352,7 @@ function calculateLoan() {
             let odsetki = pozostalyKapital * monthlyRate;
             let kapital = kapitalStaly;
             let nadplata = 0;
+            let isOverpaymentMonth = false;
 
             // Obsługa nadpłaty
             state.overpaymentRates.forEach((overpayment) => {
@@ -363,10 +370,11 @@ function calculateLoan() {
                 if (isActive) {
                     nadplata += parseFloat(overpayment.value);
                     sumaNadplat += nadplata;
+                    isOverpaymentMonth = true;
                     if (overpayment.effect === "Skróć okres") {
                         kapital += nadplata;
                     } else {
-                        // "Zmniejsz ratę" już obsłużone na początku, więc tylko zmniejszamy kapitał
+                        // "Zmniejsz ratę" - zmniejszamy kapitał, ale rata pozostaje taka sama w tym miesiącu
                         pozostalyKapital -= nadplata;
                     }
                     if (pozostalyKapital < 0) pozostalyKapital = 0;
@@ -378,10 +386,26 @@ function calculateLoan() {
                 kapital = pozostalyKapital;
             }
 
-            rata = kapital + odsetki;
-            if (isNaN(rata) || rata <= 0) {
-                console.error("Invalid rate calculation (malejące):", { kapital, odsetki, rata });
-                rata = 0;
+            // Ustawiamy ratę
+            if (isOverpaymentMonth && i > 1) {
+                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
+                rata = previousRata;
+            } else {
+                // Obliczamy normalnie ratę
+                rata = kapital + odsetki;
+                if (isNaN(rata) || rata <= 0) {
+                    console.error("Invalid rate calculation (malejące):", { kapital, odsetki, rata });
+                    rata = 0;
+                }
+            }
+
+            // Recalculate kapital based on the fixed rata and odsetki
+            if (isOverpaymentMonth && i > 1) {
+                kapital = rata - odsetki;
+                if (kapital < 0) {
+                    kapital = 0;
+                    odsetki = rata;
+                }
             }
 
             pozostalyKapital -= kapital;
@@ -397,7 +421,11 @@ function calculateLoan() {
                 odsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
+                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
             });
+
+            // Zapisujemy ratę jako poprzednią dla następnego miesiąca
+            previousRata = rata;
 
             if (pozostalyKapital <= 0.01) {
                 iloscRatPoNadplacie = i;
@@ -408,7 +436,7 @@ function calculateLoan() {
         }
     }
 
-    // Dla rat równych (pozostawiam bez zmian)
+    // Dla rat równych
     if (rodzajRat === "rowne") {
         let remainingMonths = iloscRat;
         let i = 1;
@@ -441,6 +469,7 @@ function calculateLoan() {
             let odsetki = pozostalyKapital * monthlyRate;
             let kapital = rata - odsetki;
             let nadplata = 0;
+            let isOverpaymentMonth = false;
 
             if (kapital < 0) {
                 kapital = pozostalyKapital;
@@ -464,6 +493,7 @@ function calculateLoan() {
                     nadplata += parseFloat(overpayment.value);
                     sumaNadplat += nadplata;
                     pozostalyKapital -= nadplata;
+                    isOverpaymentMonth = true;
                     if (pozostalyKapital < 0) pozostalyKapital = 0;
 
                     if (overpayment.effect === "Skróć okres") {
@@ -475,16 +505,23 @@ function calculateLoan() {
                             iloscRatPoNadplacie = i + remainingMonths;
                         }
                     } else {
-                        if (monthlyRate === 0) {
-                            rata = remainingMonths > 0 ? pozostalyKapital / remainingMonths : 0;
-                        } else {
-                            rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
-                        }
-                        if (isNaN(rata) || rata <= 0) rata = 0;
+                        // "Zmniejsz ratę" - w miesiącu nadpłaty rata pozostaje taka sama
+                        // Po prostu zmniejszamy kapitał
                     }
                     console.log(`After overpayment at month ${i}: nadplata=${nadplata}, pozostalyKapital=${pozostalyKapital}, remainingMonths=${remainingMonths}, rata=${rata}`);
                 }
             });
+
+            if (isOverpaymentMonth && i > 1) {
+                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
+                rata = previousRata;
+                // Recalculate kapital based on the fixed rata and odsetki
+                kapital = rata - odsetki;
+                if (kapital < 0) {
+                    kapital = pozostalyKapital;
+                    odsetki = rata - kapital;
+                }
+            }
 
             if (pozostalyKapital <= 0.01) {
                 harmonogram.push({
@@ -494,6 +531,7 @@ function calculateLoan() {
                     odsetki: (0).toFixed(2),
                     nadplata: nadplata.toFixed(2),
                     pozostalyKapital: (0).toFixed(2),
+                    oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
                 });
                 break;
             }
@@ -511,7 +549,11 @@ function calculateLoan() {
                 odsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
+                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
             });
+
+            // Zapisujemy ratę jako poprzednią dla następnego miesiąca
+            previousRata = rata;
 
             i++;
             remainingMonths--;
