@@ -204,6 +204,10 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
 function calculateLoan() {
     console.log("calculateLoan started");
 
+    // Debug: Sprawdzenie wartości select przed pobraniem
+    console.log("Before getting rodzajRat:", elements.rodzajRat);
+    console.log("rodzajRat value before calculation:", elements.rodzajRat.value);
+
     // Pobieranie danych z formularza
     const kwota = parseFloat(elements.kwota.value) || 0;
     let iloscRat = parseInt(elements.iloscRat.value) || 0;
@@ -541,6 +545,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
 
     elements.formSection.style.display = "none";
     elements.resultSection.style.display = "block";
+    console.log("resultSection display set to block");
 
     const calkowityKoszt = sumaKapitalu + sumaOdsetek + prowizjaKwota + sumaNadplat;
     if (elements.valueKapital) elements.valueKapital.textContent = formatNumberWithSpaces(sumaKapitalu) + " zł";
@@ -579,6 +584,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
     });
     if (elements.harmonogramContainer) {
         elements.harmonogramContainer.innerHTML = harmonogramHTML;
+        console.log("Harmonogram HTML updated:", elements.harmonogramContainer.innerHTML);
     } else {
         console.error("Harmonogram container not found.");
     }
@@ -1109,6 +1115,8 @@ if (elements.addNadplataKredytuBtn) {
 
 if (elements.obliczBtn) {
     elements.obliczBtn.addEventListener("click", () => {
+        // Debug: Sprawdzenie wartości select przed obliczeniami
+        console.log("Oblicz button clicked, rodzajRat value:", elements.rodzajRat.value);
         calculateLoan();
     });
 }
