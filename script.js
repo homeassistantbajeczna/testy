@@ -212,6 +212,8 @@ function calculateLoan() {
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostkaProwizji = elements.jednostkaProwizji.value || "procent";
 
+    console.log("Input values:", { kwota, iloscRat, oprocentowanie, rodzajRat, prowizja, jednostkaProwizji });
+
     if (kwota <= 0 || iloscRat <= 0 || oprocentowanie < 0) {
         alert("Proszę wprowadzić poprawne dane: kwota i ilość rat muszą być większe od 0, oprocentowanie nie może być ujemne.");
         return;
@@ -227,7 +229,7 @@ function calculateLoan() {
         zmienneOprocentowanie: elements.zmienneOprocentowanieBtn.checked,
         nadplataKredytu: elements.nadplataKredytuBtn.checked
     };
-    console.log("Form data:", state.lastFormData);
+    console.log("Form data saved:", state.lastFormData);
 
     // Pobieranie zmiennych stóp oprocentowania
     if (elements.zmienneOprocentowanieBtn.checked) {
@@ -244,6 +246,9 @@ function calculateLoan() {
         });
         state.variableRates.sort((a, b) => a.period - b.period);
         console.log("Variable rates:", state.variableRates);
+    } else {
+        state.variableRates = [];
+        console.log("Variable rates disabled.");
     }
 
     // Pobieranie nadpłat
@@ -265,6 +270,9 @@ function calculateLoan() {
         });
         state.overpaymentRates.sort((a, b) => a.period - b.period);
         console.log("Overpayment rates:", state.overpaymentRates);
+    } else {
+        state.overpaymentRates = [];
+        console.log("Overpayment rates disabled.");
     }
 
     const prowizjaKwota = jednostkaProwizji === "procent" ? (prowizja / 100) * kwota : prowizja;
@@ -326,7 +334,7 @@ function calculateLoan() {
                     rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
                 }
                 if (isNaN(rata) || rata <= 0) rata = 0;
-                console.log(`Rata recalculated after rate change at month ${i}:`, rata);
+                console.log(`Rata recalculated after rate change at month ${i} (równe):`, rata);
             }
 
             odsetki = pozostalyKapital * monthlyRate;
@@ -344,7 +352,7 @@ function calculateLoan() {
             odsetki = pozostalyKapital * monthlyRate;
             rata = kapital + odsetki;
             if (isNaN(rata) || rata <= 0) {
-                console.error("Invalid rata calculation (malejące):", { kapital, odsetki, rata });
+                console.error("Invalid rate calculation (malejące):", { kapital, odsetki, rata });
                 rata = 0;
             }
             console.log(`Month ${i} (malejące): kapital=${kapital}, odsetki=${odsetki}, rata=${rata}`);
@@ -352,6 +360,7 @@ function calculateLoan() {
 
         // Obsługa nadpłat
         let nadplata = 0;
+        let appliedOverpayment = false;
         state.overpaymentRates.forEach((overpayment) => {
             let isActive = false;
             if (overpayment.type === "Jednorazowa") {
@@ -368,6 +377,7 @@ function calculateLoan() {
                 nadplata += parseFloat(overpayment.value);
                 sumaNadplat += nadplata;
                 pozostalyKapital -= nadplata;
+                appliedOverpayment = true;
                 if (pozostalyKapital < 0) pozostalyKapital = 0;
 
                 if (overpayment.effect === "Skróć okres") {
@@ -402,9 +412,13 @@ function calculateLoan() {
                         if (isNaN(baseKapital) || baseKapital <= 0) baseKapital = 0;
                     }
                 }
-                console.log(`After overpayment at month ${i}: pozostalyKapital=${pozostalyKapital}, remainingMonths=${remainingMonths}, rata=${rata}, baseKapital=${baseKapital}`);
+                console.log(`After overpayment at month ${i}: nadplata=${nadplata}, pozostalyKapital=${pozostalyKapital}, remainingMonths=${remainingMonths}, rata=${rata}, baseKapital=${baseKapital}`);
             }
         });
+
+        if (!appliedOverpayment) {
+            console.log(`Month ${i}: No overpayment applied. Rata=${rata}`);
+        }
 
         if (pozostalyKapital <= 0.01) {
             harmonogram.push({
@@ -443,10 +457,11 @@ function calculateLoan() {
                 remainingMonths = Math.ceil(pozostalyKapital / baseKapital);
                 iloscRat = i + remainingMonths - 1;
             }
+            console.log(`Recalculated remaining months at month ${i}: remainingMonths=${remainingMonths}, iloscRat=${iloscRat}`);
         }
     }
 
-    console.log("Harmonogram:", harmonogram);
+    console.log("Final harmonogram:", harmonogram);
     displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat);
 }
 
