@@ -617,6 +617,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
             <tr>
                 <td>${row.rata}</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kwotaRaty))} zł</td>
+                <td>${row.oprocentowanie}%</td> <!-- Dodajemy kolumnę Oproc. -->
                 <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kapital))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.odsetki))} zł</td>
