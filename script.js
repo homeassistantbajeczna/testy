@@ -1,3 +1,4 @@
+// SEKCJA: Elementy DOM
 const elements = {
     formSection: document.getElementById("formSection"),
     kwota: document.getElementById("kwota"),
