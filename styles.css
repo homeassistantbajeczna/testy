@@ -566,9 +566,10 @@ body {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: right 4px center !important;
+    background-size: 6px 6px !important;
 }
 
 .form-select,
@@ -588,9 +589,10 @@ body {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: right 4px center !important;
+    background-size: 6px 6px !important;
 }
 
 /* Style dla :focus */
@@ -617,9 +619,10 @@ body {
 #prowizjaGroup .input-group .form-select.jednostka-select:focus,
 .variable-input-group .nadplata-type-select:focus,
 .variable-input-group .nadplata-effect-select:focus {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: right 4px center !important;
+    background-size: 6px 6px !important;
 }
 
 /* S U W A K I */
@@ -1146,9 +1149,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: right 4px center !important;
+    background-size: 6px 6px !important;
 }
 
 .dark-mode .form-select:focus,
@@ -1160,9 +1164,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="6" height="6" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
     background-repeat: no-repeat !important;
     background-position: right 4px center !important;
+    background-size: 6px 6px !important;
 }
 
 .dark-mode input[type="range"].form-range::-webkit-slider-runnable-track {
