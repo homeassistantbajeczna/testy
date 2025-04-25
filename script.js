@@ -103,20 +103,21 @@ function syncInputWithRange(input, range, options = {}) {
         if (parsedValue < min) {
             parsedValue = min;
         }
-        // Nadal stosujemy ograniczenie maksymalne
+        // Stosujemy ograniczenie maksymalne
         if (parsedValue > max) {
             parsedValue = max;
         }
 
-        // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100, ale tylko jeśli wartość jest mniejsza
+        // Dodatkowa walidacja dla nadpłaty (minimalna wartość 100)
         if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
             parsedValue = 100;
         }
 
-        if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-            input.value = parsedValue.toFixed(2);
+        // Formatowanie wartości w polu tekstowym
+        if (input.id === "oprocentowanie" || input.id === "prowizja" || input.id === "kwota" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
+            input.value = parsedValue.toFixed(2); // Zawsze pokazujemy dwie cyfry po przecinku
         } else {
-            input.value = isDecimal ? parsedValue.toFixed(step === 1 ? 0 : 1) : parsedValue;
+            input.value = isDecimal ? parsedValue.toFixed(2) : parsedValue;
         }
         range.value = parsedValue;
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, activeType=${activeType}, index=${index}`);
@@ -171,17 +172,17 @@ function syncInputWithRange(input, range, options = {}) {
         initialValue = 100;
     }
 
-    if (input.id === "oprocentowanie" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
-        input.value = initialValue.toFixed(2);
+    if (input.id === "oprocentowanie" || input.id === "prowizja" || input.id === "kwota" || (activeType === "oprocentowanie" && input.classList.contains("variable-rate"))) {
+        input.value = initialValue.toFixed(2); // Zawsze pokazujemy dwie cyfry po przecinku
     } else {
-        input.value = isDecimal ? initialValue.toFixed(step === 1 ? 0 : 1) : initialValue;
+        input.value = isDecimal ? initialValue.toFixed(2) : initialValue;
     }
     range.value = initialValue;
     console.log(`Initial sync: ${input.id || range.className} = ${initialValue}`);
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
-    isDecimal: false,
+    isDecimal: true, // Zmienione na true
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
@@ -217,11 +218,9 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
 function calculateLoan() {
     console.log("calculateLoan started");
 
-    // Debug: Sprawdzenie wartości select przed pobraniem
     console.log("Before getting rodzajRat:", elements.rodzajRat);
     console.log("rodzajRat value before calculation:", elements.rodzajRat.value);
 
-    // Pobieranie danych z formularza
     const kwota = parseFloat(elements.kwota.value) || 0;
     let iloscRat = parseInt(elements.iloscRat.value) || 0;
     let oprocentowanie = parseFloat(elements.oprocentowanie.value) || 0;
@@ -248,7 +247,6 @@ function calculateLoan() {
     };
     console.log("Form data saved:", state.lastFormData);
 
-    // Pobieranie zmiennych stóp oprocentowania
     if (elements.zmienneOprocentowanieBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
         state.variableRates = [];
@@ -268,7 +266,6 @@ function calculateLoan() {
         console.log("Variable rates disabled.");
     }
 
-    // Pobieranie nadpłat
     if (elements.nadplataKredytuBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
         state.overpaymentRates = [];
@@ -303,10 +300,8 @@ function calculateLoan() {
     let rata = 0;
     let iloscRatPoNadplacie = iloscRat;
 
-    // Zmienna do przechowywania raty z poprzedniego miesiąca
     let previousRata = 0;
 
-    // Początkowe obliczenie raty dla rat równych
     if (rodzajRat === "rowne") {
         if (monthlyRate === 0) {
             rata = kwota / iloscRat;
@@ -321,13 +316,10 @@ function calculateLoan() {
         console.log("Initial rata (równe):", rata);
     }
 
-    // Dla rat malejących
     if (rodzajRat === "malejace") {
-        // Dla rat malejących obliczamy stałą część kapitałową
         let kapitalStaly = kwota / iloscRat;
         console.log("Initial kapitalStaly (malejące):", kapitalStaly);
 
-        // Sprawdzenie, czy nadpłata typu "Zmniejsz ratę" jest aktywna
         let nadplataMiesieczna = 0;
         let efektNadplaty = "Skróć okres";
         state.overpaymentRates.forEach((overpayment) => {
@@ -343,11 +335,9 @@ function calculateLoan() {
             console.log("Adjusted kapitalStaly after nadplata (malejące):", kapitalStaly);
         }
 
-        // Pętla dla rat malejących
         let i = 1;
         let lastRateChangeMonth = 0;
         while (i <= iloscRat && pozostalyKapital > 0.01) {
-            // Obsługa zmiennych stóp procentowych
             let currentOprocentowanie = oprocentowanie;
             let rateChanged = false;
             state.variableRates.forEach((rate) => {
@@ -361,13 +351,11 @@ function calculateLoan() {
                 }
             });
 
-            // Obliczenia dla rat malejących
             let odsetki = pozostalyKapital * monthlyRate;
             let kapital = kapitalStaly;
             let nadplata = 0;
             let isOverpaymentMonth = false;
 
-            // Obsługa nadpłaty
             state.overpaymentRates.forEach((overpayment) => {
                 let isActive = false;
                 if (overpayment.type === "Jednorazowa") {
@@ -387,7 +375,6 @@ function calculateLoan() {
                     if (overpayment.effect === "Skróć okres") {
                         kapital += nadplata;
                     } else {
-                        // "Zmniejsz ratę" - zmniejszamy kapitał, ale rata pozostaje taka sama w tym miesiącu
                         pozostalyKapital -= nadplata;
                     }
                     if (pozostalyKapital < 0) pozostalyKapital = 0;
@@ -399,12 +386,9 @@ function calculateLoan() {
                 kapital = pozostalyKapital;
             }
 
-            // Ustawiamy ratę
             if (isOverpaymentMonth && i > 1) {
-                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
                 rata = previousRata;
             } else {
-                // Obliczamy normalnie ratę
                 rata = kapital + odsetki;
                 if (isNaN(rata) || rata <= 0) {
                     console.error("Invalid rate calculation (malejące):", { kapital, odsetki, rata });
@@ -412,7 +396,6 @@ function calculateLoan() {
                 }
             }
 
-            // Recalculate kapital based on the fixed rata and odsetki
             if (isOverpaymentMonth && i > 1) {
                 kapital = rata - odsetki;
                 if (kapital < 0) {
@@ -437,7 +420,6 @@ function calculateLoan() {
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
-            // Zapisujemy ratę jako poprzednią dla następnego miesiąca
             previousRata = rata;
 
             if (pozostalyKapital <= 0.01) {
@@ -449,13 +431,11 @@ function calculateLoan() {
         }
     }
 
-    // Dla rat równych
     if (rodzajRat === "rowne") {
         let remainingMonths = iloscRat;
         let i = 1;
         let lastRateChangeMonth = 0;
         while (i <= iloscRat && pozostalyKapital > 0.01) {
-            // Obsługa zmiennych stóp procentowych
             let currentOprocentowanie = oprocentowanie;
             let rateChanged = false;
             state.variableRates.forEach((rate) => {
@@ -489,7 +469,6 @@ function calculateLoan() {
                 odsetki = rata - kapital;
             }
 
-            // Obsługa nadpłaty
             state.overpaymentRates.forEach((overpayment) => {
                 let isActive = false;
                 if (overpayment.type === "Jednorazowa") {
@@ -517,18 +496,13 @@ function calculateLoan() {
                         } else {
                             iloscRatPoNadplacie = i + remainingMonths;
                         }
-                    } else {
-                        // "Zmniejsz ratę" - w miesiącu nadpłaty rata pozostaje taka sama
-                        // Po prostu zmniejszamy kapitał
                     }
                     console.log(`After overpayment at month ${i}: nadplata=${nadplata}, pozostalyKapital=${pozostalyKapital}, remainingMonths=${remainingMonths}, rata=${rata}`);
                 }
             });
 
             if (isOverpaymentMonth && i > 1) {
-                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
                 rata = previousRata;
-                // Recalculate kapital based on the fixed rata and odsetki
                 kapital = rata - odsetki;
                 if (kapital < 0) {
                     kapital = pozostalyKapital;
@@ -565,7 +539,6 @@ function calculateLoan() {
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
-            // Zapisujemy ratę jako poprzednią dla następnego miesiąca
             previousRata = rata;
 
             i++;
@@ -582,14 +555,12 @@ function calculateLoan() {
     displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRatPoNadplacie);
 }
 
-// Funkcja pomocnicza do obliczania pozostałych miesięcy dla rat równych
 function calculateRemainingMonths(pozostalyKapital, rata, monthlyRate) {
     if (monthlyRate === 0 || rata <= 0 || pozostalyKapital <= 0) return 0;
     const n = Math.log(rata / (rata - pozostalyKapital * monthlyRate)) / Math.log(1 + monthlyRate);
     return Math.ceil(n);
 }
 
-// Wyświetlanie wyników
 function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat) {
     console.log("displayResults started", { sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat });
 
@@ -707,12 +678,12 @@ function updateProwizjaInput() {
     if (jednostka === "procent") {
         min = 0;
         max = 25;
-        step = 0.1;
+        step = 0.01; // Zmienione z 0.1 na 0.01
         defaultValue = 2;
     } else {
         min = 0;
         max = 1250000;
-        step = 1;
+        step = 0.01; // Zmienione z 1 na 0.01
         defaultValue = 10000;
     }
 
@@ -725,14 +696,14 @@ function updateProwizjaInput() {
 
     const currentValue = parseFloat(elements.prowizja.value);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        elements.prowizja.value = defaultValue;
+        elements.prowizja.value = defaultValue.toFixed(2);
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
     } else {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        elements.prowizja.value = step === 1 ? value.toFixed(0) : value.toFixed(1);
+        elements.prowizja.value = value.toFixed(2); // Zawsze dwie cyfry po przecinku
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
     }
@@ -897,15 +868,15 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="1" value="${inputValue}">
+                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="0.01" value="${inputValue.toFixed(2)}">
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="0.01" value="${inputValue}">
             `;
 
             const rateInput = rateGroup.querySelector(".variable-rate");
             const rateRange = rateGroup.querySelector(".variable-rate-range");
-            syncInputWithRange(rateInput, rateRange, { isDecimal: false, activeType: "nadplata" });
+            syncInputWithRange(rateInput, rateRange, { isDecimal: true, activeType: "nadplata" });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -1171,7 +1142,6 @@ if (elements.addNadplataKredytuBtn) {
 
 if (elements.obliczBtn) {
     elements.obliczBtn.addEventListener("click", () => {
-        // Debug: Sprawdzenie wartości select przed obliczeniami
         console.log("Oblicz button clicked, rodzajRat value:", elements.rodzajRat.value);
         calculateLoan();
     });
