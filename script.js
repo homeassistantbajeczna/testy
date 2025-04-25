@@ -156,7 +156,7 @@ function calculateLoan() {
     console.log("Before getting rodzajRat:", elements.rodzajRat);
     console.log("rodzajRat value before calculation:", elements.rodzajRat.value);
 
-    const kwota = parseFloat(elements.kwota.value) || 0;
+    const kwota = parseInt(elements.kwota.value) || 0; // Używamy parseInt, aby upewnić się, że kwota jest całkowita
     let iloscRat = parseInt(elements.iloscRat.value) || 0;
     let oprocentowanie = parseFloat(elements.oprocentowanie.value) || 0;
     const rodzajRat = elements.rodzajRat.value || "rowne";
@@ -661,11 +661,13 @@ function updateProwizjaInput() {
 
 function updateKwotaInfo() {
     console.log("updateKwotaInfo called");
-    const kwota = parseInt(elements.kwota.value) || 500000;
+    const kwota = parseInt(elements.kwota.value) || 500000; // Używamy parseInt, aby uniknąć miejsc po przecinku
     const kwotaInfo = document.getElementById("kwotaInfo");
     if (kwotaInfo) {
-        kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`;
+        kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`; // formatNumberWithSpaces już usuwa ",00"
     }
+    // Upewniamy się, że wartość w polu input jest całkowita
+    elements.kwota.value = kwota; // Usuwa wszelkie miejsca po przecinku w polu wejściowym
 }
 
 function updateLata() {
@@ -682,7 +684,7 @@ function updateProwizjaInfo() {
     console.log("updateProwizjaInfo called");
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value;
-    const kwota = parseInt(elements.kwota.value) || 500000;
+    const kwota = parseInt(elements.kwota.value) || 500000; // Używamy parseInt dla kwoty
     const prowizjaInfo = document.getElementById("prowizjaInfo");
     if (prowizjaInfo) {
         const wartosc = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
