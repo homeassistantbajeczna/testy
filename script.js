@@ -434,7 +434,7 @@ function calculateLoan() {
                 odsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
-                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
+                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
             // Zapisujemy ratę jako poprzednią dla następnego miesiąca
@@ -544,7 +544,7 @@ function calculateLoan() {
                     odsetki: (0).toFixed(2),
                     nadplata: nadplata.toFixed(2),
                     pozostalyKapital: (0).toFixed(2),
-                    oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
+                    oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
                 });
                 break;
             }
@@ -562,7 +562,7 @@ function calculateLoan() {
                 odsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
-                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2), // Dodajemy oprocentowanie do harmonogramu
+                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
             // Zapisujemy ratę jako poprzednią dla następnego miesiąca
@@ -630,7 +630,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
             <tr>
                 <td>${row.rata}</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kwotaRaty))} zł</td>
-                <td>${row.oprocentowanie}%</td> <!-- Dodajemy kolumnę Oproc. -->
+                <td>${row.oprocentowanie}%</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kapital))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.odsetki))} zł</td>
