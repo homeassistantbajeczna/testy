@@ -571,7 +571,7 @@ body {
     background-position: right 4px center !important;
 }
 
-#rodzajRat .form-select,
+.form-select,
 .variable-input-group .nadplata-type-select,
 .variable-input-group .nadplata-effect-select {
     height: 22px;
@@ -594,6 +594,7 @@ body {
 }
 
 /* Style dla :focus */
+.form-select:focus,
 .form-group .form-control:focus,
 .form-group .form-select:focus,
 .variable-input-group .form-control:focus,
@@ -609,6 +610,7 @@ body {
     color: var(--primary-text) !important;
 }
 
+.form-select:focus,
 #prowizjaGroup .input-group .form-select.jednostka-select:focus,
 .variable-input-group .nadplata-type-select:focus,
 .variable-input-group .nadplata-effect-select:focus {
@@ -1132,7 +1134,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     margin: 0;
 }
 
-.dark-mode #rodzajRat .form-select,
+.dark-mode .form-select,
 .dark-mode .variable-input-group .nadplata-type-select,
 .dark-mode .variable-input-group .nadplata-effect-select,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select {
@@ -1141,9 +1143,9 @@ input[type="range"].form-range:focus::-ms-thumb {
     background-position: right 4px center !important;
 }
 
+.dark-mode .form-select:focus,
 .dark-mode .variable-input-group .nadplata-type-select:focus,
 .dark-mode .variable-input-group .nadplata-effect-select:focus,
-.dark-mode #rodzajRat .form-select:focus,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     border: 1px solid var(--border-color) !important;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
@@ -1315,6 +1317,10 @@ input[type="range"].form-range:focus::-ms-thumb {
     .fields-wrapper {
         flex-direction: column;
         align-items: center;
+    }
+
+    .form-select {
+        width: 148px;
     }
 
     .form-group {
