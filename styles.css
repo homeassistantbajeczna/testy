@@ -608,6 +608,9 @@ body {
     border: 1px solid var(--border-color) !important;
     background: var(--input-bg) !important;
     color: var(--primary-text) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
 }
 
 .form-select:focus,
@@ -1148,7 +1151,12 @@ input[type="range"].form-range:focus::-ms-thumb {
 .dark-mode .variable-input-group .nadplata-effect-select:focus,
 .dark-mode #prowizjaGroup .input-group .form-select.jednostka-select:focus {
     border: 1px solid var(--border-color) !important;
+    background: var(--input-bg) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23a3945c" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
     background-position: right 4px center !important;
 }
 
