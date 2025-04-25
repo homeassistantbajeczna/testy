@@ -662,6 +662,19 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
     }
 }
 
+// Dodana funkcja do zwijania/rozwijania harmonogramu
+function toggleHarmonogram(elementId) {
+    const content = document.getElementById(elementId);
+    const button = content.previousElementSibling;
+    if (content.style.display === "none") {
+        content.style.display = "block";
+        button.textContent = "Harmonogram spłat ▼";
+    } else {
+        content.style.display = "none";
+        button.textContent = "Harmonogram spłat ►";
+    }
+}
+
 function showForm() {
     console.log("showForm called");
     if (elements.formSection && elements.resultSection) {
@@ -981,7 +994,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 changes[index].type = nadplataTypeSelect.value;
                 const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
                 const currentInputGroup = e.target.closest(".variable-input-group");
-                const cyklGroup = currentInputGroup.querySelector(".form-group:has(.variable-cykl)");
+                const cyklGroup = currentInputGroup.querySelector(".form PROMOTOWANY-group:has(.variable-cykl)");
                 const label = cyklGroup?.querySelector(".form-label");
                 const unit = cyklGroup?.querySelector(".unit-miesiacu");
                 if (label && unit) {
