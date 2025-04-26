@@ -143,7 +143,7 @@ function syncInputWithRange(input, range, options = {}) {
 
         let formattedValue;
         if (isDecimal) {
-            formattedValue = Number.isInteger(stateValue) ? stateValue.toString() : stateValue.toFixed(2).replace(".", ",");
+            formattedValue = stateValue.toFixed(2).replace(".", ",");
         } else {
             formattedValue = stateValue.toString();
         }
@@ -167,13 +167,10 @@ function syncInputWithRange(input, range, options = {}) {
         let rawValue = input.value;
         if (isDecimal) {
             rawValue = rawValue.replace(",", ".");
-            const regex = /^\d*(\.\d{0,2})?$/;
+            const regex = /^\d*([.,]\d{0,2})?$/;
             if (!regex.test(rawValue)) {
-                const parts = rawValue.split(".");
-                if (parts.length > 1) {
-                    parts[1] = parts[1].substring(0, 2);
-                    rawValue = parts.join(".");
-                }
+                const match = rawValue.match(/\d*([.,]\d{0,2})?/);
+                rawValue = match ? match[0] : "";
             }
             input.value = rawValue.replace(".", ",");
         }
@@ -208,16 +205,6 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
-    if (!isDecimal) {
-        const keypressHandler = (e) => {
-            if (e.key === "," || e.key === ".") {
-                e.preventDefault();
-            }
-        };
-        input._eventListeners.keypress = keypressHandler;
-        input.addEventListener("keypress", keypressHandler);
-    }
-
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
     input._eventListeners.change = inputChangeHandler;
@@ -244,7 +231,7 @@ function syncInputWithRange(input, range, options = {}) {
     let formattedInitialValue;
     if (isDecimal) {
         initialValue = Math.round(initialValue * 100) / 100;
-        formattedInitialValue = Number.isInteger(initialValue) ? initialValue.toString() : initialValue.toFixed(2).replace(".", ",");
+        formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
     } else if (isVariableCykl) {
         initialValue = Math.round(initialValue);
         formattedInitialValue = initialValue.toString();
@@ -777,7 +764,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = Number.isInteger(defaultValue) ? defaultValue.toString() : defaultValue.toFixed(2).replace(".", ",");
+        const formattedDefaultValue = defaultValue.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -785,7 +772,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2).replace(".", ",");
+        const formattedValue = value.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
@@ -991,11 +978,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="0.1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
             const inputValue = change.value || 1000;
-            const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
+            const formattedInputValue = inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
@@ -1026,11 +1013,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="0.1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
             const inputValue = change.value || state.lastFormData.oprocentowanie;
-            const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
+            const formattedInputValue = inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
@@ -1137,7 +1124,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     });
 
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-    const canAddMore = changes.length < maxChanges && (!lastChange || lastChange.period < maxPeriod);
+    const canAddMore = true; // Tymczasowo zawsze true, aby przetestować dodawanie
     addBtn.style.display = canAddMore ? "block" : "none";
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     console.log(`Add button visibility for ${activeType}:`, { canAddMore, lastPeriod: lastChange?.period, maxPeriod, currentChanges: changes.length, maxChanges });
@@ -1146,7 +1133,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 function addVariableChange(activeType) {
     console.log(`addVariableChange called for ${activeType}`);
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = Math.max(Math.floor(maxCykl / 12), 1); // Zapewniamy, że maxChanges jest co najmniej 1
+    const maxChanges = Math.max(Math.floor(maxCykl / 12), 1);
     console.log(`maxCykl=${maxCykl}, maxChanges=${maxChanges}`);
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
@@ -1157,18 +1144,6 @@ function addVariableChange(activeType) {
     const lastPeriod = lastChange ? lastChange.period : (activeType === "nadplata" ? 0 : 1);
 
     console.log(`Conditions for ${activeType}:`, { currentChanges: changes.length, maxChanges, lastPeriod, maxPeriod });
-
-    if (changes.length >= maxChanges) {
-        console.log(`Cannot add more changes for ${activeType}: max changes (${maxChanges}) reached`);
-        alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
-        return;
-    }
-
-    if (lastPeriod >= maxPeriod) {
-        console.log(`Cannot add more changes for ${activeType}: max period (${maxPeriod}) reached`);
-        alert(`Nie można dodać więcej zmian, osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
-        return;
-    }
 
     const newPeriod = lastPeriod + 1;
     const newChange = activeType === "oprocentowanie" 
