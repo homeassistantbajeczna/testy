@@ -93,13 +93,10 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    const updateValue = (value, source, applyMinValidation = false, preserveCursor = false) => {
+    const updateValue = (value, source, applyMinValidation = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(input.step) || 1;
-
-        // Zapisz pozycję kursora przed aktualizacją
-        let cursorPosition = preserveCursor ? input.selectionStart : null;
 
         // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
@@ -107,6 +104,11 @@ function syncInputWithRange(input, range, options = {}) {
         }
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
+
+        // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie)
+        if (isDecimal) {
+            parsedValue = Math.round(parsedValue * 100) / 100;
+        }
 
         // Walidacja wartości względem minimalnej i maksymalnej
         if (parsedValue < min && source === "Input" && !applyMinValidation) {
@@ -126,11 +128,16 @@ function syncInputWithRange(input, range, options = {}) {
         // Formatowanie wartości w zależności od typu pola
         let formattedValue;
         if (input.type === "number") {
-            // Dla pól typu number nie używamy przecinka ani dwóch cyfr po przecinku
-            formattedValue = parsedValue.toString();
+            // Dla pól typu number (np. Prowizja, Ilość rat)
+            if (isDecimal) {
+                // Dla pól decimalnych (np. Prowizja) formatujemy z dwoma miejscami po przecinku
+                formattedValue = parsedValue.toFixed(2);
+            } else {
+                // Dla pól całkowitych (np. Ilość rat) bez przecinka
+                formattedValue = parsedValue.toString();
+            }
         } else {
             // Dla pól typu text (np. Kwota kredytu, Oprocentowanie)
-            // Sprawdzamy, czy wartość jest całkowita
             if (Number.isInteger(parsedValue)) {
                 // Jeśli wartość jest całkowita, nie pokazujemy ",00"
                 formattedValue = parsedValue.toString();
@@ -144,15 +151,6 @@ function syncInputWithRange(input, range, options = {}) {
         input.value = formattedValue;
         range.value = parsedValue;
 
-        // Przywracamy pozycję kursora, jeśli preserveCursor jest true
-        if (preserveCursor && cursorPosition !== null) {
-            // Dostosuj pozycję kursora w zależności od nowego formatu wartości
-            const newValueLength = formattedValue.length;
-            const oldValueLength = value.toString().length;
-            cursorPosition = Math.min(cursorPosition, newValueLength);
-            input.setSelectionRange(cursorPosition, cursorPosition);
-        }
-
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
         if (isVariableCykl) {
@@ -164,21 +162,21 @@ function syncInputWithRange(input, range, options = {}) {
     };
 
     const inputHandler = () => {
-        // Podczas wpisywania nie formatujemy wartości, tylko zapisujemy
+        // Podczas wpisywania zapisujemy wartość tymczasowo
         state.tempValues[input.id] = input.value;
     };
 
     const inputBlurHandler = () => {
         const rawValue = state.tempValues[input.id] || input.value;
-        updateValue(rawValue, "Input", true, false);
+        updateValue(rawValue, "Input", true);
         delete state.tempValues[input.id];
     };
 
-    const rangeHandler = () => updateValue(range.value, "Range", true, false);
+    const rangeHandler = () => updateValue(range.value, "Range", true);
 
     const inputChangeHandler = () => {
         const rawValue = state.tempValues[input.id] || input.value;
-        updateValue(rawValue, "Input", true, false);
+        updateValue(rawValue, "Input", true);
         delete state.tempValues[input.id];
     };
 
@@ -222,10 +220,19 @@ function syncInputWithRange(input, range, options = {}) {
         initialValue = 100;
     }
 
+    // Zaokrąglenie początkowej wartości dla pól decimalnych
+    if (isDecimal) {
+        initialValue = Math.round(initialValue * 100) / 100;
+    }
+
     // Formatowanie początkowej wartości w zależności od typu pola
     let formattedInitialValue;
     if (input.type === "number") {
-        formattedInitialValue = initialValue.toString();
+        if (isDecimal) {
+            formattedInitialValue = initialValue.toFixed(2);
+        } else {
+            formattedInitialValue = initialValue.toString();
+        }
     } else {
         if (Number.isInteger(initialValue)) {
             formattedInitialValue = initialValue.toString();
@@ -790,7 +797,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = defaultValue.toString();
+        const formattedDefaultValue = defaultValue.toFixed(2);
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -798,7 +805,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = value.toString();
+        const formattedValue = value.toFixed(2);
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
