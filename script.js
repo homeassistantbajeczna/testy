@@ -867,6 +867,11 @@ function updateVariableInputs() {
         if (variableOprocentowanieInputs) variableOprocentowanieInputs.classList.remove("active");
         if (addVariableOprocentowanieBtn) addVariableOprocentowanieBtn.style.display = "none";
         if (variableOprocentowanieWrapper) variableOprocentowanieWrapper.innerHTML = "";
+        // Resetujemy state.variableRates, gdy przycisk jest odznaczony
+        if (!isZmienneOprocentowanie) {
+            state.variableRates = [];
+            console.log("Variable rates reset due to button uncheck.");
+        }
     }
 
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
@@ -892,6 +897,11 @@ function updateVariableInputs() {
         if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
         if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
+        // Resetujemy state.overpaymentRates, gdy przycisk jest odznaczony
+        if (!isNadplataKredytu) {
+            state.overpaymentRates = [];
+            console.log("Overpayment rates reset due to button uncheck.");
+        }
     }
 }
 
