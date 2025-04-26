@@ -754,6 +754,20 @@ function showForm() {
     }
 }
 
+function toggleHarmonogram(elementId) {
+    console.log(`toggleHarmonogram called for ${elementId}`);
+    const content = document.getElementById(elementId);
+    const toggleButton = document.querySelector(`.btn-toggle[onclick="toggleHarmonogram('${elementId}')"]`);
+    
+    if (content && toggleButton) {
+        const isHidden = content.style.display === "none";
+        content.style.display = isHidden ? "block" : "none";
+        toggleButton.textContent = isHidden ? "Harmonogram spłat ▼" : "Harmonogram spłat ▲";
+    } else {
+        console.error(`Element with ID ${elementId} or toggle button not found.`);
+    }
+}
+
 function updateProwizjaInput() {
     console.log("updateProwizjaInput called");
     const jednostka = elements.jednostkaProwizji.value;
