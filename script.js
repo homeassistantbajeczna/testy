@@ -63,7 +63,7 @@ function formatNumberWithSpaces(number) {
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, isDisabled = false } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
@@ -75,12 +75,6 @@ function syncInputWithRange(input, range, options = {}) {
         input.type = "text";
     }
 
-    // Ustawiamy disabled, jeśli podano
-    if (isDisabled) {
-        input.disabled = true;
-        range.disabled = true;
-    }
-
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
@@ -90,12 +84,6 @@ function syncInputWithRange(input, range, options = {}) {
         }
         if (input._eventListeners.change) {
             input.removeEventListener("change", input._eventListeners.change);
-        }
-        if (input._eventListeners.blur) {
-            input.removeEventListener("blur", input._eventListeners.blur);
-        }
-        if (input._eventListeners.keypress) {
-            input.removeEventListener("keypress", input._eventListeners.keypress);
         }
         if (range._eventListeners.input) {
             range.removeEventListener("input", range._eventListeners.input);
@@ -112,58 +100,31 @@ function syncInputWithRange(input, range, options = {}) {
         range.step = stepOverride;
     }
 
-    const updateValue = (value, source, applyMinValidation = false) => {
+    const updateValue = (value, source) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(range.step) || 1;
 
-        // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
             value = value.replace(",", ".");
         }
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Dla pól nie-decimalnych (np. Ilość rat) odrzucamy część dziesiętną
-        if (!isDecimal) {
-            parsedValue = Math.floor(parsedValue);
-        } else {
-            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
-            parsedValue = Math.round(parsedValue * 100) / 100;
-        }
+        if (parsedValue < min) parsedValue = min;
+        if (parsedValue > max) parsedValue = max;
 
-        // Walidacja wartości względem minimalnej i maksymalnej
-        if (parsedValue < min && source === "Input" && !applyMinValidation) {
-            // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy przy zatwierdzeniu
-        } else if (parsedValue < min) {
-            parsedValue = min;
-        }
-        if (parsedValue > max) {
-            parsedValue = max;
-        }
-
-        // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100
-        if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
-            parsedValue = 100;
-        }
-
-        // Formatowanie wartości
         let formattedValue;
         if (isDecimal) {
-            // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
             if (Number.isInteger(parsedValue)) {
-                // Dla wartości całkowitych nie pokazujemy ",00"
                 formattedValue = parsedValue.toString();
             } else {
-                // W przeciwnym razie pokazujemy dwie cyfry po przecinku
                 formattedValue = parsedValue.toFixed(2).replace(".", ",");
             }
         } else {
-            // Dla pól całkowitych (np. Ilość rat) bez przecinka
             formattedValue = parsedValue.toString();
         }
 
-        // Ustawiamy wartość w polu tekstowym i suwaku
         input.value = formattedValue;
         range.value = parsedValue;
 
@@ -171,78 +132,33 @@ function syncInputWithRange(input, range, options = {}) {
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
-        } else if (onChange && !isDisabled) {
+        } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
         }
     };
 
     const inputHandler = () => {
-        // Podczas wpisywania zapisujemy wartość tymczasowo
         let rawValue = input.value;
-
-        // Jeśli pole jest decimalne, ograniczamy wprowadzanie do 2 cyfr po przecinku
         if (isDecimal) {
-            // Zamiana przecinka na kropkę do analizy
             rawValue = rawValue.replace(",", ".");
-
-            // Wyrażenie regularne: liczba całkowita lub dziesiętna z maksymalnie 2 cyframi po przecinku
-            const regex = /^\d*(\.\d{0,2})?$/;
-            if (!regex.test(rawValue)) {
-                // Jeśli wartość nie pasuje do wzorca, przycinamy do 2 cyfr po przecinku
-                const parts = rawValue.split(".");
-                if (parts.length > 1) {
-                    parts[1] = parts[1].substring(0, 2);
-                    rawValue = parts.join(".");
-                }
-            }
-
-            // Aktualizujemy pole z wartością (z powrotem zamieniamy kropkę na przecinek dla wyświetlenia)
-            input.value = rawValue.replace(".", ",");
         }
-
-        state.tempValues[input.id] = input.value;
-
-        // Wywołujemy onChange natychmiast, jeśli pole nie jest disabled
-        if (!isDisabled && onChange) {
-            const parsedValue = parseFloat(rawValue) || 0;
-            updateValue(parsedValue, "Input", true);
-            onChange(parsedValue);
-        }
+        state.tempValues[input.id] = rawValue;
     };
-
-    const inputBlurHandler = () => {
-        const rawValue = state.tempValues[input.id] || input.value;
-        updateValue(rawValue, "Input", true);
-        delete state.tempValues[input.id];
-    };
-
-    const rangeHandler = () => updateValue(range.value, "Range", true);
 
     const inputChangeHandler = () => {
         const rawValue = state.tempValues[input.id] || input.value;
-        updateValue(rawValue, "Input", true);
+        updateValue(rawValue, "Input");
         delete state.tempValues[input.id];
     };
 
-    // Blokada wprowadzania przecinka dla pól nie-decimalnych (np. Ilość rat)
-    if (!isDecimal) {
-        const keypressHandler = (e) => {
-            if (e.key === "," || e.key === ".") {
-                e.preventDefault();
-            }
-        };
-        input._eventListeners.keypress = keypressHandler;
-        input.addEventListener("keypress", keypressHandler);
-    }
+    const rangeHandler = () => updateValue(range.value, "Range");
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
     input._eventListeners.change = inputChangeHandler;
-    input._eventListeners.blur = inputBlurHandler;
 
     input.addEventListener("input", inputHandler);
-    input.addEventListener("blur", inputBlurHandler);
     input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
 
@@ -265,25 +181,9 @@ function syncInputWithRange(input, range, options = {}) {
     let initialValue = parseFloat(range.value);
     if (isNaN(initialValue)) initialValue = min;
 
-    if (initialValue < min) {
-        initialValue = min;
-    }
-    if (initialValue > max) {
-        initialValue = max;
-    }
+    if (initialValue < min) initialValue = min;
+    if (initialValue > max) initialValue = max;
 
-    if (activeType === "nadplata" && input.classList.contains("variable-rate") && initialValue < 100) {
-        initialValue = 100;
-    }
-
-    // Zaokrąglenie początkowej wartości
-    if (isDecimal) {
-        initialValue = Math.round(initialValue * 100) / 100;
-    } else {
-        initialValue = Math.floor(initialValue);
-    }
-
-    // Formatowanie początkowej wartości
     let formattedInitialValue;
     if (isDecimal) {
         if (Number.isInteger(initialValue)) {
@@ -324,11 +224,6 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     stepOverride: 0.01,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
-        // Aktualizujemy pierwszy wiersz w sekcji "Zmienne oprocentowanie", jeśli jest aktywna
-        if (elements.zmienneOprocentowanieBtn?.checked && state.variableRates.length > 0) {
-            state.variableRates[0].value = value;
-            updateVariableInputs();
-        }
     },
 });
 
@@ -763,7 +658,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
                 <td>${row.rata}</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kwotaRaty))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.oprocentowanie))}%</td>
-                <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</td>
+                <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</ probs>
                 <td>${formatNumberWithSpaces(parseFloat(row.kapital))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.odsetki))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.pozostalyKapital))} zł</td>
@@ -926,6 +821,13 @@ function updateVariableInputs() {
     const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
+    console.log("Zmienne Oprocentowanie:", {
+        isZmienneOprocentowanie,
+        variableOprocentowanieInputs: !!variableOprocentowanieInputs,
+        addVariableOprocentowanieBtn: !!addVariableOprocentowanieBtn,
+        variableOprocentowanieWrapper: !!variableOprocentowanieWrapper,
+    });
+
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
         variableOprocentowanieInputs.classList.add("active");
         addVariableOprocentowanieBtn.style.display = "block";
@@ -943,6 +845,13 @@ function updateVariableInputs() {
     const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
     const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
+
+    console.log("Nadpłata Kredytu:", {
+        isNadplataKredytu,
+        nadplataKredytuInputs: !!nadplataKredytuInputs,
+        addNadplataKredytuBtn: !!addNadplataKredytuBtn,
+        nadplataKredytuWrapper: !!nadplataKredytuWrapper,
+    });
 
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
         nadplataKredytuInputs.classList.add("active");
@@ -1093,8 +1002,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
-            // Dla pierwszego wiersza (index === 0) ustawiamy wartość z głównego pola oprocentowanie
-            const inputValue = index === 0 ? state.lastFormData.oprocentowanie : (change.value || state.lastFormData.oprocentowanie);
+            const inputValue = change.value || state.lastFormData.oprocentowanie;
             const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
@@ -1175,7 +1083,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 isDecimal: true,
                 activeType,
                 index,
-                isDisabled: index === 0, // Dezaktywujemy edycję dla pierwszego wiersza
                 onChange: (value) => {
                     changes[index].value = value;
                     updateVariableInputs(); // Odświeżamy UI
@@ -1200,7 +1107,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         const nadplataEffectSelect = inputGroup.querySelector(".nadplata-effect-select");
         if (nadplataEffectSelect) {
-            nadplataEffectSelect.addEventListener("change", () => {
+            nadplataEffectSelect.addEventListener("change Dwarfs in the Mines of Moria", () => {
                 changes[index].effect = nadplataEffectSelect.value;
             });
         }
