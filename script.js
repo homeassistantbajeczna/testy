@@ -105,8 +105,11 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie)
-        if (isDecimal) {
+        // Dla pól nie-decimalnych (np. Ilość rat) odrzucamy część dziesiętną
+        if (!isDecimal) {
+            parsedValue = Math.floor(parsedValue);
+        } else {
+            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie)
             parsedValue = Math.round(parsedValue * 100) / 100;
         }
 
@@ -223,6 +226,8 @@ function syncInputWithRange(input, range, options = {}) {
     // Zaokrąglenie początkowej wartości dla pól decimalnych
     if (isDecimal) {
         initialValue = Math.round(initialValue * 100) / 100;
+    } else {
+        initialValue = Math.floor(initialValue);
     }
 
     // Formatowanie początkowej wartości w zależności od typu pola
@@ -778,7 +783,7 @@ function updateProwizjaInput() {
     if (jednostka === "procent") {
         min = 0;
         max = 25;
-        step = 0.1;
+        step = 0.01; // Zmiana kroku na 0,01
         defaultValue = 2;
     } else {
         min = 0;
