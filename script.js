@@ -1144,7 +1144,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             onChange: (value) => {
                 changes[index].period = value;
                 // Sprawdzamy, czy okres osiągnął maksymalną wartość i usuwamy kolejne wiersze
-                if (activeType === "nadplata" && value >= maxPeriod) {
+                if ((activeType === "nadplata" || activeType === "oprocentowanie") && value >= maxPeriod) {
                     changes.splice(index + 1); // Usuwamy wszystkie kolejne wiersze
                 }
                 updateVariableInputs(); // Wywołujemy update, aby odświeżyć UI
