@@ -70,6 +70,11 @@ function syncInputWithRange(input, range, options = {}) {
         return;
     }
 
+    // Ustawiamy typ pola na text dla pól decimalnych, aby obsługiwać przecinek
+    if (isDecimal) {
+        input.type = "text";
+    }
+
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
@@ -98,14 +103,13 @@ function syncInputWithRange(input, range, options = {}) {
 
     // Ustawienie kroku, jeśli podano stepOverride
     if (stepOverride) {
-        input.step = stepOverride;
         range.step = stepOverride;
     }
 
     const updateValue = (value, source, applyMinValidation = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
-        const step = parseFloat(input.step) || 1;
+        const step = parseFloat(range.step) || 1;
 
         // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
@@ -137,30 +141,20 @@ function syncInputWithRange(input, range, options = {}) {
             parsedValue = 100;
         }
 
-        // Formatowanie wartości w zależności od typu pola
+        // Formatowanie wartości
         let formattedValue;
-        if (input.type === "number") {
-            // Dla pól typu number (np. Prowizja, Ilość rat, Kwota, Oprocentowanie)
-            if (isDecimal) {
-                // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
-                if (Number.isInteger(parsedValue)) {
-                    // Dla wartości całkowitych nie pokazujemy ",00"
-                    formattedValue = parsedValue.toString();
-                } else {
-                    // W przeciwnym razie pokazujemy dwie cyfry po przecinku
-                    formattedValue = parsedValue.toFixed(2);
-                }
-            } else {
-                // Dla pól całkowitych (np. Ilość rat) bez przecinka
-                formattedValue = parsedValue.toString();
-            }
-        } else {
-            // Dla pól typu text (jeśli jakieś pozostały)
+        if (isDecimal) {
+            // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
             if (Number.isInteger(parsedValue)) {
+                // Dla wartości całkowitych nie pokazujemy ",00"
                 formattedValue = parsedValue.toString();
             } else {
+                // W przeciwnym razie pokazujemy dwie cyfry po przecinku
                 formattedValue = parsedValue.toFixed(2).replace(".", ",");
             }
+        } else {
+            // Dla pól całkowitych (np. Ilość rat) bez przecinka
+            formattedValue = parsedValue.toString();
         }
 
         // Ustawiamy wartość w polu tekstowym i suwaku
@@ -278,22 +272,14 @@ function syncInputWithRange(input, range, options = {}) {
 
     // Formatowanie początkowej wartości
     let formattedInitialValue;
-    if (input.type === "number") {
-        if (isDecimal) {
-            if (Number.isInteger(initialValue)) {
-                formattedInitialValue = initialValue.toString();
-            } else {
-                formattedInitialValue = initialValue.toFixed(2);
-            }
-        } else {
-            formattedInitialValue = initialValue.toString();
-        }
-    } else {
+    if (isDecimal) {
         if (Number.isInteger(initialValue)) {
             formattedInitialValue = initialValue.toString();
         } else {
             formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
         }
+    } else {
+        formattedInitialValue = initialValue.toString();
     }
 
     input.value = formattedInitialValue;
@@ -846,7 +832,6 @@ function updateProwizjaInput() {
 
     elements.prowizja.min = min;
     elements.prowizja.max = max;
-    elements.prowizja.step = step;
     elements.prowizjaRange.min = min;
     elements.prowizjaRange.max = max;
     elements.prowizjaRange.step = step;
@@ -854,7 +839,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = Number.isInteger(defaultValue) ? defaultValue.toString() : defaultValue.toFixed(2);
+        const formattedDefaultValue = Number.isInteger(defaultValue) ? defaultValue.toString() : defaultValue.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -862,7 +847,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2);
+        const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
@@ -1062,7 +1047,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             `;
 
             const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || state.lastFormData.oprocentowanie);
-            const formattedInputValue = inputValue.toFixed(2).replace(".", ",");
+            const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
