@@ -969,6 +969,21 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
     wrapper.innerHTML = "";
 
+    // Sprawdzamy, czy którykolwiek okres osiąga maksymalną wartość
+    const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+    let maxReachedIndex = -1;
+    for (let i = 0; i < changes.length; i++) {
+        if (changes[i].period >= maxPeriodValue) {
+            maxReachedIndex = i;
+            break;
+        }
+    }
+
+    // Jeśli znaleziono okres równy maksymalnemu, usuwamy wszystkie kolejne wiersze
+    if (maxReachedIndex !== -1) {
+        changes.splice(maxReachedIndex + 1);
+    }
+
     changes.forEach((change, index) => {
         const inputGroup = document.createElement("div");
         inputGroup.className = "variable-input-group";
@@ -977,8 +992,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.className = "fields-wrapper";
 
-        const minPeriod = index > 0 ? changes[index - 1].period + 1 : (activeType === "nadplata" ? 1 : 2);
-        const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+        const minPeriod = activeType === "nadplata" ? 1 : 2;
         let periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
 
         // Aktualizujemy periodValue
@@ -1124,28 +1138,18 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
-
-                // Sortowanie i korekta duplikatów po zmianie okresu
+                // Sortowanie zmian po okresie
                 changes.sort((a, b) => a.period - b.period);
-
-                // Sprawdzamy i korygujemy duplikaty oraz zapewniamy, że kolejne okresy są większe
-                for (let i = 0; i < changes.length - 1; i++) {
-                    if (changes[i].period >= changes[i + 1].period) {
-                        changes[i + 1].period = changes[i].period + 1;
-                    }
-                }
-
-                // Usuwamy wiersze, jeśli okres przekracza maksymalny
-                const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-                let i = 0;
-                while (i < changes.length) {
-                    if (changes[i].period >= maxPeriod) {
+                // Sprawdzamy, czy którykolwiek okres osiąga maksymalną wartość
+                let maxReached = false;
+                for (let i = 0; i < changes.length; i++) {
+                    if (changes[i].period >= maxPeriodValue) {
+                        maxReached = true;
+                        // Usuwamy wszystkie kolejne wiersze
                         changes.splice(i + 1);
                         break;
                     }
-                    i++;
                 }
-
                 updateVariableInputs();
             },
         });
@@ -1185,8 +1189,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     });
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
-    const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-    const isMaxPeriodReached = lastChange && lastChange.period >= (activeType === "nadplata" ? maxCykl - 1 : maxCykl);
+    // Sprawdzamy, czy którykolwiek okres osiąga maksymalną wartość
+    const isMaxPeriodReached = changes.some(change => change.period >= maxPeriodValue);
     addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
 }
 
