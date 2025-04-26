@@ -61,9 +61,18 @@ function formatNumberWithSpaces(number) {
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
+// Funkcja debounce
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
+    const { isDecimal = false, onChange, index, activeType, stepOverride, useDebounce = false } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
@@ -114,6 +123,12 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
+        // Zaokrąglamy wartość do najbliższego kroku
+        if (step) {
+            const steps = Math.round((parsedValue - min) / step);
+            parsedValue = min + (steps * step);
+        }
+
         if (!isDecimal) {
             parsedValue = Math.floor(parsedValue);
         } else {
@@ -139,9 +154,7 @@ function syncInputWithRange(input, range, options = {}) {
 
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
-        if (isVariableCykl) {
-            state.tempValues[input.id || range.id] = parsedValue;
-        } else if (onChange) {
+        if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
         }
@@ -161,16 +174,12 @@ function syncInputWithRange(input, range, options = {}) {
             }
             input.value = rawValue.replace(".", ",");
         }
-        state.tempValues[input.id] = input.value;
+        updateValue(input.value, "Input");
     };
 
-    const inputChangeHandler = () => {
-        const rawValue = state.tempValues[input.id] || input.value;
-        updateValue(rawValue, "Input");
-        delete state.tempValues[input.id];
-    };
-
-    const rangeHandler = () => updateValue(range.value, "Range");
+    const rangeHandler = useDebounce
+        ? debounce(() => updateValue(range.value, "Range"), 50)
+        : () => updateValue(range.value, "Range");
 
     if (!isDecimal) {
         const keypressHandler = (e) => {
@@ -184,24 +193,9 @@ function syncInputWithRange(input, range, options = {}) {
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
-    input._eventListeners.change = inputChangeHandler;
 
     input.addEventListener("input", inputHandler);
-    input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
-
-    if (isVariableCykl) {
-        const changeHandler = () => {
-            const value = state.tempValues[input.id || range.id];
-            if (value !== undefined && onChange) {
-                console.log(`Change committed: ${input.id || range.className} = ${value}`);
-                onChange(value);
-                delete state.tempValues[input.id || range.id];
-            }
-        };
-        range._eventListeners.change = changeHandler;
-        range.addEventListener("change", changeHandler);
-    }
 
     // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
@@ -231,6 +225,7 @@ function syncInputWithRange(input, range, options = {}) {
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
     stepOverride: 100,
+    useDebounce: true,
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
@@ -240,6 +235,7 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
 
 syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     isDecimal: false,
+    useDebounce: true,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
         updateLata();
@@ -250,6 +246,7 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
     stepOverride: 0.01,
+    useDebounce: true,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
     },
@@ -257,6 +254,7 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
 
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
+    useDebounce: true,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
         updateProwizjaInfo();
@@ -881,7 +879,6 @@ function updateVariableInputs() {
         if (variableOprocentowanieInputs) variableOprocentowanieInputs.classList.remove("active");
         if (addVariableOprocentowanieBtn) addVariableOprocentowanieBtn.style.display = "none";
         if (variableOprocentowanieWrapper) variableOprocentowanieWrapper.innerHTML = "";
-        // Resetujemy state.variableRates, gdy przycisk jest odznaczony
         if (!isZmienneOprocentowanie) {
             state.variableRates = [];
             console.log("Variable rates reset due to button uncheck.");
@@ -911,7 +908,6 @@ function updateVariableInputs() {
         if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
         if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
-        // Resetujemy state.overpaymentRates, gdy przycisk jest odznaczony
         if (!isNadplataKredytu) {
             state.overpaymentRates = [];
             console.log("Overpayment rates reset due to button uncheck.");
@@ -1015,10 +1011,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
+                    <input type="number" id="nadplata-cykl-${index}" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
+                <input type="range" id="nadplata-cykl-range-${index}" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
             const inputValue = change.value || 1000;
@@ -1028,17 +1024,22 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="text" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formattedInputValue}">
+                    <input type="text" id="nadplata-rate-${index}" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formattedInputValue}">
                     <span class="input-group-text unit-zl" style="width: 30px; text-align: center;">zł</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
+                <input type="range" id="nadplata-rate-range-${index}" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
             `;
 
-            const rateInput = rateGroup.querySelector(".variable-rate");
-            const rateRange = rateGroup.querySelector(".variable-rate-range");
-            syncInputWithRange(rateInput, rateRange, { isDecimal: true, activeType: "nadplata", index, onChange: (value) => {
-                changes[index].value = value;
-            } });
+            const rateInput = rateGroup.querySelector(`#nadplata-rate-${index}`);
+            const rateRange = rateGroup.querySelector(`#nadplata-rate-range-${index}`);
+            syncInputWithRange(rateInput, rateRange, { 
+                isDecimal: true, 
+                activeType: "nadplata", 
+                index, 
+                onChange: (value) => {
+                    changes[index].value = value;
+                }
+            });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -1050,10 +1051,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
+                    <input type="number" id="oprocentowanie-cykl-${index}" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
+                <input type="range" id="oprocentowanie-cykl-range-${index}" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
             const inputValue = change.value || state.lastFormData.oprocentowanie;
@@ -1063,10 +1064,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="text" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${formattedInputValue}">
+                    <input type="text" id="oprocentowanie-rate-${index}" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${formattedInputValue}">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
+                <input type="range" id="oprocentowanie-rate-range-${index}" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
             `;
 
             fieldsWrapper.appendChild(cyklGroup);
@@ -1112,15 +1113,16 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         wrapper.appendChild(inputGroup);
 
-        const cyklInput = inputGroup.querySelector(".variable-cykl");
-        const cyklRange = inputGroup.querySelector(".variable-cykl-range");
-        const rateInput = inputGroup.querySelector(".variable-rate");
-        const rateRange = inputGroup.querySelector(".variable-rate-range");
+        const cyklInput = inputGroup.querySelector(`#${activeType}-cykl-${index}`);
+        const cyklRange = inputGroup.querySelector(`#${activeType}-cykl-range-${index}`);
+        const rateInput = inputGroup.querySelector(`#${activeType}-rate-${index}`);
+        const rateRange = inputGroup.querySelector(`#${activeType}-rate-range-${index}`);
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             activeType,
+            index,
             onChange: (value) => {
                 changes[index].period = value;
                 changes.sort((a, b) => a.period - b.period);
@@ -1154,7 +1156,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 index,
                 onChange: (value) => {
                     changes[index].value = value;
-                    updateVariableInputs();
                 },
             });
         }
