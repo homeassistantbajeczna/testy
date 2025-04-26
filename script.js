@@ -85,6 +85,9 @@ function syncInputWithRange(input, range, options = {}) {
         if (input._eventListeners.change) {
             input.removeEventListener("change", input._eventListeners.change);
         }
+        if (input._eventListeners.keypress) {
+            input.removeEventListener("keypress", input._eventListeners.keypress);
+        }
         if (range._eventListeners.input) {
             range.removeEventListener("input", range._eventListeners.input);
         }
@@ -110,6 +113,12 @@ function syncInputWithRange(input, range, options = {}) {
         }
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
+
+        if (!isDecimal) {
+            parsedValue = Math.floor(parsedValue);
+        } else {
+            parsedValue = Math.round(parsedValue * 100) / 100;
+        }
 
         if (parsedValue < min) parsedValue = min;
         if (parsedValue > max) parsedValue = max;
@@ -142,8 +151,17 @@ function syncInputWithRange(input, range, options = {}) {
         let rawValue = input.value;
         if (isDecimal) {
             rawValue = rawValue.replace(",", ".");
+            const regex = /^\d*(\.\d{0,2})?$/;
+            if (!regex.test(rawValue)) {
+                const parts = rawValue.split(".");
+                if (parts.length > 1) {
+                    parts[1] = parts[1].substring(0, 2);
+                    rawValue = parts.join(".");
+                }
+            }
+            input.value = rawValue.replace(".", ",");
         }
-        state.tempValues[input.id] = rawValue;
+        state.tempValues[input.id] = input.value;
     };
 
     const inputChangeHandler = () => {
@@ -153,6 +171,16 @@ function syncInputWithRange(input, range, options = {}) {
     };
 
     const rangeHandler = () => updateValue(range.value, "Range");
+
+    if (!isDecimal) {
+        const keypressHandler = (e) => {
+            if (e.key === "," || e.key === ".") {
+                e.preventDefault();
+            }
+        };
+        input._eventListeners.keypress = keypressHandler;
+        input.addEventListener("keypress", keypressHandler);
+    }
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
@@ -928,7 +956,22 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         const minPeriod = index > 0 ? changes[index - 1].period + 1 : (activeType === "nadplata" ? 1 : 2);
         const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-        const periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
+        let periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
+
+        // Jeśli nie jest to ostatni wiersz, upewniamy się, że kolejny wiersz ma większy okres
+        if (index < changes.length - 1) {
+            const nextPeriod = changes[index + 1].period;
+            if (periodValue >= nextPeriod) {
+                if (periodValue < maxPeriodValue) {
+                    changes[index + 1].period = periodValue + 1;
+                } else {
+                    changes.splice(index + 1); // Usuwamy kolejne wiersze, jeśli bieżący okres jest za duży
+                }
+            }
+        }
+
+        // Aktualizujemy periodValue po ewentualnych zmianach
+        periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
 
         if (activeType === "nadplata") {
             const nadplataTypeGroup = document.createElement("div");
@@ -1070,11 +1113,20 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
-                // Sprawdzamy, czy okres osiągnął maksymalną wartość i usuwamy kolejne wiersze
-                if ((activeType === "nadplata" || activeType === "oprocentowanie") && value >= maxPeriod) {
-                    changes.splice(index + 1); // Usuwamy wszystkie kolejne wiersze
+                if (index < changes.length - 1) {
+                    const nextPeriod = changes[index + 1].period;
+                    if (value >= nextPeriod) {
+                        if (value < maxPeriod) {
+                            changes[index + 1].period = value + 1;
+                        } else {
+                            changes.splice(index + 1);
+                        }
+                    }
                 }
-                updateVariableInputs(); // Wywołujemy update, aby odświeżyć UI
+                if ((activeType === "nadplata" || activeType === "oprocentowanie") && value >= maxPeriod) {
+                    changes.splice(index + 1);
+                }
+                updateVariableInputs();
             },
         });
 
@@ -1085,7 +1137,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 index,
                 onChange: (value) => {
                     changes[index].value = value;
-                    updateVariableInputs(); // Odświeżamy UI
+                    updateVariableInputs();
                 },
             });
         }
@@ -1107,7 +1159,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         const nadplataEffectSelect = inputGroup.querySelector(".nadplata-effect-select");
         if (nadplataEffectSelect) {
-            nadplataEffectSelect.addEventListener("change Dwarfs in the Mines of Moria", () => {
+            nadplataEffectSelect.addEventListener("change", () => {
                 changes[index].effect = nadplataEffectSelect.value;
             });
         }
