@@ -118,12 +118,17 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Dla pól nie-decimalnych (np. Ilość rat) odrzucamy część dziesiętną
-        if (!isDecimal) {
+        // Dla pól cyklu (isVariableCykl) zaokrąglamy tylko wartość wyświetlaną w polu tekstowym
+        let displayValue = parsedValue;
+        if (isVariableCykl) {
+            displayValue = Math.floor(parsedValue); // Zaokrąglamy tylko dla wyświetlenia
+        } else if (!isDecimal) {
             parsedValue = Math.floor(parsedValue);
+            displayValue = parsedValue;
         } else {
-            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
+            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych
             parsedValue = Math.round(parsedValue * 100) / 100;
+            displayValue = parsedValue;
         }
 
         // Walidacja wartości względem minimalnej i maksymalnej
@@ -131,42 +136,43 @@ function syncInputWithRange(input, range, options = {}) {
             // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy przy zatwierdzeniu
         } else if (parsedValue < min) {
             parsedValue = min;
+            displayValue = min;
         }
         if (parsedValue > max) {
             parsedValue = max;
+            displayValue = max;
         }
 
         // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100
         if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
             parsedValue = 100;
+            displayValue = 100;
         }
 
         // Formatowanie wartości
         let formattedValue;
         if (isDecimal) {
             // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
-            if (Number.isInteger(parsedValue)) {
-                // Dla wartości całkowitych nie pokazujemy ",00"
-                formattedValue = parsedValue.toString();
+            if (Number.isInteger(displayValue)) {
+                formattedValue = displayValue.toString();
             } else {
-                // W przeciwnym razie pokazujemy dwie cyfry po przecinku
-                formattedValue = parsedValue.toFixed(2).replace(".", ",");
+                formattedValue = displayValue.toFixed(2).replace(".", ",");
             }
         } else {
-            // Dla pól całkowitych (np. Ilość rat) bez przecinka
-            formattedValue = parsedValue.toString();
+            // Dla pól całkowitych (np. Ilość rat, cykle) bez przecinka
+            formattedValue = displayValue.toString();
         }
 
-        // Ustawiamy wartość w polu tekstowym i suwaku
+        // Ustawiamy wartości w polu tekstowym i suwaku
         input.value = formattedValue;
-        range.value = parsedValue;
+        range.value = parsedValue; // Suwak zachowuje wartość z dokładnością kroku
 
-        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
+        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, display=${formattedValue}, activeType=${activeType}, index=${index}`);
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
             if (onChange) {
-                onChange(parsedValue);
+                onChange(Math.floor(parsedValue)); // Przekazujemy zaokrągloną wartość do stanu
             }
         } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
@@ -180,26 +186,19 @@ function syncInputWithRange(input, range, options = {}) {
 
         // Jeśli pole jest decimalne, ograniczamy wprowadzanie do 2 cyfr po przecinku
         if (isDecimal) {
-            // Zamiana przecinka na kropkę do analizy
             rawValue = rawValue.replace(",", ".");
-
-            // Wyrażenie regularne: liczba całkowita lub dziesiętna z maksymalnie 2 cyframi po przecinku
             const regex = /^\d*(\.\d{0,2})?$/;
             if (!regex.test(rawValue)) {
-                // Jeśli wartość nie pasuje do wzorca, przycinamy do 2 cyfr po przecinku
                 const parts = rawValue.split(".");
                 if (parts.length > 1) {
                     parts[1] = parts[1].substring(0, 2);
                     rawValue = parts.join(".");
                 }
             }
-
-            // Aktualizujemy pole z wartością (z powrotem zamieniamy kropkę na przecinek dla wyświetlenia)
             input.value = rawValue.replace(".", ",");
         }
 
         state.tempValues[input.id] = input.value;
-        // Wywołujemy updateValue natychmiast dla pól cyklu, aby zapewnić aktualizację stanu
         if (isVariableCykl) {
             updateValue(input.value, "Input", true);
         }
@@ -245,7 +244,7 @@ function syncInputWithRange(input, range, options = {}) {
             const value = state.tempValues[input.id || range.id];
             if (value !== undefined && onChange) {
                 console.log(`Change committed: ${input.id || range.className} = ${value}`);
-                onChange(value);
+                onChange(Math.floor(value));
                 delete state.tempValues[input.id || range.id];
             }
         };
@@ -273,11 +272,10 @@ function syncInputWithRange(input, range, options = {}) {
     // Zaokrąglenie początkowej wartości
     if (isDecimal) {
         initialValue = Math.round(initialValue * 100) / 100;
-    } else {
+    } else if (!isVariableCykl) {
         initialValue = Math.floor(initialValue);
     }
 
-    // Formatowanie początkowej wartości
     let formattedInitialValue;
     if (isDecimal) {
         if (Number.isInteger(initialValue)) {
@@ -286,7 +284,7 @@ function syncInputWithRange(input, range, options = {}) {
             formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
         }
     } else {
-        formattedInitialValue = initialValue.toString();
+        formattedInitialValue = Math.floor(initialValue).toString();
     }
 
     input.value = formattedInitialValue;
@@ -1204,8 +1202,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-    const isMaxPeriodReached = lastChange && lastChange.period >= (activeType === "nadplata" ? maxCykl - 1 : maxCykl);
-    addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
+    const isMaxPeriodReached = lastChange && lastChange.period >= maxPeriod;
+    addBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
 }
 
 function addVariableChange(activeType) {
@@ -1221,23 +1219,23 @@ function addVariableChange(activeType) {
 
     if (changes.length >= maxChanges || isMaxPeriodReached) {
         if (changes.length >= maxChanges) {
+            console.log(`Max changes reached: ${maxChanges}`);
             alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
-        }
-        if (activeType === "oprocentowanie") {
-            elements.addVariableOprocentowanieBtn.style.display = "none";
-        } else {
-            elements.addNadplataKredytuBtn.style.display = "none";
+        } else if (isMaxPeriodReached) {
+            console.log(`Max period reached: ${maxPeriod}`);
+            alert(`Nie można dodać więcej zmian, osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
         }
         return;
     }
 
-    const lastCykl = lastChange ? lastChange.period : 1;
+    const lastCykl = lastChange ? lastChange.period : (activeType === "nadplata" ? 1 : 2);
     const newCykl = Math.min(lastCykl + 1, maxPeriod);
     const newChange = activeType === "oprocentowanie" 
         ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
+    console.log(`Added new change for ${activeType}:`, newChange);
     updateVariableInputs();
 }
 
