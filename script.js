@@ -930,7 +930,7 @@ function updateVariableInputs() {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates = [{ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" }]; // Domyślny okres zmieniony na 1
+            state.overpaymentRates = [{ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" }];
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
@@ -956,23 +956,21 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const valueInput = rateInput ? rateInput.value.replace(",", ".") : null;
         const value = valueInput ? parseFloat(valueInput) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
-        const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || 1); // Domyślny okres zmieniony na 1
+        const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
         existingValues[index] = value;
         existingPeriods[index] = period;
     });
 
-    // Dla nadpłaty: Usuwamy wiersze, które są po okresie maksymalnym
-    if (activeType === "nadplata") {
-        const maxPeriod = maxCykl - 1;
-        let maxPeriodIndex = -1;
-        changes.forEach((change, index) => {
-            if (change.period >= maxPeriod) {
-                maxPeriodIndex = index;
-            }
-        });
-        if (maxPeriodIndex !== -1) {
-            changes.splice(maxPeriodIndex + 1); // Usuwamy wszystkie wiersze po maksymalnym okresie
+    // Usuwamy wiersze, które są po okresie maksymalnym
+    const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+    let maxPeriodIndex = -1;
+    changes.forEach((change, index) => {
+        if (change.period >= maxPeriod) {
+            maxPeriodIndex = index;
         }
+    });
+    if (maxPeriodIndex !== -1) {
+        changes.splice(maxPeriodIndex + 1); // Usuwamy wszystkie wiersze po maksymalnym okresie
     }
 
     wrapper.innerHTML = "";
