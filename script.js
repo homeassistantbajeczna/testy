@@ -198,7 +198,7 @@ function syncInputWithRange(input, range, options = {}) {
     if (activeType) {
         // Dla pól dynamicznych (Zmienne oprocentowanie, Nadpłata kredytu)
         if (isVariableCykl) {
-            // Dla suwaków "Od/W" i "Od" używamy zdarzenia input, ale pomijamy onChange podczas przesuwania
+            // Dla suwaków "Od/W" używamy zdarzenia input, ale pomijamy onChange podczas przesuwania
             input.addEventListener("input", inputHandler);
             input._eventListeners.change = inputChangeHandler;
             input.addEventListener("change", inputChangeHandler);
@@ -967,21 +967,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         }
     });
 
-    // Sortujemy zmiany według okresu
-    changes.sort((a, b) => a.period - b.period);
-
-    // Usuwamy wiersze, które są po okresie maksymalnym
-    const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    let maxPeriodIndex = -1;
-    changes.forEach((change, index) => {
-        if (change.period >= maxPeriod) {
-            maxPeriodIndex = index;
-        }
-    });
-    if (maxPeriodIndex !== -1) {
-        changes.splice(maxPeriodIndex + 1);
-    }
-
     wrapper.innerHTML = "";
 
     changes.forEach((change, index) => {
@@ -1139,10 +1124,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
-                // Sortowanie i korekta duplikatów tylko po zakończeniu edycji
+
+                // Sortowanie i korekta duplikatów po zmianie okresu
                 changes.sort((a, b) => a.period - b.period);
 
-                // Sprawdzamy, czy są duplikaty okresów
+                // Sprawdzamy i korygujemy duplikaty oraz zapewniamy, że kolejne okresy są większe
                 for (let i = 0; i < changes.length - 1; i++) {
                     if (changes[i].period >= changes[i + 1].period) {
                         changes[i + 1].period = changes[i].period + 1;
@@ -1181,7 +1167,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
                 const currentInputGroup = e.target.closest(".variable-input-group");
                 const cyklGroup = currentInputGroup.querySelector(".form-group:has(.variable-cykl)");
-                const label = cyklGroup?.query.find(".form-label");
+                const label = cyklGroup?.querySelector(".form-label");
                 const unit = cyklGroup?.querySelector(".unit-miesiacu");
                 if (label && unit) {
                     label.textContent = isJednorazowa ? "W" : "Od";
@@ -1211,9 +1197,10 @@ function addVariableChange(activeType) {
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
 
-    const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+    // Znajdujemy największy okres w istniejących zmianach
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    const isMaxPeriodReached = lastChange && lastChange.period >= maxPeriod;
+    const lastChange = changes.length > 0 ? changes.reduce((max, change) => Math.max(max, change.period), 0) : 0;
+    const isMaxPeriodReached = lastChange >= maxPeriod;
 
     if (changes.length >= maxChanges || isMaxPeriodReached) {
         if (changes.length >= maxChanges) {
@@ -1227,13 +1214,17 @@ function addVariableChange(activeType) {
         return;
     }
 
-    const lastCykl = lastChange ? lastChange.period : 1;
-    const newCykl = Math.min(lastCykl + 1, maxPeriod);
+    // Nowy okres to największy istniejący okres + 1
+    const newCykl = lastChange ? lastChange + 1 : (activeType === "nadplata" ? 1 : 2);
     const newChange = activeType === "oprocentowanie" 
         ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
+
+    // Sortujemy zmiany po dodaniu nowego wiersza
+    changes.sort((a, b) => a.period - b.period);
+
     updateVariableInputs();
 }
 
