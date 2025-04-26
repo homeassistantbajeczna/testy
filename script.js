@@ -557,7 +557,7 @@ function calculateLoan() {
                 rata: i,
                 kwotaRaty: rata.toFixed(2),
                 kapital: kapital.toFixed(2),
-                odsetki: odsetki.toFixed(2),
+                вогsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
@@ -920,6 +920,13 @@ function updateVariableInputs() {
     const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
+    console.log("Zmienne Oprocentowanie:", {
+        isZmienneOprocentowanie,
+        variableOprocentowanieInputs: !!variableOprocentowanieInputs,
+        addVariableOprocentowanieBtn: !!addVariableOprocentowanieBtn,
+        variableOprocentowanieWrapper: !!variableOprocentowanieWrapper,
+    });
+
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
         variableOprocentowanieInputs.classList.add("active");
         addVariableOprocentowanieBtn.style.display = "block";
@@ -937,6 +944,13 @@ function updateVariableInputs() {
     const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
     const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
+
+    console.log("Nadpłata Kredytu:", {
+        isNadplataKredytu,
+        nadplataKredytuInputs: !!nadplataKredytuInputs,
+        addNadplataKredytuBtn: !!addNadplataKredytuBtn,
+        nadplataKredytuWrapper: !!nadplataKredytuWrapper,
+    });
 
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
         nadplataKredytuInputs.classList.add("active");
@@ -1077,8 +1091,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             fieldsWrapper.appendChild(rateGroup);
         } else {
             const cyklGroup = document.createElement("div");
-            cykGroup.className = "form-group";
-            cykGroup.innerHTML = `
+            cyklGroup.className = "form-group";
+            cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
