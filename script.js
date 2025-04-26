@@ -948,6 +948,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         return;
     }
 
+    // Pobieramy istniejące wartości, aby zachować dane wprowadzone przez użytkownika
     const existingInputs = wrapper.querySelectorAll(".variable-input-group");
     const existingValues = [];
     const existingPeriods = [];
@@ -959,7 +960,22 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
         existingValues[index] = value;
         existingPeriods[index] = period;
+
+        // Aktualizujemy wartości w changes na podstawie istniejących inputów
+        if (changes[index]) {
+            changes[index].value = value;
+            changes[index].period = period;
+            if (activeType === "nadplata") {
+                const typeSelect = inputGroup.querySelector(".nadplata-type-select");
+                const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
+                changes[index].type = typeSelect ? typeSelect.value : changes[index].type;
+                changes[index].effect = effectSelect ? effectSelect.value : changes[index].effect;
+            }
+        }
     });
+
+    // Sortujemy zmiany według okresu
+    changes.sort((a, b) => a.period - b.period);
 
     // Usuwamy wiersze, które są po okresie maksymalnym
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
@@ -983,9 +999,9 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.className = "fields-wrapper";
 
-        const minPeriod = index > 0 ? (existingPeriods[index - 1] || changes[index - 1].period) + 1 : (activeType === "nadplata" ? 1 : 2);
-        const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-        const periodValue = existingPeriods[index] !== undefined ? existingPeriods[index] : change.period;
+        const minPeriod = index > 0 ? changes[index - 1].period + 1 : (activeType === "nadplata" ? 1 : 2);
+        const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+        const periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
 
         if (activeType === "nadplata") {
             const nadplataTypeGroup = document.createElement("div");
@@ -1018,13 +1034,13 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || 1000);
+            const inputValue = change.value || 1000;
             const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
@@ -1049,17 +1065,17 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             fieldsWrapper.appendChild(rateGroup);
         } else {
             const cyklGroup = document.createElement("div");
-            cyklGroup.className = "form-group";
+            cykGroup.className = "form-group";
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || state.lastFormData.oprocentowanie);
+            const inputValue = change.value || state.lastFormData.oprocentowanie;
             const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
@@ -1127,7 +1143,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
-                updateVariableInputs(); // Wywołujemy update, aby sprawdzić, czy trzeba usunąć kolejne wiersze
+                // Sprawdzamy, czy okres osiągnął maksymalną wartość i usuwamy kolejne wiersze
+                if (activeType === "nadplata" && value >= maxPeriod) {
+                    changes.splice(index + 1); // Usuwamy wszystkie kolejne wiersze
+                }
+                updateVariableInputs(); // Wywołujemy update, aby odświeżyć UI
             },
         });
 
