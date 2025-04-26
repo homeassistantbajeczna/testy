@@ -143,8 +143,8 @@ function syncInputWithRange(input, range, options = {}) {
             // Dla pól typu number (np. Prowizja, Ilość rat, Kwota, Oprocentowanie)
             if (isDecimal) {
                 // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
-                if (Number.isInteger(parsedValue) && input.id === "prowizja") {
-                    // Dla "Prowizji" nie pokazujemy ",00" dla wartości całkowitych
+                if (Number.isInteger(parsedValue)) {
+                    // Dla wartości całkowitych nie pokazujemy ",00"
                     formattedValue = parsedValue.toString();
                 } else {
                     // W przeciwnym razie pokazujemy dwie cyfry po przecinku
@@ -179,6 +179,28 @@ function syncInputWithRange(input, range, options = {}) {
 
     const inputHandler = () => {
         // Podczas wpisywania zapisujemy wartość tymczasowo
+        let rawValue = input.value;
+
+        // Jeśli pole jest decimalne, ograniczamy wprowadzanie do 2 cyfr po przecinku
+        if (isDecimal) {
+            // Zamiana przecinka na kropkę do analizy
+            rawValue = rawValue.replace(",", ".");
+
+            // Wyrażenie regularne: liczba całkowita lub dziesiętna z maksymalnie 2 cyframi po przecinku
+            const regex = /^\d*(\.\d{0,2})?$/;
+            if (!regex.test(rawValue)) {
+                // Jeśli wartość nie pasuje do wzorca, przycinamy do 2 cyfr po przecinku
+                const parts = rawValue.split(".");
+                if (parts.length > 1) {
+                    parts[1] = parts[1].substring(0, 2);
+                    rawValue = parts.join(".");
+                }
+            }
+
+            // Aktualizujemy pole z wartością (z powrotem zamieniamy kropkę na przecinek dla wyświetlenia)
+            input.value = rawValue.replace(".", ",");
+        }
+
         state.tempValues[input.id] = input.value;
     };
 
@@ -258,7 +280,7 @@ function syncInputWithRange(input, range, options = {}) {
     let formattedInitialValue;
     if (input.type === "number") {
         if (isDecimal) {
-            if (Number.isInteger(initialValue) && input.id === "prowizja") {
+            if (Number.isInteger(initialValue)) {
                 formattedInitialValue = initialValue.toString();
             } else {
                 formattedInitialValue = initialValue.toFixed(2);
@@ -280,8 +302,8 @@ function syncInputWithRange(input, range, options = {}) {
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
-    isDecimal: true, // Kwota kredytu teraz jako liczba dziesiętna
-    stepOverride: 100, // Zmiana co 100
+    isDecimal: true,
+    stepOverride: 100,
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
@@ -300,7 +322,7 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
 
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
-    stepOverride: 0.01, // Zmiana co 0,01
+    stepOverride: 0.01,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
     },
@@ -832,7 +854,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = Number.isInteger(defaultValue) && defaultValue === 2 ? defaultValue.toString() : defaultValue.toFixed(2);
+        const formattedDefaultValue = Number.isInteger(defaultValue) ? defaultValue.toString() : defaultValue.toFixed(2);
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -840,7 +862,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = Number.isInteger(value) && elements.prowizja.id === "prowizja" ? value.toString() : value.toFixed(2);
+        const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2);
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
