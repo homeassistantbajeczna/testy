@@ -117,9 +117,16 @@ function syncInputWithRange(input, range, options = {}) {
             parsedValue = 100;
         }
 
-        // Formatowanie wartości: zawsze pokazujemy dwie cyfry po przecinku z przecinkiem
-        const formattedValue = parsedValue.toFixed(2).replace(".", ",");
-        
+        // Formatowanie wartości w zależności od typu pola
+        let formattedValue;
+        if (input.type === "number") {
+            // Dla pól typu number nie używamy przecinka ani dwóch cyfr po przecinku
+            formattedValue = parsedValue.toString();
+        } else {
+            // Dla pól typu text (np. Kwota kredytu, Oprocentowanie) pokazujemy dwie cyfry po przecinku z przecinkiem
+            formattedValue = parsedValue.toFixed(2).replace(".", ",");
+        }
+
         // Ustawiamy wartość w polu tekstowym i suwaku
         input.value = formattedValue;
         range.value = parsedValue;
@@ -174,7 +181,14 @@ function syncInputWithRange(input, range, options = {}) {
         initialValue = 100;
     }
 
-    const formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
+    // Formatowanie początkowej wartości w zależności od typu pola
+    let formattedInitialValue;
+    if (input.type === "number") {
+        formattedInitialValue = initialValue.toString();
+    } else {
+        formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
+    }
+
     input.value = formattedInitialValue;
     range.value = initialValue;
     console.log(`Initial sync: ${input.id || range.className} = ${initialValue}, formatted=${formattedInitialValue}`);
@@ -406,7 +420,7 @@ function calculateLoan() {
 
             // Ustawiamy ratę
             if (isOverpaymentMonth && i > 1) {
-                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
+                // W miesiącu nadpłaty używamy raty Inflacjapoprzedniego miesiąca
                 rata = previousRata;
             } else {
                 // Obliczamy normalnie ratę
@@ -731,7 +745,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = defaultValue.toFixed(2).replace(".", ",");
+        const formattedDefaultValue = defaultValue.toString();
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -739,7 +753,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = value.toFixed(2).replace(".", ",");
+        const formattedValue = value.toString();
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
@@ -910,7 +924,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formattedInputValue}">
+                    <input type="text" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formattedInputValue}">
                     <span class="input-group-text unit-zl">zł</span>
                 </div>
                 <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
@@ -918,7 +932,9 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
             const rateInput = rateGroup.querySelector(".variable-rate");
             const rateRange = rateGroup.querySelector(".variable-rate-range");
-            syncInputWithRange(rateInput, rateRange, { isDecimal: false, activeType: "nadplata" });
+            syncInputWithRange(rateInput, rateRange, { isDecimal: true, activeType: "nadplata", index, onChange: (value) => {
+                changes[index].value = value;
+            } });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -1150,11 +1166,6 @@ if (elements.rodzajRat) {
 if (elements.zmienneOprocentowanieBtn) {
     elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
         state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-        if (!elements.zmienneOprocentowanieBtn.checked) {
-            state.variableRates = [];
-        } else {
-            state.variableRates = [{ value: state.lastFormData.oprocentowanie, period: 2 }];
-        }
         updateVariableInputs();
     });
 }
@@ -1162,96 +1173,70 @@ if (elements.zmienneOprocentowanieBtn) {
 if (elements.nadplataKredytuBtn) {
     elements.nadplataKredytuBtn.addEventListener("change", () => {
         state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
-        if (!elements.nadplataKredytuBtn.checked) {
-            state.overpaymentRates = [];
-        } else {
-            state.overpaymentRates = [{ value: 1000, period: 2, type: "Jednorazowa", effect: "Skróć okres" }];
-        }
         updateVariableInputs();
     });
 }
 
 if (elements.addVariableOprocentowanieBtn) {
-    elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
-        addVariableChange("oprocentowanie");
-    });
+    elements.addVariableOprocentowanieBtn.addEventListener("click", () => addVariableChange("oprocentowanie"));
 }
 
 if (elements.addNadplataKredytuBtn) {
-    elements.addNadplataKredytuBtn.addEventListener("click", () => {
-        addVariableChange("nadplata");
-    });
+    elements.addNadplataKredytuBtn.addEventListener("click", () => addVariableChange("nadplata"));
 }
 
 if (elements.obliczBtn) {
-    elements.obliczBtn.addEventListener("click", () => {
-        // Debug: Sprawdzenie wartości select przed obliczeniami
-        console.log("Oblicz button clicked, rodzajRat value:", elements.rodzajRat.value);
-        calculateLoan();
-    });
+    elements.obliczBtn.addEventListener("click", calculateLoan);
 }
 
 if (elements.zoomInBtn) {
     elements.zoomInBtn.addEventListener("click", () => {
-        if (currentZoom < maxZoom) {
-            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
-            updateZoom();
-        }
+        currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+        updateZoom();
     });
 }
 
 if (elements.zoomOutBtn) {
     elements.zoomOutBtn.addEventListener("click", () => {
-        if (currentZoom > minZoom) {
-            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
-            updateZoom();
-        }
+        currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+        updateZoom();
     });
 }
 
 if (elements.toggleDarkModeBtn) {
-    elements.toggleDarkModeBtn.addEventListener("click", () => {
-        toggleDarkMode();
-    });
+    elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
 }
 
 if (elements.generatePdfBtn) {
     elements.generatePdfBtn.addEventListener("click", () => {
+        console.log("generatePdfBtn clicked");
         const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            console.error("jsPDF not loaded.");
+            return;
+        }
         const doc = new jsPDF();
-        doc.text("Harmonogram spłaty kredytu", 10, 10);
-        doc.autoTable({
-            html: "#harmonogramContent table",
-            startY: 20,
-            styles: { fontSize: 8 },
-            columnStyles: {
-                0: { cellWidth: 20 }, // Miesiąc
-                1: { cellWidth: 30 }, // Rata
-                2: { cellWidth: 20 }, // Oproc.
-                3: { cellWidth: 30 }, // Nadpłata
-                4: { cellWidth: 30 }, // Kapitał
-                5: { cellWidth: 30 }, // Odsetki
-                6: { cellWidth: 30 }, // Kapitał do spłaty
-            },
-        });
-        doc.save("harmonogram.pdf");
+        const harmonogramTable = document.getElementById("harmonogramTable");
+        if (harmonogramTable) {
+            doc.autoTable({ html: harmonogramTable });
+            doc.save("harmonogram_kredytu.pdf");
+            console.log("PDF generated and saved.");
+        } else {
+            console.error("Harmonogram table not found for PDF generation.");
+        }
     });
 }
 
-const siteLogo = document.getElementById("siteLogo");
-if (siteLogo) {
-    siteLogo.addEventListener("click", () => {
-        window.open("https://finance-brothers.pl", "_blank");
-    });
+// Inicjalizacja aplikacji
+function initializeApp() {
+    console.log("initializeApp called");
+    updateProwizjaInput();
+    updateKwotaInfo();
+    updateLata();
+    updateProwizjaInfo();
+    updateRodzajRatInfo();
+    updateVariableInputs();
+    initializeTheme();
 }
 
-// Inicjalizacja
-elements.oprocentowanie.step = "0.01";
-elements.oprocentowanieRange.step = "0.01";
-updateProwizjaInput();
-updateKwotaInfo();
-updateLata();
-updateProwizjaInfo();
-updateRodzajRatInfo();
-updateVariableInputs();
-initializeTheme();
+document.addEventListener("DOMContentLoaded", initializeApp);
