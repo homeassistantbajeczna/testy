@@ -24,7 +24,7 @@ const elements = {
     generatePdfBtn: document.getElementById("generatePdfBtn"),
     valueKapital: document.getElementById("valueKapital"),
     valueOdsetki: document.getElementById("valueOdsetki"),
-    valueNadplata: document.getElementById("valueNadplata"),
+    valueNad tarjata: document.getElementById("valueNadplata"),
     valueProwizja: document.getElementById("valueProwizja"),
     okresPoNadplacie: document.getElementById("okresPoNadplacie"),
     koszt: document.getElementById("koszt"),
@@ -141,6 +141,11 @@ function syncInputWithRange(input, range, options = {}) {
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
+            // Natychmiastowe wywołanie onChange dla płynniejszego działania suwaka
+            if (onChange) {
+                console.log(`Immediate onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
+                onChange(parsedValue);
+            }
         } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
@@ -190,18 +195,7 @@ function syncInputWithRange(input, range, options = {}) {
     input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
 
-    if (isVariableCykl) {
-        const changeHandler = () => {
-            const value = state.tempValues[input.id || range.id];
-            if (value !== undefined && onChange) {
-                console.log(`Change committed: ${input.id || range.className} = ${value}`);
-                onChange(value);
-                delete state.tempValues[input.id || range.id];
-            }
-        };
-        range._eventListeners.change = changeHandler;
-        range.addEventListener("change", changeHandler);
-    }
+    // Usunięcie osobnego changeHandler dla isVariableCykl, ponieważ onChange jest teraz wywoływane natychmiast w updateValue
 
     // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
@@ -796,7 +790,7 @@ function updateProwizjaInput() {
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
         const formattedDefaultValue = Number.isInteger(defaultValue) ? defaultValue.toString() : defaultValue.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedDefaultValue;
-        elements.prowizjaRange.value = defaultValue;
+        elements W.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
     } else {
         let value = currentValue;
