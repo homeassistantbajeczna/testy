@@ -928,7 +928,7 @@ function updateVariableInputs() {
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
         if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
-        if addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
+        if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
     }
 }
