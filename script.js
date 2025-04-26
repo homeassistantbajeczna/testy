@@ -916,7 +916,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         existingValues[index] = value;
         existingPeriods[index] = period;
 
-        // Aktualizujemy wartości w changes na podstawie istniejących inputów
         if (changes[index]) {
             changes[index].value = value;
             changes[index].period = period;
@@ -941,7 +940,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         }
     });
     if (maxPeriodIndex !== -1) {
-        changes.splice(maxPeriodIndex + 1); // Usuwamy wszystkie wiersze po maksymalnym okresie
+        changes.splice(maxPeriodIndex + 1);
     }
 
     wrapper.innerHTML = "";
@@ -958,20 +957,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
         let periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
 
-        // Jeśli nie jest to ostatni wiersz, upewniamy się, że kolejny wiersz ma większy okres
-        if (index < changes.length - 1) {
-            const nextPeriod = changes[index + 1].period;
-            if (periodValue >= nextPeriod) {
-                if (periodValue < maxPeriodValue) {
-                    changes[index + 1].period = periodValue + 1;
-                } else {
-                    changes.splice(index + 1); // Usuwamy kolejne wiersze, jeśli bieżący okres jest za duży
-                }
-            }
-        }
-
-        // Aktualizujemy periodValue po ewentualnych zmianach
-        periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
+        // Aktualizujemy periodValue
+        change.period = periodValue;
 
         if (activeType === "nadplata") {
             const nadplataTypeGroup = document.createElement("div");
@@ -1109,23 +1096,29 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
-            isVariableCykl: true,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
-                if (index < changes.length - 1) {
-                    const nextPeriod = changes[index + 1].period;
-                    if (value >= nextPeriod) {
-                        if (value < maxPeriod) {
-                            changes[index + 1].period = value + 1;
-                        } else {
-                            changes.splice(index + 1);
-                        }
+                changes.sort((a, b) => a.period - b.period);
+
+                // Sprawdzamy, czy są duplikaty okresów
+                for (let i = 0; i < changes.length - 1; i++) {
+                    if (changes[i].period >= changes[i + 1].period) {
+                        changes[i + 1].period = changes[i].period + 1;
                     }
                 }
-                if ((activeType === "nadplata" || activeType === "oprocentowanie") && value >= maxPeriod) {
-                    changes.splice(index + 1);
+
+                // Usuwamy wiersze, jeśli okres przekracza maksymalny
+                const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+                let i = 0;
+                while (i < changes.length) {
+                    if (changes[i].period >= maxPeriod) {
+                        changes.splice(i + 1);
+                        break;
+                    }
+                    i++;
                 }
+
                 updateVariableInputs();
             },
         });
