@@ -790,7 +790,7 @@ function updateProwizjaInput() {
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
         const formattedDefaultValue = Number.isInteger(defaultValue) ? defaultValue.toString() : defaultValue.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedDefaultValue;
-        elements W.prowizjaRange.value = defaultValue;
+        elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
     } else {
         let value = currentValue;
