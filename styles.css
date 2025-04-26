@@ -781,6 +781,10 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 /* W Y N I K I   I   H A R M O N O G R A M */
 .harmonogram {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     padding: 0;
     width: 100%;
     max-width: 100%;
