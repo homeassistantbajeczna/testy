@@ -165,9 +165,6 @@ function syncInputWithRange(input, range, options = {}) {
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
-            if (onChange) {
-                onChange(parsedValue);
-            }
         } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
@@ -199,10 +196,6 @@ function syncInputWithRange(input, range, options = {}) {
         }
 
         state.tempValues[input.id] = input.value;
-        // Wywołujemy updateValue natychmiast dla pól cyklu, aby zapewnić aktualizację stanu
-        if (isVariableCykl) {
-            updateValue(input.value, "Input", true);
-        }
     };
 
     const inputBlurHandler = () => {
@@ -966,11 +959,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
         existingValues[index] = value;
         existingPeriods[index] = period;
-        // Aktualizujemy stan changes, aby upewnić się, że wartości są zapisane
-        if (changes[index]) {
-            changes[index].value = value;
-            changes[index].period = period;
-        }
     });
 
     // Usuwamy wiersze, które są po okresie maksymalnym
