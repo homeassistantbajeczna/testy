@@ -63,7 +63,7 @@ function formatNumberWithSpaces(number) {
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, isDisabled = false } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
@@ -73,6 +73,12 @@ function syncInputWithRange(input, range, options = {}) {
     // Ustawiamy typ pola na text dla pól decimalnych, aby obsługiwać przecinek
     if (isDecimal) {
         input.type = "text";
+    }
+
+    // Ustawiamy disabled, jeśli podano
+    if (isDisabled) {
+        input.disabled = true;
+        range.disabled = true;
     }
 
     input._eventListeners = input._eventListeners || {};
@@ -165,7 +171,7 @@ function syncInputWithRange(input, range, options = {}) {
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
-        } else if (onChange) {
+        } else if (onChange && !isDisabled) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
         }
@@ -197,8 +203,8 @@ function syncInputWithRange(input, range, options = {}) {
 
         state.tempValues[input.id] = input.value;
 
-        // Wywołujemy onChange natychmiast, aby aktualizować kolejne wiersze
-        if (activeType === "oprocentowanie" && onChange) {
+        // Wywołujemy onChange natychmiast, jeśli pole nie jest disabled
+        if (!isDisabled && onChange) {
             const parsedValue = parseFloat(rawValue) || 0;
             updateValue(parsedValue, "Input", true);
             onChange(parsedValue);
@@ -318,6 +324,11 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     stepOverride: 0.01,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
+        // Aktualizujemy pierwszy wiersz w sekcji "Zmienne oprocentowanie", jeśli jest aktywna
+        if (elements.zmienneOprocentowanieBtn?.checked && state.variableRates.length > 0) {
+            state.variableRates[0].value = value;
+            updateVariableInputs();
+        }
     },
 });
 
@@ -1082,7 +1093,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = change.value || state.lastFormData.oprocentowanie;
+            // Dla pierwszego wiersza (index === 0) ustawiamy wartość z głównego pola oprocentowanie
+            const inputValue = index === 0 ? state.lastFormData.oprocentowanie : (change.value || state.lastFormData.oprocentowanie);
             const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
@@ -1163,17 +1175,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 isDecimal: true,
                 activeType,
                 index,
+                isDisabled: index === 0, // Dezaktywujemy edycję dla pierwszego wiersza
                 onChange: (value) => {
                     changes[index].value = value;
-                    // Aktualizujemy wartości w kolejnych wierszach
-                    for (let i = index + 1; i < state.variableRates.length; i++) {
-                        if (state.variableRates[i].value <= value) {
-                            state.variableRates[i].value = value + 1;
-                        } else {
-                            break; // Jeśli kolejny wiersz ma już większą wartość, przerywamy
-                        }
-                    }
-                    updateVariableInputs(); // Odświeżamy UI, aby pokazać nowe wartości
+                    updateVariableInputs(); // Odświeżamy UI
                 },
             });
         }
@@ -1233,7 +1238,7 @@ function addVariableChange(activeType) {
     const lastCykl = lastChange ? lastChange.period : 1;
     const newCykl = Math.min(lastCykl + 1, maxPeriod);
     const newChange = activeType === "oprocentowanie" 
-        ? { period: newCykl, value: lastChange ? lastChange.value + 1 : state.lastFormData.oprocentowanie }
+        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
