@@ -196,6 +196,13 @@ function syncInputWithRange(input, range, options = {}) {
         }
 
         state.tempValues[input.id] = input.value;
+
+        // Wywołujemy onChange natychmiast, aby aktualizować kolejne wiersze
+        if (activeType === "oprocentowanie" && onChange) {
+            const parsedValue = parseFloat(rawValue) || 0;
+            updateValue(parsedValue, "Input", true);
+            onChange(parsedValue);
+        }
     };
 
     const inputBlurHandler = () => {
@@ -1158,6 +1165,15 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 index,
                 onChange: (value) => {
                     changes[index].value = value;
+                    // Aktualizujemy wartości w kolejnych wierszach
+                    for (let i = index + 1; i < state.variableRates.length; i++) {
+                        if (state.variableRates[i].value <= value) {
+                            state.variableRates[i].value = value + 1;
+                        } else {
+                            break; // Jeśli kolejny wiersz ma już większą wartość, przerywamy
+                        }
+                    }
+                    updateVariableInputs(); // Odświeżamy UI, aby pokazać nowe wartości
                 },
             });
         }
@@ -1217,7 +1233,7 @@ function addVariableChange(activeType) {
     const lastCykl = lastChange ? lastChange.period : 1;
     const newCykl = Math.min(lastCykl + 1, maxPeriod);
     const newChange = activeType === "oprocentowanie" 
-        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
+        ? { period: newCykl, value: lastChange ? lastChange.value + 1 : state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
