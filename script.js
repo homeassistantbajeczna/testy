@@ -917,13 +917,17 @@ function updateVariableInputs() {
 
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
         variableOprocentowanieInputs.classList.add("active");
+        variableOprocentowanieInputs.style.display = "block";
         addVariableOprocentowanieBtn.style.display = "block";
-        if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
+        if (state.variableRates.length === 0) {
             state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
         }
         renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
     } else {
-        if (variableOprocentowanieInputs) variableOprocentowanieInputs.classList.remove("active");
+        if (variableOprocentowanieInputs) {
+            variableOprocentowanieInputs.classList.remove("active");
+            variableOprocentowanieInputs.style.display = "none";
+        }
         if (addVariableOprocentowanieBtn) addVariableOprocentowanieBtn.style.display = "none";
         if (variableOprocentowanieWrapper) variableOprocentowanieWrapper.innerHTML = "";
     }
@@ -935,13 +939,17 @@ function updateVariableInputs() {
 
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
         nadplataKredytuInputs.classList.add("active");
+        nadplataKredytuInputs.style.display = "block";
         addNadplataKredytuBtn.style.display = "block";
-        if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates = [{ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" }];
+        if (state.overpaymentRates.length === 0) {
+            state.overpaymentRates.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
-        if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
+        if (nadplataKredytuInputs) {
+            nadplataKredytuInputs.classList.remove("active");
+            nadplataKredytuInputs.style.display = "none";
+        }
         if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
     }
@@ -955,9 +963,18 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         return;
     }
 
-    // Najpierw aktualizujemy stan na podstawie wartości z pól
+    // Upewniamy się, że zawsze mamy co najmniej jeden wiersz, jeśli sekcja jest aktywna
+    if (changes.length === 0) {
+        if (activeType === "oprocentowanie") {
+            changes.push({ value: state.lastFormData.oprocentowanie, period: 2 });
+        } else {
+            changes.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
+        }
+    }
+
+    // Aktualizujemy stan na podstawie wartości z pól, jeśli istnieją
     const existingInputs = wrapper.querySelectorAll(".variable-input-group");
-    changes.length = 0; // Czyścimy tablicę changes, aby upewnić się, że zawiera tylko aktualne wartości
+    const updatedChanges = [];
     existingInputs.forEach((inputGroup) => {
         const rateInput = inputGroup.querySelector(".variable-rate");
         const cyklInput = inputGroup.querySelector(".variable-cykl");
@@ -972,8 +989,14 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             change.type = typeSelect ? typeSelect.value : "Jednorazowa";
             change.effect = effectSelect ? effectSelect.value : "Skróć okres";
         }
-        changes.push(change);
+        updatedChanges.push(change);
     });
+
+    // Jeśli mamy istniejące pola, aktualizujemy changes
+    if (updatedChanges.length > 0) {
+        changes.length = 0;
+        updatedChanges.forEach(change => changes.push(change));
+    }
 
     // Usuwamy wiersze, które są po okresie maksymalnym
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
