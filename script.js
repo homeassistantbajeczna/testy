@@ -118,73 +118,72 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Dla pól cyklu (isVariableCykl) zaokrąglamy tylko wartość wyświetlaną w polu tekstowym
-        let displayValue = parsedValue;
+        // Zachowujemy oryginalną wartość suwaka dla płynności
+        let sliderValue = parsedValue;
+
+        // Dla pól cyklu (isVariableCykl) zaokrąglamy tylko wartość zapisywaną do stanu i wyświetlaną w polu tekstowym
+        let stateValue = parsedValue;
         if (isVariableCykl) {
-            displayValue = Math.floor(parsedValue); // Zaokrąglamy tylko dla wyświetlenia
+            stateValue = Math.round(parsedValue); // Zaokrąglamy do najbliższej liczby całkowitej dla stanu
         } else if (!isDecimal) {
-            parsedValue = Math.floor(parsedValue);
-            displayValue = parsedValue;
+            stateValue = Math.floor(parsedValue);
+            sliderValue = stateValue;
         } else {
             // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych
-            parsedValue = Math.round(parsedValue * 100) / 100;
-            displayValue = parsedValue;
+            stateValue = Math.round(parsedValue * 100) / 100;
+            sliderValue = stateValue;
         }
 
         // Walidacja wartości względem minimalnej i maksymalnej
-        if (parsedValue < min && source === "Input" && !applyMinValidation) {
+        if (sliderValue < min && source === "Input" && !applyMinValidation) {
             // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy przy zatwierdzeniu
-        } else if (parsedValue < min) {
-            parsedValue = min;
-            displayValue = min;
+        } else if (sliderValue < min) {
+            sliderValue = min;
+            stateValue = min;
         }
-        if (parsedValue > max) {
-            parsedValue = max;
-            displayValue = max;
+        if (sliderValue > max) {
+            sliderValue = max;
+            stateValue = max;
         }
 
         // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100
-        if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
-            parsedValue = 100;
-            displayValue = 100;
+        if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && stateValue < 100) {
+            stateValue = 100;
+            sliderValue = 100;
         }
 
-        // Formatowanie wartości
+        // Formatowanie wartości dla pola tekstowego
         let formattedValue;
         if (isDecimal) {
-            // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
-            if (Number.isInteger(displayValue)) {
-                formattedValue = displayValue.toString();
+            if (Number.isInteger(stateValue)) {
+                formattedValue = stateValue.toString();
             } else {
-                formattedValue = displayValue.toFixed(2).replace(".", ",");
+                formattedValue = stateValue.toFixed(2).replace(".", ",");
             }
         } else {
-            // Dla pól całkowitych (np. Ilość rat, cykle) bez przecinka
-            formattedValue = displayValue.toString();
+            formattedValue = stateValue.toString();
         }
 
         // Ustawiamy wartości w polu tekstowym i suwaku
         input.value = formattedValue;
-        range.value = parsedValue; // Suwak zachowuje wartość z dokładnością kroku
+        range.value = sliderValue; // Suwak używa wartości z dokładnością kroku
 
-        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, display=${formattedValue}, activeType=${activeType}, index=${index}`);
+        console.log(`${source} changed: ${input.id || range.className} = ${sliderValue}, stateValue=${stateValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
         if (isVariableCykl) {
-            state.tempValues[input.id || range.id] = parsedValue;
+            state.tempValues[input.id || range.id] = sliderValue;
             if (onChange) {
-                onChange(Math.floor(parsedValue)); // Przekazujemy zaokrągloną wartość do stanu
+                onChange(stateValue); // Przekazujemy zaokrągloną wartość do stanu
             }
         } else if (onChange) {
-            console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
-            onChange(parsedValue);
+            console.log(`onChange triggered for ${input.id || range.className}, value=${stateValue}`);
+            onChange(stateValue);
         }
     };
 
     const inputHandler = () => {
-        // Podczas wpisywania zapisujemy wartość tymczasowo
         let rawValue = input.value;
 
-        // Jeśli pole jest decimalne, ograniczamy wprowadzanie do 2 cyfr po przecinku
         if (isDecimal) {
             rawValue = rawValue.replace(",", ".");
             const regex = /^\d*(\.\d{0,2})?$/;
@@ -218,7 +217,6 @@ function syncInputWithRange(input, range, options = {}) {
         delete state.tempValues[input.id];
     };
 
-    // Blokada wprowadzania przecinka dla pól nie-decimalnych (np. Ilość rat)
     if (!isDecimal) {
         const keypressHandler = (e) => {
             if (e.key === "," || e.key === ".") {
@@ -244,7 +242,7 @@ function syncInputWithRange(input, range, options = {}) {
             const value = state.tempValues[input.id || range.id];
             if (value !== undefined && onChange) {
                 console.log(`Change committed: ${input.id || range.className} = ${value}`);
-                onChange(Math.floor(value));
+                onChange(Math.round(value));
                 delete state.tempValues[input.id || range.id];
             }
         };
@@ -269,22 +267,16 @@ function syncInputWithRange(input, range, options = {}) {
         initialValue = 100;
     }
 
-    // Zaokrąglenie początkowej wartości
-    if (isDecimal) {
-        initialValue = Math.round(initialValue * 100) / 100;
-    } else if (!isVariableCykl) {
-        initialValue = Math.floor(initialValue);
-    }
-
     let formattedInitialValue;
     if (isDecimal) {
-        if (Number.isInteger(initialValue)) {
-            formattedInitialValue = initialValue.toString();
-        } else {
-            formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
-        }
+        initialValue = Math.round(initialValue * 100) / 100;
+        formattedInitialValue = Number.isInteger(initialValue) ? initialValue.toString() : initialValue.toFixed(2).replace(".", ",");
+    } else if (isVariableCykl) {
+        initialValue = Math.round(initialValue);
+        formattedInitialValue = initialValue.toString();
     } else {
-        formattedInitialValue = Math.floor(initialValue).toString();
+        initialValue = Math.floor(initialValue);
+        formattedInitialValue = initialValue.toString();
     }
 
     input.value = formattedInitialValue;
@@ -331,11 +323,6 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
 function calculateLoan() {
     console.log("calculateLoan started");
 
-    // Debug: Sprawdzenie wartości select przed pobraniem
-    console.log("Before getting rodzajRat:", elements.rodzajRat);
-    console.log("rodzajRat value before calculation:", elements.rodzajRat.value);
-
-    // Pobieranie danych z formularza
     const kwotaInput = elements.kwota.value.replace(",", ".");
     const kwota = parseFloat(kwotaInput) || 0;
     let iloscRat = parseInt(elements.iloscRat.value) || 0;
@@ -365,7 +352,6 @@ function calculateLoan() {
     };
     console.log("Form data saved:", state.lastFormData);
 
-    // Pobieranie zmiennych stóp oprocentowania
     if (elements.zmienneOprocentowanieBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
         state.variableRates = [];
@@ -386,7 +372,6 @@ function calculateLoan() {
         console.log("Variable rates disabled.");
     }
 
-    // Pobieranie nadpłat
     if (elements.nadplataKredytuBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
         state.overpaymentRates = [];
@@ -422,10 +407,8 @@ function calculateLoan() {
     let rata = 0;
     let iloscRatPoNadplacie = iloscRat;
 
-    // Zmienna do przechowywania raty z poprzedniego miesiąca
     let previousRata = 0;
 
-    // Początkowe obliczenie raty dla rat równych
     if (rodzajRat === "rowne") {
         if (monthlyRate === 0) {
             rata = kwota / iloscRat;
@@ -440,13 +423,10 @@ function calculateLoan() {
         console.log("Initial rata (równe):", rata);
     }
 
-    // Dla rat malejących
     if (rodzajRat === "malejace") {
-        // Dla rat malejących obliczamy stałą część kapitałową
         let kapitalStaly = kwota / iloscRat;
         console.log("Initial kapitalStaly (malejące):", kapitalStaly);
 
-        // Sprawdzenie, czy nadpłata typu "Zmniejsz ratę" jest aktywna
         let nadplataMiesieczna = 0;
         let efektNadplaty = "Skróć okres";
         state.overpaymentRates.forEach((overpayment) => {
@@ -462,11 +442,9 @@ function calculateLoan() {
             console.log("Adjusted kapitalStaly after nadplata (malejące):", kapitalStaly);
         }
 
-        // Pętla dla rat malejących
         let i = 1;
         let lastRateChangeMonth = 0;
         while (i <= iloscRat && pozostalyKapital > 0.01) {
-            // Obsługa zmiennych stóp procentowych
             let currentOprocentowanie = oprocentowanie;
             let rateChanged = false;
             state.variableRates.forEach((rate) => {
@@ -480,13 +458,11 @@ function calculateLoan() {
                 }
             });
 
-            // Obliczenia dla rat malejących
             let odsetki = pozostalyKapital * monthlyRate;
             let kapital = kapitalStaly;
             let nadplata = 0;
             let isOverpaymentMonth = false;
 
-            // Obsługa nadpłaty
             state.overpaymentRates.forEach((overpayment) => {
                 let isActive = false;
                 if (overpayment.type === "Jednorazowa") {
@@ -506,7 +482,6 @@ function calculateLoan() {
                     if (overpayment.effect === "Skróć okres") {
                         kapital += nadplata;
                     } else {
-                        // "Zmniejsz ratę" - zmniejszamy kapitał, ale rata pozostaje taka sama w tym miesiącu
                         pozostalyKapital -= nadplata;
                     }
                     if (pozostalyKapital < 0) pozostalyKapital = 0;
@@ -518,12 +493,9 @@ function calculateLoan() {
                 kapital = pozostalyKapital;
             }
 
-            // Ustawiamy ratę
             if (isOverpaymentMonth && i > 1) {
-                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
                 rata = previousRata;
             } else {
-                // Obliczamy normalnie ratę
                 rata = kapital + odsetki;
                 if (isNaN(rata) || rata <= 0) {
                     console.error("Invalid rate calculation (malejące):", { kapital, odsetki, rata });
@@ -531,7 +503,6 @@ function calculateLoan() {
                 }
             }
 
-            // Recalculate kapital based on the fixed rata and odsetki
             if (isOverpaymentMonth && i > 1) {
                 kapital = rata - odsetki;
                 if (kapital < 0) {
@@ -556,7 +527,6 @@ function calculateLoan() {
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
-            // Zapisujemy ratę jako poprzednią dla następnego miesiąca
             previousRata = rata;
 
             if (pozostalyKapital <= 0.01) {
@@ -568,13 +538,11 @@ function calculateLoan() {
         }
     }
 
-    // Dla rat równych
     if (rodzajRat === "rowne") {
         let remainingMonths = iloscRat;
         let i = 1;
         let lastRateChangeMonth = 0;
         while (i <= iloscRat && pozostalyKapital > 0.01) {
-            // Obsługa zmiennych stóp procentowych
             let currentOprocentowanie = oprocentowanie;
             let rateChanged = false;
             state.variableRates.forEach((rate) => {
@@ -608,7 +576,6 @@ function calculateLoan() {
                 odsetki = rata - kapital;
             }
 
-            // Obsługa nadpłaty
             state.overpaymentRates.forEach((overpayment) => {
                 let isActive = false;
                 if (overpayment.type === "Jednorazowa") {
@@ -636,18 +603,13 @@ function calculateLoan() {
                         } else {
                             iloscRatPoNadplacie = i + remainingMonths;
                         }
-                    } else {
-                        // "Zmniejsz ratę" - w miesiącu nadpłaty rata pozostaje taka sama
-                        // Po prostu zmniejszamy kapitał
                     }
                     console.log(`After overpayment at month ${i}: nadplata=${nadplata}, pozostalyKapital=${pozostalyKapital}, remainingMonths=${remainingMonths}, rata=${rata}`);
                 }
             });
 
             if (isOverpaymentMonth && i > 1) {
-                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
                 rata = previousRata;
-                // Recalculate kapital based on the fixed rata and odsetki
                 kapital = rata - odsetki;
                 if (kapital < 0) {
                     kapital = pozostalyKapital;
@@ -684,7 +646,6 @@ function calculateLoan() {
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
-            // Zapisujemy ratę jako poprzednią dla następnego miesiąca
             previousRata = rata;
 
             i++;
@@ -701,14 +662,12 @@ function calculateLoan() {
     displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRatPoNadplacie);
 }
 
-// Funkcja pomocnicza do obliczania pozostałych miesięcy dla rat równych
 function calculateRemainingMonths(pozostalyKapital, rata, monthlyRate) {
     if (monthlyRate === 0 || rata <= 0 || pozostalyKapital <= 0) return 0;
     const n = Math.log(rata / (rata - pozostalyKapital * monthlyRate)) / Math.log(1 + monthlyRate);
     return Math.ceil(n);
 }
 
-// Wyświetlanie wyników
 function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat) {
     console.log("displayResults started", { sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat });
 
@@ -961,7 +920,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         return;
     }
 
-    // Upewniamy się, że zawsze mamy co najmniej jeden wiersz, jeśli sekcja jest aktywna
     if (changes.length === 0) {
         if (activeType === "oprocentowanie") {
             changes.push({ value: state.lastFormData.oprocentowanie, period: 2 });
@@ -970,7 +928,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         }
     }
 
-    // Aktualizujemy stan na podstawie wartości z pól, jeśli istnieją
     const existingInputs = wrapper.querySelectorAll(".variable-input-group");
     const updatedChanges = [];
     existingInputs.forEach((inputGroup) => {
@@ -990,13 +947,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         updatedChanges.push(change);
     });
 
-    // Jeśli mamy istniejące pola, aktualizujemy changes
     if (updatedChanges.length > 0) {
         changes.length = 0;
         updatedChanges.forEach(change => changes.push(change));
     }
 
-    // Usuwamy wiersze, które są po okresie maksymalnym
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
     let maxPeriodIndex = -1;
     changes.forEach((change, index) => {
@@ -1005,7 +960,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         }
     });
     if (maxPeriodIndex !== -1) {
-        changes.splice(maxPeriodIndex + 1); // Usuwamy wszystkie wiersze po maksymalnym okresie
+        changes.splice(maxPeriodIndex + 1);
     }
 
     wrapper.innerHTML = "";
@@ -1162,7 +1117,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
-                updateVariableInputs(); // Wywołujemy update, aby sprawdzić, czy trzeba usunąć kolejne wiersze
+                updateVariableInputs();
             },
         });
 
@@ -1202,8 +1157,9 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-    const isMaxPeriodReached = lastChange && lastChange.period >= maxPeriod;
-    addBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
+    const canAddMore = lastChange && lastChange.period < maxPeriod && changes.length < maxChanges;
+    addBtn.style.display = canAddMore ? "block" : "none";
+    console.log(`Add button visibility for ${activeType}:`, { canAddMore, lastPeriod: lastChange?.period, maxPeriod, currentChanges: changes.length, maxChanges });
 }
 
 function addVariableChange(activeType) {
@@ -1215,27 +1171,29 @@ function addVariableChange(activeType) {
 
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    const isMaxPeriodReached = lastChange && lastChange.period >= maxPeriod;
+    const lastPeriod = lastChange ? lastChange.period : (activeType === "nadplata" ? 0 : 1);
 
-    if (changes.length >= maxChanges || isMaxPeriodReached) {
-        if (changes.length >= maxChanges) {
-            console.log(`Max changes reached: ${maxChanges}`);
-            alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
-        } else if (isMaxPeriodReached) {
-            console.log(`Max period reached: ${maxPeriod}`);
-            alert(`Nie można dodać więcej zmian, osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
-        }
+    console.log(`Checking conditions for ${activeType}:`, { currentChanges: changes.length, maxChanges, lastPeriod, maxPeriod });
+
+    if (changes.length >= maxChanges) {
+        console.log(`Max changes reached: ${maxChanges}`);
+        alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
         return;
     }
 
-    const lastCykl = lastChange ? lastChange.period : (activeType === "nadplata" ? 1 : 2);
-    const newCykl = Math.min(lastCykl + 1, maxPeriod);
+    if (lastPeriod >= maxPeriod) {
+        console.log(`Max period reached: ${maxPeriod}`);
+        alert(`Nie można dodać więcej zmian, osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
+        return;
+    }
+
+    const newCykl = lastPeriod + 1;
     const newChange = activeType === "oprocentowanie" 
         ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
-    console.log(`Added new change for ${activeType}:`, newChange);
+    console.log(`Added new change for ${activeType}:`, newChange, changes);
     updateVariableInputs();
 }
 
@@ -1291,7 +1249,6 @@ function initializeTheme() {
     }
 }
 
-// Inicjalizacja listenerów
 if (elements.jednostkaProwizji) {
     elements.jednostkaProwizji.addEventListener("change", () => {
         updateProwizjaInput();
@@ -1321,11 +1278,17 @@ if (elements.nadplataKredytuBtn) {
 }
 
 if (elements.addVariableOprocentowanieBtn) {
-    elements.addVariableOprocentowanieBtn.addEventListener("click", () => addVariableChange("oprocentowanie"));
+    elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
+        console.log("Add variable oprocentowanie button clicked");
+        addVariableChange("oprocentowanie");
+    });
 }
 
 if (elements.addNadplataKredytuBtn) {
-    elements.addNadplataKredytuBtn.addEventListener("click", () => addVariableChange("nadplata"));
+    elements.addNadplataKredytuBtn.addEventListener("click", () => {
+        console.log("Add nadplata kredytu button clicked");
+        addVariableChange("nadplata");
+    });
 }
 
 if (elements.obliczBtn) {
@@ -1370,7 +1333,6 @@ if (elements.generatePdfBtn) {
     });
 }
 
-// Inicjalizacja aplikacji
 function initializeApp() {
     console.log("initializeApp called");
     updateProwizjaInput();
