@@ -328,7 +328,7 @@ function calculateLoan() {
 
     if (elements.zmienneOprocentowanieBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
-        state  state.variableRates = [];
+        state.variableRates = [];
         inputs.forEach((inputGroup) => {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
             const rateInput = inputGroup.querySelector(".variable-rate");
@@ -1154,12 +1154,10 @@ function addVariableChange(activeType) {
 
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    const lastPeriod = lastChange ? lastChange.period : (activeType === "nadplata" ? 0 : 1); // Zmieniamy domyślny lastPeriod na 1 dla oprocentowania i 0 dla nadpłaty
+    const lastPeriod = lastChange ? lastChange.period : (activeType === "nadplata" ? 0 : 1);
 
     console.log(`Conditions for ${activeType}:`, { currentChanges: changes.length, maxChanges, lastPeriod, maxPeriod });
 
-    // Tymczasowo usuwamy restrykcyjne warunki, aby przetestować dodawanie
-    /*
     if (changes.length >= maxChanges) {
         console.log(`Cannot add more changes for ${activeType}: max changes (${maxChanges}) reached`);
         alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
@@ -1171,7 +1169,6 @@ function addVariableChange(activeType) {
         alert(`Nie można dodać więcej zmian, osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
         return;
     }
-    */
 
     const newPeriod = lastPeriod + 1;
     const newChange = activeType === "oprocentowanie" 
