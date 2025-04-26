@@ -1000,6 +1000,14 @@ input[type="range"].form-range:focus::-ms-thumb {
     padding: 6px 15px;
 }
 
+.btn-primary:hover,
+.btn-secondary:hover,
+#generatePdfBtn:hover {
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
 .btn-toggle {
     cursor: pointer;
     font-size: 0.8em;
@@ -1036,7 +1044,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .round-btn.accent:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important línea
     transform: translateY(-2px);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -1302,6 +1310,14 @@ input[type="range"].form-range:focus::-ms-thumb {
 .dark-mode #generatePdfBtn {
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)) !important;
     color: #ffffff !important;
+}
+
+.dark-mode .btn-primary:hover,
+.dark-mode .btn-secondary:hover,
+.dark-mode #generatePdfBtn:hover {
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow-color);
 }
 
 .dark-mode #addNadplataKredytuBtn.btn.btn-secondary.btn-sm,
