@@ -71,7 +71,7 @@ function syncInputWithRange(input, range, options = {}) {
     }
 
     // Ustawiamy typ pola na text dla pól decimalnych, aby obsługiwać przecinek
-    if (isDecimal || isVariableCykl) {
+    if (isDecimal) {
         input.type = "text";
     }
 
@@ -114,7 +114,7 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        if (!isDecimal && !isVariableCykl) {
+        if (!isDecimal) {
             parsedValue = Math.floor(parsedValue);
         } else {
             parsedValue = Math.round(parsedValue * 100) / 100;
@@ -124,7 +124,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (parsedValue > max) parsedValue = max;
 
         let formattedValue;
-        if (isDecimal || isVariableCykl) {
+        if (isDecimal) {
             if (Number.isInteger(parsedValue)) {
                 formattedValue = parsedValue.toString();
             } else {
@@ -137,7 +137,7 @@ function syncInputWithRange(input, range, options = {}) {
         input.value = formattedValue;
         range.value = parsedValue;
 
-        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}, isVariableCykl=${isVariableCykl}`);
+        console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
         if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
@@ -147,7 +147,7 @@ function syncInputWithRange(input, range, options = {}) {
 
     const inputHandler = () => {
         let rawValue = input.value;
-        if (isDecimal || isVariableCykl) {
+        if (isDecimal) {
             rawValue = rawValue.replace(",", ".");
             const regex = /^\d*(\.\d{0,2})?$/;
             if (!regex.test(rawValue)) {
@@ -164,7 +164,7 @@ function syncInputWithRange(input, range, options = {}) {
 
     const rangeHandler = () => updateValue(range.value, "Range");
 
-    if (!isDecimal && !isVariableCykl) {
+    if (!isDecimal) {
         const keypressHandler = (e) => {
             if (e.key === "," || e.key === ".") {
                 e.preventDefault();
@@ -190,7 +190,7 @@ function syncInputWithRange(input, range, options = {}) {
     if (initialValue > max) initialValue = max;
 
     let formattedInitialValue;
-    if (isDecimal || isVariableCykl) {
+    if (isDecimal) {
         if (Number.isInteger(initialValue)) {
             formattedInitialValue = initialValue.toString();
         } else {
@@ -212,7 +212,6 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
         updateKwotaInfo();
-        console.log(`Kwota updated: ${value}`);
     },
 });
 
@@ -222,7 +221,6 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
         state.lastFormData.iloscRat = value;
         updateLata();
         updateVariableInputs();
-        console.log(`IloscRat updated: ${value}`);
     },
 });
 
@@ -231,7 +229,6 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     stepOverride: 0.01,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
-        console.log(`Oprocentowanie updated: ${value}`);
     },
 });
 
@@ -240,7 +237,6 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     onChange: (value) => {
         state.lastFormData.prowizja = value;
         updateProwizjaInfo();
-        console.log(`Prowizja updated: ${value}`);
     },
 });
 
@@ -289,8 +285,7 @@ function calculateLoan() {
         inputs.forEach((inputGroup) => {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
             const rateInput = inputGroup.querySelector(".variable-rate");
-            const periodInput = cyklInput.value.replace(",", ".");
-            const period = parseFloat(periodInput) || 0;
+            const period = parseInt(cyklInput.value) || 0;
             const valueInput = rateInput.value.replace(",", ".");
             const value = parseFloat(valueInput) || 0;
             if (period > 0 && value >= 0) {
@@ -313,12 +308,11 @@ function calculateLoan() {
             const rateInput = inputGroup.querySelector(".variable-rate");
             const typeSelect = inputGroup.querySelector(".nadplata-type-select");
             const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
-            const periodInput = cyklInput.value.replace(",", ".");
-            const period = parseFloat(periodInput) || 0;
+            const period = parseInt(cyklInput.value) || 0;
             const valueInput = rateInput.value.replace(",", ".");
             const value = parseFloat(valueInput) || 0;
             const type = typeSelect.value || "Jednorazowa";
-            const effect = effectSelect.value || "Skróć okres";
+            const effect = effectSelect.value || "Suttore okres";
             if (period > 0 && value >= 0) {
                 state.overpaymentRates.push({ period, value, type, effect });
             }
@@ -409,13 +403,13 @@ function calculateLoan() {
             state.overpaymentRates.forEach((overpayment) => {
                 let isActive = false;
                 if (overpayment.type === "Jednorazowa") {
-                    isActive = i === Math.floor(overpayment.period);
+                    isActive = i === overpayment.period;
                 } else if (overpayment.type === "Miesięczna") {
-                    isActive = i >= Math.floor(overpayment.period);
+                    isActive = i >= overpayment.period;
                 } else if (overpayment.type === "Kwartalna") {
-                    isActive = i >= Math.floor(overpayment.period) && (i - Math.floor(overpayment.period)) % 3 === 0;
+                    isActive = i >= overpayment.period && (i - overpayment.period) % 3 === 0;
                 } else if (overpayment.type === "Roczna") {
-                    isActive = i >= Math.floor(overpayment.period) && (i - Math.floor(overpayment.period)) % 12 === 0;
+                    isActive = i >= overpayment.period && (i - overpayment.period) % 12 === 0;
                 }
 
                 if (isActive) {
@@ -531,13 +525,13 @@ function calculateLoan() {
             state.overpaymentRates.forEach((overpayment) => {
                 let isActive = false;
                 if (overpayment.type === "Jednorazowa") {
-                    isActive = i === Math.floor(overpayment.period);
+                    isActive = i === overpayment.period;
                 } else if (overpayment.type === "Miesięczna") {
-                    isActive = i >= Math.floor(overpayment.period);
+                    isActive = i >= overpayment.period;
                 } else if (overpayment.type === "Kwartalna") {
-                    isActive = i >= Math.floor(overpayment.period) && (i - Math.floor(overpayment.period)) % 3 === 0;
+                    isActive = i >= overpayment.period && (i - overpayment.period) % 3 === 0;
                 } else if (overpayment.type === "Roczna") {
-                    isActive = i >= Math.floor(overpayment.period) && (i - Math.floor(overpayment.period)) % 12 === 0;
+                    isActive = i >= overpayment.period && (i - overpayment.period) % 12 === 0;
                 }
 
                 if (isActive) {
@@ -864,6 +858,7 @@ function updateVariableInputs() {
         if (variableOprocentowanieInputs) variableOprocentowanieInputs.classList.remove("active");
         if (addVariableOprocentowanieBtn) addVariableOprocentowanieBtn.style.display = "none";
         if (variableOprocentowanieWrapper) variableOprocentowanieWrapper.innerHTML = "";
+        // Resetujemy state.variableRates, gdy przycisk jest odznaczony
         if (!isZmienneOprocentowanie) {
             state.variableRates = [];
             console.log("Variable rates reset due to button uncheck.");
@@ -893,6 +888,7 @@ function updateVariableInputs() {
         if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
         if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
+        // Resetujemy state.overpaymentRates, gdy przycisk jest odznaczony
         if (!isNadplataKredytu) {
             state.overpaymentRates = [];
             console.log("Overpayment rates reset due to button uncheck.");
@@ -917,8 +913,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const valueInput = rateInput ? rateInput.value.replace(",", ".") : null;
         const value = valueInput ? parseFloat(valueInput) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
-        const periodInput = cyklInput ? cyklInput.value.replace(",", ".") : null;
-        const period = periodInput ? parseFloat(periodInput) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
+        const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
         existingValues[index] = value;
         existingPeriods[index] = period;
 
@@ -997,10 +992,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
-                    <input type="text" id="nadplata-cykl-${index}" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="0.01" value="${periodValue.toFixed(2).replace('.', ',')}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
-                <input type="range" id="nadplata-cykl-range-${index}" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="0.01" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
             const inputValue = change.value || 1000;
@@ -1010,23 +1005,17 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="text" id="nadplata-rate-${index}" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formattedInputValue}">
+                    <input type="text" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formattedInputValue}">
                     <span class="input-group-text unit-zl" style="width: 30px; text-align: center;">zł</span>
                 </div>
-                <input type="range" id="nadplata-rate-range-${index}" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
             `;
 
-            const rateInput = rateGroup.querySelector(`#nadplata-rate-${index}`);
-            const rateRange = rateGroup.querySelector(`#nadplata-rate-range-${index}`);
-            syncInputWithRange(rateInput, rateRange, { 
-                isDecimal: true, 
-                activeType: "nadplata", 
-                index, 
-                onChange: (value) => {
-                    changes[index].value = value;
-                    console.log(`Nadplata rate updated at index ${index}: ${value}`);
-                }
-            });
+            const rateInput = rateGroup.querySelector(".variable-rate");
+            const rateRange = rateGroup.querySelector(".variable-rate-range");
+            syncInputWithRange(rateInput, rateRange, { isDecimal: true, activeType: "nadplata", index, onChange: (value) => {
+                changes[index].value = value;
+            } });
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
@@ -1038,10 +1027,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="text" id="oprocentowanie-cykl-${index}" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="0.01" value="${periodValue.toFixed(2).replace('.', ',')}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" id="oprocentowanie-cykl-range-${index}" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="0.01" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
             const inputValue = change.value || state.lastFormData.oprocentowanie;
@@ -1051,10 +1040,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="text" id="oprocentowanie-rate-${index}" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${formattedInputValue}">
+                    <input type="text" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${formattedInputValue}">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" id="oprocentowanie-rate-range-${index}" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
             `;
 
             fieldsWrapper.appendChild(cyklGroup);
@@ -1100,16 +1089,15 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         wrapper.appendChild(inputGroup);
 
-        const cyklInput = inputGroup.querySelector(`#${activeType}-cykl-${index}`);
-        const cyklRange = inputGroup.querySelector(`#${activeType}-cykl-range-${index}`);
-        const rateInput = inputGroup.querySelector(`#${activeType}-rate-${index}`);
-        const rateRange = inputGroup.querySelector(`#${activeType}-rate-range-${index}`);
+        const cyklInput = inputGroup.querySelector(".variable-cykl");
+        const cyklRange = inputGroup.querySelector(".variable-cykl-range");
+        const rateInput = inputGroup.querySelector(".variable-rate");
+        const rateRange = inputGroup.querySelector(".variable-rate-range");
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
         syncInputWithRange(cyklInput, cyklRange, {
-            isVariableCykl: true,
+            isDecimal: false,
             activeType,
-            index,
             onChange: (value) => {
                 changes[index].period = value;
                 changes.sort((a, b) => a.period - b.period);
@@ -1117,7 +1105,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 // Sprawdzamy, czy są duplikaty okresów
                 for (let i = 0; i < changes.length - 1; i++) {
                     if (changes[i].period >= changes[i + 1].period) {
-                        changes[i + 1].period = changes[i].period + 0.01;
+                        changes[i + 1].period = changes[i].period + 1;
                     }
                 }
 
@@ -1133,7 +1121,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 }
 
                 updateVariableInputs();
-                console.log(`Cykl updated for ${activeType} at index ${index}: ${value}`);
             },
         });
 
@@ -1144,7 +1131,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 index,
                 onChange: (value) => {
                     changes[index].value = value;
-                    console.log(`Oprocentowanie rate updated at index ${index}: ${value}`);
                 },
             });
         }
