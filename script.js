@@ -139,11 +139,15 @@ function syncInputWithRange(input, range, options = {}) {
 
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
-        if (isVariableCykl) {
+        if (activeType) {
+            // Dla pól dynamicznych (Zmienne oprocentowanie, Nadpłata kredytu) aktualizujemy w czasie rzeczywistym
+            if (onChange) {
+                console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
+                onChange(parsedValue);
+            }
+        } else {
+            // Dla głównych pól zapisujemy wartość tymczasową
             state.tempValues[input.id || range.id] = parsedValue;
-        } else if (onChange) {
-            console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
-            onChange(parsedValue);
         }
     };
 
@@ -167,10 +171,16 @@ function syncInputWithRange(input, range, options = {}) {
     const inputChangeHandler = () => {
         const rawValue = state.tempValues[input.id] || input.value;
         updateValue(rawValue, "Input");
+        if (onChange && !activeType) {
+            console.log(`onChange triggered for ${input.id}, value=${state.tempValues[input.id]}`);
+            onChange(state.tempValues[input.id]);
+        }
         delete state.tempValues[input.id];
     };
 
-    const rangeHandler = () => updateValue(range.value, "Range");
+    const rangeHandler = () => {
+        updateValue(range.value, "Range");
+    };
 
     if (!isDecimal) {
         const keypressHandler = (e) => {
@@ -184,23 +194,17 @@ function syncInputWithRange(input, range, options = {}) {
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
-    input._eventListeners.change = inputChangeHandler;
 
-    input.addEventListener("input", inputHandler);
-    input.addEventListener("change", inputChangeHandler);
-    range.addEventListener("input", rangeHandler);
-
-    if (isVariableCykl) {
-        const changeHandler = () => {
-            const value = state.tempValues[input.id || range.id];
-            if (value !== undefined && onChange) {
-                console.log(`Change committed: ${input.id || range.className} = ${value}`);
-                onChange(value);
-                delete state.tempValues[input.id || range.id];
-            }
-        };
-        range._eventListeners.change = changeHandler;
-        range.addEventListener("change", changeHandler);
+    if (activeType) {
+        // Dla pól dynamicznych (Zmienne oprocentowanie, Nadpłata kredytu) używamy tylko zdarzenia input
+        input.addEventListener("input", () => updateValue(input.value, "Input"));
+        range.addEventListener("input", rangeHandler);
+    } else {
+        // Dla głównych pól używamy zdarzeń input i change, aby obsłużyć miejsca po przecinku
+        input.addEventListener("input", inputHandler);
+        input._eventListeners.change = inputChangeHandler;
+        input.addEventListener("change", inputChangeHandler);
+        range.addEventListener("input", rangeHandler);
     }
 
     // Inicjalizacja wartości
@@ -1154,7 +1158,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 index,
                 onChange: (value) => {
                     changes[index].value = value;
-                    updateVariableInputs();
                 },
             });
         }
