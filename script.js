@@ -1065,7 +1065,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             fieldsWrapper.appendChild(rateGroup);
         } else {
             const cyklGroup = document.createElement("div");
-            cykGroup.className = "form-group";
+            cyklGroup.className = "form-group";
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
