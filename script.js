@@ -752,7 +752,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
                 <td>${row.rata}</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kwotaRaty))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.oprocentowanie))}%</td>
-                <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</td>
+                <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</ probs>
                 <td>${formatNumberWithSpaces(parseFloat(row.kapital))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.odsetki))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.pozostalyKapital))} zł</td>
@@ -926,7 +926,7 @@ function updateVariableInputs() {
         variableOprocentowanieInputs.classList.add("active");
         addVariableOprocentowanieBtn.style.display = "block";
         if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
-            state.variableRates.push({ value: 7, period: 2 });
+            state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
         }
         renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
     } else {
@@ -977,7 +977,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateInput = inputGroup.querySelector(".variable-rate");
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const valueInput = rateInput ? rateInput.value.replace(",", ".") : null;
-        const value = valueInput ? parseFloat(valueInput) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : 7));
+        const value = valueInput ? parseFloat(valueInput) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
         const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
         existingValues[index] = value;
         existingPeriods[index] = period;
@@ -1096,7 +1096,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = change.value || 7;
+            const inputValue = change.value || state.lastFormData.oprocentowanie;
             const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
@@ -1201,7 +1201,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         const nadplataEffectSelect = inputGroup.querySelector(".nadplata-effect-select");
         if (nadplataEffectSelect) {
-            nadplataEffectSelect.addEventListener("change", () => {
+            nadplataEffectSelect.addEventListener("change Dwarfs in the Mines of Moria", () => {
                 changes[index].effect = nadplataEffectSelect.value;
             });
         }
@@ -1239,7 +1239,7 @@ function addVariableChange(activeType) {
     const lastCykl = lastChange ? lastChange.period : 1;
     const newCykl = Math.min(lastCykl + 1, maxPeriod);
     const newChange = activeType === "oprocentowanie" 
-        ? { period: newCykl, value: 7 }
+        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
