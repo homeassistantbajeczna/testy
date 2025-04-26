@@ -335,7 +335,7 @@ function calculateLoan() {
             const valueInput = rateInput.value.replace(",", ".");
             const value = parseFloat(valueInput) || 0;
             const type = typeSelect.value || "Jednorazowa";
-            const effect = effectSelect.value || "Zmniejsz ratę";
+            const effect = effectSelect.value || "Skróć okres";
             if (period > 0 && value >= 0) {
                 state.overpaymentRates.push({ period, value, type, effect });
             }
@@ -384,7 +384,7 @@ function calculateLoan() {
 
         // Sprawdzenie, czy nadpłata typu "Zmniejsz ratę" jest aktywna
         let nadplataMiesieczna = 0;
-        let efektNadplaty = "Zmniejsz ratę";
+        let efektNadplaty = "Skróć okres";
         state.overpaymentRates.forEach((overpayment) => {
             if (overpayment.type === "Miesięczna" && overpayment.period <= 1) {
                 nadplataMiesieczna = parseFloat(overpayment.value);
@@ -890,7 +890,7 @@ function updateVariableInputs() {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates = [{ value: 1000, period: 1, type: "Jednorazowa", effect: "Zmniejsz ratę" }];
+            state.overpaymentRates = [{ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" }];
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
@@ -988,8 +988,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             nadplataEffectGroup.innerHTML = `
                 <label class="form-label">Po nadpłacie</label>
                 <select class="form-select nadplata-effect-select">
-                    <option value="Zmniejsz ratę" ${change.effect === "Zmniejsz ratę" ? "selected" : ""}>Zmniejsz ratę</option>
                     <option value="Skróć okres" ${change.effect === "Skróć okres" ? "selected" : ""}>Skróć okres</option>
+                    <option value="Zmniejsz ratę" ${change.effect === "Zmniejsz ratę" ? "selected" : ""}>Zmniejsz ratę</option>
                 </select>
             `;
 
@@ -1201,7 +1201,7 @@ function addVariableChange(activeType) {
     const newCykl = Math.min(lastCykl + 1, maxPeriod);
     const newChange = activeType === "oprocentowanie" 
         ? { period: newCykl, value: state.lastFormData.oprocentowanie }
-        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Zmniejsz ratę" };
+        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
     updateVariableInputs();
@@ -1264,6 +1264,13 @@ if (elements.jednostkaProwizji) {
     elements.jednostkaProwizji.addEventListener("change", () => {
         updateProwizjaInput();
         updateProwizjaInfo();
+    });
+}
+
+if (elements.rodzajRat) {
+    elements.rodzajRat.addEventListener("change", () => {
+        state.lastFormData.rodzajRat = elements.rodzajRat.value;
+        console.log("Rodzaj rat changed to:", elements.rodzajRat.value);
     });
 }
 
