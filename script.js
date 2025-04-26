@@ -80,6 +80,9 @@ function syncInputWithRange(input, range, options = {}) {
         if (input._eventListeners.change) {
             input.removeEventListener("change", input._eventListeners.change);
         }
+        if (input._eventListeners.blur) {
+            input.removeEventListener("blur", input._eventListeners.blur);
+        }
         if (range._eventListeners.input) {
             range.removeEventListener("input", range._eventListeners.input);
         }
@@ -90,10 +93,13 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    const updateValue = (value, source, applyMinValidation = false) => {
+    const updateValue = (value, source, applyMinValidation = false, preserveCursor = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(input.step) || 1;
+
+        // Zapisz pozycję kursora przed aktualizacją
+        let cursorPosition = preserveCursor ? input.selectionStart : null;
 
         // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
@@ -123,13 +129,30 @@ function syncInputWithRange(input, range, options = {}) {
             // Dla pól typu number nie używamy przecinka ani dwóch cyfr po przecinku
             formattedValue = parsedValue.toString();
         } else {
-            // Dla pól typu text (np. Kwota kredytu, Oprocentowanie) pokazujemy dwie cyfry po przecinku z przecinkiem
-            formattedValue = parsedValue.toFixed(2).replace(".", ",");
+            // Dla pól typu text (np. Kwota kredytu, Oprocentowanie)
+            // Sprawdzamy, czy wartość jest całkowita
+            if (Number.isInteger(parsedValue)) {
+                // Jeśli wartość jest całkowita, nie pokazujemy ",00"
+                formattedValue = parsedValue.toString();
+            } else {
+                // W przeciwnym razie pokazujemy dwie cyfry po przecinku z przecinkiem
+                formattedValue = parsedValue.toFixed(2).replace(".", ",");
+            }
         }
 
         // Ustawiamy wartość w polu tekstowym i suwaku
         input.value = formattedValue;
         range.value = parsedValue;
+
+        // Przywracamy pozycję kursora, jeśli preserveCursor jest true
+        if (preserveCursor && cursorPosition !== null) {
+            // Dostosuj pozycję kursora w zależności od nowego formatu wartości
+            const newValueLength = formattedValue.length;
+            const oldValueLength = value.toString().length;
+            cursorPosition = Math.min(cursorPosition, newValueLength);
+            input.setSelectionRange(cursorPosition, cursorPosition);
+        }
+
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
         if (isVariableCykl) {
@@ -140,16 +163,34 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
-    const inputHandler = () => updateValue(input.value, "Input", false);
-    const rangeHandler = () => updateValue(range.value, "Range", true);
-    const inputChangeHandler = () => updateValue(input.value, "Input", true);
+    const inputHandler = () => {
+        // Podczas wpisywania nie formatujemy wartości, tylko zapisujemy
+        state.tempValues[input.id] = input.value;
+    };
+
+    const inputBlurHandler = () => {
+        const rawValue = state.tempValues[input.id] || input.value;
+        updateValue(rawValue, "Input", true, false);
+        delete state.tempValues[input.id];
+    };
+
+    const rangeHandler = () => updateValue(range.value, "Range", true, false);
+
+    const inputChangeHandler = () => {
+        const rawValue = state.tempValues[input.id] || input.value;
+        updateValue(rawValue, "Input", true, false);
+        delete state.tempValues[input.id];
+    };
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
     input._eventListeners.change = inputChangeHandler;
+    input._eventListeners.blur = inputBlurHandler;
+
     input.addEventListener("input", inputHandler);
-    range.addEventListener("input", rangeHandler);
+    input.addEventListener("blur", inputBlurHandler);
     input.addEventListener("change", inputChangeHandler);
+    range.addEventListener("input", rangeHandler);
 
     if (isVariableCykl) {
         const changeHandler = () => {
@@ -186,7 +227,11 @@ function syncInputWithRange(input, range, options = {}) {
     if (input.type === "number") {
         formattedInitialValue = initialValue.toString();
     } else {
-        formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
+        if (Number.isInteger(initialValue)) {
+            formattedInitialValue = initialValue.toString();
+        } else {
+            formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
+        }
     }
 
     input.value = formattedInitialValue;
@@ -420,7 +465,7 @@ function calculateLoan() {
 
             // Ustawiamy ratę
             if (isOverpaymentMonth && i > 1) {
-                // W miesiącu nadpłaty używamy raty Inflacjapoprzedniego miesiąca
+                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
                 rata = previousRata;
             } else {
                 // Obliczamy normalnie ratę
@@ -918,7 +963,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             `;
 
             const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || 1000);
-            const formattedInputValue = inputValue.toFixed(2).replace(".", ",");
+            const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
