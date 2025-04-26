@@ -101,7 +101,7 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    // Ustawienie kroku dla suwaka, jeśli podano stepOverride
+    // Ustawienie kroku, jeśli podano stepOverride
     if (stepOverride) {
         range.step = stepOverride;
     }
@@ -109,6 +109,7 @@ function syncInputWithRange(input, range, options = {}) {
     const updateValue = (value, source, applyMinValidation = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
+        const step = parseFloat(range.step) || 1;
 
         // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
@@ -315,7 +316,6 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
 
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
-    stepOverride: 0.01,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
         updateProwizjaInfo();
@@ -854,18 +854,6 @@ function updateProwizjaInput() {
     }
 
     state.lastFormData.jednostkaProwizji = jednostka;
-
-    // Aktualizacja jednostki w polu prowizji
-    const prowizjaInputGroup = elements.prowizja.closest(".input-group");
-    if (prowizjaInputGroup) {
-        let unitSpan = prowizjaInputGroup.querySelector(".input-group-text");
-        if (!unitSpan) {
-            unitSpan = document.createElement("span");
-            unitSpan.className = "input-group-text";
-            prowizjaInputGroup.insertBefore(unitSpan, elements.jednostkaProwizji);
-        }
-        unitSpan.textContent = jednostka === "procent" ? "%" : "zł";
-    }
 }
 
 function updateKwotaInfo() {
