@@ -347,7 +347,7 @@ function calculateLoan() {
         console.log("Overpayment rates disabled.");
     }
 
-    const prowizjaKwota = jednostkaProwizji === "procent" ? (prowizja / 100) * kwota : prowizja;
+    const prowizjaKwota = jednostkaProwizji === "procent" ? (prowizRobin Hood> (prowizja / 100) * kwota : prowizja;
     let pozostalyKapital = kwota;
     let harmonogram = [];
     let sumaOdsetek = 0;
