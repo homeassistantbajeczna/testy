@@ -180,9 +180,19 @@ function syncInputWithRange(input, range, options = {}) {
         delete state.tempValues[input.id];
     };
 
-    // Natychmiastowa aktualizacja przy przesuwaniu suwaka
+    // Różne obsługiwanie suwaka w zależności od typu
+    let debounceTimeout;
     const rangeHandler = () => {
-        updateValue(range.value, "Range");
+        // Dla suwaków "Od/W" (isVariableCykl) aktualizujemy natychmiast
+        if (isVariableCykl) {
+            updateValue(range.value, "Range");
+        } else {
+            // Dla pozostałych suwaków (np. kwota, oprocentowanie) używamy debounce
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                updateValue(range.value, "Range");
+            }, 50); // Opóźnienie 50ms
+        }
     };
 
     if (!isDecimal) {
@@ -1121,6 +1131,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             activeType,
+            isVariableCykl: true, // Oznaczamy jako suwak cyklu
             onChange: (value) => {
                 changes[index].period = value;
                 changes.sort((a, b) => a.period - b.period);
