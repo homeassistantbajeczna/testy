@@ -63,7 +63,7 @@ function formatNumberWithSpaces(number) {
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, isDisabled = false } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
@@ -73,12 +73,6 @@ function syncInputWithRange(input, range, options = {}) {
     // Ustawiamy typ pola na text dla pól decimalnych, aby obsługiwać przecinek
     if (isDecimal) {
         input.type = "text";
-    }
-
-    // Ustawiamy disabled, jeśli podano
-    if (isDisabled) {
-        input.disabled = true;
-        range.disabled = true;
     }
 
     input._eventListeners = input._eventListeners || {};
@@ -171,7 +165,7 @@ function syncInputWithRange(input, range, options = {}) {
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
-        } else if (onChange && !isDisabled) {
+        } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
         }
@@ -203,8 +197,8 @@ function syncInputWithRange(input, range, options = {}) {
 
         state.tempValues[input.id] = input.value;
 
-        // Wywołujemy onChange natychmiast, jeśli pole nie jest disabled
-        if (!isDisabled && onChange) {
+        // Wywołujemy onChange natychmiast
+        if (onChange) {
             const parsedValue = parseFloat(rawValue) || 0;
             updateValue(parsedValue, "Input", true);
             onChange(parsedValue);
@@ -1083,8 +1077,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             fieldsWrapper.appendChild(rateGroup);
         } else {
             const cyklGroup = document.createElement("div");
-            cyklGroup.className = "form-group";
-            cyklGroup.innerHTML = `
+            cykGroup.className = "form-group";
+            cykGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
@@ -1175,9 +1169,15 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 isDecimal: true,
                 activeType,
                 index,
-                isDisabled: index === 0, // Dezaktywujemy edycję dla pierwszego wiersza
                 onChange: (value) => {
                     changes[index].value = value;
+                    // Jeśli to pierwszy wiersz, aktualizujemy główne pole OPROCENTOWANIE
+                    if (index === 0) {
+                        state.lastFormData.oprocentowanie = value;
+                        const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2).replace(".", ",");
+                        elements.oprocentowanie.value = formattedValue;
+                        elements.oprocentowanieRange.value = value;
+                    }
                     updateVariableInputs(); // Odświeżamy UI
                 },
             });
