@@ -63,7 +63,7 @@ function formatNumberWithSpaces(number) {
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, index, activeType, stepOverride } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
@@ -139,8 +139,9 @@ function syncInputWithRange(input, range, options = {}) {
 
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
-        // Wywołujemy onChange natychmiast, aby obsłużyć strzałki
-        if (onChange) {
+        if (isVariableCykl) {
+            state.tempValues[input.id || range.id] = parsedValue;
+        } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
         }
@@ -160,7 +161,13 @@ function syncInputWithRange(input, range, options = {}) {
             }
             input.value = rawValue.replace(".", ",");
         }
+        state.tempValues[input.id] = input.value;
+    };
+
+    const inputChangeHandler = () => {
+        const rawValue = state.tempValues[input.id] || input.value;
         updateValue(rawValue, "Input");
+        delete state.tempValues[input.id];
     };
 
     const rangeHandler = () => updateValue(range.value, "Range");
@@ -177,9 +184,24 @@ function syncInputWithRange(input, range, options = {}) {
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
+    input._eventListeners.change = inputChangeHandler;
 
     input.addEventListener("input", inputHandler);
+    input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
+
+    if (isVariableCykl) {
+        const changeHandler = () => {
+            const value = state.tempValues[input.id || range.id];
+            if (value !== undefined && onChange) {
+                console.log(`Change committed: ${input.id || range.className} = ${value}`);
+                onChange(value);
+                delete state.tempValues[input.id || range.id];
+            }
+        };
+        range._eventListeners.change = changeHandler;
+        range.addEventListener("change", changeHandler);
+    }
 
     // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
@@ -362,7 +384,7 @@ function calculateLoan() {
 
         // Sprawdzenie, czy nadpłata typu "Zmniejsz ratę" jest aktywna
         let nadplataMiesieczna = 0;
-        let efektNadplaty = "Skróć okres";
+        let efektNadplaty = "Zmniejsz ratę";
         state.overpaymentRates.forEach((overpayment) => {
             if (overpayment.type === "Miesięczna" && overpayment.period <= 1) {
                 nadplataMiesieczna = parseFloat(overpayment.value);
@@ -729,8 +751,6 @@ function showForm() {
     if (elements.formSection && elements.resultSection) {
         elements.formSection.style.display = "block";
         elements.resultSection.style.display = "none";
-        // Po powrocie do edycji odświeżamy formularz, aby zachować dane
-        updateVariableInputs();
     }
 }
 
@@ -1160,54 +1180,167 @@ function addVariableChange(activeType) {
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
-    if (changes.length >= maxChanges) return;
 
-    const lastChange = changes[changes.length - 1];
-    const lastPeriod = lastChange ? lastChange.period : 0;
-    const newPeriod = Math.min(lastPeriod + 1, maxCykl - 1);
+    const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
+    const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+    const isMaxPeriodReached = lastChange && lastChange.period >= maxPeriod;
 
-    if (activeType === "oprocentowanie") {
-        changes.push({ value: state.lastFormData.oprocentowanie, period: newPeriod });
-    } else {
-        changes.push({ value: 1000, period: newPeriod, type: "Jednorazowa", effect: "Zmniejsz ratę" });
+    if (changes.length >= maxChanges || isMaxPeriodReached) {
+        if (changes.length >= maxChanges) {
+            alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
+        }
+        if (activeType === "oprocentowanie") {
+            elements.addVariableOprocentowanieBtn.style.display = "none";
+        } else {
+            elements.addNadplataKredytuBtn.style.display = "none";
+        }
+        return;
     }
 
+    const lastCykl = lastChange ? lastChange.period : 1;
+    const newCykl = Math.min(lastCykl + 1, maxPeriod);
+    const newChange = activeType === "oprocentowanie" 
+        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
+        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Zmniejsz ratę" };
+
+    changes.push(newChange);
     updateVariableInputs();
 }
 
 function removeVariableChange(index, activeType) {
-    console.log(`removeVariableChange called for ${activeType} at index ${index}`);
-    if (activeType === "oprocentowanie") {
-        state.variableRates.splice(index, 1);
-    } else {
-        state.overpaymentRates.splice(index, 1);
+    console.log(`removeVariableChange called for ${activeType}, index=${index}`);
+    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+    if (changes.length > 1) {
+        changes.splice(index, 1);
+        updateVariableInputs();
     }
-    updateVariableInputs();
 }
 
-// Inicjalizacja
-updateKwotaInfo();
-updateLata();
-updateProwizjaInfo();
-updateRodzajRatInfo();
-updateVariableInputs();
+let currentZoom = 1;
+const zoomStep = 0.1;
+const minZoom = 0.5;
+const maxZoom = 2;
 
-// Event Listeners
+function updateZoom() {
+    console.log("updateZoom called");
+    const container = document.querySelector(".container");
+    if (!container) return;
+    container.style.transform = `scale(${currentZoom})`;
+    container.style.transformOrigin = "top center";
+}
+
+function toggleDarkMode() {
+    console.log("toggleDarkMode called");
+    const body = document.body;
+    const isDarkMode = body.classList.contains("dark-mode");
+
+    if (isDarkMode) {
+        body.classList.remove("dark-mode");
+        body.classList.add("light-mode");
+        localStorage.setItem("theme", "light");
+        elements.toggleDarkModeBtn.textContent = "🌙";
+    } else {
+        body.classList.remove("light-mode");
+        body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+        elements.toggleDarkModeBtn.textContent = "☀️";
+    }
+}
+
+function initializeTheme() {
+    console.log("initializeTheme called");
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        if (elements.toggleDarkModeBtn) elements.toggleDarkModeBtn.textContent = "☀️";
+    } else {
+        document.body.classList.add("light-mode");
+        if (elements.toggleDarkModeBtn) elements.toggleDarkModeBtn.textContent = "🌙";
+    }
+}
+
+// Inicjalizacja listenerów
 if (elements.jednostkaProwizji) {
-    elements.jednostkaProwizji.addEventListener("change", updateProwizjaInput);
+    elements.jednostkaProwizji.addEventListener("change", () => {
+        updateProwizjaInput();
+        updateProwizjaInfo();
+    });
 }
+
 if (elements.zmienneOprocentowanieBtn) {
-    elements.zmienneOprocentowanieBtn.addEventListener("change", updateVariableInputs);
+    elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+        state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
+        updateVariableInputs();
+    });
 }
+
 if (elements.nadplataKredytuBtn) {
-    elements.nadplataKredytuBtn.addEventListener("change", updateVariableInputs);
+    elements.nadplataKredytuBtn.addEventListener("change", () => {
+        state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
+        updateVariableInputs();
+    });
 }
+
 if (elements.addVariableOprocentowanieBtn) {
     elements.addVariableOprocentowanieBtn.addEventListener("click", () => addVariableChange("oprocentowanie"));
 }
+
 if (elements.addNadplataKredytuBtn) {
     elements.addNadplataKredytuBtn.addEventListener("click", () => addVariableChange("nadplata"));
 }
+
 if (elements.obliczBtn) {
     elements.obliczBtn.addEventListener("click", calculateLoan);
 }
+
+if (elements.zoomInBtn) {
+    elements.zoomInBtn.addEventListener("click", () => {
+        currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+        updateZoom();
+    });
+}
+
+if (elements.zoomOutBtn) {
+    elements.zoomOutBtn.addEventListener("click", () => {
+        currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+        updateZoom();
+    });
+}
+
+if (elements.toggleDarkModeBtn) {
+    elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
+}
+
+if (elements.generatePdfBtn) {
+    elements.generatePdfBtn.addEventListener("click", () => {
+        console.log("generatePdfBtn clicked");
+        const { jsPDF } = window.jspdf;
+        if (!jsPDF) {
+            console.error("jsPDF not loaded.");
+            return;
+        }
+        const doc = new jsPDF();
+        const harmonogramTable = document.getElementById("harmonogramTable");
+        if (harmonogramTable) {
+            doc.autoTable({ html: harmonogramTable });
+            doc.save("harmonogram_kredytu.pdf");
+            console.log("PDF generated and saved.");
+        } else {
+            console.error("Harmonogram table not found for PDF generation.");
+        }
+    });
+}
+
+// Inicjalizacja aplikacji
+function initializeApp() {
+    console.log("initializeApp called");
+    updateProwizjaInput();
+    updateKwotaInfo();
+    updateLata();
+    updateProwizjaInfo();
+    updateRodzajRatInfo();
+    updateVariableInputs();
+    initializeTheme();
+}
+
+document.addEventListener("DOMContentLoaded", initializeApp);
