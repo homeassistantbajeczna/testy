@@ -955,24 +955,22 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         return;
     }
 
-    // Najpierw aktualizujemy stan na podstawie wartości z pól
     const existingInputs = wrapper.querySelectorAll(".variable-input-group");
-    changes.length = 0; // Czyścimy tablicę changes, aby upewnić się, że zawiera tylko aktualne wartości
-    existingInputs.forEach((inputGroup) => {
+    const existingValues = [];
+    const existingPeriods = [];
+    existingInputs.forEach((inputGroup, index) => {
         const rateInput = inputGroup.querySelector(".variable-rate");
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const valueInput = rateInput ? rateInput.value.replace(",", ".") : null;
-        const value = valueInput ? parseFloat(valueInput) : (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie);
-        const period = cyklInput ? parseInt(cyklInput.value) : (activeType === "nadplata" ? 1 : 2);
-
-        const change = { period, value };
-        if (activeType === "nadplata") {
-            const typeSelect = inputGroup.querySelector(".nadplata-type-select");
-            const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
-            change.type = typeSelect ? typeSelect.value : "Jednorazowa";
-            change.effect = effectSelect ? effectSelect.value : "Skróć okres";
+        const value = valueInput ? parseFloat(valueInput) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
+        const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
+        existingValues[index] = value;
+        existingPeriods[index] = period;
+        // Aktualizujemy stan changes, aby upewnić się, że wartości są zapisane
+        if (changes[index]) {
+            changes[index].value = value;
+            changes[index].period = period;
         }
-        changes.push(change);
     });
 
     // Usuwamy wiersze, które są po okresie maksymalnym
@@ -997,9 +995,9 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.className = "fields-wrapper";
 
-        const minPeriod = index > 0 ? changes[index - 1].period + 1 : (activeType === "nadplata" ? 1 : 2);
+        const minPeriod = index > 0 ? (existingPeriods[index - 1] || changes[index - 1].period) + 1 : (activeType === "nadplata" ? 1 : 2);
         const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-        const periodValue = change.period;
+        const periodValue = existingPeriods[index] !== undefined ? existingPeriods[index] : change.period;
 
         if (activeType === "nadplata") {
             const nadplataTypeGroup = document.createElement("div");
@@ -1035,10 +1033,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
                     <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="0.1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = change.value || 1000;
+            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || 1000);
             const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
@@ -1070,10 +1068,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                     <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="0.1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
             `;
 
-            const inputValue = change.value || state.lastFormData.oprocentowanie;
+            const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || state.lastFormData.oprocentowanie);
             const formattedInputValue = Number.isInteger(inputValue) ? inputValue.toString() : inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
