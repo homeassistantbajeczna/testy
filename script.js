@@ -180,13 +180,9 @@ function syncInputWithRange(input, range, options = {}) {
         delete state.tempValues[input.id];
     };
 
-    // Prosty debounce dla suwaka, aby poprawić płynność
-    let debounceTimeout;
+    // Natychmiastowa aktualizacja przy przesuwaniu suwaka
     const rangeHandler = () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-            updateValue(range.value, "Range");
-        }, 50); // Opóźnienie 50ms
+        updateValue(range.value, "Range");
     };
 
     if (!isDecimal) {
