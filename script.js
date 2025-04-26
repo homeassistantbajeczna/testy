@@ -118,7 +118,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (!isDecimal) {
             parsedValue = Math.floor(parsedValue);
         } else {
-            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie)
+            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
             parsedValue = Math.round(parsedValue * 100) / 100;
         }
 
@@ -142,7 +142,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (input.type === "number") {
             // Dla pól typu number (np. Prowizja, Ilość rat, Kwota, Oprocentowanie)
             if (isDecimal) {
-                // Dla pól decimalnych (np. Prowizja, Oprocentowanie)
+                // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
                 if (Number.isInteger(parsedValue) && input.id === "prowizja") {
                     // Dla "Prowizji" nie pokazujemy ",00" dla wartości całkowitych
                     formattedValue = parsedValue.toString();
@@ -151,7 +151,7 @@ function syncInputWithRange(input, range, options = {}) {
                     formattedValue = parsedValue.toFixed(2);
                 }
             } else {
-                // Dla pól całkowitych (np. Ilość rat, Kwota) bez przecinka
+                // Dla pól całkowitych (np. Ilość rat) bez przecinka
                 formattedValue = parsedValue.toString();
             }
         } else {
@@ -280,7 +280,7 @@ function syncInputWithRange(input, range, options = {}) {
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
-    isDecimal: false, // Kwota kredytu jako liczba całkowita
+    isDecimal: true, // Kwota kredytu teraz jako liczba dziesiętna
     stepOverride: 100, // Zmiana co 100
     onChange: (value) => {
         state.lastFormData.kwota = value;
