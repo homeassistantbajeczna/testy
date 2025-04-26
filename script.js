@@ -103,7 +103,7 @@ function syncInputWithRange(input, range, options = {}) {
         range.step = stepOverride;
     }
 
-    const updateValue = (value, source) => {
+    const updateValue = (value, source, skipOnChange = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(range.step) || 1;
@@ -139,7 +139,7 @@ function syncInputWithRange(input, range, options = {}) {
 
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
-        if (activeType) {
+        if (activeType && !skipOnChange) {
             // Dla pól dynamicznych (Zmienne oprocentowanie, Nadpłata kredytu) aktualizujemy w czasie rzeczywistym
             if (onChange) {
                 console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
@@ -165,21 +165,21 @@ function syncInputWithRange(input, range, options = {}) {
             }
             input.value = rawValue.replace(".", ",");
         }
-        state.tempValues[input.id] = input.value;
+        state.tempValues[input.id || range.id] = input.value;
     };
 
     const inputChangeHandler = () => {
-        const rawValue = state.tempValues[input.id] || input.value;
+        const rawValue = state.tempValues[input.id || range.id] || input.value;
         updateValue(rawValue, "Input");
-        if (onChange && !activeType) {
-            console.log(`onChange triggered for ${input.id}, value=${state.tempValues[input.id]}`);
-            onChange(state.tempValues[input.id]);
+        if (onChange) {
+            console.log(`onChange triggered for ${input.id || range.className}, value=${state.tempValues[input.id || range.id]}`);
+            onChange(state.tempValues[input.id || range.id]);
         }
-        delete state.tempValues[input.id];
+        delete state.tempValues[input.id || range.id];
     };
 
-    const rangeHandler = () => {
-        updateValue(range.value, "Range");
+    const rangeHandler = (skipOnChange = false) => {
+        updateValue(range.value, "Range", skipOnChange);
     };
 
     if (!isDecimal) {
@@ -193,18 +193,29 @@ function syncInputWithRange(input, range, options = {}) {
     }
 
     input._eventListeners.input = inputHandler;
-    range._eventListeners.input = rangeHandler;
+    range._eventListeners.input = () => rangeHandler(isVariableCykl);
 
     if (activeType) {
-        // Dla pól dynamicznych (Zmienne oprocentowanie, Nadpłata kredytu) używamy tylko zdarzenia input
-        input.addEventListener("input", () => updateValue(input.value, "Input"));
-        range.addEventListener("input", rangeHandler);
+        // Dla pól dynamicznych (Zmienne oprocentowanie, Nadpłata kredytu)
+        if (isVariableCykl) {
+            // Dla suwaków "Od/W" i "Od" używamy zdarzenia input, ale pomijamy onChange podczas przesuwania
+            input.addEventListener("input", inputHandler);
+            input._eventListeners.change = inputChangeHandler;
+            input.addEventListener("change", inputChangeHandler);
+            range.addEventListener("input", () => rangeHandler(true));
+        } else {
+            // Dla pól "Kwota" i "Oprocentowanie" w sekcjach dynamicznych
+            input.addEventListener("input", inputHandler);
+            input._eventListeners.change = inputChangeHandler;
+            input.addEventListener("change", inputChangeHandler);
+            range.addEventListener("input", () => rangeHandler(false));
+        }
     } else {
         // Dla głównych pól używamy zdarzeń input i change, aby obsłużyć miejsca po przecinku
         input.addEventListener("input", inputHandler);
         input._eventListeners.change = inputChangeHandler;
         input.addEventListener("change", inputChangeHandler);
-        range.addEventListener("input", rangeHandler);
+        range.addEventListener("input", () => rangeHandler(false));
     }
 
     // Inicjalizacja wartości
@@ -1124,9 +1135,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
+            isVariableCykl: true,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
+                // Sortowanie i korekta duplikatów tylko po zakończeniu edycji
                 changes.sort((a, b) => a.period - b.period);
 
                 // Sprawdzamy, czy są duplikaty okresów
@@ -1168,7 +1181,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
                 const currentInputGroup = e.target.closest(".variable-input-group");
                 const cyklGroup = currentInputGroup.querySelector(".form-group:has(.variable-cykl)");
-                const label = cyklGroup?.querySelector(".form-label");
+                const label = cyklGroup?.query.find(".form-label");
                 const unit = cyklGroup?.querySelector(".unit-miesiacu");
                 if (label && unit) {
                     label.textContent = isJednorazowa ? "W" : "Od";
