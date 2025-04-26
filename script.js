@@ -139,7 +139,9 @@ function syncInputWithRange(input, range, options = {}) {
 
         console.log(`${source} changed: ${input.id || range.className} = ${parsedValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
-        if (onChange) {
+        if (isVariableCykl) {
+            state.tempValues[input.id || range.id] = parsedValue;
+        } else if (onChange) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
             onChange(parsedValue);
         }
@@ -159,7 +161,13 @@ function syncInputWithRange(input, range, options = {}) {
             }
             input.value = rawValue.replace(".", ",");
         }
+        state.tempValues[input.id] = input.value;
+    };
+
+    const inputChangeHandler = () => {
+        const rawValue = state.tempValues[input.id] || input.value;
         updateValue(rawValue, "Input");
+        delete state.tempValues[input.id];
     };
 
     const rangeHandler = () => updateValue(range.value, "Range");
@@ -176,9 +184,24 @@ function syncInputWithRange(input, range, options = {}) {
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
+    input._eventListeners.change = inputChangeHandler;
 
     input.addEventListener("input", inputHandler);
+    input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
+
+    if (isVariableCykl) {
+        const changeHandler = () => {
+            const value = state.tempValues[input.id || range.id];
+            if (value !== undefined && onChange) {
+                console.log(`Change committed: ${input.id || range.className} = ${value}`);
+                onChange(value);
+                delete state.tempValues[input.id || range.id];
+            }
+        };
+        range._eventListeners.change = changeHandler;
+        range.addEventListener("change", changeHandler);
+    }
 
     // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
@@ -1131,6 +1154,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 index,
                 onChange: (value) => {
                     changes[index].value = value;
+                    updateVariableInputs();
                 },
             });
         }
