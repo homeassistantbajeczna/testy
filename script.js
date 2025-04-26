@@ -24,7 +24,7 @@ const elements = {
     generatePdfBtn: document.getElementById("generatePdfBtn"),
     valueKapital: document.getElementById("valueKapital"),
     valueOdsetki: document.getElementById("valueOdsetki"),
-    valueNad tarjata: document.getElementById("valueNadplata"),
+    valueNadplata: document.getElementById("valueNadplata"),
     valueProwizja: document.getElementById("valueProwizja"),
     okresPoNadplacie: document.getElementById("okresPoNadplacie"),
     koszt: document.getElementById("koszt"),
