@@ -101,15 +101,86 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    // Ustawienie kroku, jeśli podano stepOverride
+    // Ustawienie kroku dla suwaka, jeśli podano stepOverride
     if (stepOverride) {
         range.step = stepOverride;
+    }
+
+    // Określenie kroku dla strzałek (używamy stepOverride lub domyślnego kroku)
+    const step = stepOverride || parseFloat(range.step) || 1;
+
+    // Funkcja do zmiany wartości za pomocą strzałek
+    const changeValueWithSpinner = (direction) => {
+        let currentValue = parseFloat(input.value.replace(",", ".")) || 0;
+        let newValue = direction === "up" ? currentValue + step : currentValue - step;
+
+        // Walidacja wartości względem minimalnej i maksymalnej
+        const min = parseFloat(input.min) || 0;
+        const max = parseFloat(input.max) || Infinity;
+
+        if (newValue < min) newValue = min;
+        if (newValue > max) newValue = max;
+
+        // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych
+        if (isDecimal) {
+            newValue = Math.round(newValue * 100) / 100;
+        } else {
+            newValue = Math.floor(newValue);
+        }
+
+        updateValue(newValue, "Spinner", true);
+    };
+
+    // Dodanie niestandardowych strzałek dla pól decimalnych
+    if (isDecimal) {
+        const parent = input.parentElement;
+        if (!parent.classList.contains("input-group")) {
+            console.warn(`Parent of ${input.id} is not an input-group. Wrapping in input-group for spinner buttons.`);
+            const inputGroup = document.createElement("div");
+            inputGroup.className = "input-group";
+            parent.insertBefore(inputGroup, input);
+            inputGroup.appendChild(input);
+
+            // Dodanie jednostki (np. zł, %) jeśli input ma odpowiednią klasę
+            let unitText = "";
+            if (input.id === "kwota") unitText = "zł";
+            else if (input.id === "oprocentowanie") unitText = "%";
+            else if (input.id === "prowizja") unitText = elements.jednostkaProwizji.value === "procent" ? "%" : "zł";
+
+            const unitSpan = document.createElement("span");
+            unitSpan.className = "input-group-text";
+            unitSpan.textContent = unitText;
+            inputGroup.appendChild(unitSpan);
+        }
+
+        // Usuwamy istniejące strzałki, jeśli istnieją, aby uniknąć duplikatów
+        const existingSpinner = parent.querySelector(".spinner-buttons");
+        if (existingSpinner) {
+            existingSpinner.remove();
+        }
+
+        // Dodajemy kontener na strzałki
+        const spinnerWrapper = document.createElement("div");
+        spinnerWrapper.className = "spinner-buttons";
+
+        const upButton = document.createElement("button");
+        upButton.className = "spinner-button spinner-up";
+        upButton.innerHTML = "▲"; // Strzałka w górę (Unicode)
+        upButton.addEventListener("click", () => changeValueWithSpinner("up"));
+
+        const downButton = document.createElement("button");
+        downButton.className = "spinner-button spinner-down";
+        downButton.innerHTML = "▼"; // Strzałka w dół (Unicode)
+        downButton.addEventListener("click", () => changeValueWithSpinner("down"));
+
+        spinnerWrapper.appendChild(upButton);
+        spinnerWrapper.appendChild(downButton);
+        parent.appendChild(spinnerWrapper);
     }
 
     const updateValue = (value, source, applyMinValidation = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
-        const step = parseFloat(range.step) || 1;
 
         // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
@@ -316,6 +387,7 @@ syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
 
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
+    stepOverride: 0.01,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
         updateProwizjaInfo();
@@ -854,6 +926,15 @@ function updateProwizjaInput() {
     }
 
     state.lastFormData.jednostkaProwizji = jednostka;
+
+    // Aktualizacja jednostki w polu prowizji
+    const prowizjaInputGroup = elements.prowizja.closest(".input-group");
+    if (prowizjaInputGroup) {
+        const unitSpan = prowizjaInputGroup.querySelector(".input-group-text");
+        if (unitSpan) {
+            unitSpan.textContent = jednostka === "procent" ? "%" : "zł";
+        }
+    }
 }
 
 function updateKwotaInfo() {
