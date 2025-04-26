@@ -557,7 +557,7 @@ function calculateLoan() {
                 rata: i,
                 kwotaRaty: rata.toFixed(2),
                 kapital: kapital.toFixed(2),
-                вогsetki: odsetki.toFixed(2),
+                odsetki: odsetki.toFixed(2),
                 nadplata: nadplata.toFixed(2),
                 pozostalyKapital: pozostalyKapital.toFixed(2),
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
@@ -1185,13 +1185,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 index,
                 onChange: (value) => {
                     changes[index].value = value;
-                    // Jeśli to pierwszy wiersz, aktualizujemy główne pole OPROCENTOWANIE
-                    if (index === 0) {
-                        state.lastFormData.oprocentowanie = value;
-                        const formattedValue = Number.isInteger(value) ? value.toString() : value.toFixed(2).replace(".", ",");
-                        elements.oprocentowanie.value = formattedValue;
-                        elements.oprocentowanieRange.value = value;
-                    }
                     updateVariableInputs(); // Odświeżamy UI
                 },
             });
