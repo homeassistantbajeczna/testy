@@ -63,7 +63,7 @@ function formatNumberWithSpaces(number) {
 
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
 
     if (!input || !range) {
         console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
@@ -83,6 +83,9 @@ function syncInputWithRange(input, range, options = {}) {
         if (input._eventListeners.blur) {
             input.removeEventListener("blur", input._eventListeners.blur);
         }
+        if (input._eventListeners.keypress) {
+            input.removeEventListener("keypress", input._eventListeners.keypress);
+        }
         if (range._eventListeners.input) {
             range.removeEventListener("input", range._eventListeners.input);
         }
@@ -92,6 +95,12 @@ function syncInputWithRange(input, range, options = {}) {
     };
 
     removeListeners();
+
+    // Ustawienie kroku, jeśli podano stepOverride
+    if (stepOverride) {
+        input.step = stepOverride;
+        range.step = stepOverride;
+    }
 
     const updateValue = (value, source, applyMinValidation = false) => {
         const min = parseFloat(input.min) || 0;
@@ -131,21 +140,25 @@ function syncInputWithRange(input, range, options = {}) {
         // Formatowanie wartości w zależności od typu pola
         let formattedValue;
         if (input.type === "number") {
-            // Dla pól typu number (np. Prowizja, Ilość rat)
+            // Dla pól typu number (np. Prowizja, Ilość rat, Kwota, Oprocentowanie)
             if (isDecimal) {
-                // Dla pól decimalnych (np. Prowizja) formatujemy z dwoma miejscami po przecinku
-                formattedValue = parsedValue.toFixed(2);
+                // Dla pól decimalnych (np. Prowizja, Oprocentowanie)
+                if (Number.isInteger(parsedValue) && input.id === "prowizja") {
+                    // Dla "Prowizji" nie pokazujemy ",00" dla wartości całkowitych
+                    formattedValue = parsedValue.toString();
+                } else {
+                    // W przeciwnym razie pokazujemy dwie cyfry po przecinku
+                    formattedValue = parsedValue.toFixed(2);
+                }
             } else {
-                // Dla pól całkowitych (np. Ilość rat) bez przecinka
+                // Dla pól całkowitych (np. Ilość rat, Kwota) bez przecinka
                 formattedValue = parsedValue.toString();
             }
         } else {
-            // Dla pól typu text (np. Kwota kredytu, Oprocentowanie)
+            // Dla pól typu text (jeśli jakieś pozostały)
             if (Number.isInteger(parsedValue)) {
-                // Jeśli wartość jest całkowita, nie pokazujemy ",00"
                 formattedValue = parsedValue.toString();
             } else {
-                // W przeciwnym razie pokazujemy dwie cyfry po przecinku z przecinkiem
                 formattedValue = parsedValue.toFixed(2).replace(".", ",");
             }
         }
@@ -182,6 +195,17 @@ function syncInputWithRange(input, range, options = {}) {
         updateValue(rawValue, "Input", true);
         delete state.tempValues[input.id];
     };
+
+    // Blokada wprowadzania przecinka dla pól nie-decimalnych (np. Ilość rat)
+    if (!isDecimal) {
+        const keypressHandler = (e) => {
+            if (e.key === "," || e.key === ".") {
+                e.preventDefault();
+            }
+        };
+        input._eventListeners.keypress = keypressHandler;
+        input.addEventListener("keypress", keypressHandler);
+    }
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
@@ -223,18 +247,22 @@ function syncInputWithRange(input, range, options = {}) {
         initialValue = 100;
     }
 
-    // Zaokrąglenie początkowej wartości dla pól decimalnych
+    // Zaokrąglenie początkowej wartości
     if (isDecimal) {
         initialValue = Math.round(initialValue * 100) / 100;
     } else {
         initialValue = Math.floor(initialValue);
     }
 
-    // Formatowanie początkowej wartości w zależności od typu pola
+    // Formatowanie początkowej wartości
     let formattedInitialValue;
     if (input.type === "number") {
         if (isDecimal) {
-            formattedInitialValue = initialValue.toFixed(2);
+            if (Number.isInteger(initialValue) && input.id === "prowizja") {
+                formattedInitialValue = initialValue.toString();
+            } else {
+                formattedInitialValue = initialValue.toFixed(2);
+            }
         } else {
             formattedInitialValue = initialValue.toString();
         }
@@ -252,7 +280,8 @@ function syncInputWithRange(input, range, options = {}) {
 }
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
-    isDecimal: true,
+    isDecimal: false, // Kwota kredytu jako liczba całkowita
+    stepOverride: 100, // Zmiana co 100
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
@@ -271,6 +300,7 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
 
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
+    stepOverride: 0.01, // Zmiana co 0,01
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
     },
@@ -783,7 +813,7 @@ function updateProwizjaInput() {
     if (jednostka === "procent") {
         min = 0;
         max = 25;
-        step = 0.01; // Zmiana kroku na 0,01
+        step = 0.01;
         defaultValue = 2;
     } else {
         min = 0;
@@ -802,7 +832,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = defaultValue.toFixed(2);
+        const formattedDefaultValue = Number.isInteger(defaultValue) && defaultValue === 2 ? defaultValue.toString() : defaultValue.toFixed(2);
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -810,7 +840,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = value.toFixed(2);
+        const formattedValue = Number.isInteger(value) && elements.prowizja.id === "prowizja" ? value.toString() : value.toFixed(2);
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
@@ -898,7 +928,7 @@ function updateVariableInputs() {
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
         if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
-        if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
+        if addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
     }
 }
