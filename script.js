@@ -971,7 +971,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.className = "fields-wrapper";
 
-        const minPeriod = index > 0 ? (existingPeriods[index - 1] || changes[index - 1].period) + 1 : 2;
+        const minPeriod = index > 0 ? (existingPeriods[index - 1] || changes[index - 1].period) + 1 : (activeType === "nadplata" ? 1 : 2);
+        const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
         const periodValue = existingPeriods[index] !== undefined ? existingPeriods[index] : change.period;
 
         if (activeType === "nadplata") {
@@ -1005,10 +1006,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
                     <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
             `;
 
             const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || 1000);
@@ -1040,10 +1041,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxCykl}" step="1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
             `;
 
             const inputValue = existingValues[index] !== undefined ? existingValues[index] : (change.value || state.lastFormData.oprocentowanie);
