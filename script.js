@@ -85,12 +85,6 @@ function syncInputWithRange(input, range, options = {}) {
         if (input._eventListeners.change) {
             input.removeEventListener("change", input._eventListeners.change);
         }
-        if (input._eventListeners.blur) {
-            input.removeEventListener("blur", input._eventListeners.blur);
-        }
-        if (input._eventListeners.keypress) {
-            input.removeEventListener("keypress", input._eventListeners.keypress);
-        }
         if (range._eventListeners.input) {
             range.removeEventListener("input", range._eventListeners.input);
         }
@@ -106,58 +100,31 @@ function syncInputWithRange(input, range, options = {}) {
         range.step = stepOverride;
     }
 
-    const updateValue = (value, source, applyMinValidation = false) => {
+    const updateValue = (value, source) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
         const step = parseFloat(range.step) || 1;
 
-        // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
             value = value.replace(",", ".");
         }
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Dla pól nie-decimalnych (np. Ilość rat) odrzucamy część dziesiętną
-        if (!isDecimal) {
-            parsedValue = Math.floor(parsedValue);
-        } else {
-            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
-            parsedValue = Math.round(parsedValue * 100) / 100;
-        }
+        if (parsedValue < min) parsedValue = min;
+        if (parsedValue > max) parsedValue = max;
 
-        // Walidacja wartości względem minimalnej i maksymalnej
-        if (parsedValue < min && source === "Input" && !applyMinValidation) {
-            // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy przy zatwierdzeniu
-        } else if (parsedValue < min) {
-            parsedValue = min;
-        }
-        if (parsedValue > max) {
-            parsedValue = max;
-        }
-
-        // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100
-        if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && parsedValue < 100) {
-            parsedValue = 100;
-        }
-
-        // Formatowanie wartości
         let formattedValue;
         if (isDecimal) {
-            // Dla pól decimalnych (np. Prowizja, Oprocentowanie, Kwota kredytu)
             if (Number.isInteger(parsedValue)) {
-                // Dla wartości całkowitych nie pokazujemy ",00"
                 formattedValue = parsedValue.toString();
             } else {
-                // W przeciwnym razie pokazujemy dwie cyfry po przecinku
                 formattedValue = parsedValue.toFixed(2).replace(".", ",");
             }
         } else {
-            // Dla pól całkowitych (np. Ilość rat) bez przecinka
             formattedValue = parsedValue.toString();
         }
 
-        // Ustawiamy wartość w polu tekstowym i suwaku
         input.value = formattedValue;
         range.value = parsedValue;
 
@@ -172,71 +139,26 @@ function syncInputWithRange(input, range, options = {}) {
     };
 
     const inputHandler = () => {
-        // Podczas wpisywania zapisujemy wartość tymczasowo
         let rawValue = input.value;
-
-        // Jeśli pole jest decimalne, ograniczamy wprowadzanie do 2 cyfr po przecinku
         if (isDecimal) {
-            // Zamiana przecinka na kropkę do analizy
             rawValue = rawValue.replace(",", ".");
-
-            // Wyrażenie regularne: liczba całkowita lub dziesiętna z maksymalnie 2 cyframi po przecinku
-            const regex = /^\d*(\.\d{0,2})?$/;
-            if (!regex.test(rawValue)) {
-                // Jeśli wartość nie pasuje do wzorca, przycinamy do 2 cyfr po przecinku
-                const parts = rawValue.split(".");
-                if (parts.length > 1) {
-                    parts[1] = parts[1].substring(0, 2);
-                    rawValue = parts.join(".");
-                }
-            }
-
-            // Aktualizujemy pole z wartością (z powrotem zamieniamy kropkę na przecinek dla wyświetlenia)
-            input.value = rawValue.replace(".", ",");
         }
-
-        state.tempValues[input.id] = input.value;
-
-        // Wywołujemy onChange natychmiast
-        if (onChange) {
-            const parsedValue = parseFloat(rawValue) || 0;
-            updateValue(parsedValue, "Input", true);
-            onChange(parsedValue);
-        }
+        state.tempValues[input.id] = rawValue;
     };
-
-    const inputBlurHandler = () => {
-        const rawValue = state.tempValues[input.id] || input.value;
-        updateValue(rawValue, "Input", true);
-        delete state.tempValues[input.id];
-    };
-
-    const rangeHandler = () => updateValue(range.value, "Range", true);
 
     const inputChangeHandler = () => {
         const rawValue = state.tempValues[input.id] || input.value;
-        updateValue(rawValue, "Input", true);
+        updateValue(rawValue, "Input");
         delete state.tempValues[input.id];
     };
 
-    // Blokada wprowadzania przecinka dla pól nie-decimalnych (np. Ilość rat)
-    if (!isDecimal) {
-        const keypressHandler = (e) => {
-            if (e.key === "," || e.key === ".") {
-                e.preventDefault();
-            }
-        };
-        input._eventListeners.keypress = keypressHandler;
-        input.addEventListener("keypress", keypressHandler);
-    }
+    const rangeHandler = () => updateValue(range.value, "Range");
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
     input._eventListeners.change = inputChangeHandler;
-    input._eventListeners.blur = inputBlurHandler;
 
     input.addEventListener("input", inputHandler);
-    input.addEventListener("blur", inputBlurHandler);
     input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
 
@@ -259,25 +181,9 @@ function syncInputWithRange(input, range, options = {}) {
     let initialValue = parseFloat(range.value);
     if (isNaN(initialValue)) initialValue = min;
 
-    if (initialValue < min) {
-        initialValue = min;
-    }
-    if (initialValue > max) {
-        initialValue = max;
-    }
+    if (initialValue < min) initialValue = min;
+    if (initialValue > max) initialValue = max;
 
-    if (activeType === "nadplata" && input.classList.contains("variable-rate") && initialValue < 100) {
-        initialValue = 100;
-    }
-
-    // Zaokrąglenie początkowej wartości
-    if (isDecimal) {
-        initialValue = Math.round(initialValue * 100) / 100;
-    } else {
-        initialValue = Math.floor(initialValue);
-    }
-
-    // Formatowanie początkowej wartości
     let formattedInitialValue;
     if (isDecimal) {
         if (Number.isInteger(initialValue)) {
