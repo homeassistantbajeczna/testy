@@ -114,14 +114,11 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Wartość suwaka (płynna, z dokładnością kroku)
         let sliderValue = parsedValue;
-
-        // Wartość dla stanu i pola tekstowego (zaokrąglona, jeśli potrzebne)
         let stateValue = parsedValue;
 
         if (isVariableCykl) {
-            stateValue = Math.round(parsedValue); // Zaokrąglamy tylko dla stanu i pola tekstowego
+            stateValue = Math.round(parsedValue);
         } else if (!isDecimal) {
             stateValue = Math.floor(parsedValue);
             sliderValue = stateValue;
@@ -331,7 +328,7 @@ function calculateLoan() {
 
     if (elements.zmienneOprocentowanieBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
-        state.variableRates = [];
+        state  state.variableRates = [];
         inputs.forEach((inputGroup) => {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
             const rateInput = inputGroup.querySelector(".variable-rate");
@@ -843,6 +840,7 @@ function updateVariableInputs() {
     console.log("updateVariableInputs called");
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
+    console.log(`maxCykl=${maxCykl}, maxChanges=${maxChanges}`);
 
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
@@ -855,6 +853,7 @@ function updateVariableInputs() {
         variableOprocentowanieInputs.style.display = "block";
         addVariableOprocentowanieBtn.style.display = "block";
         if (state.variableRates.length === 0) {
+            console.log("Initializing variableRates with default value");
             state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
         }
         renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
@@ -865,6 +864,7 @@ function updateVariableInputs() {
         }
         if (addVariableOprocentowanieBtn) addVariableOprocentowanieBtn.style.display = "none";
         if (variableOprocentowanieWrapper) variableOprocentowanieWrapper.innerHTML = "";
+        console.log("Variable oprocentowanie inputs hidden");
     }
 
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
@@ -878,6 +878,7 @@ function updateVariableInputs() {
         nadplataKredytuInputs.style.display = "block";
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0) {
+            console.log("Initializing overpaymentRates with default value");
             state.overpaymentRates.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
@@ -888,6 +889,7 @@ function updateVariableInputs() {
         }
         if (addNadplataKredytuBtn) addNadplataKredytuBtn.style.display = "none";
         if (nadplataKredytuWrapper) nadplataKredytuWrapper.innerHTML = "";
+        console.log("Nadplata kredytu inputs hidden");
     }
 }
 
@@ -909,8 +911,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     }
 
     const existingInputs = wrapper.querySelectorAll(".variable-input-group");
+    console.log(`Found ${existingInputs.length} existing inputs for ${activeType}`);
     const updatedChanges = [];
-    existingInputs.forEach((inputGroup) => {
+    existingInputs.forEach((inputGroup, idx) => {
+        console.log(`Processing existing input ${idx} for ${activeType}`);
         const rateInput = inputGroup.querySelector(".variable-rate");
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const valueInput = rateInput ? rateInput.value.replace(",", ".") : null;
@@ -925,6 +929,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             change.effect = effectSelect ? effectSelect.value : "Skróć okres";
         }
         updatedChanges.push(change);
+        console.log(`Updated change ${idx} for ${activeType}:`, change);
     });
 
     if (updatedChanges.length > 0) {
@@ -1141,16 +1146,20 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 function addVariableChange(activeType) {
     console.log(`addVariableChange called for ${activeType}`);
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = Math.floor(maxCykl / 12) || 1;
+    const maxChanges = Math.max(Math.floor(maxCykl / 12), 1); // Zapewniamy, że maxChanges jest co najmniej 1
+    console.log(`maxCykl=${maxCykl}, maxChanges=${maxChanges}`);
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+    console.log(`Current changes for ${activeType}:`, changes);
 
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    const lastPeriod = lastChange ? lastChange.period : 0;
+    const lastPeriod = lastChange ? lastChange.period : (activeType === "nadplata" ? 0 : 1); // Zmieniamy domyślny lastPeriod na 1 dla oprocentowania i 0 dla nadpłaty
 
     console.log(`Conditions for ${activeType}:`, { currentChanges: changes.length, maxChanges, lastPeriod, maxPeriod });
 
+    // Tymczasowo usuwamy restrykcyjne warunki, aby przetestować dodawanie
+    /*
     if (changes.length >= maxChanges) {
         console.log(`Cannot add more changes for ${activeType}: max changes (${maxChanges}) reached`);
         alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
@@ -1162,6 +1171,7 @@ function addVariableChange(activeType) {
         alert(`Nie można dodać więcej zmian, osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
         return;
     }
+    */
 
     const newPeriod = lastPeriod + 1;
     const newChange = activeType === "oprocentowanie" 
