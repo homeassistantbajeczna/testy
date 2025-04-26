@@ -114,12 +114,6 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Zaokrąglamy wartość do najbliższego kroku
-        if (step) {
-            const steps = Math.round((parsedValue - min) / step);
-            parsedValue = min + (steps * step);
-        }
-
         if (!isDecimal) {
             parsedValue = Math.floor(parsedValue);
         } else {
@@ -147,6 +141,7 @@ function syncInputWithRange(input, range, options = {}) {
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = parsedValue;
+            // Natychmiastowe wywołanie onChange dla płynniejszego działania suwaka
             if (onChange) {
                 console.log(`Immediate onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
                 onChange(parsedValue);
@@ -180,14 +175,7 @@ function syncInputWithRange(input, range, options = {}) {
         delete state.tempValues[input.id];
     };
 
-    // Prosty debounce dla suwaka, aby poprawić płynność
-    let debounceTimeout;
-    const rangeHandler = () => {
-        clearTimeout(debounceTimeout);
-        debounceTimeout = setTimeout(() => {
-            updateValue(range.value, "Range");
-        }, 50); // Opóźnienie 50ms
-    };
+    const rangeHandler = () => updateValue(range.value, "Range");
 
     if (!isDecimal) {
         const keypressHandler = (e) => {
@@ -206,6 +194,8 @@ function syncInputWithRange(input, range, options = {}) {
     input.addEventListener("input", inputHandler);
     input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
+
+    // Usunięcie osobnego changeHandler dla isVariableCykl, ponieważ onChange jest teraz wywoływane natychmiast w updateValue
 
     // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
