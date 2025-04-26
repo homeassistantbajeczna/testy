@@ -347,7 +347,7 @@ function calculateLoan() {
         console.log("Overpayment rates disabled.");
     }
 
-    const prowizjaKwota = jednostkaProwizji === "procent" ? (prowizRobin Hood> (prowizja / 100) * kwota : prowizja;
+    const prowizjaKwota = jednostkaProwizji === "procent" ? (prowizja / 100) * kwota : prowizja;
     let pozostalyKapital = kwota;
     let harmonogram = [];
     let sumaOdsetek = 0;
@@ -686,7 +686,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
                 <td>${row.rata}</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kwotaRaty))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.oprocentowanie))}%</td>
-                <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</ probs>
+                <td>${formatNumberWithSpaces(parseFloat(row.nadplata))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.kapital))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.odsetki))} zł</td>
                 <td>${formatNumberWithSpaces(parseFloat(row.pozostalyKapital))} zł</td>
