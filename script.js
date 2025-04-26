@@ -70,7 +70,6 @@ function syncInputWithRange(input, range, options = {}) {
         return;
     }
 
-    // Ustawiamy typ pola na text dla pól decimalnych, aby obsługiwać przecinek
     if (isDecimal) {
         input.type = "text";
     }
@@ -101,7 +100,6 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    // Ustawienie kroku, jeśli podano stepOverride
     if (stepOverride) {
         range.step = stepOverride;
     }
@@ -109,35 +107,30 @@ function syncInputWithRange(input, range, options = {}) {
     const updateValue = (value, source, applyMinValidation = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
-        const step = parseFloat(range.step) || 1;
 
-        // Zamiana przecinka na kropkę podczas parsowania wartości
         if (typeof value === "string") {
             value = value.replace(",", ".");
         }
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = 0;
 
-        // Zachowujemy oryginalną wartość suwaka dla płynności
+        // Wartość suwaka (płynna, z dokładnością kroku)
         let sliderValue = parsedValue;
 
-        // Dla pól cyklu (isVariableCykl) zaokrąglamy tylko wartość zapisywaną do stanu i wyświetlaną w polu tekstowym
+        // Wartość dla stanu i pola tekstowego (zaokrąglona, jeśli potrzebne)
         let stateValue = parsedValue;
+
         if (isVariableCykl) {
-            stateValue = Math.round(parsedValue); // Zaokrąglamy do najbliższej liczby całkowitej dla stanu
+            stateValue = Math.round(parsedValue); // Zaokrąglamy tylko dla stanu i pola tekstowego
         } else if (!isDecimal) {
             stateValue = Math.floor(parsedValue);
             sliderValue = stateValue;
         } else {
-            // Zaokrąglenie do dwóch miejsc po przecinku dla pól decimalnych
             stateValue = Math.round(parsedValue * 100) / 100;
             sliderValue = stateValue;
         }
 
-        // Walidacja wartości względem minimalnej i maksymalnej
-        if (sliderValue < min && source === "Input" && !applyMinValidation) {
-            // Pozwalamy na wpisywanie wartości mniejszych niż min, ale walidujemy przy zatwierdzeniu
-        } else if (sliderValue < min) {
+        if (sliderValue < min) {
             sliderValue = min;
             stateValue = min;
         }
@@ -146,44 +139,35 @@ function syncInputWithRange(input, range, options = {}) {
             stateValue = max;
         }
 
-        // Dla nadpłaty stosujemy dodatkową walidację minimalnej wartości 100
         if (applyMinValidation && input.classList.contains("variable-rate") && activeType === "nadplata" && stateValue < 100) {
             stateValue = 100;
             sliderValue = 100;
         }
 
-        // Formatowanie wartości dla pola tekstowego
         let formattedValue;
         if (isDecimal) {
-            if (Number.isInteger(stateValue)) {
-                formattedValue = stateValue.toString();
-            } else {
-                formattedValue = stateValue.toFixed(2).replace(".", ",");
-            }
+            formattedValue = Number.isInteger(stateValue) ? stateValue.toString() : stateValue.toFixed(2).replace(".", ",");
         } else {
             formattedValue = stateValue.toString();
         }
 
-        // Ustawiamy wartości w polu tekstowym i suwaku
         input.value = formattedValue;
-        range.value = sliderValue; // Suwak używa wartości z dokładnością kroku
+        range.value = sliderValue;
 
-        console.log(`${source} changed: ${input.id || range.className} = ${sliderValue}, stateValue=${stateValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
+        console.log(`${source} changed: ${input.id || range.className}, sliderValue=${sliderValue}, stateValue=${stateValue}, formatted=${formattedValue}, activeType=${activeType}, index=${index}`);
 
         if (isVariableCykl) {
             state.tempValues[input.id || range.id] = sliderValue;
             if (onChange) {
-                onChange(stateValue); // Przekazujemy zaokrągloną wartość do stanu
+                onChange(stateValue);
             }
         } else if (onChange) {
-            console.log(`onChange triggered for ${input.id || range.className}, value=${stateValue}`);
             onChange(stateValue);
         }
     };
 
     const inputHandler = () => {
         let rawValue = input.value;
-
         if (isDecimal) {
             rawValue = rawValue.replace(",", ".");
             const regex = /^\d*(\.\d{0,2})?$/;
@@ -196,11 +180,8 @@ function syncInputWithRange(input, range, options = {}) {
             }
             input.value = rawValue.replace(".", ",");
         }
-
         state.tempValues[input.id] = input.value;
-        if (isVariableCykl) {
-            updateValue(input.value, "Input", true);
-        }
+        updateValue(input.value, "Input", true);
     };
 
     const inputBlurHandler = () => {
@@ -209,12 +190,25 @@ function syncInputWithRange(input, range, options = {}) {
         delete state.tempValues[input.id];
     };
 
-    const rangeHandler = () => updateValue(range.value, "Range", true);
+    const rangeHandler = () => {
+        console.log(`Range input event: ${range.className}, value=${range.value}`);
+        updateValue(range.value, "Range", true);
+    };
 
     const inputChangeHandler = () => {
         const rawValue = state.tempValues[input.id] || input.value;
         updateValue(rawValue, "Input", true);
         delete state.tempValues[input.id];
+    };
+
+    const rangeChangeHandler = () => {
+        console.log(`Range change event: ${range.className}, value=${range.value}`);
+        const value = state.tempValues[input.id || range.id] || range.value;
+        if (value !== undefined && onChange) {
+            const roundedValue = isVariableCykl ? Math.round(parseFloat(value)) : parseFloat(value);
+            onChange(roundedValue);
+            delete state.tempValues[input.id || range.id];
+        }
     };
 
     if (!isDecimal) {
@@ -231,37 +225,20 @@ function syncInputWithRange(input, range, options = {}) {
     range._eventListeners.input = rangeHandler;
     input._eventListeners.change = inputChangeHandler;
     input._eventListeners.blur = inputBlurHandler;
+    range._eventListeners.change = rangeChangeHandler;
 
     input.addEventListener("input", inputHandler);
     input.addEventListener("blur", inputBlurHandler);
     input.addEventListener("change", inputChangeHandler);
     range.addEventListener("input", rangeHandler);
+    range.addEventListener("change", rangeChangeHandler);
 
-    if (isVariableCykl) {
-        const changeHandler = () => {
-            const value = state.tempValues[input.id || range.id];
-            if (value !== undefined && onChange) {
-                console.log(`Change committed: ${input.id || range.className} = ${value}`);
-                onChange(Math.round(value));
-                delete state.tempValues[input.id || range.id];
-            }
-        };
-        range._eventListeners.change = changeHandler;
-        range.addEventListener("change", changeHandler);
-    }
-
-    // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
-    let initialValue = parseFloat(range.value);
-    if (isNaN(initialValue)) initialValue = min;
+    let initialValue = parseFloat(range.value) || min;
 
-    if (initialValue < min) {
-        initialValue = min;
-    }
-    if (initialValue > max) {
-        initialValue = max;
-    }
+    if (initialValue < min) initialValue = min;
+    if (initialValue > max) initialValue = max;
 
     if (activeType === "nadplata" && input.classList.contains("variable-rate") && initialValue < 100) {
         initialValue = 100;
@@ -873,6 +850,7 @@ function updateVariableInputs() {
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
+        console.log("Rendering variable oprocentowanie inputs");
         variableOprocentowanieInputs.classList.add("active");
         variableOprocentowanieInputs.style.display = "block";
         addVariableOprocentowanieBtn.style.display = "block";
@@ -895,6 +873,7 @@ function updateVariableInputs() {
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
+        console.log("Rendering nadplata kredytu inputs");
         nadplataKredytuInputs.classList.add("active");
         nadplataKredytuInputs.style.display = "block";
         addNadplataKredytuBtn.style.display = "block";
@@ -913,7 +892,7 @@ function updateVariableInputs() {
 }
 
 function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges, addBtn) {
-    console.log(`renderVariableInputs called for ${activeType}`, { changes, maxCykl, maxChanges });
+    console.log(`renderVariableInputs called for ${activeType}`, { changes, maxCykl, maxChanges, wrapperExists: !!wrapper });
 
     if (!wrapper) {
         console.error("Wrapper not found for rendering variable inputs.");
@@ -926,6 +905,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         } else {
             changes.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
         }
+        console.log(`Initialized changes for ${activeType}:`, changes);
     }
 
     const existingInputs = wrapper.querySelectorAll(".variable-input-group");
@@ -950,22 +930,17 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     if (updatedChanges.length > 0) {
         changes.length = 0;
         updatedChanges.forEach(change => changes.push(change));
+        console.log(`Updated changes from inputs for ${activeType}:`, changes);
     }
 
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    let maxPeriodIndex = -1;
-    changes.forEach((change, index) => {
-        if (change.period >= maxPeriod) {
-            maxPeriodIndex = index;
-        }
-    });
-    if (maxPeriodIndex !== -1) {
-        changes.splice(maxPeriodIndex + 1);
-    }
+    changes.sort((a, b) => a.period - b.period);
 
     wrapper.innerHTML = "";
+    console.log(`Cleared wrapper HTML for ${activeType}`);
 
     changes.forEach((change, index) => {
+        console.log(`Rendering change ${index} for ${activeType}:`, change);
         const inputGroup = document.createElement("div");
         inputGroup.className = "variable-input-group";
         inputGroup.setAttribute("data-type", activeType);
@@ -974,8 +949,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         fieldsWrapper.className = "fields-wrapper";
 
         const minPeriod = index > 0 ? changes[index - 1].period + 1 : (activeType === "nadplata" ? 1 : 2);
-        const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-        const periodValue = change.period;
+        const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+        const periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
 
         if (activeType === "nadplata") {
             const nadplataTypeGroup = document.createElement("div");
@@ -1008,10 +983,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">${cyklLabel}</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text unit-miesiacu">${cyklUnit}</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="0.1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="0.1" value="${periodValue}">
             `;
 
             const inputValue = change.value || 1000;
@@ -1043,10 +1018,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             cyklGroup.innerHTML = `
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriod}" step="1" value="${periodValue}">
+                    <input type="number" class="form-control variable-cykl" min="${minPeriod}" max="${maxPeriodValue}" step="1" value="${periodValue}">
                     <span class="input-group-text">miesiąca</span>
                 </div>
-                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriod}" step="0.1" value="${periodValue}">
+                <input type="range" class="form-range variable-cykl-range" min="${minPeriod}" max="${maxPeriodValue}" step="0.1" value="${periodValue}">
             `;
 
             const inputValue = change.value || state.lastFormData.oprocentowanie;
@@ -1104,6 +1079,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         }
 
         wrapper.appendChild(inputGroup);
+        console.log(`Appended input group ${index} for ${activeType} to wrapper`);
 
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const cyklRange = inputGroup.querySelector(".variable-cykl-range");
@@ -1155,10 +1131,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         }
     });
 
-    addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
-    const canAddMore = lastChange && lastChange.period < maxPeriod && changes.length < maxChanges;
+    const canAddMore = changes.length < maxChanges && (!lastChange || lastChange.period < maxPeriod);
     addBtn.style.display = canAddMore ? "block" : "none";
+    addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     console.log(`Add button visibility for ${activeType}:`, { canAddMore, lastPeriod: lastChange?.period, maxPeriod, currentChanges: changes.length, maxChanges });
 }
 
@@ -1171,29 +1147,30 @@ function addVariableChange(activeType) {
 
     const lastChange = changes.length > 0 ? changes[changes.length - 1] : null;
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    const lastPeriod = lastChange ? lastChange.period : (activeType === "nadplata" ? 0 : 1);
+    const lastPeriod = lastChange ? lastChange.period : 0;
 
-    console.log(`Checking conditions for ${activeType}:`, { currentChanges: changes.length, maxChanges, lastPeriod, maxPeriod });
+    console.log(`Conditions for ${activeType}:`, { currentChanges: changes.length, maxChanges, lastPeriod, maxPeriod });
 
     if (changes.length >= maxChanges) {
-        console.log(`Max changes reached: ${maxChanges}`);
+        console.log(`Cannot add more changes for ${activeType}: max changes (${maxChanges}) reached`);
         alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
         return;
     }
 
     if (lastPeriod >= maxPeriod) {
-        console.log(`Max period reached: ${maxPeriod}`);
+        console.log(`Cannot add more changes for ${activeType}: max period (${maxPeriod}) reached`);
         alert(`Nie można dodać więcej zmian, osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
         return;
     }
 
-    const newCykl = lastPeriod + 1;
+    const newPeriod = lastPeriod + 1;
     const newChange = activeType === "oprocentowanie" 
-        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
-        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
+        ? { period: newPeriod, value: state.lastFormData.oprocentowanie }
+        : { period: newPeriod, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
+    console.log(`Adding new change for ${activeType}:`, newChange);
     changes.push(newChange);
-    console.log(`Added new change for ${activeType}:`, newChange, changes);
+    console.log(`Updated changes for ${activeType}:`, changes);
     updateVariableInputs();
 }
 
