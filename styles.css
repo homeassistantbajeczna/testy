@@ -1016,11 +1016,28 @@ input[type="range"].form-range:focus::-ms-thumb {
     margin-bottom: 10px;
 }
 
+#harmonogramContent {
+    display: block;
+    transition: all 0.3s ease;
+}
+
+/* Styl dla przycisku toggle */
 .harmonogram .btn-toggle {
     font-size: 0.65em;
     margin-bottom: 25px;
     position: relative;
     color: var(--primary-text);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: none;
+    display: inline-block;
+    transition: color 0.2s ease;
+}
+
+.harmonogram .btn-toggle:hover {
+    color: var(--accent-color);
 }
 
 .round-btn {
