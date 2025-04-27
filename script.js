@@ -944,6 +944,16 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
     wrapper.innerHTML = "";
 
+    // Obliczanie minimalnych wartości dla każdego wiersza
+    const minPeriods = [];
+    changes.forEach((_, index) => {
+        if (index === 0) {
+            minPeriods[index] = activeType === "nadplata" ? 1 : 2;
+        } else {
+            minPeriods[index] = changes[index - 1].period + 1;
+        }
+    });
+
     changes.forEach((change, index) => {
         const inputGroup = document.createElement("div");
         inputGroup.className = "variable-input-group";
@@ -952,7 +962,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const fieldsWrapper = document.createElement("div");
         fieldsWrapper.className = "fields-wrapper";
 
-        const minPeriod = activeType === "nadplata" ? 1 : 2;
+        const minPeriod = minPeriods[index];
         const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
         let periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
 
@@ -1099,7 +1109,20 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
+                // Sortujemy zmiany
                 changes.sort((a, b) => a.period - b.period);
+                // Usuwamy wszystkie wiersze po tym, jeśli nowa wartość osiąga max
+                const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+                if (value >= maxPeriodValue) {
+                    changes.splice(index + 1);
+                } else {
+                    // Aktualizujemy minimalne wartości dla kolejnych wierszy
+                    for (let i = index + 1; i < changes.length; i++) {
+                        if (changes[i].period <= changes[i - 1].period) {
+                            changes[i].period = changes[i - 1].period + 1;
+                        }
+                    }
+                }
                 updateVariableInputs();
             },
         });
@@ -1168,7 +1191,19 @@ function addVariableChange(activeType) {
         return;
     }
 
-    const newPeriod = Math.min(lastPeriod + 1, activeType === "nadplata" ? maxCykl - 1 : maxCykl);
+    // Nowa wartość OD/W powinna być o 1 większa niż poprzednia
+    const newPeriod = lastPeriod + 1;
+    const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+    if (newPeriod > maxPeriodValue) {
+        alert(`Nie można dodać więcej zmian, ponieważ ostatnia zmiana osiągnęła maksymalny okres (${maxPeriodValue} miesięcy).`);
+        if (activeType === "oprocentowanie") {
+            elements.addVariableOprocentowanieBtn.style.display = "none";
+        } else {
+            elements.addNadplataKredytuBtn.style.display = "none";
+        }
+        return;
+    }
+
     const newChange = activeType === "oprocentowanie" 
         ? { period: newPeriod, value: state.lastFormData.oprocentowanie }
         : { period: newPeriod, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
