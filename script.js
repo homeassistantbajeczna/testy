@@ -764,7 +764,7 @@ function updateVariableInputs() {
 
                 const maxPeriodValue = maxCykl;
                 const minPeriod = 2;
-                let periodValue = Math.min(Math.max(state.variableRates[index].period, minPeriod), maxPeriodValue);
+                let periodValue = Math.min(Math.max(state.variableRates[index].period || minPeriod, minPeriod), maxPeriodValue);
                 state.variableRates[index].period = periodValue;
 
                 syncInputWithRange(cyklInput, cyklRange, {
@@ -839,7 +839,7 @@ function updateVariableInputs() {
 
                 const maxPeriodValue = maxCykl - 1;
                 const minPeriod = 1;
-                let periodValue = Math.min(Math.max(state.overpaymentRates[index].period, minPeriod), maxPeriodValue);
+                let periodValue = Math.min(Math.max(state.overpaymentRates[index].period || minPeriod, minPeriod), maxPeriodValue);
                 state.overpaymentRates[index].period = periodValue;
 
                 syncInputWithRange(cyklInput, cyklRange, {
