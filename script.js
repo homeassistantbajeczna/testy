@@ -157,6 +157,10 @@ function syncInputWithRange(input, range, options = {}) {
             if (onChange) {
                 console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
                 onChange(parsedValue);
+                // Wymuszenie aktualizacji UI po zmianie wartości
+                if (!isVariableCykl) {
+                    updateVariableInputs();
+                }
             }
         } else {
             // Dla głównych pól zapisujemy wartość tymczasową
@@ -179,12 +183,18 @@ function syncInputWithRange(input, range, options = {}) {
             input.value = rawValue.replace(".", ",");
         }
         state.tempValues[input.id || range.id] = input.value;
+
+        // Dla pól "Kwota" i "Oprocentowanie" aktualizujemy od razu
+        if (activeType && !isVariableCykl) {
+            const parsedValue = parseFloat(rawValue.replace(",", ".")) || 0;
+            updateValue(parsedValue, "Input");
+        }
     };
 
     const inputChangeHandler = () => {
         const rawValue = state.tempValues[input.id || range.id] || input.value;
         updateValue(rawValue, "Input");
-        if (onChange) {
+        if (onChange && !activeType) {
             console.log(`onChange triggered for ${input.id || range.className}, value=${state.tempValues[input.id || range.id]}`);
             onChange(state.tempValues[input.id || range.id]);
         }
@@ -218,7 +228,6 @@ function syncInputWithRange(input, range, options = {}) {
             input._eventListeners.change = inputChangeHandler;
             input.addEventListener("change", inputChangeHandler);
             range.addEventListener("input", debouncedRangeHandler);
-            // Dodajemy zdarzenie change dla suwaka, aby upewnić się, że onChange zostanie wywołane po zakończeniu przesuwania
             range._eventListeners.change = rangeHandler;
             range.addEventListener("change", rangeHandler);
         } else {
@@ -561,7 +570,7 @@ function calculateLoan() {
                 if (monthlyRate === 0) {
                     rata = pozostalyKapital / remainingMonths;
                 } else {
-                    rata = (pozostalyKapital * monthly_MORE_RATE) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
+                    rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
                 }
                 if (isNaN(rata) || rata <= 0) rata = 0;
                 console.log(`Rata recalculated after rate change at month ${i} (równe):`, rata);
@@ -1217,7 +1226,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     const canAddMore = changes.length < maxChanges && lastPeriod < maxPeriodValue;
     addBtn.style.display = canAddMore ? "block" : "none";
 
-    console.log(`Add button visibility: canAddMore=${canAddMore}, lastPeriod=${lastPeriod}, maxPeriodValue=${maxPeriodValue}`);
+    console.log(`Add button visibility: canAddMore=${canAddMore}, changes.length=${changes.length}, maxChanges=${maxChanges}, lastPeriod=${lastPeriod}, maxPeriodValue=${maxPeriodValue}`);
 }
 
 function addVariableChange(activeType) {
@@ -1232,7 +1241,7 @@ function addVariableChange(activeType) {
     const lastPeriod = changes.length > 0 ? changes[changes.length - 1].period : (activeType === "nadplata" ? 0 : 1);
     const canAddMore = changes.length < maxChanges && lastPeriod < maxCykl;
 
-    console.log(`lastPeriod=${lastPeriod}, canAddMore=${canAddMore}`);
+    console.log(`lastPeriod=${lastPeriod}, canAddMore=${canAddMore}, changes.length=${changes.length}, maxChanges=${maxChanges}, maxCykl=${maxCykl}`);
 
     if (!canAddMore) {
         if (changes.length >= maxChanges) {
