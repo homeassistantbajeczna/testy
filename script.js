@@ -47,53 +47,37 @@ const state = {
 
 // Funkcja formatująca liczby
 function formatNumberWithSpaces(number) {
-    if (isNaN(number)) return "0,00";
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-// Poprawiona funkcja synchronizacji inputów z suwakami
+// Funkcja synchronizacji inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, defaultValue, onChange } = options;
+    const { isDecimal = false, onChange } = options;
 
     if (!input || !range) return;
 
-    // Ustawienie wartości domyślnej
-    const initialValue = defaultValue !== undefined ? defaultValue : 0;
-    let currentValue = parseFloat(initialValue) || 0;
-
+    // Ustawienie wartości początkowej z input.value lub range.value
+    let currentValue = parseFloat(input.value.replace(",", ".")) || parseFloat(range.value) || 0;
     const min = parseFloat(range.min) || 0;
     const max = parseFloat(range.max) || Infinity;
 
     if (currentValue < min) currentValue = min;
     if (currentValue > max) currentValue = max;
 
-    // Formatowanie i ustawienie wartości początkowej
-    const formattedValue = isDecimal
-        ? formatNumberWithSpaces(currentValue)
-        : Math.floor(currentValue).toString();
-    input.value = formattedValue;
+    input.value = isDecimal ? formatNumberWithSpaces(currentValue) : currentValue;
     range.value = currentValue;
 
-    // Funkcja aktualizująca wartości
-    const updateValue = (value, source) => {
+    const updateValue = (value) => {
         let parsedValue = parseFloat(value.replace(",", ".")) || 0;
-
-        // Ograniczenie wartości do zakresu min/max
         if (parsedValue < min) parsedValue = min;
         if (parsedValue > max) parsedValue = max;
 
-        // Formatowanie wartości
-        const formattedValue = isDecimal
-            ? formatNumberWithSpaces(parsedValue)
-            : Math.floor(parsedValue).toString();
-
-        input.value = formattedValue;
+        input.value = isDecimal ? formatNumberWithSpaces(parsedValue) : parsedValue;
         range.value = parsedValue;
 
         if (onChange) onChange(parsedValue);
     };
 
-    // Obsługa inputu
     input.addEventListener("input", (e) => {
         let value = e.target.value.replace(",", ".").replace(/\s/g, "");
         if (isDecimal) {
@@ -103,22 +87,21 @@ function syncInputWithRange(input, range, options = {}) {
         } else {
             value = value.replace(/[^0-9]/g, "");
         }
-        updateValue(value, "input");
+        updateValue(value);
     });
 
-    // Obsługa suwaka
     range.addEventListener("input", (e) => {
-        updateValue(e.target.value, "range");
+        updateValue(e.target.value);
     });
 
-    // Wywołanie onChange dla wartości początkowej
     if (onChange) onChange(currentValue);
 }
 
-// Inicjalizacja głównych inputów z wartościami domyślnymi
+// Ustawienie wartości początkowych i synchronizacja
+elements.kwota.value = formatNumberWithSpaces(state.lastFormData.kwota);
+elements.kwotaRange.value = state.lastFormData.kwota;
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
-    defaultValue: state.lastFormData.kwota,
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
@@ -126,9 +109,10 @@ syncInputWithRange(elements.kwota, elements.kwotaRange, {
     },
 });
 
+elements.iloscRat.value = state.lastFormData.iloscRat;
+elements.iloscRatRange.value = state.lastFormData.iloscRat;
 syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     isDecimal: false,
-    defaultValue: state.lastFormData.iloscRat,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
         updateLata();
@@ -136,17 +120,19 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     },
 });
 
+elements.oprocentowanie.value = formatNumberWithSpaces(state.lastFormData.oprocentowanie);
+elements.oprocentowanieRange.value = state.lastFormData.oprocentowanie;
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
-    defaultValue: state.lastFormData.oprocentowanie,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
     },
 });
 
+elements.prowizja.value = formatNumberWithSpaces(state.lastFormData.prowizja);
+elements.prowizjaRange.value = state.lastFormData.prowizja;
 syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     isDecimal: true,
-    defaultValue: state.lastFormData.prowizja,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
         updateProwizjaInfo();
@@ -155,14 +141,11 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
 
 // Funkcja obliczania kredytu
 function calculateLoan() {
-    const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
-    const kwota = parseFloat(kwotaInput) || 0;
+    const kwota = parseFloat(elements.kwota.value.replace(",", ".").replace(/\s/g, "")) || 0;
     let iloscRat = parseInt(elements.iloscRat.value) || 0;
-    const oprocentowanieInput = elements.oprocentowanie.value.replace(",", ".").replace(/\s/g, "");
-    let oprocentowanie = parseFloat(oprocentowanieInput) || 0;
+    const oprocentowanie = parseFloat(elements.oprocentowanie.value.replace(",", ".").replace(/\s/g, "")) || 0;
     const rodzajRat = elements.rodzajRat.value || "rowne";
-    const prowizjaInput = elements.prowizja.value.replace(",", ".").replace(/\s/g, "");
-    const prowizja = parseFloat(prowizjaInput) || 0;
+    const prowizja = parseFloat(elements.prowizja.value.replace(",", ".").replace(/\s/g, "")) || 0;
     const jednostkaProwizji = elements.jednostkaProwizji.value || "procent";
 
     if (kwota <= 0 || iloscRat <= 0 || oprocentowanie < 0) {
@@ -188,8 +171,7 @@ function calculateLoan() {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
             const rateInput = inputGroup.querySelector(".variable-rate");
             const period = parseInt(cyklInput.value) || 0;
-            const valueInput = rateInput.value.replace(",", ".").replace(/\s/g, "");
-            const value = parseFloat(valueInput) || 0;
+            const value = parseFloat(rateInput.value.replace(",", ".").replace(/\s/g, "")) || 0;
             if (period > 0 && value >= 0) {
                 state.variableRates.push({ period, value });
             }
@@ -208,8 +190,7 @@ function calculateLoan() {
             const typeSelect = inputGroup.querySelector(".nadplata-type-select");
             const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
             const period = parseInt(cyklInput.value) || 0;
-            const valueInput = rateInput.value.replace(",", ".").replace(/\s/g, "");
-            const value = parseFloat(valueInput) || 0;
+            const value = parseFloat(rateInput.value.replace(",", ".").replace(/\s/g, "")) || 0;
             const type = typeSelect.value || "Jednorazowa";
             const effect = effectSelect.value || "Skróć okres";
             if (period > 0 && value >= 0) {
@@ -606,11 +587,9 @@ function updateProwizjaInput() {
     elements.prowizjaRange.max = max;
     elements.prowizjaRange.step = step;
 
-    const currentValueInput = elements.prowizja.value.replace(",", ".").replace(/\s/g, "");
-    const currentValue = parseFloat(currentValueInput);
+    const currentValue = parseFloat(elements.prowizja.value.replace(",", ".").replace(/\s/g, ""));
     if (state.lastFormData.jednostkaProwizji !== jednostka || isNaN(currentValue)) {
-        const formattedDefaultValue = formatNumberWithSpaces(defaultValue);
-        elements.prowizja.value = formattedDefaultValue;
+        elements.prowizja.value = formatNumberWithSpaces(defaultValue);
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
     }
@@ -620,8 +599,7 @@ function updateProwizjaInput() {
 }
 
 function updateKwotaInfo() {
-    const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
-    const kwota = parseFloat(kwotaInput) || 0;
+    const kwota = parseFloat(elements.kwota.value.replace(",", ".").replace(/\s/g, "")) || 0;
     const kwotaInfo = document.getElementById("kwotaInfo");
     if (kwotaInfo) {
         kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`;
@@ -638,11 +616,9 @@ function updateLata() {
 }
 
 function updateProwizjaInfo() {
-    const prowizjaInput = elements.prowizja.value.replace(",", ".").replace(/\s/g, "");
-    const prowizja = parseFloat(prowizjaInput) || 0;
+    const prowizja = parseFloat(elements.prowizja.value.replace(",", ".").replace(/\s/g, "")) || 0;
     const jednostka = elements.jednostkaProwizji.value;
-    const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
-    const kwota = parseFloat(kwotaInput) || 0;
+    const kwota = parseFloat(elements.kwota.value.replace(",", ".").replace(/\s/g, "")) || 0;
     const prowizjaInfo = document.getElementById("prowizjaInfo");
     if (prowizjaInfo) {
         const wartosc = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
@@ -775,16 +751,14 @@ function renderVariableInputs(wrapper, changes, maxCykl, maxChanges, addBtn, typ
                 </div>
             `;
 
-            const inputValue = change.value || 1000;
-            const formattedInputValue = formatNumberWithSpaces(inputValue);
             const rateGroup = `
                 <div class="form-group">
                     <label class="form-label">Kwota</label>
                     <div class="input-group">
-                        <input type="text" class="form-control variable-rate" min="0" max="1000000" step="100" value="${formattedInputValue}">
+                        <input type="text" class="form-control variable-rate" min="0" max="1000000" step="100" value="${formatNumberWithSpaces(change.value)}">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
-                    <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="100" value="${inputValue}">
+                    <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="100" value="${change.value}">
                 </div>
             `;
 
@@ -801,16 +775,14 @@ function renderVariableInputs(wrapper, changes, maxCykl, maxChanges, addBtn, typ
                 </div>
             `;
 
-            const inputValue = change.value || state.lastFormData.oprocentowanie;
-            const formattedInputValue = formatNumberWithSpaces(inputValue);
             const rateGroup = `
                 <div class="form-group">
                     <label class="form-label">Oprocentowanie</label>
                     <div class="input-group">
-                        <input type="text" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${formattedInputValue}">
+                        <input type="text" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${formatNumberWithSpaces(change.value)}">
                         <span class="input-group-text">%</span>
                     </div>
-                    <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
+                    <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${change.value}">
                 </div>
             `;
 
@@ -868,7 +840,6 @@ function renderVariableInputs(wrapper, changes, maxCykl, maxChanges, addBtn, typ
 
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
-            defaultValue: periodValue,
             onChange: (value) => {
                 const newValue = parseInt(value);
                 changes[index].period = newValue;
@@ -893,7 +864,6 @@ function renderVariableInputs(wrapper, changes, maxCykl, maxChanges, addBtn, typ
 
         syncInputWithRange(rateInput, rateRange, {
             isDecimal: true,
-            defaultValue: type === "nadplata" ? (change.value || 1000) : (change.value || state.lastFormData.oprocentowanie),
             onChange: (value) => {
                 changes[index].value = value;
             },
@@ -1013,9 +983,7 @@ function initializeTheme() {
 }
 
 if (elements.jednostkaProwizji) {
-    elements.jednostkaProwizji.addEventListener("change", () => {
-        updateProwizjaInput();
-    });
+    elements.jednostkaProwizji.addEventListener("change", updateProwizjaInput);
 }
 
 if (elements.rodzajRat) {
