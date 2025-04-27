@@ -888,25 +888,27 @@ function updateVariableInputs() {
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
         // Aktualizujemy state.variableRates na podstawie istniejących inputów przed renderowaniem
         const inputsOprocentowanie = variableOprocentowanieWrapper.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
-        state.variableRates = [];
-        inputsOprocentowanie.forEach((inputGroup) => {
-            const cyklInput = inputGroup.querySelector(".variable-cykl");
-            const rateInput = inputGroup.querySelector(".variable-rate");
-            const period = parseInt(cyklInput?.value) || 0;
-            const valueInput = rateInput?.value.replace(",", ".");
-            const value = parseFloat(valueInput) || state.lastFormData.oprocentowanie;
-            if (period > 0) {
-                state.variableRates.push({ period, value });
-            }
-        });
-        state.variableRates.sort((a, b) => a.period - b.period);
+        if (inputsOprocentowanie.length > 0) {
+            state.variableRates = [];
+            inputsOprocentowanie.forEach((inputGroup) => {
+                const cyklInput = inputGroup.querySelector(".variable-cykl");
+                const rateInput = inputGroup.querySelector(".variable-rate");
+                const period = parseInt(cyklInput?.value) || 0;
+                const valueInput = rateInput?.value.replace(",", ".");
+                const value = parseFloat(valueInput) || state.lastFormData.oprocentowanie;
+                if (period > 0) {
+                    state.variableRates.push({ period, value });
+                }
+            });
+            state.variableRates.sort((a, b) => a.period - b.period);
+        } else if (state.variableRates.length === 0) {
+            // Inicjalizacja, jeśli nie ma jeszcze żadnych wierszy
+            state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
+        }
         console.log("Updated state.variableRates before rendering:", state.variableRates);
 
         variableOprocentowanieInputs.classList.add("active");
         addVariableOprocentowanieBtn.style.display = "block";
-        if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
-            state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
-        }
         renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
     } else {
         if (variableOprocentowanieInputs) variableOprocentowanieInputs.classList.remove("active");
@@ -934,29 +936,31 @@ function updateVariableInputs() {
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
         // Aktualizujemy state.overpaymentRates na podstawie istniejących inputów przed renderowaniem
         const inputsNadplata = nadplataKredytuWrapper.querySelectorAll('.variable-input-group[data-type="nadplata"]');
-        state.overpaymentRates = [];
-        inputsNadplata.forEach((inputGroup) => {
-            const cyklInput = inputGroup.querySelector(".variable-cykl");
-            const rateInput = inputGroup.querySelector(".variable-rate");
-            const typeSelect = inputGroup.querySelector(".nadplata-type-select");
-            const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
-            const period = parseInt(cyklInput?.value) || 0;
-            const valueInput = rateInput?.value.replace(",", ".");
-            const value = parseFloat(valueInput) || 1000;
-            const type = typeSelect?.value || "Jednorazowa";
-            const effect = effectSelect?.value || "Skróć okres";
-            if (period > 0) {
-                state.overpaymentRates.push({ period, value, type, effect });
-            }
-        });
-        state.overpaymentRates.sort((a, b) => a.period - b.period);
+        if (inputsNadplata.length > 0) {
+            state.overpaymentRates = [];
+            inputsNadplata.forEach((inputGroup) => {
+                const cyklInput = inputGroup.querySelector(".variable-cykl");
+                const rateInput = inputGroup.querySelector(".variable-rate");
+                const typeSelect = inputGroup.querySelector(".nadplata-type-select");
+                const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
+                const period = parseInt(cyklInput?.value) || 0;
+                const valueInput = rateInput?.value.replace(",", ".");
+                const value = parseFloat(valueInput) || 1000;
+                const type = typeSelect?.value || "Jednorazowa";
+                const effect = effectSelect?.value || "Skróć okres";
+                if (period > 0) {
+                    state.overpaymentRates.push({ period, value, type, effect });
+                }
+            });
+            state.overpaymentRates.sort((a, b) => a.period - b.period);
+        } else if (state.overpaymentRates.length === 0) {
+            // Inicjalizacja, jeśli nie ma jeszcze żadnych wierszy
+            state.overpaymentRates.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
+        }
         console.log("Updated state.overpaymentRates before rendering:", state.overpaymentRates);
 
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
-        if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
-            state.overpaymentRates = [{ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" }];
-        }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
     } else {
         if (nadplataKredytuInputs) nadplataKredytuInputs.classList.remove("active");
@@ -1202,6 +1206,12 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     // Sprawdzamy, czy którykolwiek okres osiąga maksymalną wartość
     const isMaxPeriodReached = changes.some(change => change.period >= maxPeriodValue);
+    console.log(`Button visibility check for ${activeType}:`, {
+        changesLength: changes.length,
+        maxChanges,
+        isMaxPeriodReached,
+        shouldDisplay: changes.length < maxChanges && !isMaxPeriodReached
+    });
     addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
 }
 
