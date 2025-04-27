@@ -101,10 +101,12 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = min;
 
-        if (!isDecimal) {
+        if (!isDecimal && !isVariableCykl) {
             parsedValue = Math.floor(parsedValue);
-        } else {
+        } else if (isDecimal) {
             parsedValue = Math.round(parsedValue * 100) / 100;
+        } else if (isVariableCykl) {
+            parsedValue = Math.round(parsedValue);
         }
 
         if (parsedValue < min) parsedValue = min;
@@ -262,7 +264,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
                         <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${period}">
                         <span class="input-group-text">miesiąca</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="1" value="${period}">
+                    <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="0.1" value="${period}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Oprocentowanie</label>
@@ -306,7 +308,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
                         <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl - 1}" step="1" value="${period}">
                         <span class="input-group-text unit-miesiacu">${isJednorazowa ? "miesiącu" : "miesiąca"}</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl - 1}" step="1" value="${period}">
+                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl - 1}" step="0.1" value="${period}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Kwota</label>
@@ -916,7 +918,7 @@ function updateVariableInputs() {
         });
 
         const isMaxPeriodReached = state.variableRates.some(rate => rate.period >= maxCykl);
-        elements.addVariableOprocentowanieBtn.style.display = state.variableRates.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
+        elements.addVariableOprocentowanieBtn.style.display = (state.variableRates.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
     } else {
         if (elements.variableOprocentowanieInputs) elements.variableOprocentowanieInputs.classList.remove("active");
         if (elements.addVariableOprocentowanieBtn) elements.addVariableOprocentowanieBtn.style.display = "none";
@@ -955,7 +957,7 @@ function updateVariableInputs() {
         });
 
         const isMaxPeriodReached = state.overpaymentRates.some(rate => rate.period >= (maxCykl - 1));
-        elements.addNadplataKredytuBtn.style.display = state.overpaymentRates.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
+        elements.addNadplataKredytuBtn.style.display = (state.overpaymentRates.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
     } else {
         if (elements.nadplataKredytuInputs) elements.nadplataKredytuInputs.classList.remove("active");
         if (elements.addNadplataKredytuBtn) elements.addNadplataKredytuBtn.style.display = "none";
