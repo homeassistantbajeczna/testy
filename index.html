@@ -102,10 +102,8 @@
                                 </label>
                             </div>
                             <div class="variable-inputs" id="nadplataKredytuInputs">
-                                <div class="variable-inputs-wrapper" id="nadplataKredytuInputsWrapper">
-                                    <!-- Dynamiczne grupy będą dodawane tutaj -->
-                                </div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną nadpłatę</button>
+                                <div class="variable-inputs-wrapper" id="nadplataKredytuInputsWrapper"></div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną zmianę</button>
                             </div>
                         </div>
                         <div class="variable-rate-container" id="variableOprocentowanieContainer">
@@ -117,94 +115,93 @@
                                 </label>
                             </div>
                             <div class="variable-inputs" id="variableOprocentowanieInputs">
-                                <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper">
-                                    <!-- Dynamiczne grupy będą dodawane tutaj -->
-                                </div>
+                                <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper"></div>
                                 <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                             </div>
                         </div>
                         <div class="form-row">
                             <button type="button" class="btn btn-primary" id="obliczBtn" aria-label="Oblicz wyniki kredytu">Oblicz</button>
                         </div>
+
+                        <!-- Szablon dla zmiennego oprocentowania -->
+                        <template id="variableOprocentowanieTemplate">
+                            <div class="variable-input-group" data-type="oprocentowanie">
+                                <div class="fields-wrapper">
+                                    <div class="form-group">
+                                        <label class="form-label">Od</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control variable-cykl" min="2" step="1">
+                                            <span class="input-group-text unit-miesiacu">miesiąca</span>
+                                        </div>
+                                        <input type="range" class="form-range variable-cykl-range" min="2" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Oprocentowanie</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.1">
+                                    </div>
+                                </div>
+                                <div class="remove-first-btn-wrapper">
+                                    <button type="button" class="btn btn-danger btn-sm remove-first-btn" style="display: none;">Usuń</button>
+                                </div>
+                                <div class="remove-btn-wrapper">
+                                    <button type="button" class="btn btn-danger btn-sm remove-btn" style="display: none;">Usuń</button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Szablon dla nadpłaty kredytu -->
+                        <template id="nadplataKredytuTemplate">
+                            <div class="variable-input-group" data-type="nadplata">
+                                <div class="fields-wrapper">
+                                    <div class="form-group">
+                                        <label class="form-label">W</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control variable-cykl" min="1" step="1">
+                                            <span class="input-group-text unit-miesiacu">miesiącu</span>
+                                        </div>
+                                        <input type="range" class="form-range variable-cykl-range" min="1" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Kwota nadpłaty</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control variable-rate" min="0" step="1">
+                                            <span class="input-group-text">zł</span>
+                                        </div>
+                                        <input type="range" class="form-range variable-rate-range" min="0" step="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Typ nadpłaty</label>
+                                        <select class="form-select nadplata-type-select">
+                                            <option value="Jednorazowa">Jednorazowa</option>
+                                            <option value="Miesięczna">Miesięczna</option>
+                                            <option value="Kwartalna">Kwartalna</option>
+                                            <option value="Roczna">Roczna</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Efekt nadpłaty</label>
+                                        <select class="form-select nadplata-effect-select">
+                                            <option value="Skróć okres">Skróć okres</option>
+                                            <option value="Zmniejsz ratę">Zmniejsz ratę</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="remove-first-btn-wrapper">
+                                    <button type="button" class="btn btn-danger btn-sm remove-first-btn" style="display: none;">Usuń</button>
+                                </div>
+                                <div class="remove-btn-wrapper">
+                                    <button type="button" class="btn btn-danger btn-sm remove-btn" style="display: none;">Usuń</button>
+                                </div>
+                            </div>
+                        </template>
                     </form>
                 </div>
             </div>
         </div>
-
-        <!-- Szablony dla dynamicznych grup -->
-        <template id="variableOprocentowanieTemplate">
-            <div class="variable-input-group" data-type="oprocentowanie">
-                <div class="fields-wrapper">
-                    <div class="form-group">
-                        <label class="form-label">Od</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control variable-cykl" min="2" step="1">
-                            <span class="input-group-text">miesiąca</span>
-                        </div>
-                        <input type="range" class="form-range variable-cykl-range" min="2" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Oprocentowanie</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.01">
-                            <span class="input-group-text">%</span>
-                        </div>
-                        <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01">
-                    </div>
-                </div>
-                <div class="remove-first-btn-wrapper">
-                    <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
-                </div>
-                <div class="remove-btn-wrapper">
-                    <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
-                </div>
-            </div>
-        </template>
-
-        <template id="nadplataKredytuTemplate">
-            <div class="variable-input-group" data-type="nadplata">
-                <div class="fields-wrapper">
-                    <div class="form-group">
-                        <label class="form-label">Nadpłata</label>
-                        <select class="form-select nadplata-type-select">
-                            <option value="Jednorazowa">Jednorazowa</option>
-                            <option value="Miesięczna">Miesięczna</option>
-                            <option value="Kwartalna">Kwartalna</option>
-                            <option value="Roczna">Roczna</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Po nadpłacie</label>
-                        <select class="form-select nadplata-effect-select">
-                            <option value="Skróć okres">Skróć okres</option>
-                            <option value="Zmniejsz ratę">Zmniejsz ratę</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">W</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control variable-cykl" min="1" step="1">
-                            <span class="input-group-text unit-miesiacu">miesiącu</span>
-                        </div>
-                        <input type="range" class="form-range variable-cykl-range" min="1" step="1">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Kwota</label>
-                        <div class="input-group">
-                            <input type="number" class="form-control variable-rate" min="0" max="1000000" step="1">
-                            <span class="input-group-text unit-zl" style="width: 30px; text-align: center;">zł</span>
-                        </div>
-                        <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1">
-                    </div>
-                </div>
-                <div class="remove-first-btn-wrapper">
-                    <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
-                </div>
-                <div class="remove-btn-wrapper">
-                    <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
-                </div>
-            </div>
-        </template>
 
         <div class="result-section" id="resultSection" style="display: none;">
             <div class="result-header">
@@ -258,7 +255,7 @@
                             <h5 class="btn-toggle" onclick="toggleHarmonogram('harmonogramContent')">Harmonogram spłat ▼</h5>
                         </div>
                         <div id="harmonogramContent">
-                            <table id="harmonogramTable" class="table table-striped">
+                            <table class="table table-striped">
                                 <thead>
                                     <tr>
                                         <th>Miesiąc</th>
