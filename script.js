@@ -75,11 +75,9 @@ function syncInputWithRange(input, range, options = {}) {
         input.type = "text";
     }
 
-    // Inicjalizacja obiektów na listenery
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
-    // Usuwanie istniejących listenerów
     const removeListeners = () => {
         if (input._eventListeners.input) {
             input.removeEventListener("input", input._eventListeners.input);
@@ -96,8 +94,6 @@ function syncInputWithRange(input, range, options = {}) {
         if (range._eventListeners.change) {
             range.removeEventListener("change", range._eventListeners.change);
         }
-        input._eventListeners = {};
-        range._eventListeners = {};
     };
 
     removeListeners();
@@ -129,7 +125,11 @@ function syncInputWithRange(input, range, options = {}) {
 
         let formattedValue;
         if (isDecimal) {
-            formattedValue = parsedValue.toFixed(2).replace(".", ",");
+            if (Number.isInteger(parsedValue)) {
+                formattedValue = parsedValue.toString();
+            } else {
+                formattedValue = parsedValue.toFixed(2).replace(".", ",");
+            }
         } else {
             formattedValue = parsedValue.toString();
         }
@@ -223,7 +223,11 @@ function syncInputWithRange(input, range, options = {}) {
 
     let formattedInitialValue;
     if (isDecimal) {
-        formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
+        if (Number.isInteger(initialValue)) {
+            formattedInitialValue = initialValue.toString();
+        } else {
+            formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
+        }
     } else {
         formattedInitialValue = initialValue.toString();
     }
@@ -324,7 +328,7 @@ function calculateLoan() {
 
     // Pobieranie nadpłat
     if (elements.nadplataKredytuBtn.checked) {
-        const inputs = document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
+        const inputs = document.query/Document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
         state.overpaymentRates = [];
         inputs.forEach((inputGroup) => {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
@@ -830,11 +834,11 @@ function updateRodzajRatInfo() {
 function updateVariableInputs() {
     console.log("updateVariableInputs called");
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = 50;
+    const maxChanges = 50; // Zmieniono na stałą wartość
 
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
-    const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
+    const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
     console.log("Zmienne Oprocentowanie:", {
@@ -845,6 +849,7 @@ function updateVariableInputs() {
     });
 
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
+        // Pobieramy aktualne wartości z DOM, aby zaktualizować stan
         const inputsOprocentowanie = variableOprocentowanieWrapper.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
         if (inputsOprocentowanie.length > 0) {
             state.variableRates = [];
@@ -879,7 +884,7 @@ function updateVariableInputs() {
 
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
     const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
-    const addNadplataKredytuBtn = document.getElementById("addNadplataKredytuBtn");
+    const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
     console.log("Nadpłata Kredytu:", {
@@ -951,8 +956,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     }
 
     changes.forEach((change, index) => {
-        console.log(`Rendering change for ${activeType}, index=${index}:`, change);
-
         const inputGroup = document.createElement("div");
         inputGroup.className = "variable-input-group";
         inputGroup.setAttribute("data-type", activeType);
@@ -1050,6 +1053,12 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${inputValue}">
             `;
 
+            const rateInput = rateGroup.querySelector(".variable-rate");
+            const rateRange = rateGroup.querySelector(".variable-rate-range");
+            syncInputWithRange(rateInput, rateRange, { isDecimal: true, activeType: "oprocentowanie", index, onChange: (value) => {
+                changes[index].value = value;
+            } });
+
             fieldsWrapper.appendChild(cyklGroup);
             fieldsWrapper.appendChild(rateGroup);
         }
@@ -1095,14 +1104,11 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         const cyklInput = inputGroup.querySelector(".variable-cykl");
         const cyklRange = inputGroup.querySelector(".variable-cykl-range");
-        const rateInput = inputGroup.querySelector(".variable-rate");
-        const rateRange = inputGroup.querySelector(".variable-rate-range");
-        const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
-
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             isVariableCykl: true,
             activeType,
+            index,
             onChange: (value) => {
                 changes[index].period = value;
                 changes.sort((a, b) => a.period - b.period);
@@ -1118,17 +1124,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             },
         });
 
-        if (activeType === "oprocentowanie") {
-            syncInputWithRange(rateInput, rateRange, {
-                isDecimal: true,
-                activeType,
-                index,
-                onChange: (value) => {
-                    changes[index].value = value;
-                },
-            });
-        }
-
+        const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
         if (nadplataTypeSelect) {
             nadplataTypeSelect.addEventListener("change", (e) => {
                 changes[index].type = nadplataTypeSelect.value;
@@ -1141,6 +1137,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                     label.textContent = isJednorazowa ? "W" : "Od";
                     unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
                 }
+                updateVariableInputs();
             });
         }
 
@@ -1148,68 +1145,45 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         if (nadplataEffectSelect) {
             nadplataEffectSelect.addEventListener("change", () => {
                 changes[index].effect = nadplataEffectSelect.value;
+                updateVariableInputs();
             });
         }
     });
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     const isMaxPeriodReached = changes.length > 0 && changes.some(change => change.period >= maxPeriodValue);
-    console.log(`Button visibility check for ${activeType}:`, {
-        changesLength: changes.length,
-        maxChanges,
-        isMaxPeriodReached,
-        shouldDisplay: changes.length < maxChanges && !isMaxPeriodReached
-    });
     addBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
 }
 
 function addVariableChange(activeType) {
     console.log(`addVariableChange called for ${activeType}`);
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = 50;
+    const maxChanges = 50; // Zmieniono na stałą wartość
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
-    console.log(`Current changes for ${activeType}:`, changes);
-
     const lastChange = changes.length > 0 ? changes.reduce((max, change) => Math.max(max, change.period), 0) : 0;
     const isMaxPeriodReached = lastChange >= maxPeriod;
 
-    console.log(`Constraints for ${activeType}:`, {
-        maxCykl,
-        maxChanges,
-        maxPeriod,
-        lastChange,
-        changesLength: changes.length,
-        isMaxPeriodReached
-    });
-
-    if (changes.length >= maxChanges) {
-        console.warn(`Maximum number of changes reached for ${activeType}: ${maxChanges}`);
-        alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
+    if (changes.length >= maxChanges || isMaxPeriodReached) {
+        if (changes.length >= maxChanges) {
+            alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
+        }
+        if (activeType === "oprocentowanie") {
+            elements.addVariableOprocentowanieBtn.style.display = "none";
+        } else {
+            elements.addNadplataKredytuBtn.style.display = "none";
+        }
         return;
     }
 
-    if (isMaxPeriodReached) {
-        console.warn(`Maximum period reached for ${activeType}: ${maxPeriod}`);
-        alert(`Nie można dodać więcej zmian, ponieważ osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
-        return;
-    }
-
-    const newCykl = Math.min(lastChange + 1, maxPeriod);
-    console.log(`New cycle (newCykl) for ${activeType}:`, newCykl);
-
+    const newCykl = lastChange ? lastChange + 1 : (activeType === "nadplata" ? 1 : 2);
     const newChange = activeType === "oprocentowanie" 
         ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
-    console.log(`Added new change for ${activeType}:`, newChange);
-    console.log(`Updated changes for ${activeType}:`, changes);
-
     changes.sort((a, b) => a.period - b.period);
-    console.log(`Sorted changes for ${activeType}:`, changes);
-
     updateVariableInputs();
 }
 
@@ -1218,7 +1192,6 @@ function removeVariableChange(index, activeType) {
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
     if (changes.length > 1) {
         changes.splice(index, 1);
-        console.log(`Removed change at index ${index} for ${activeType}. New changes:`, changes);
         updateVariableInputs();
     }
 }
@@ -1294,6 +1267,14 @@ if (elements.nadplataKredytuBtn) {
     });
 }
 
+if (elements.addVariableOprocentowanieBtn) {
+    elements.addVariableOprocentowanieBtn.addEventListener("click", () => addVariableChange("oprocentowanie"));
+}
+
+if (elements.addNadplataKredytuBtn) {
+    elements.addNadplataKredytuBtn.addEventListener("click", () => addVariableChange("nadplata"));
+}
+
 if (elements.obliczBtn) {
     elements.obliczBtn.addEventListener("click", calculateLoan);
 }
@@ -1345,29 +1326,6 @@ function initializeApp() {
     updateRodzajRatInfo();
     updateVariableInputs();
     initializeTheme();
-
-    const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
-    const addNadplataKredytuBtn = document.getElementById("addNadplataKredytuBtn");
-
-    if (addVariableOprocentowanieBtn) {
-        console.log("Found addVariableOprocentowanieBtn, adding listener");
-        addVariableOprocentowanieBtn.addEventListener("click", () => {
-            console.log("addVariableOprocentowanieBtn clicked");
-            addVariableChange("oprocentowanie");
-        });
-    } else {
-        console.error("addVariableOprocentowanieBtn not found in DOM");
-    }
-
-    if (addNadplataKredytuBtn) {
-        console.log("Found addNadplataKredytuBtn, adding listener");
-        addNadplataKredytuBtn.addEventListener("click", () => {
-            console.log("addNadplataKredytuBtn clicked");
-            addVariableChange("nadplata");
-        });
-    } else {
-        console.error("addNadplataKredytuBtn not found in DOM");
-    }
 }
 
 document.addEventListener("DOMContentLoaded", initializeApp);
