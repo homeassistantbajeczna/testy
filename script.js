@@ -456,6 +456,7 @@ function calculateLoan() {
                     console.error("Invalid rate calculation (malejące):", { kapital, odsetki, rata });
                     rata = 0;
                 }
+                previousRata = rata;
             }
 
             if (isOverpaymentMonth && i > 1) {
@@ -481,8 +482,6 @@ function calculateLoan() {
                 pozostalyKapital: pozostalyKapital.toFixed(2),
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
-
-            previousRata = rata;
 
             if (pozostalyKapital <= 0.01) {
                 iloscRatPoNadplacie = i;
@@ -691,7 +690,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
             elements.chartContainer.chart = new Chart(ctx, {
                 type: "pie",
                 data: {
-                    labels: ["Kapitał", "Odsetki", "Nadpłaty", "Prowizja"],
+ верх: ["Kapitał", "Odsetki", "Nadpłaty", "Prowizja"],
                     datasets: [{
                         data: [sumaKapitalu, sumaOdsetek, sumaNadplat, prowizjaKwota],
                         backgroundColor: ["#28a745", "#007bff", "#dc3545", "#6f42c1"],
@@ -838,7 +837,7 @@ function updateVariableInputs() {
 
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
-    const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
+    const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
     console.log("Zmienne Oprocentowanie:", {
@@ -883,7 +882,7 @@ function updateVariableInputs() {
 
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
     const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
-    const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
+    const addNadplataKredytuBtn = document.getElementById("addNadplataKredytuBtn");
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
     console.log("Nadpłata Kredytu:", {
@@ -1176,11 +1175,8 @@ function addVariableChange(activeType) {
         } else if (isMaxPeriodReached) {
             console.warn(`Max period reached: lastChange=${lastChange}, maxPeriod=${maxPeriod}`);
         }
-        if (activeType === "oprocentowanie") {
-            elements.addVariableOprocentowanieBtn.style.display = "none";
-        } else {
-            elements.addNadplataKredytuBtn.style.display = "none";
-        }
+        const addBtn = activeType === "oprocentowanie" ? document.getElementById("addVariableOprocentowanieBtn") : document.getElementById("addNadplataKredytuBtn");
+        if (addBtn) addBtn.style.display = "none";
         return;
     }
 
@@ -1248,123 +1244,6 @@ function initializeTheme() {
     }
 }
 
-function setupEventListeners() {
-    console.log("setupEventListeners called");
-
-    if (elements.jednostkaProwizji) {
-        elements.jednostkaProwizji.removeEventListener("change", updateProwizjaInputAndInfo);
-        elements.jednostkaProwizji.addEventListener("change", updateProwizjaInputAndInfo);
-    }
-
-    if (elements.rodzajRat) {
-        elements.rodzajRat.removeEventListener("change", updateRodzajRat);
-        elements.rodzajRat.addEventListener("change", updateRodzajRat);
-    }
-
-    if (elements.zmienneOprocentowanieBtn) {
-        elements.zmienneOprocentowanieBtn.removeEventListener("change", updateZmienneOprocentowanie);
-        elements.zmienneOprocentowanieBtn.addEventListener("change", updateZmienneOprocentowanie);
-    }
-
-    if (elements.nadplataKredytuBtn) {
-        elements.nadplataKredytuBtn.removeEventListener("change", updateNadplataKredytu);
-        elements.nadplataKredytuBtn.addEventListener("change", updateNadplataKredytu);
-    }
-
-    if (elements.addVariableOprocentowanieBtn) {
-        elements.addVariableOprocentowanieBtn.removeEventListener("click", addVariableOprocentowanie);
-        elements.addVariableOprocentowanieBtn.addEventListener("click", addVariableOprocentowanie);
-    }
-
-    if (elements.addNadplataKredytuBtn) {
-        elements.addNadplataKredytuBtn.removeEventListener("click", addNadplataKredytu);
-        elements.addNadplataKredytuBtn.addEventListener("click", addNadplataKredytu);
-    }
-
-    if (elements.obliczBtn) {
-        elements.obliczBtn.removeEventListener("click", calculateLoan);
-        elements.obliczBtn.addEventListener("click", calculateLoan);
-    }
-
-    if (elements.zoomInBtn) {
-        elements.zoomInBtn.removeEventListener("click", zoomIn);
-        elements.zoomInBtn.addEventListener("click", zoomIn);
-    }
-
-    if (elements.zoomOutBtn) {
-        elements.zoomOutBtn.removeEventListener("click", zoomOut);
-        elements.zoomOutBtn.addEventListener("click", zoomOut);
-    }
-
-    if (elements.toggleDarkModeBtn) {
-        elements.toggleDarkModeBtn.removeEventListener("click", toggleDarkMode);
-        elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
-    }
-
-    if (elements.generatePdfBtn) {
-        elements.generatePdfBtn.removeEventListener("click", generatePdf);
-        elements.generatePdfBtn.addEventListener("click", generatePdf);
-    }
-}
-
-function updateProwizjaInputAndInfo() {
-    updateProwizjaInput();
-    updateProwizjaInfo();
-}
-
-function updateRodzajRat() {
-    state.lastFormData.rodzajRat = elements.rodzajRat.value;
-    console.log("Rodzaj rat changed to:", elements.rodzajRat.value);
-}
-
-function updateZmienneOprocentowanie() {
-    state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-    updateVariableInputs();
-}
-
-function updateNadplataKredytu() {
-    state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
-    updateVariableInputs();
-}
-
-function addVariableOprocentowanie() {
-    console.log("Add variable oprocentowanie button clicked");
-    addVariableChange("oprocentowanie");
-}
-
-function addNadplataKredytu() {
-    console.log("Add nadplata kredytu button clicked");
-    addVariableChange("nadplata");
-}
-
-function zoomIn() {
-    currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
-    updateZoom();
-}
-
-function zoomOut() {
-    currentZoom = Math.max(currentZoom - zoomStep, minZoom);
-    updateZoom();
-}
-
-function generatePdf() {
-    console.log("generatePdfBtn clicked");
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) {
-        console.error("jsPDF not loaded.");
-        return;
-    }
-    const doc = new jsPDF();
-    const harmonogramTable = document.getElementById("harmonogramTable");
-    if (harmonogramTable) {
-        doc.autoTable({ html: harmonogramTable });
-        doc.save("harmonogram_kredytu.pdf");
-        console.log("PDF generated and saved.");
-    } else {
-        console.error("Harmonogram table not found for PDF generation.");
-    }
-}
-
 function initializeApp() {
     console.log("initializeApp called");
     updateProwizjaInput();
@@ -1374,7 +1253,102 @@ function initializeApp() {
     updateRodzajRatInfo();
     updateVariableInputs();
     initializeTheme();
-    setupEventListeners();
 }
 
-document.addEventListener("DOMContentLoaded", initializeApp);
+window.onload = function() {
+    console.log("window.onload called");
+    initializeApp();
+
+    const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
+    const addNadplataKredytuBtn = document.getElementById("addNadplataKredytuBtn");
+
+    if (addVariableOprocentowanieBtn) {
+        console.log("addVariableOprocentowanieBtn found, attaching listener");
+        addVariableOprocentowanieBtn.addEventListener("click", () => {
+            console.log("Add variable oprocentowanie button clicked");
+            addVariableChange("oprocentowanie");
+        });
+    } else {
+        console.error("addVariableOprocentowanieBtn not found in DOM");
+    }
+
+    if (addNadplataKredytuBtn) {
+        console.log("addNadplataKredytuBtn found, attaching listener");
+        addNadplataKredytuBtn.addEventListener("click", () => {
+            console.log("Add nadplata kredytu button clicked");
+            addVariableChange("nadplata");
+        });
+    } else {
+        console.error("addNadplataKredytuBtn not found in DOM");
+    }
+
+    if (elements.jednostkaProwizji) {
+        elements.jednostkaProwizji.addEventListener("change", () => {
+            updateProwizjaInput();
+            updateProwizjaInfo();
+        });
+    }
+
+    if (elements.rodzajRat) {
+        elements.rodzajRat.addEventListener("change", () => {
+            state.lastFormData.rodzajRat = elements.rodzajRat.value;
+            console.log("Rodzaj rat changed to:", elements.rodzajRat.value);
+        });
+    }
+
+    if (elements.zmienneOprocentowanieBtn) {
+        elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+            state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
+            updateVariableInputs();
+        });
+    }
+
+    if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.addEventListener("change", () => {
+            state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
+            updateVariableInputs();
+        });
+    }
+
+    if (elements.obliczBtn) {
+        elements.obliczBtn.addEventListener("click", calculateLoan);
+    }
+
+    if (elements.zoomInBtn) {
+        elements.zoomInBtn.addEventListener("click", () => {
+            currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+            updateZoom();
+        });
+    }
+
+    if (elements.zoomOutBtn) {
+        elements.zoomOutBtn.addEventListener("click", () => {
+            currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+            updateZoom();
+        });
+    }
+
+    if (elements.toggleDarkModeBtn) {
+        elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
+    }
+
+    if (elements.generatePdfBtn) {
+        elements.generatePdfBtn.addEventListener("click", () => {
+            console.log("generatePdfBtn clicked");
+            const { jsPDF } = window.jspdf;
+            if (!jsPDF) {
+                console.error("jsPDF not loaded.");
+                return;
+            }
+            const doc = new jsPDF();
+            const harmonogramTable = document.getElementById("harmonogramTable");
+            if (harmonogramTable) {
+                doc.autoTable({ html: harmonogramTable });
+                doc.save("harmonogram_kredytu.pdf");
+                console.log("PDF generated and saved.");
+            } else {
+                console.error("Harmonogram table not found for PDF generation.");
+            }
+        });
+    }
+};
