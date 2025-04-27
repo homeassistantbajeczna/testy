@@ -886,6 +886,22 @@ function updateVariableInputs() {
     });
 
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
+        // Aktualizujemy state.variableRates na podstawie istniejących inputów przed renderowaniem
+        const inputsOprocentowanie = variableOprocentowanieWrapper.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
+        state.variableRates = [];
+        inputsOprocentowanie.forEach((inputGroup) => {
+            const cyklInput = inputGroup.querySelector(".variable-cykl");
+            const rateInput = inputGroup.querySelector(".variable-rate");
+            const period = parseInt(cyklInput?.value) || 0;
+            const valueInput = rateInput?.value.replace(",", ".");
+            const value = parseFloat(valueInput) || state.lastFormData.oprocentowanie;
+            if (period > 0) {
+                state.variableRates.push({ period, value });
+            }
+        });
+        state.variableRates.sort((a, b) => a.period - b.period);
+        console.log("Updated state.variableRates before rendering:", state.variableRates);
+
         variableOprocentowanieInputs.classList.add("active");
         addVariableOprocentowanieBtn.style.display = "block";
         if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
@@ -916,6 +932,26 @@ function updateVariableInputs() {
     });
 
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
+        // Aktualizujemy state.overpaymentRates na podstawie istniejących inputów przed renderowaniem
+        const inputsNadplata = nadplataKredytuWrapper.querySelectorAll('.variable-input-group[data-type="nadplata"]');
+        state.overpaymentRates = [];
+        inputsNadplata.forEach((inputGroup) => {
+            const cyklInput = inputGroup.querySelector(".variable-cykl");
+            const rateInput = inputGroup.querySelector(".variable-rate");
+            const typeSelect = inputGroup.querySelector(".nadplata-type-select");
+            const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
+            const period = parseInt(cyklInput?.value) || 0;
+            const valueInput = rateInput?.value.replace(",", ".");
+            const value = parseFloat(valueInput) || 1000;
+            const type = typeSelect?.value || "Jednorazowa";
+            const effect = effectSelect?.value || "Skróć okres";
+            if (period > 0) {
+                state.overpaymentRates.push({ period, value, type, effect });
+            }
+        });
+        state.overpaymentRates.sort((a, b) => a.period - b.period);
+        console.log("Updated state.overpaymentRates before rendering:", state.overpaymentRates);
+
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
         if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
@@ -941,31 +977,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         console.error("Wrapper not found for rendering variable inputs.");
         return;
     }
-
-    // Pobieramy istniejące wartości, aby zachować dane wprowadzone przez użytkownika
-    const existingInputs = wrapper.querySelectorAll(".variable-input-group");
-    const existingValues = [];
-    const existingPeriods = [];
-    existingInputs.forEach((inputGroup, index) => {
-        const rateInput = inputGroup.querySelector(".variable-rate");
-        const cyklInput = inputGroup.querySelector(".variable-cykl");
-        const valueInput = rateInput ? rateInput.value.replace(",", ".") : null;
-        const value = valueInput ? parseFloat(valueInput) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
-        const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
-        existingValues[index] = value;
-        existingPeriods[index] = period;
-
-        if (changes[index]) {
-            changes[index].value = value;
-            changes[index].period = period;
-            if (activeType === "nadplata") {
-                const typeSelect = inputGroup.querySelector(".nadplata-type-select");
-                const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
-                changes[index].type = typeSelect ? typeSelect.value : changes[index].type;
-                changes[index].effect = effectSelect ? effectSelect.value : changes[index].effect;
-            }
-        }
-    });
 
     wrapper.innerHTML = "";
 
@@ -1204,6 +1215,7 @@ function addVariableChange(activeType) {
     // Znajdujemy największy okres w istniejących zmianach
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
     const lastChange = changes.length > 0 ? changes.reduce((max, change) => Math.max(max, change.period), 0) : 0;
+    console.log(`lastChange for ${activeType}:`, lastChange, "changes:", changes);
     const isMaxPeriodReached = lastChange >= maxPeriod;
 
     if (changes.length >= maxChanges || isMaxPeriodReached) {
@@ -1220,6 +1232,7 @@ function addVariableChange(activeType) {
 
     // Nowy okres to największy istniejący okres + 1
     const newCykl = lastChange ? lastChange + 1 : (activeType === "nadplata" ? 1 : 2);
+    console.log(`New cycle (newCykl) for ${activeType}:`, newCykl);
     const newChange = activeType === "oprocentowanie" 
         ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
