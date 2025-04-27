@@ -65,6 +65,8 @@ function syncInputWithRange(input, range, options = {}) {
 
     if (isDecimal) {
         input.type = "text";
+    } else {
+        input.type = "number";
     }
 
     input._eventListeners = input._eventListeners || {};
@@ -102,7 +104,7 @@ function syncInputWithRange(input, range, options = {}) {
         if (isNaN(parsedValue)) parsedValue = min;
 
         if (!isDecimal && !isVariableCykl) {
-            parsedValue = Math.floor(parsedValue);
+            parsedValue = Math.round(parsedValue);
         } else if (isDecimal) {
             parsedValue = Math.round(parsedValue * 100) / 100;
         } else if (isVariableCykl) {
@@ -126,10 +128,8 @@ function syncInputWithRange(input, range, options = {}) {
         if (input.id === "prowizja") updateProwizjaInfo();
         if (input.id === "iloscRat") updateLata();
 
-        if (activeType && !skipOnChange) {
-            if (onChange) {
-                onChange(parsedValue);
-            }
+        if (activeType && !skipOnChange && onChange) {
+            onChange(parsedValue);
         } else {
             state.tempValues[input.id || range.id] = parsedValue;
         }
@@ -151,11 +151,6 @@ function syncInputWithRange(input, range, options = {}) {
             rawValue = rawValue.replace(/[^0-9]/g, "");
             input.value = rawValue;
         }
-        state.tempValues[input.id || range.id] = input.value;
-    };
-
-    const inputChangeHandler = () => {
-        const rawValue = state.tempValues[input.id || range.id] || input.value;
         updateValue(rawValue, "Input");
         if (onChange) {
             const parsedValue = parseFloat(rawValue.replace(",", "."));
@@ -165,30 +160,20 @@ function syncInputWithRange(input, range, options = {}) {
     };
 
     const rangeHandler = () => {
-        updateValue(range.value, "Range");
+        let rawValue = range.value;
+        let parsedValue = parseFloat(rawValue);
+        if (isVariableCykl) {
+            parsedValue = Math.round(parsedValue);
+            rawValue = parsedValue.toString();
+        }
+        updateValue(rawValue, "Range");
     };
 
     input._eventListeners.input = inputHandler;
     range._eventListeners.input = rangeHandler;
 
-    if (activeType) {
-        if (isVariableCykl) {
-            input.addEventListener("input", inputHandler);
-            input._eventListeners.change = inputChangeHandler;
-            input.addEventListener("change", inputChangeHandler);
-            range.addEventListener("input", rangeHandler);
-        } else {
-            input.addEventListener("input", inputHandler);
-            input._eventListeners.change = inputChangeHandler;
-            input.addEventListener("change", inputChangeHandler);
-            range.addEventListener("input", rangeHandler);
-        }
-    } else {
-        input.addEventListener("input", inputHandler);
-        input._eventListeners.change = inputChangeHandler;
-        input.addEventListener("change", inputChangeHandler);
-        range.addEventListener("input", rangeHandler);
-    }
+    input.addEventListener("input", inputHandler);
+    range.addEventListener("input", rangeHandler);
 
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
