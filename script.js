@@ -30,13 +30,6 @@ const elements = {
     koszt: document.getElementById("koszt"),
 };
 
-// Debug: Sprawdzanie, czy elementy istnieją
-Object.entries(elements).forEach(([key, value]) => {
-    if (!value) {
-        console.warn(`Element ${key} (#${key}) nie został znaleziony w DOM.`);
-    }
-});
-
 const state = {
     variableRates: [],
     overpaymentRates: [],
@@ -50,7 +43,6 @@ const state = {
         zmienneOprocentowanie: false,
         nadplataKredytu: false,
     },
-    tempValues: {},
 };
 
 // Funkcja formatująca liczby z separatorem tysięcy (spacja) i przecinkiem jako separator dziesiętny
@@ -59,49 +51,24 @@ function formatNumberWithSpaces(number) {
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-// Synchronizacja inputów z suwakami
+// Uproszczona synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
 
     if (!input || !range) {
-        console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
         return;
     }
 
-    // Ustawiamy typ pola na text dla pól decimalnych, aby obsługiwać przecinek
     if (isDecimal) {
         input.type = "text";
     }
-
-    input._eventListeners = input._eventListeners || {};
-    range._eventListeners = range._eventListeners || {};
-
-    const removeListeners = () => {
-        if (input._eventListeners.input) {
-            input.removeEventListener("input", input._eventListeners.input);
-        }
-        if (input._eventListeners.change) {
-            input.removeEventListener("change", input._eventListeners.change);
-        }
-        if (input._eventListeners.keypress) {
-            input.removeEventListener("keypress", input._eventListeners.keypress);
-        }
-        if (range._eventListeners.input) {
-            range.removeEventListener("input", range._eventListeners.input);
-        }
-        if (range._eventListeners.change) {
-            range.removeEventListener("change", range._eventListeners.change);
-        }
-    };
-
-    removeListeners();
 
     // Ustawienie kroku, jeśli podano stepOverride
     if (stepOverride) {
         range.step = stepOverride;
     }
 
-    const updateValue = (value, source, skipOnChange = false) => {
+    const updateValue = (value, source) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
 
@@ -120,32 +87,22 @@ function syncInputWithRange(input, range, options = {}) {
         if (parsedValue < min) parsedValue = min;
         if (parsedValue > max) parsedValue = max;
 
-        let formattedValue;
-        if (isDecimal) {
-            formattedValue = parsedValue.toFixed(2).replace(".", ",");
-        } else {
-            formattedValue = parsedValue.toString();
-        }
+        const formattedValue = isDecimal ? parsedValue.toFixed(2).replace(".", ",") : parsedValue.toString();
 
         input.value = formattedValue;
         range.value = parsedValue;
 
-        if (activeType && !skipOnChange) {
-            if (onChange) {
-                onChange(parsedValue);
-                if (!isVariableCykl) {
-                    updateVariableInputs();
-                }
+        if (onChange) {
+            onChange(parsedValue);
+            if (!isVariableCykl) {
+                updateVariableInputs();
             }
-        } else {
-            state.tempValues[input.id || range.id] = parsedValue;
         }
     };
 
     const inputHandler = () => {
         let rawValue = input.value.replace(",", ".");
         if (isDecimal) {
-            // Pozwalamy na wprowadzanie liczb z maksymalnie 2 miejscami po przecinku
             const regex = /^\d*(\.\d{0,2})?$/;
             if (!regex.test(rawValue)) {
                 rawValue = rawValue.replace(/[^0-9.]/g, "");
@@ -170,38 +127,27 @@ function syncInputWithRange(input, range, options = {}) {
         updateValue(range.value, "Range");
     };
 
+    // Usunięcie istniejących listenerów
+    input.removeEventListener("input", inputHandler);
+    range.removeEventListener("input", rangeHandler);
+
     if (!isDecimal) {
-        const keypressHandler = (e) => {
+        input.addEventListener("keypress", (e) => {
             if (e.key === "," || e.key === ".") {
                 e.preventDefault();
             }
-        };
-        input._eventListeners.keypress = keypressHandler;
-        input.addEventListener("keypress", keypressHandler);
+        });
     }
 
-    input._eventListeners.input = inputHandler;
     input.addEventListener("input", inputHandler);
-
-    range._eventListeners.input = rangeHandler;
     range.addEventListener("input", rangeHandler);
 
     // Inicjalizacja wartości
-    const min = parseFloat(input.min) || 0;
-    const max = parseFloat(input.max) || Infinity;
-    let initialValue = parseFloat(range.value);
-    if (isNaN(initialValue)) initialValue = min;
+    let initialValue = parseFloat(range.value) || parseFloat(input.min) || 0;
+    if (initialValue < parseFloat(input.min)) initialValue = parseFloat(input.min);
+    if (initialValue > parseFloat(input.max)) initialValue = parseFloat(input.max);
 
-    if (initialValue < min) initialValue = min;
-    if (initialValue > max) initialValue = max;
-
-    let formattedInitialValue;
-    if (isDecimal) {
-        formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
-    } else {
-        formattedInitialValue = initialValue.toString();
-    }
-
+    const formattedInitialValue = isDecimal ? initialValue.toFixed(2).replace(".", ",") : initialValue.toString();
     input.value = formattedInitialValue;
     range.value = initialValue;
 }
@@ -322,10 +268,8 @@ function calculateLoan() {
     let rata = 0;
     let iloscRatPoNadplacie = iloscRat;
 
-    // Zmienna do przechowywania raty z poprzedniego miesiąca
     let previousRata = 0;
 
-    // Początkowe obliczenie raty dla rat równych
     if (rodzajRat === "rowne") {
         if (monthlyRate === 0) {
             rata = kwota / iloscRat;
@@ -338,7 +282,6 @@ function calculateLoan() {
         }
     }
 
-    // Dla rat malejących
     if (rodzajRat === "malejace") {
         let kapitalStaly = kwota / iloscRat;
         let nadplataMiesieczna = 0;
@@ -449,7 +392,6 @@ function calculateLoan() {
         }
     }
 
-    // Dla rat równych
     if (rodzajRat === "rowne") {
         let remainingMonths = iloscRat;
         let i = 1;
@@ -900,12 +842,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
                 <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
             `;
 
-            const rateInput = rateGroup.querySelector(".variable-rate");
-            const rateRange = rateGroup.querySelector(".variable-rate-range");
-            syncInputWithRange(rateInput, rateRange, { isDecimal: true, activeType: "nadplata", index, onChange: (value) => {
-                changes[index].value = value;
-            } });
-
             fieldsWrapper.appendChild(nadplataTypeGroup);
             fieldsWrapper.appendChild(nadplataEffectGroup);
             fieldsWrapper.appendChild(cyklGroup);
@@ -984,6 +920,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateRange = inputGroup.querySelector(".variable-rate-range");
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
+        // Synchronizacja dla pola "Od/W"
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             isVariableCykl: true,
@@ -1011,16 +948,15 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             },
         });
 
-        if (activeType === "oprocentowanie") {
-            syncInputWithRange(rateInput, rateRange, {
-                isDecimal: true,
-                activeType,
-                index,
-                onChange: (value) => {
-                    changes[index].value = value;
-                },
-            });
-        }
+        // Synchronizacja dla pola "Oprocentowanie" lub "Kwota"
+        syncInputWithRange(rateInput, rateRange, {
+            isDecimal: true,
+            activeType,
+            index,
+            onChange: (value) => {
+                changes[index].value = value;
+            },
+        });
 
         if (nadplataTypeSelect) {
             nadplataTypeSelect.addEventListener("change", (e) => {
