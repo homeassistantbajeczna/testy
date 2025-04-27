@@ -106,10 +106,9 @@ function syncInputWithRange(input, range, options = {}) {
     const updateValue = (value, source, skipOnChange = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
-        const step = parseFloat(range.step) || 1;
 
         if (typeof value === "string") {
-            value = value.replace(",", ".");
+            value = value.replace(",", ".").replace(/\s/g, "");
         }
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = min;
@@ -125,7 +124,7 @@ function syncInputWithRange(input, range, options = {}) {
 
         let formattedValue;
         if (isDecimal) {
-            formattedValue = formatNumberWithSpaces(parsedValue);
+            formattedValue = parsedValue.toFixed(2).replace(".", ",");
         } else {
             formattedValue = parsedValue.toString();
         }
@@ -158,7 +157,9 @@ function syncInputWithRange(input, range, options = {}) {
                 parts[1] = parts[1].slice(0, 2);
                 rawValue = parts.join(".");
             }
-            input.value = rawValue.replace(".", ",");
+            // Przywracamy przecinek
+            rawValue = rawValue.replace(".", ",");
+            input.value = rawValue;
         } else {
             // Tylko cyfry dla pól całkowitych
             rawValue = rawValue.replace(/[^0-9]/g, "");
@@ -171,8 +172,9 @@ function syncInputWithRange(input, range, options = {}) {
         const rawValue = state.tempValues[input.id || range.id] || input.value;
         updateValue(rawValue, "Input");
         if (onChange) {
-            console.log(`onChange triggered for ${input.id || range.className}, value=${state.tempValues[input.id || range.id]}`);
-            onChange(parseFloat(state.tempValues[input.id || range.id].replace(",", ".")));
+            const parsedValue = parseFloat(rawValue.replace(",", "."));
+            console.log(`onChange triggered for ${input.id || range.className}, value=${parsedValue}`);
+            onChange(parsedValue);
         }
         delete state.tempValues[input.id || range.id];
     };
@@ -191,6 +193,11 @@ function syncInputWithRange(input, range, options = {}) {
             }
             // Zezwalamy na tylko jeden przecinek/kropkę
             if ((char === "," || char === ".") && input.value.includes(",")) {
+                e.preventDefault();
+            }
+            // Sprawdzamy, czy po przecinku są już dwa znaki
+            const parts = input.value.split(",");
+            if (parts.length > 1 && parts[1].length >= 2 && /[0-9]/.test(char)) {
                 e.preventDefault();
             }
         } else {
@@ -237,7 +244,7 @@ function syncInputWithRange(input, range, options = {}) {
 
     let formattedInitialValue;
     if (isDecimal) {
-        formattedInitialValue = formatNumberWithSpaces(initialValue);
+        formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
     } else {
         formattedInitialValue = initialValue.toString();
     }
@@ -663,7 +670,7 @@ function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, s
     ];
 
     legendItems.forEach(item => {
-        const element = document.querySelector(`.legend-item[data-index="${item)]);
+        const element = document.querySelector(`.legend-item[data-index="${item.index}"] .color-box`);
         if (element) {
             element.setAttribute('data-tooltip', `${item.label}: ${formatNumberWithSpaces(item.value)} zł`);
         }
@@ -784,7 +791,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".").replace(/\s/g, "");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = formatNumberWithSpaces(defaultValue);
+        const formattedDefaultValue = defaultValue.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -792,7 +799,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = formatNumberWithSpaces(value);
+        const formattedValue = value.toFixed(2).replace(".", ",");
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
@@ -984,7 +991,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             `;
 
             const inputValue = change.value || 1000;
-            const formattedInputValue = formatNumberWithSpaces(inputValue);
+            const formattedInputValue = inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
@@ -1013,7 +1020,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             `;
 
             const inputValue = change.value || state.lastFormData.oprocentowanie;
-            const formattedInputValue = formatNumberWithSpaces(inputValue);
+            const formattedInputValue = inputValue.toFixed(2).replace(".", ",");
             const rateGroup = document.createElement("div");
             rateGroup.className = "form-group";
             rateGroup.innerHTML = `
@@ -1078,6 +1085,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             isDecimal: false,
             isVariableCykl: true,
             activeType,
+            defaultValue: periodValue,
             onChange: (value) => {
                 changes[index].period = value;
                 changes.sort((a, b) => a.period - b.period);
