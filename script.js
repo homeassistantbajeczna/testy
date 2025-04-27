@@ -1248,88 +1248,121 @@ function initializeTheme() {
     }
 }
 
-if (elements.jednostkaProwizji) {
-    elements.jednostkaProwizji.addEventListener("change", () => {
-        updateProwizjaInput();
-        updateProwizjaInfo();
-    });
+function setupEventListeners() {
+    console.log("setupEventListeners called");
+
+    if (elements.jednostkaProwizji) {
+        elements.jednostkaProwizji.removeEventListener("change", updateProwizjaInputAndInfo);
+        elements.jednostkaProwizji.addEventListener("change", updateProwizjaInputAndInfo);
+    }
+
+    if (elements.rodzajRat) {
+        elements.rodzajRat.removeEventListener("change", updateRodzajRat);
+        elements.rodzajRat.addEventListener("change", updateRodzajRat);
+    }
+
+    if (elements.zmienneOprocentowanieBtn) {
+        elements.zmienneOprocentowanieBtn.removeEventListener("change", updateZmienneOprocentowanie);
+        elements.zmienneOprocentowanieBtn.addEventListener("change", updateZmienneOprocentowanie);
+    }
+
+    if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.removeEventListener("change", updateNadplataKredytu);
+        elements.nadplataKredytuBtn.addEventListener("change", updateNadplataKredytu);
+    }
+
+    if (elements.addVariableOprocentowanieBtn) {
+        elements.addVariableOprocentowanieBtn.removeEventListener("click", addVariableOprocentowanie);
+        elements.addVariableOprocentowanieBtn.addEventListener("click", addVariableOprocentowanie);
+    }
+
+    if (elements.addNadplataKredytuBtn) {
+        elements.addNadplataKredytuBtn.removeEventListener("click", addNadplataKredytu);
+        elements.addNadplataKredytuBtn.addEventListener("click", addNadplataKredytu);
+    }
+
+    if (elements.obliczBtn) {
+        elements.obliczBtn.removeEventListener("click", calculateLoan);
+        elements.obliczBtn.addEventListener("click", calculateLoan);
+    }
+
+    if (elements.zoomInBtn) {
+        elements.zoomInBtn.removeEventListener("click", zoomIn);
+        elements.zoomInBtn.addEventListener("click", zoomIn);
+    }
+
+    if (elements.zoomOutBtn) {
+        elements.zoomOutBtn.removeEventListener("click", zoomOut);
+        elements.zoomOutBtn.addEventListener("click", zoomOut);
+    }
+
+    if (elements.toggleDarkModeBtn) {
+        elements.toggleDarkModeBtn.removeEventListener("click", toggleDarkMode);
+        elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
+    }
+
+    if (elements.generatePdfBtn) {
+        elements.generatePdfBtn.removeEventListener("click", generatePdf);
+        elements.generatePdfBtn.addEventListener("click", generatePdf);
+    }
 }
 
-if (elements.rodzajRat) {
-    elements.rodzajRat.addEventListener("change", () => {
-        state.lastFormData.rodzajRat = elements.rodzajRat.value;
-        console.log("Rodzaj rat changed to:", elements.rodzajRat.value);
-    });
+function updateProwizjaInputAndInfo() {
+    updateProwizjaInput();
+    updateProwizjaInfo();
 }
 
-if (elements.zmienneOprocentowanieBtn) {
-    elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-        state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
-        updateVariableInputs();
-    });
+function updateRodzajRat() {
+    state.lastFormData.rodzajRat = elements.rodzajRat.value;
+    console.log("Rodzaj rat changed to:", elements.rodzajRat.value);
 }
 
-if (elements.nadplataKredytuBtn) {
-    elements.nadplataKredytuBtn.addEventListener("change", () => {
-        state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
-        updateVariableInputs();
-    });
+function updateZmienneOprocentowanie() {
+    state.lastFormData.zmienneOprocentowanie = elements.zmienneOprocentowanieBtn.checked;
+    updateVariableInputs();
 }
 
-if (elements.addVariableOprocentowanieBtn) {
-    elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
-        console.log("Add variable oprocentowanie button clicked");
-        addVariableChange("oprocentowanie");
-    });
+function updateNadplataKredytu() {
+    state.lastFormData.nadplataKredytu = elements.nadplataKredytuBtn.checked;
+    updateVariableInputs();
 }
 
-if (elements.addNadplataKredytuBtn) {
-    elements.addNadplataKredytuBtn.addEventListener("click", () => {
-        console.log("Add nadplata kredytu button clicked");
-        addVariableChange("nadplata");
-    });
+function addVariableOprocentowanie() {
+    console.log("Add variable oprocentowanie button clicked");
+    addVariableChange("oprocentowanie");
 }
 
-if (elements.obliczBtn) {
-    elements.obliczBtn.addEventListener("click", calculateLoan);
+function addNadplataKredytu() {
+    console.log("Add nadplata kredytu button clicked");
+    addVariableChange("nadplata");
 }
 
-if (elements.zoomInBtn) {
-    elements.zoomInBtn.addEventListener("click", () => {
-        currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
-        updateZoom();
-    });
+function zoomIn() {
+    currentZoom = Math.min(currentZoom + zoomStep, maxZoom);
+    updateZoom();
 }
 
-if (elements.zoomOutBtn) {
-    elements.zoomOutBtn.addEventListener("click", () => {
-        currentZoom = Math.max(currentZoom - zoomStep, minZoom);
-        updateZoom();
-    });
+function zoomOut() {
+    currentZoom = Math.max(currentZoom - zoomStep, minZoom);
+    updateZoom();
 }
 
-if (elements.toggleDarkModeBtn) {
-    elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
-}
-
-if (elements.generatePdfBtn) {
-    elements.generatePdfBtn.addEventListener("click", () => {
-        console.log("generatePdfBtn clicked");
-        const { jsPDF } = window.jspdf;
-        if (!jsPDF) {
-            console.error("jsPDF not loaded.");
-            return;
-        }
-        const doc = new jsPDF();
-        const harmonogramTable = document.getElementById("harmonogramTable");
-        if (harmonogramTable) {
-            doc.autoTable({ html: harmonogramTable });
-            doc.save("harmonogram_kredytu.pdf");
-            console.log("PDF generated and saved.");
-        } else {
-            console.error("Harmonogram table not found for PDF generation.");
-        }
-    });
+function generatePdf() {
+    console.log("generatePdfBtn clicked");
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) {
+        console.error("jsPDF not loaded.");
+        return;
+    }
+    const doc = new jsPDF();
+    const harmonogramTable = document.getElementById("harmonogramTable");
+    if (harmonogramTable) {
+        doc.autoTable({ html: harmonogramTable });
+        doc.save("harmonogram_kredytu.pdf");
+        console.log("PDF generated and saved.");
+    } else {
+        console.error("Harmonogram table not found for PDF generation.");
+    }
 }
 
 function initializeApp() {
@@ -1341,6 +1374,7 @@ function initializeApp() {
     updateRodzajRatInfo();
     updateVariableInputs();
     initializeTheme();
+    setupEventListeners();
 }
 
 document.addEventListener("DOMContentLoaded", initializeApp);
