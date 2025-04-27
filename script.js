@@ -35,6 +35,9 @@ const elements = {
     kwotaInfo: document.getElementById("kwotaInfo"),
     lata: document.getElementById("lata"),
     prowizjaInfo: document.getElementById("prowizjaInfo"),
+    // Dodajemy odniesienia do szablonów
+    variableOprocentowanieTemplate: document.getElementById("variableOprocentowanieTemplate"),
+    nadplataKredytuTemplate: document.getElementById("nadplataKredytuTemplate"),
 };
 
 const state = {
@@ -58,15 +61,13 @@ function formatNumberWithSpaces(number) {
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-// Poprawiona funkcja synchronizacji pól tekstowych z suwakami dla płynniejszego działania
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, defaultValue } = options;
 
     if (!input || !range) return;
 
-    input.type = isDecimal ? "text" : "number";
+    input.type = "number";
 
-    // Usuwanie istniejących listenerów
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
@@ -80,40 +81,34 @@ function syncInputWithRange(input, range, options = {}) {
 
     if (stepOverride) range.step = stepOverride;
     else if (isVariableCykl) range.step = "1";
+    else range.step = isDecimal ? "0.01" : "1";
 
     const updateValue = (value, source, skipOnChange = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
 
-        // Parsowanie wartości
         if (typeof value === "string") {
             value = value.replace(",", ".").replace(/\s/g, "");
         }
         let parsedValue = parseFloat(value) || min;
 
-        // Zaokrąglanie
         if (!isDecimal) {
             parsedValue = Math.round(parsedValue);
         } else {
             parsedValue = Math.round(parsedValue * 100) / 100;
         }
 
-        // Ograniczenie zakresu
         parsedValue = Math.max(min, Math.min(max, parsedValue));
 
-        // Formatowanie wartości do wyświetlenia
-        const formattedValue = isDecimal ? parsedValue.toFixed(2).replace(".", ",") : parsedValue.toString();
+        const displayValue = isDecimal ? parsedValue.toFixed(2) : parsedValue.toString();
 
-        // Aktualizacja elementów
-        input.value = formattedValue;
+        input.value = displayValue;
         range.value = parsedValue;
 
-        // Aktualizacja dodatkowych informacji
         if (input.id === "kwota") updateKwotaInfo();
         if (input.id === "prowizja") updateProwizjaInfo();
         if (input.id === "iloscRat") updateLata();
 
-        // Wywołanie callbacka onChange
         if (activeType && !skipOnChange && onChange) {
             onChange(parsedValue);
         } else {
@@ -121,37 +116,22 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
-    // Handler dla pola tekstowego
     const inputHandler = () => {
         let rawValue = input.value.replace(/\s/g, "");
-        if (isDecimal) {
-            rawValue = rawValue.replace(/[^0-9,.]/g, "").replace(",", ".");
-            const parts = rawValue.split(".");
-            if (parts.length > 1) rawValue = parts[0] + "." + parts[1].slice(0, 2);
-            rawValue = rawValue.replace(".", ",");
-            input.value = rawValue;
-        } else {
-            rawValue = rawValue.replace(/[^0-9]/g, "");
-            input.value = rawValue;
-        }
         updateValue(rawValue, "Input");
     };
 
-    // Handler dla suwaka – natychmiastowa aktualizacja
     const rangeHandler = () => {
         const rawValue = range.value;
         updateValue(rawValue, "Range");
     };
 
-    // Handler dla pola tekstowego po opuszczeniu (blur)
     const blurHandler = () => {
         let rawValue = input.value.replace(/\s/g, "");
-        if (isDecimal) rawValue = rawValue.replace(",", ".");
         const parsedValue = parseFloat(rawValue) || (parseFloat(input.min) || 0);
         updateValue(parsedValue, "Input");
     };
 
-    // Podpięcie zdarzeń
     input._eventListeners.input = inputHandler;
     input._eventListeners.blur = blurHandler;
     range._eventListeners.input = rangeHandler;
@@ -160,7 +140,6 @@ function syncInputWithRange(input, range, options = {}) {
     input.addEventListener("blur", blurHandler);
     range.addEventListener("input", rangeHandler);
 
-    // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
     let initialValue = defaultValue !== undefined ? defaultValue : parseFloat(input.value) || min;
@@ -170,7 +149,6 @@ function syncInputWithRange(input, range, options = {}) {
     updateValue(initialValue, "Initial", true);
 }
 
-// Inicjalizacja synchronizacji dla głównych pól
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
     stepOverride: 100,
@@ -210,85 +188,17 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     },
 });
 
+// Używamy szablonów z HTML zamiast generować HTML w JS
 function createVariableInputGroup(type, index, period, value, typeValue = "Jednorazowa", effectValue = "Skróć okres") {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const group = document.createElement("div");
-    group.classList.add("variable-input-group");
-    group.setAttribute("data-type", type);
-    group.setAttribute("data-index", index);
 
-    if (type === "oprocentowanie") {
-        group.innerHTML = `
-            <div class="fields-wrapper">
-                <div class="form-group">
-                    <label class="form-label">Od</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${period}">
-                        <span class="input-group-text">miesiąca</span>
-                    </div>
-                    <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="1" value="${period}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Oprocentowanie</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${value.toFixed(2).replace(".", ",")}">
-                        <span class="input-group-text">%</span>
-                    </div>
-                    <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${value}">
-                </div>
-            </div>
-            <div class="remove-first-btn-wrapper">
-                <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
-            </div>
-            <div class="remove-btn-wrapper">
-                <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
-            </div>
-        `;
-    } else if (type === "nadplata") {
-        const isJednorazowa = typeValue === "Jednorazowa";
-        group.innerHTML = `
-            <div class="fields-wrapper">
-                <div class="form-group">
-                    <label class="form-label">Nadpłata</label>
-                    <select class="form-select nadplata-type-select">
-                        <option value="Jednorazowa" ${typeValue === "Jednorazowa" ? "selected" : ""}>Jednorazowa</option>
-                        <option value="Miesięczna" ${typeValue === "Miesięczna" ? "selected" : ""}>Miesięczna</option>
-                        <option value="Kwartalna" ${typeValue === "Kwartalna" ? "selected" : ""}>Kwartalna</option>
-                        <option value="Roczna" ${typeValue === "Roczna" ? "selected" : ""}>Roczna</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Po nadpłacie</label>
-                    <select class="form-select nadplata-effect-select">
-                        <option value="Skróć okres" ${effectValue === "Skróć okres" ? "selected" : ""}>Skróć okres</option>
-                        <option value="Zmniejsz ratę" ${effectValue === "Zmniejsz ratę" ? "selected" : ""}>Zmniejsz ratę</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">${isJednorazowa ? "W" : "Od"}</label>
-                    <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl - 1}" step="1" value="${period}">
-                        <span class="input-group-text unit-miesiacu">${isJednorazowa ? "miesiącu" : "miesiąca"}</span>
-                    </div>
-                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl - 1}" step="1" value="${period}">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Kwota</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control variable-rate" min="0" max="1000000" step="1" value="${value.toFixed(2).replace(".", ",")}">
-                        <span class="input-group-text unit-zl" style="width: 30px; text-align: center;">zł</span>
-                    </div>
-                    <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${value}">
-                </div>
-            </div>
-            <div class="remove-first-btn-wrapper">
-                <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
-            </div>
-            <div class="remove-btn-wrapper">
-                <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
-            </div>
-        `;
-    }
+    // Klonujemy odpowiedni szablon
+    const template = type === "oprocentowanie" 
+        ? elements.variableOprocentowanieTemplate 
+        : elements.nadplataKredytuTemplate;
+    
+    const group = document.importNode(template.content, true).querySelector(".variable-input-group");
+    group.setAttribute("data-index", index);
 
     const cyklInput = group.querySelector(".variable-cykl");
     const cyklRange = group.querySelector(".variable-cykl-range");
@@ -297,19 +207,31 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
     const removeBtn = group.querySelector(".remove-btn");
     const removeFirstBtn = group.querySelector(".remove-first-btn");
 
-    if (type === "nadplata") {
+    // Ustawiamy wartości maksymalne i początkowe
+    if (type === "oprocentowanie") {
+        cyklInput.max = maxCykl;
+        cyklRange.max = maxCykl;
+    } else if (type === "nadplata") {
+        cyklInput.max = maxCykl - 1;
+        cyklRange.max = maxCykl - 1;
+
         const nadplataTypeSelect = group.querySelector(".nadplata-type-select");
         const nadplataEffectSelect = group.querySelector(".nadplata-effect-select");
+        const label = group.querySelector(".form-label:has(.variable-cykl)");
+        const unit = group.querySelector(".unit-miesiacu");
+
+        nadplataTypeSelect.value = typeValue;
+        nadplataEffectSelect.value = effectValue;
+
+        const isJednorazowa = typeValue === "Jednorazowa";
+        label.textContent = isJednorazowa ? "W" : "Od";
+        unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
 
         nadplataTypeSelect.addEventListener("change", () => {
             state.overpaymentRates[index].type = nadplataTypeSelect.value;
             const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
-            const label = group.querySelector(".form-label:has(.variable-cykl)");
-            const unit = group.querySelector(".unit-miesiacu");
-            if (label && unit) {
-                label.textContent = isJednorazowa ? "W" : "Od";
-                unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
-            }
+            label.textContent = isJednorazowa ? "W" : "Od";
+            unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
         });
 
         nadplataEffectSelect.addEventListener("change", () => {
@@ -317,7 +239,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         });
     }
 
-    // Poprawna synchronizacja dla nowo utworzonych pól
+    // Synchronizacja pól
     syncInputWithRange(cyklInput, cyklRange, {
         isDecimal: false,
         isVariableCykl: true,
@@ -384,7 +306,7 @@ function calculateLoan() {
 
     if (elements.zmienneOprocentowanieBtn.checked) {
         state.variableRates = [];
-        const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-inputMIL-group[data-type='oprocentowanie']");
+        const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group[data-type='oprocentowanie']");
         groups.forEach((group) => {
             const cyklInput = group.querySelector(".variable-cykl");
             const rateInput = group.querySelector(".variable-rate");
@@ -804,7 +726,7 @@ function updateProwizjaInput() {
     const currentValueInput = elements.prowizja.value.replace(",", ".").replace(/\s/g, "");
     const currentValue = parseFloat(currentValueInput);
     if (state.lastFormData.jednostkaProwizji !== jednostka) {
-        const formattedDefaultValue = defaultValue.toFixed(2).replace(".", ",");
+        const formattedDefaultValue = defaultValue.toFixed(2);
         elements.prowizja.value = formattedDefaultValue;
         elements.prowizjaRange.value = defaultValue;
         state.lastFormData.prowizja = defaultValue;
@@ -812,7 +734,7 @@ function updateProwizjaInput() {
         let value = currentValue;
         if (isNaN(value) || value < min) value = min;
         if (value > max) value = max;
-        const formattedValue = value.toFixed(2).replace(".", ",");
+        const formattedValue = value.toFixed(2);
         elements.prowizja.value = formattedValue;
         elements.prowizjaRange.value = value;
         state.lastFormData.prowizja = value;
