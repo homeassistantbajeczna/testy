@@ -53,22 +53,12 @@ const state = {
     tempValues: {},
 };
 
-// Funkcja do formatowania liczb z separatorem tysięcy i przecinkiem
 function formatNumberWithSpaces(number) {
     if (isNaN(number)) return "0,00";
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-// Funkcja do debounce (opóźnienie wywołań)
-function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
-
-// Poprawiona funkcja synchronizacji pól tekstowych z suwakami
+// Poprawiona funkcja synchronizacji pól tekstowych z suwakami dla płynniejszego działania
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, defaultValue } = options;
 
@@ -147,11 +137,11 @@ function syncInputWithRange(input, range, options = {}) {
         updateValue(rawValue, "Input");
     };
 
-    // Handler dla suwaka z debounce
-    const rangeHandler = debounce(() => {
+    // Handler dla suwaka – natychmiastowa aktualizacja
+    const rangeHandler = () => {
         const rawValue = range.value;
         updateValue(rawValue, "Range");
-    }, 50);
+    };
 
     // Handler dla pola tekstowego po opuszczeniu (blur)
     const blurHandler = () => {
@@ -220,7 +210,6 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     },
 });
 
-// Poprawiona funkcja tworzenia grup zmiennych oprocentowań/nadpłat
 function createVariableInputGroup(type, index, period, value, typeValue = "Jednorazowa", effectValue = "Skróć okres") {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const group = document.createElement("div");
@@ -366,7 +355,6 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
     return group;
 }
 
-// Funkcja obliczania kredytu (pozostaje bez zmian)
 function calculateLoan() {
     const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
     const kwota = parseFloat(kwotaInput) || 0;
@@ -396,7 +384,7 @@ function calculateLoan() {
 
     if (elements.zmienneOprocentowanieBtn.checked) {
         state.variableRates = [];
-        const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group[data-type='oprocentowanie']");
+        const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-inputMIL-group[data-type='oprocentowanie']");
         groups.forEach((group) => {
             const cyklInput = group.querySelector(".variable-cykl");
             const rateInput = group.querySelector(".variable-rate");
@@ -866,7 +854,6 @@ function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    // Zmienne oprocentowanie
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     if (isZmienneOprocentowanie && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn) {
         if (state.variableRates.length === 0) {
@@ -898,11 +885,14 @@ function updateVariableInputs() {
     } else {
         if (elements.variableOprocentowanieInputs) elements.variableOprocentowanieInputs.classList.remove("active");
         if (elements.addVariableOprocentowanieBtn) elements.addVariableOprocentowanieBtn.style.display = "none";
-        if (elements.variableOprocentowanieWrapper) elements.variableOprocentowanieWrapper.innerHTML = "";
-        if (!isZmienneOprocentowanie) state.variableRates = [];
+        if (elements.variableOprocentowanieWrapper) {
+            elements.variableOprocentowanieWrapper.innerHTML = "";
+        }
+        if (!isZmienneOprocentowanie) {
+            state.variableRates = [];
+        }
     }
 
-    // Nadpłaty
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
     if (isNadplataKredytu && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn) {
         if (state.overpaymentRates.length === 0) {
@@ -934,8 +924,12 @@ function updateVariableInputs() {
     } else {
         if (elements.nadplataKredytuInputs) elements.nadplataKredytuInputs.classList.remove("active");
         if (elements.addNadplataKredytuBtn) elements.addNadplataKredytuBtn.style.display = "none";
-        if (elements.nadplataKredytuWrapper) elements.nadplataKredytuWrapper.innerHTML = "";
-        if (!isNadplataKredytu) state.overpaymentRates = [];
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.innerHTML = "";
+        }
+        if (!isNadplataKredytu) {
+            state.overpaymentRates = [];
+        }
     }
 }
 
