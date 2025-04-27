@@ -51,9 +51,9 @@ function formatNumberWithSpaces(number) {
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-// Uproszczona synchronizacja inputów z suwakami
+// Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
-    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
+    const { isDecimal = false, onChange, isVariableCykl = false, index, activeType } = options;
 
     if (!input || !range) {
         return;
@@ -61,11 +61,6 @@ function syncInputWithRange(input, range, options = {}) {
 
     if (isDecimal) {
         input.type = "text";
-    }
-
-    // Ustawienie kroku, jeśli podano stepOverride
-    if (stepOverride) {
-        range.step = stepOverride;
     }
 
     const updateValue = (value, source) => {
@@ -108,7 +103,7 @@ function syncInputWithRange(input, range, options = {}) {
                 rawValue = rawValue.replace(/[^0-9.]/g, "");
                 const parts = rawValue.split(".");
                 if (parts.length > 1) {
-                    parts[1] = parts[1].substring(0, 2);
+                    parts[1] = parts[1].slice(0, 2);
                     rawValue = parts.join(".");
                 }
             }
@@ -154,7 +149,6 @@ function syncInputWithRange(input, range, options = {}) {
 
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
-    stepOverride: 100,
     onChange: (value) => {
         state.lastFormData.kwota = value;
         updateProwizjaInfo();
@@ -173,7 +167,6 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
 
 syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, {
     isDecimal: true,
-    stepOverride: 0.01,
     onChange: (value) => {
         state.lastFormData.oprocentowanie = value;
     },
@@ -215,7 +208,6 @@ function calculateLoan() {
         nadplataKredytu: elements.nadplataKredytuBtn.checked
     };
 
-    // Pobieranie zmiennych stóp oprocentowania
     if (elements.zmienneOprocentowanieBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
         state.variableRates = [];
@@ -234,7 +226,6 @@ function calculateLoan() {
         state.variableRates = [];
     }
 
-    // Pobieranie nadpłat
     if (elements.nadplataKredytuBtn.checked) {
         const inputs = document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
         state.overpaymentRates = [];
@@ -512,14 +503,12 @@ function calculateLoan() {
     displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRatPoNadplacie);
 }
 
-// Funkcja pomocnicza do obliczania pozostałych miesięcy dla rat równych
 function calculateRemainingMonths(pozostalyKapital, rata, monthlyRate) {
     if (monthlyRate === 0 || rata <= 0 || pozostalyKapital <= 0) return 0;
     const n = Math.log(rata / (rata - pozostalyKapital * monthlyRate)) / Math.log(1 + monthlyRate);
     return Math.ceil(n);
 }
 
-// Wyświetlanie wyników
 function displayResults(harmonogram, sumaOdsetek, sumaKapitalu, prowizjaKwota, sumaNadplat, iloscRat) {
     if (!elements.formSection || !elements.resultSection) {
         return;
@@ -836,10 +825,10 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             rateGroup.innerHTML = `
                 <label class="form-label">Kwota</label>
                 <div class="input-group">
-                    <input type="text" class="form-control variable-rate" min="0" max="1000000" step="1" value="${formattedInputValue}">
+                    <input type="text" class="form-control variable-rate" min="0" max="1000000" step="100" value="${formattedInputValue}">
                     <span class="input-group-text unit-zl" style="width: 30px; text-align: center;">zł</span>
                 </div>
-                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${inputValue}">
+                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="100" value="${inputValue}">
             `;
 
             fieldsWrapper.appendChild(nadplataTypeGroup);
@@ -920,7 +909,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         const rateRange = inputGroup.querySelector(".variable-rate-range");
         const nadplataTypeSelect = inputGroup.querySelector(".nadplata-type-select");
 
-        // Synchronizacja dla pola "Od/W"
         syncInputWithRange(cyklInput, cyklRange, {
             isDecimal: false,
             isVariableCykl: true,
@@ -948,7 +936,6 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             },
         });
 
-        // Synchronizacja dla pola "Oprocentowanie" lub "Kwota"
         syncInputWithRange(rateInput, rateRange, {
             isDecimal: true,
             activeType,
@@ -1058,7 +1045,8 @@ function toggleDarkMode() {
     if (isDarkMode) {
         body.classList.remove("dark-mode");
         body.classList.add("light-mode");
-        localStorage.setItem("theme", "light");
+        local
+Storage.setItem("theme", "light");
         elements.toggleDarkModeBtn.textContent = "🌙";
     } else {
         body.classList.remove("light-mode");
@@ -1079,7 +1067,6 @@ function initializeTheme() {
     }
 }
 
-// Inicjalizacja listenerów
 if (elements.jednostkaProwizji) {
     elements.jednostkaProwizji.addEventListener("change", () => {
         updateProwizjaInput();
@@ -1152,7 +1139,6 @@ if (elements.generatePdfBtn) {
     });
 }
 
-// Inicjalizacja aplikacji
 function initializeApp() {
     updateProwizjaInput();
     updateKwotaInfo();
