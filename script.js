@@ -91,6 +91,8 @@ function syncInputWithRange(input, range, options = {}) {
 
     if (stepOverride) {
         range.step = stepOverride;
+    } else if (isVariableCykl) {
+        range.step = "1"; // Ustawiamy krok na 1 dla płynności, tak jak w "Ilość rat"
     }
 
     const updateValue = (value, source, skipOnChange = false) => {
@@ -103,12 +105,10 @@ function syncInputWithRange(input, range, options = {}) {
         let parsedValue = parseFloat(value);
         if (isNaN(parsedValue)) parsedValue = min;
 
-        if (!isDecimal && !isVariableCykl) {
-            parsedValue = Math.round(parsedValue);
-        } else if (isDecimal) {
-            parsedValue = Math.round(parsedValue * 100) / 100;
-        } else if (isVariableCykl) {
-            parsedValue = Math.round(parsedValue);
+        if (!isDecimal) {
+            parsedValue = Math.round(parsedValue); // Zaokrąglamy dla pól całkowitych, takich jak "Od/W", "Od" i "Ilość rat"
+        } else {
+            parsedValue = Math.round(parsedValue * 100) / 100; // Dla pól dziesiętnych
         }
 
         if (parsedValue < min) parsedValue = min;
@@ -162,7 +162,7 @@ function syncInputWithRange(input, range, options = {}) {
     const rangeHandler = () => {
         let rawValue = range.value;
         let parsedValue = parseFloat(rawValue);
-        if (isVariableCykl) {
+        if (!isDecimal) {
             parsedValue = Math.round(parsedValue);
             rawValue = parsedValue.toString();
         }
@@ -249,7 +249,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
                         <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${period}">
                         <span class="input-group-text">miesiąca</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="0.1" value="${period}">
+                    <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="1" value="${period}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Oprocentowanie</label>
@@ -293,7 +293,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
                         <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl - 1}" step="1" value="${period}">
                         <span class="input-group-text unit-miesiacu">${isJednorazowa ? "miesiącu" : "miesiąca"}</span>
                     </div>
-                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl - 1}" step="0.1" value="${period}">
+                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl - 1}" step="1" value="${period}">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Kwota</label>
