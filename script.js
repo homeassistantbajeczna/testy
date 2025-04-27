@@ -328,7 +328,7 @@ function calculateLoan() {
 
     // Pobieranie nadpłat
     if (elements.nadplataKredytuBtn.checked) {
-        const inputs = document.query/Document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
+        const inputs = document.querySelectorAll('.variable-input-group[data-type="nadplata"]');
         state.overpaymentRates = [];
         inputs.forEach((inputGroup) => {
             const cyklInput = inputGroup.querySelector(".variable-cykl");
@@ -834,7 +834,7 @@ function updateRodzajRatInfo() {
 function updateVariableInputs() {
     console.log("updateVariableInputs called");
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = 50; // Zmieniono na stałą wartość
+    const maxChanges = 50;
 
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
@@ -849,7 +849,6 @@ function updateVariableInputs() {
     });
 
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
-        // Pobieramy aktualne wartości z DOM, aby zaktualizować stan
         const inputsOprocentowanie = variableOprocentowanieWrapper.querySelectorAll('.variable-input-group[data-type="oprocentowanie"]');
         if (inputsOprocentowanie.length > 0) {
             state.variableRates = [];
@@ -1151,23 +1150,31 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     });
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
-    const isMaxPeriodReached = changes.length > 0 && changes.some(change => change.period >= maxPeriodValue);
-    addBtn.style.display = (changes.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
+    const lastPeriod = changes.length > 0 ? Math.max(...changes.map(c => c.period)) : 0;
+    const isMaxPeriodReached = lastPeriod >= maxPeriodValue;
+    const canAddMore = changes.length < maxChanges && !isMaxPeriodReached;
+    console.log(`Button visibility check: changes.length=${changes.length}, maxChanges=${maxChanges}, lastPeriod=${lastPeriod}, maxPeriodValue=${maxPeriodValue}, isMaxPeriodReached=${isMaxPeriodReached}, canAddMore=${canAddMore}`);
+    addBtn.style.display = canAddMore ? "block" : "none";
 }
 
 function addVariableChange(activeType) {
     console.log(`addVariableChange called for ${activeType}`);
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = 50; // Zmieniono na stałą wartość
+    const maxChanges = 50;
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
-    const lastChange = changes.length > 0 ? changes.reduce((max, change) => Math.max(max, change.period), 0) : 0;
+    const lastChange = changes.length > 0 ? Math.max(...changes.map(c => c.period)) : 0;
     const isMaxPeriodReached = lastChange >= maxPeriod;
+
+    console.log(`Adding new change: activeType=${activeType}, changes.length=${changes.length}, lastChange=${lastChange}, maxPeriod=${maxPeriod}, isMaxPeriodReached=${isMaxPeriodReached}`);
 
     if (changes.length >= maxChanges || isMaxPeriodReached) {
         if (changes.length >= maxChanges) {
+            console.warn(`Max changes reached: ${maxChanges}`);
             alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
+        } else if (isMaxPeriodReached) {
+            console.warn(`Max period reached: lastChange=${lastChange}, maxPeriod=${maxPeriod}`);
         }
         if (activeType === "oprocentowanie") {
             elements.addVariableOprocentowanieBtn.style.display = "none";
@@ -1183,7 +1190,9 @@ function addVariableChange(activeType) {
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
+    console.log(`New change added:`, newChange);
     changes.sort((a, b) => a.period - b.period);
+    console.log(`Updated changes after sorting:`, changes);
     updateVariableInputs();
 }
 
@@ -1268,11 +1277,17 @@ if (elements.nadplataKredytuBtn) {
 }
 
 if (elements.addVariableOprocentowanieBtn) {
-    elements.addVariableOprocentowanieBtn.addEventListener("click", () => addVariableChange("oprocentowanie"));
+    elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
+        console.log("Add variable oprocentowanie button clicked");
+        addVariableChange("oprocentowanie");
+    });
 }
 
 if (elements.addNadplataKredytuBtn) {
-    elements.addNadplataKredytuBtn.addEventListener("click", () => addVariableChange("nadplata"));
+    elements.addNadplataKredytuBtn.addEventListener("click", () => {
+        console.log("Add nadplata kredytu button clicked");
+        addVariableChange("nadplata");
+    });
 }
 
 if (elements.obliczBtn) {
