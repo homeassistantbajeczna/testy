@@ -888,7 +888,7 @@ function updateVariableInputs() {
     if (isZmienneOprocentowanie && variableOprocentowanieInputs && addVariableOprocentowanieBtn && variableOprocentowanieWrapper) {
         variableOprocentowanieInputs.classList.add("active");
         addVariableOprocentowanieBtn.style.display = "block";
-        if (state.variableRates.length === 0 && state.variableRates.length < maxChanges) {
+        if (state.variableRates.length === 0) {
             state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
         }
         renderVariableInputs(variableOprocentowanieWrapper, state.variableRates, "oprocentowanie", maxCykl, maxChanges, addVariableOprocentowanieBtn);
@@ -918,7 +918,7 @@ function updateVariableInputs() {
     if (isNadplataKredytu && nadplataKredytuInputs && addNadplataKredytuBtn && nadplataKredytuWrapper) {
         nadplataKredytuInputs.classList.add("active");
         addNadplataKredytuBtn.style.display = "block";
-        if (state.overpaymentRates.length === 0 && state.overpaymentRates.length < maxChanges) {
+        if (state.overpaymentRates.length === 0) {
             state.overpaymentRates = [{ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" }];
         }
         renderVariableInputs(nadplataKredytuWrapper, state.overpaymentRates, "nadplata", maxCykl, maxChanges, addNadplataKredytuBtn);
@@ -942,47 +942,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         return;
     }
 
-    // Pobieramy istniejące wartości, aby zachować dane wprowadzone przez użytkownika
-    const existingInputs = wrapper.querySelectorAll(".variable-input-group");
-    const existingValues = [];
-    const existingPeriods = [];
-    existingInputs.forEach((inputGroup, index) => {
-        const rateInput = inputGroup.querySelector(".variable-rate");
-        const cyklInput = inputGroup.querySelector(".variable-cykl");
-        const valueInput = rateInput ? rateInput.value.replace(",", ".") : null;
-        const value = valueInput ? parseFloat(valueInput) : (changes[index]?.value || (activeType === "nadplata" ? 1000 : state.lastFormData.oprocentowanie));
-        const period = cyklInput ? parseInt(cyklInput.value) : (changes[index]?.period || (activeType === "nadplata" ? 1 : 2));
-        existingValues[index] = value;
-        existingPeriods[index] = period;
-
-        if (changes[index]) {
-            changes[index].value = value;
-            changes[index].period = period;
-            if (activeType === "nadplata") {
-                const typeSelect = inputGroup.querySelector(".nadplata-type-select");
-                const effectSelect = inputGroup.querySelector(".nadplata-effect-select");
-                changes[index].type = typeSelect ? typeSelect.value : changes[index].type;
-                changes[index].effect = effectSelect ? effectSelect.value : changes[index].effect;
-            }
-        }
-    });
-
     wrapper.innerHTML = "";
-
-    // Sprawdzamy, czy którykolwiek okres osiąga maksymalną wartość
-    const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    let maxReachedIndex = -1;
-    for (let i = 0; i < changes.length; i++) {
-        if (changes[i].period >= maxPeriodValue) {
-            maxReachedIndex = i;
-            break;
-        }
-    }
-
-    // Jeśli znaleziono okres równy maksymalnemu, usuwamy wszystkie kolejne wiersze
-    if (maxReachedIndex !== -1) {
-        changes.splice(maxReachedIndex + 1);
-    }
 
     changes.forEach((change, index) => {
         const inputGroup = document.createElement("div");
@@ -993,6 +953,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
         fieldsWrapper.className = "fields-wrapper";
 
         const minPeriod = activeType === "nadplata" ? 1 : 2;
+        const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
         let periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
 
         // Aktualizujemy periodValue
@@ -1138,18 +1099,7 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             activeType,
             onChange: (value) => {
                 changes[index].period = value;
-                // Sortowanie zmian po okresie
                 changes.sort((a, b) => a.period - b.period);
-                // Sprawdzamy, czy którykolwiek okres osiąga maksymalną wartość
-                let maxReached = false;
-                for (let i = 0; i < changes.length; i++) {
-                    if (changes[i].period >= maxPeriodValue) {
-                        maxReached = true;
-                        // Usuwamy wszystkie kolejne wiersze
-                        changes.splice(i + 1);
-                        break;
-                    }
-                }
                 updateVariableInputs();
             },
         });
@@ -1189,9 +1139,9 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
     });
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
-    // Sprawdzamy, czy którykolwiek okres osiąga maksymalną wartość
-    const isMaxPeriodReached = changes.some(change => change.period >= maxPeriodValue);
-    addBtn.style.display = changes.length < maxChanges && !isMaxPeriodReached ? "block" : "none";
+    const lastPeriod = changes.length > 0 ? changes[changes.length - 1].period : 0;
+    const canAddMore = changes.length < maxChanges && lastPeriod < maxCykl;
+    addBtn.style.display = canAddMore ? "block" : "none";
 }
 
 function addVariableChange(activeType) {
@@ -1199,16 +1149,16 @@ function addVariableChange(activeType) {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+    let changes = activeType === "oprocentowanie" ? state.variableRates : state overpaymentRates;
 
-    // Znajdujemy największy okres w istniejących zmianach
-    const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    const lastChange = changes.length > 0 ? changes.reduce((max, change) => Math.max(max, change.period), 0) : 0;
-    const isMaxPeriodReached = lastChange >= maxPeriod;
+    const lastPeriod = changes.length > 0 ? changes[changes.length - 1].period : 0;
+    const canAddMore = changes.length < maxChanges && lastPeriod < maxCykl;
 
-    if (changes.length >= maxChanges || isMaxPeriodReached) {
+    if (!canAddMore) {
         if (changes.length >= maxChanges) {
             alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
+        } else if (lastPeriod >= maxCykl) {
+            alert(`Nie można dodać więcej zmian, ponieważ ostatnia zmiana osiągnęła maksymalny okres (${maxCykl} miesięcy).`);
         }
         if (activeType === "oprocentowanie") {
             elements.addVariableOprocentowanieBtn.style.display = "none";
@@ -1218,17 +1168,13 @@ function addVariableChange(activeType) {
         return;
     }
 
-    // Nowy okres to największy istniejący okres + 1
-    const newCykl = lastChange ? lastChange + 1 : (activeType === "nadplata" ? 1 : 2);
+    const newPeriod = Math.min(lastPeriod + 1, activeType === "nadplata" ? maxCykl - 1 : maxCykl);
     const newChange = activeType === "oprocentowanie" 
-        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
-        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
+        ? { period: newPeriod, value: state.lastFormData.oprocentowanie }
+        : { period: newPeriod, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
-
-    // Sortujemy zmiany po dodaniu nowego wiersza
     changes.sort((a, b) => a.period - b.period);
-
     updateVariableInputs();
 }
 
