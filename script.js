@@ -471,7 +471,7 @@ function calculateLoan() {
 
             // Ustawiamy ratę
             if (isOverpaymentMonth && i > 1) {
-                // W miesiącu nadpłaty używamy raty z poprzedniego miesiąca
+                // W miesiącu nadpłaty używamy raty  z poprzedniego miesiąca
                 rata = previousRata;
             } else {
                 // Obliczamy normalnie ratę
@@ -875,7 +875,7 @@ function updateVariableInputs() {
 
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
-    const addVariableOprocentowanieBtn = elements.addVariableOprocentowanieBtn;
+    const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
     const variableOprocentowanieWrapper = document.getElementById("variableOprocentowanieInputsWrapper");
 
     console.log("Zmienne Oprocentowanie:", {
@@ -923,7 +923,7 @@ function updateVariableInputs() {
 
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
     const nadplataKredytuInputs = document.getElementById("nadplataKredytuInputs");
-    const addNadplataKredytuBtn = elements.addNadplataKredytuBtn;
+    const addNadplataKredytuBtn = document.getElementById("addNadplataKredytuBtn");
     const nadplataKredytuWrapper = document.getElementById("nadplataKredytuInputsWrapper");
 
     console.log("Nadpłata Kredytu:", {
@@ -1350,24 +1350,6 @@ if (elements.nadplataKredytuBtn) {
     });
 }
 
-if (elements.addVariableOprocentowanieBtn) {
-    // Usuwamy stare listenery, jeśli istnieją
-    elements.addVariableOprocentowanieBtn.removeEventListener("click", elements.addVariableOprocentowanieBtn._listener);
-    const listener = () => addVariableChange("oprocentowanie");
-    elements.addVariableOprocentowanieBtn._listener = listener;
-    elements.addVariableOprocentowanieBtn.addEventListener("click", listener);
-    console.log("Added click listener for addVariableOprocentowanieBtn");
-}
-
-if (elements.addNadplataKredytuBtn) {
-    // Usuwamy stare listenery, jeśli istnieją
-    elements.addNadplataKredytuBtn.removeEventListener("click", elements.addNadplataKredytuBtn._listener);
-    const listener = () => addVariableChange("nadplata");
-    elements.addNadplataKredytuBtn._listener = listener;
-    elements.addNadplataKredytuBtn.addEventListener("click", listener);
-    console.log("Added click listener for addNadplataKredytuBtn");
-}
-
 if (elements.obliczBtn) {
     elements.obliczBtn.addEventListener("click", calculateLoan);
 }
@@ -1420,6 +1402,30 @@ function initializeApp() {
     updateRodzajRatInfo();
     updateVariableInputs();
     initializeTheme();
+
+    // Przypisanie listenerów dla przycisków "Dodaj kolejną..." po upewnieniu się, że elementy są w DOM
+    const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
+    const addNadplataKredytuBtn = document.getElementById("addNadplataKredytuBtn");
+
+    if (addVariableOprocentowanieBtn) {
+        console.log("Found addVariableOprocentowanieBtn, adding listener");
+        addVariableOprocentowanieBtn.addEventListener("click", () => {
+            console.log("addVariableOprocentowanieBtn clicked");
+            addVariableChange("oprocentowanie");
+        });
+    } else {
+        console.error("addVariableOprocentowanieBtn not found in DOM");
+    }
+
+    if (addNadplataKredytuBtn) {
+        console.log("Found addNadplataKredytuBtn, adding listener");
+        addNadplataKredytuBtn.addEventListener("click", () => {
+            console.log("addNadplataKredytuBtn clicked");
+            addVariableChange("nadplata");
+        });
+    } else {
+        console.error("addNadplataKredytuBtn not found in DOM");
+    }
 }
 
 document.addEventListener("DOMContentLoaded", initializeApp);
