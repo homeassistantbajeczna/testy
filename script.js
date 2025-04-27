@@ -61,6 +61,19 @@ function formatNumberWithSpaces(number) {
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
+// Funkcja debounce do ograniczania częstotliwości wywołań
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride } = options;
@@ -178,9 +191,11 @@ function syncInputWithRange(input, range, options = {}) {
         delete state.tempValues[input.id || range.id];
     };
 
-    const rangeHandler = (skipOnChange = false) => {
-        updateValue(range.value, "Range", skipOnChange);
+    const rangeHandler = () => {
+        updateValue(range.value, "Range");
     };
+
+    const debouncedRangeHandler = isVariableCykl ? debounce(rangeHandler, 100) : rangeHandler;
 
     if (!isDecimal) {
         const keypressHandler = (e) => {
@@ -193,29 +208,32 @@ function syncInputWithRange(input, range, options = {}) {
     }
 
     input._eventListeners.input = inputHandler;
-    range._eventListeners.input = () => rangeHandler(isVariableCykl);
+    range._eventListeners.input = debouncedRangeHandler;
 
     if (activeType) {
         // Dla pól dynamicznych (Zmienne oprocentowanie, Nadpłata kredytu)
         if (isVariableCykl) {
-            // Dla suwaków "Od/W" używamy zdarzenia input, ale pomijamy onChange podczas przesuwania
+            // Dla suwaków "Od/W"
             input.addEventListener("input", inputHandler);
             input._eventListeners.change = inputChangeHandler;
             input.addEventListener("change", inputChangeHandler);
-            range.addEventListener("input", () => rangeHandler(true));
+            range.addEventListener("input", debouncedRangeHandler);
+            // Dodajemy zdarzenie change dla suwaka, aby upewnić się, że onChange zostanie wywołane po zakończeniu przesuwania
+            range._eventListeners.change = rangeHandler;
+            range.addEventListener("change", rangeHandler);
         } else {
             // Dla pól "Kwota" i "Oprocentowanie" w sekcjach dynamicznych
             input.addEventListener("input", inputHandler);
             input._eventListeners.change = inputChangeHandler;
             input.addEventListener("change", inputChangeHandler);
-            range.addEventListener("input", () => rangeHandler(false));
+            range.addEventListener("input", rangeHandler);
         }
     } else {
         // Dla głównych pól używamy zdarzeń input i change, aby obsłużyć miejsca po przecinku
         input.addEventListener("input", inputHandler);
         input._eventListeners.change = inputChangeHandler;
         input.addEventListener("change", inputChangeHandler);
-        range.addEventListener("input", () => rangeHandler(false));
+        range.addEventListener("input", rangeHandler);
     }
 
     // Inicjalizacja wartości
@@ -543,7 +561,7 @@ function calculateLoan() {
                 if (monthlyRate === 0) {
                     rata = pozostalyKapital / remainingMonths;
                 } else {
-                    rata = (pozostalyKapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
+                    rata = (pozostalyKapital * monthly_MORE_RATE) / (1 - Math.pow(1 + monthlyRate, -remainingMonths));
                 }
                 if (isNaN(rata) || rata <= 0) rata = 0;
                 console.log(`Rata recalculated after rate change at month ${i} (równe):`, rata);
