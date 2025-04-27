@@ -53,81 +53,77 @@ const state = {
     tempValues: {},
 };
 
+// Funkcja do formatowania liczb z separatorem tysięcy i przecinkiem
 function formatNumberWithSpaces(number) {
     if (isNaN(number)) return "0,00";
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
+// Funkcja do debounce (opóźnienie wywołań)
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Poprawiona funkcja synchronizacji pól tekstowych z suwakami
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, defaultValue } = options;
 
     if (!input || !range) return;
 
-    if (isDecimal) {
-        input.type = "text";
-    } else {
-        input.type = "number";
-    }
+    input.type = isDecimal ? "text" : "number";
 
+    // Usuwanie istniejących listenerów
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
     const removeListeners = () => {
-        if (input._eventListeners.input) {
-            input.removeEventListener("input", input._eventListeners.input);
-        }
-        if (input._eventListeners.change) {
-            input.removeEventListener("change", input._eventListeners.change);
-        }
-        if (range._eventListeners.input) {
-            range.removeEventListener("input", range._eventListeners.input);
-        }
-        if (range._eventListeners.change) {
-            range.removeEventListener("change", range._eventListeners.change);
-        }
+        if (input._eventListeners.input) input.removeEventListener("input", input._eventListeners.input);
+        if (input._eventListeners.blur) input.removeEventListener("blur", input._eventListeners.blur);
+        if (range._eventListeners.input) range.removeEventListener("input", range._eventListeners.input);
     };
 
     removeListeners();
 
-    if (stepOverride) {
-        range.step = stepOverride;
-    } else if (isVariableCykl) {
-        range.step = "1"; // Ustawiamy krok na 1 dla płynności, tak jak w "Ilość rat"
-    }
+    if (stepOverride) range.step = stepOverride;
+    else if (isVariableCykl) range.step = "1";
 
     const updateValue = (value, source, skipOnChange = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
 
+        // Parsowanie wartości
         if (typeof value === "string") {
             value = value.replace(",", ".").replace(/\s/g, "");
         }
-        let parsedValue = parseFloat(value);
-        if (isNaN(parsedValue)) parsedValue = min;
+        let parsedValue = parseFloat(value) || min;
 
+        // Zaokrąglanie
         if (!isDecimal) {
-            parsedValue = Math.round(parsedValue); // Zaokrąglamy dla pól całkowitych, takich jak "Od/W", "Od" i "Ilość rat"
+            parsedValue = Math.round(parsedValue);
         } else {
-            parsedValue = Math.round(parsedValue * 100) / 100; // Dla pól dziesiętnych
+            parsedValue = Math.round(parsedValue * 100) / 100;
         }
 
-        if (parsedValue < min) parsedValue = min;
-        if (parsedValue > max) parsedValue = max;
+        // Ograniczenie zakresu
+        parsedValue = Math.max(min, Math.min(max, parsedValue));
 
-        let formattedValue;
-        if (isDecimal) {
-            formattedValue = parsedValue.toFixed(2).replace(".", ",");
-        } else {
-            formattedValue = parsedValue.toString();
-        }
+        // Formatowanie wartości do wyświetlenia
+        const formattedValue = isDecimal ? parsedValue.toFixed(2).replace(".", ",") : parsedValue.toString();
 
+        // Aktualizacja elementów
         input.value = formattedValue;
         range.value = parsedValue;
 
+        // Aktualizacja dodatkowych informacji
         if (input.id === "kwota") updateKwotaInfo();
         if (input.id === "prowizja") updateProwizjaInfo();
         if (input.id === "iloscRat") updateLata();
 
+        // Wywołanie callbacka onChange
         if (activeType && !skipOnChange && onChange) {
             onChange(parsedValue);
         } else {
@@ -135,16 +131,13 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
+    // Handler dla pola tekstowego
     const inputHandler = () => {
         let rawValue = input.value.replace(/\s/g, "");
         if (isDecimal) {
-            rawValue = rawValue.replace(/[^0-9,.]/g, "");
-            rawValue = rawValue.replace(",", ".");
+            rawValue = rawValue.replace(/[^0-9,.]/g, "").replace(",", ".");
             const parts = rawValue.split(".");
-            if (parts.length > 1) {
-                parts[1] = parts[1].slice(0, 2);
-                rawValue = parts.join(".");
-            }
+            if (parts.length > 1) rawValue = parts[0] + "." + parts[1].slice(0, 2);
             rawValue = rawValue.replace(".", ",");
             input.value = rawValue;
         } else {
@@ -152,48 +145,42 @@ function syncInputWithRange(input, range, options = {}) {
             input.value = rawValue;
         }
         updateValue(rawValue, "Input");
-        if (onChange) {
-            const parsedValue = parseFloat(rawValue.replace(",", "."));
-            onChange(parsedValue);
-        }
-        delete state.tempValues[input.id || range.id];
     };
 
-    const rangeHandler = () => {
-        let rawValue = range.value;
-        let parsedValue = parseFloat(rawValue);
-        if (!isDecimal) {
-            parsedValue = Math.round(parsedValue);
-            rawValue = parsedValue.toString();
-        }
+    // Handler dla suwaka z debounce
+    const rangeHandler = debounce(() => {
+        const rawValue = range.value;
         updateValue(rawValue, "Range");
+    }, 50);
+
+    // Handler dla pola tekstowego po opuszczeniu (blur)
+    const blurHandler = () => {
+        let rawValue = input.value.replace(/\s/g, "");
+        if (isDecimal) rawValue = rawValue.replace(",", ".");
+        const parsedValue = parseFloat(rawValue) || (parseFloat(input.min) || 0);
+        updateValue(parsedValue, "Input");
     };
 
+    // Podpięcie zdarzeń
     input._eventListeners.input = inputHandler;
+    input._eventListeners.blur = blurHandler;
     range._eventListeners.input = rangeHandler;
 
     input.addEventListener("input", inputHandler);
+    input.addEventListener("blur", blurHandler);
     range.addEventListener("input", rangeHandler);
 
+    // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
-    let initialValue = defaultValue !== undefined ? defaultValue : parseFloat(range.value);
+    let initialValue = defaultValue !== undefined ? defaultValue : parseFloat(input.value) || min;
     if (isNaN(initialValue)) initialValue = min;
+    initialValue = Math.max(min, Math.min(max, initialValue));
 
-    if (initialValue < min) initialValue = min;
-    if (initialValue > max) initialValue = max;
-
-    let formattedInitialValue;
-    if (isDecimal) {
-        formattedInitialValue = initialValue.toFixed(2).replace(".", ",");
-    } else {
-        formattedInitialValue = initialValue.toString();
-    }
-
-    input.value = formattedInitialValue;
-    range.value = initialValue;
+    updateValue(initialValue, "Initial", true);
 }
 
+// Inicjalizacja synchronizacji dla głównych pól
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
     stepOverride: 100,
@@ -233,6 +220,7 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     },
 });
 
+// Poprawiona funkcja tworzenia grup zmiennych oprocentowań/nadpłat
 function createVariableInputGroup(type, index, period, value, typeValue = "Jednorazowa", effectValue = "Skróć okres") {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const group = document.createElement("div");
@@ -340,6 +328,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         });
     }
 
+    // Poprawna synchronizacja dla nowo utworzonych pól
     syncInputWithRange(cyklInput, cyklRange, {
         isDecimal: false,
         isVariableCykl: true,
@@ -377,6 +366,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
     return group;
 }
 
+// Funkcja obliczania kredytu (pozostaje bez zmian)
 function calculateLoan() {
     const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
     const kwota = parseFloat(kwotaInput) || 0;
@@ -876,6 +866,7 @@ function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
+    // Zmienne oprocentowanie
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     if (isZmienneOprocentowanie && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn) {
         if (state.variableRates.length === 0) {
@@ -907,14 +898,11 @@ function updateVariableInputs() {
     } else {
         if (elements.variableOprocentowanieInputs) elements.variableOprocentowanieInputs.classList.remove("active");
         if (elements.addVariableOprocentowanieBtn) elements.addVariableOprocentowanieBtn.style.display = "none";
-        if (elements.variableOprocentowanieWrapper) {
-            elements.variableOprocentowanieWrapper.innerHTML = "";
-        }
-        if (!isZmienneOprocentowanie) {
-            state.variableRates = [];
-        }
+        if (elements.variableOprocentowanieWrapper) elements.variableOprocentowanieWrapper.innerHTML = "";
+        if (!isZmienneOprocentowanie) state.variableRates = [];
     }
 
+    // Nadpłaty
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
     if (isNadplataKredytu && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn) {
         if (state.overpaymentRates.length === 0) {
@@ -946,12 +934,8 @@ function updateVariableInputs() {
     } else {
         if (elements.nadplataKredytuInputs) elements.nadplataKredytuInputs.classList.remove("active");
         if (elements.addNadplataKredytuBtn) elements.addNadplataKredytuBtn.style.display = "none";
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.innerHTML = "";
-        }
-        if (!isNadplataKredytu) {
-            state.overpaymentRates = [];
-        }
+        if (elements.nadplataKredytuWrapper) elements.nadplataKredytuWrapper.innerHTML = "";
+        if (!isNadplataKredytu) state.overpaymentRates = [];
     }
 }
 
