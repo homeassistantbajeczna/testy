@@ -944,12 +944,13 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
     wrapper.innerHTML = "";
 
-    // Obliczanie minimalnych wartości dla każdego wiersza
+    // Obliczanie minimalnych wartości dla każdego wiersza na podstawie poprzednich wartości
     const minPeriods = [];
-    changes.forEach((_, index) => {
+    changes.forEach((change, index) => {
         if (index === 0) {
             minPeriods[index] = activeType === "nadplata" ? 1 : 2;
         } else {
+            // Minimalna wartość dla kolejnego wiersza to wartość z poprzedniego wiersza + 1
             minPeriods[index] = changes[index - 1].period + 1;
         }
     });
@@ -964,10 +965,16 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
         const minPeriod = minPeriods[index];
         const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-        let periodValue = Math.min(Math.max(change.period, minPeriod), maxPeriodValue);
-
-        // Aktualizujemy periodValue
-        change.period = periodValue;
+        // Ustawiamy periodValue, ale nie nadpisujemy istniejącej wartości, jeśli nie trzeba
+        let periodValue = change.period;
+        if (periodValue < minPeriod) {
+            periodValue = minPeriod;
+            change.period = periodValue;
+        }
+        if (periodValue > maxPeriodValue) {
+            periodValue = maxPeriodValue;
+            change.period = periodValue;
+        }
 
         if (activeType === "nadplata") {
             const nadplataTypeGroup = document.createElement("div");
@@ -1108,18 +1115,25 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
             isVariableCykl: true,
             activeType,
             onChange: (value) => {
-                changes[index].period = value;
+                const newValue = parseInt(value);
+                changes[index].period = newValue;
                 // Sortujemy zmiany
                 changes.sort((a, b) => a.period - b.period);
+                // Znajdujemy nowy indeks po sortowaniu
+                const newIndex = changes.findIndex((change) => change.period === newValue);
                 // Usuwamy wszystkie wiersze po tym, jeśli nowa wartość osiąga max
                 const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-                if (value >= maxPeriodValue) {
-                    changes.splice(index + 1);
+                if (newValue >= maxPeriodValue) {
+                    changes.splice(newIndex + 1);
                 } else {
-                    // Aktualizujemy minimalne wartości dla kolejnych wierszy
-                    for (let i = index + 1; i < changes.length; i++) {
+                    // Aktualizujemy wartości period w kolejnych wierszach, jeśli są mniejsze lub równe
+                    for (let i = newIndex + 1; i < changes.length; i++) {
                         if (changes[i].period <= changes[i - 1].period) {
                             changes[i].period = changes[i - 1].period + 1;
+                            if (changes[i].period > maxPeriodValue) {
+                                changes.splice(i);
+                                break;
+                            }
                         }
                     }
                 }
@@ -1163,7 +1177,8 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 
     addBtn.textContent = activeType === "nadplata" ? "Dodaj kolejną nadpłatę" : "Dodaj kolejną zmianę";
     const lastPeriod = changes.length > 0 ? changes[changes.length - 1].period : 0;
-    const canAddMore = changes.length < maxChanges && lastPeriod < maxCykl;
+    const maxPeriodValue = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
+    const canAddMore = changes.length < maxChanges && lastPeriod < maxPeriodValue;
     addBtn.style.display = canAddMore ? "block" : "none";
 }
 
@@ -1174,7 +1189,7 @@ function addVariableChange(activeType) {
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
 
-    const lastPeriod = changes.length > 0 ? changes[changes.length - 1].period : 0;
+    const lastPeriod = changes.length > 0 ? changes[changes.length - 1].period : (activeType === "nadplata" ? 0 : 1);
     const canAddMore = changes.length < maxChanges && lastPeriod < maxCykl;
 
     if (!canAddMore) {
@@ -1209,7 +1224,6 @@ function addVariableChange(activeType) {
         : { period: newPeriod, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
-    changes.sort((a, b) => a.period - b.period);
     updateVariableInputs();
 }
 
