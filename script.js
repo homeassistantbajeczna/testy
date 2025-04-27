@@ -72,8 +72,9 @@ function syncInputWithRange(input, range, options = {}) {
 
     const removeListeners = () => {
         if (input._eventListeners.input) input.removeEventListener("input", input._eventListeners.input);
-        if (input._eventListeners.blur) input.removeEventListener("blur", input._eventListeners.blur);
+        if (input._eventListeners.change) input.removeEventListener("change", input._eventListeners.change);
         if (range._eventListeners.input) range.removeEventListener("input", range._eventListeners.input);
+        if (range._eventListeners.change) range.removeEventListener("change", range._eventListeners.change);
     };
 
     removeListeners();
@@ -115,29 +116,36 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
-    const inputHandler = () => {
+    const inputInputHandler = () => {
         let rawValue = input.value.replace(/\s/g, "");
         updateValue(rawValue, "Input");
     };
 
-    const rangeHandler = () => {
-        const rawValue = range.value;
-        updateValue(rawValue, "Range");
-    };
-
-    const blurHandler = () => {
+    const inputChangeHandler = () => {
         let rawValue = input.value.replace(/\s/g, "");
         const parsedValue = parseFloat(rawValue) || (parseFloat(input.min) || 0);
         updateValue(parsedValue, "Input");
     };
 
-    input._eventListeners.input = inputHandler;
-    input._eventListeners.blur = blurHandler;
-    range._eventListeners.input = rangeHandler;
+    const rangeInputHandler = () => {
+        const rawValue = range.value;
+        updateValue(rawValue, "Range");
+    };
 
-    input.addEventListener("input", inputHandler);
-    input.addEventListener("blur", blurHandler);
-    range.addEventListener("input", rangeHandler);
+    const rangeChangeHandler = () => {
+        const rawValue = range.value;
+        updateValue(rawValue, "Range");
+    };
+
+    input._eventListeners.input = inputInputHandler;
+    input._eventListeners.change = inputChangeHandler;
+    range._eventListeners.input = rangeInputHandler;
+    range._eventListeners.change = rangeChangeHandler;
+
+    input.addEventListener("input", inputInputHandler);
+    input.addEventListener("change", inputChangeHandler);
+    range.addEventListener("input", rangeInputHandler);
+    range.addEventListener("change", rangeChangeHandler);
 
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
@@ -215,6 +223,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         cyklRange.value = period;
         rateInput.value = value;
         rateRange.value = value;
+        rateRange.step = "0.01";
     } else if (type === "nadplata") {
         const minPeriod = index > 0 ? (state.overpaymentRates[index - 1]?.period || 0) + 1 : 1;
         cyklInput.min = minPeriod;
@@ -225,33 +234,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         cyklRange.value = period;
         rateInput.value = value;
         rateRange.value = value;
-
-        const nadplataTypeSelect = group.querySelector(".nadplata-type-select");
-        const nadplataEffectSelect = group.querySelector(".nadplata-effect-select");
-        const label = group.querySelector(".form-label:has(.variable-cykl)");
-        const unit = group.querySelector(".unit-miesiacu");
-
-        if (nadplataTypeSelect && nadplataEffectSelect && label && unit) {
-            nadplataTypeSelect.value = typeValue;
-            nadplataEffectSelect.value = effectValue;
-
-            const updateLabels = () => {
-                const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
-                label.textContent = isJednorazowa ? "W którym miesiącu" : "Od którego miesiąca";
-                unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
-            };
-
-            updateLabels();
-
-            nadplataTypeSelect.addEventListener("change", () => {
-                state.overpaymentRates[index].type = nadplataTypeSelect.value;
-                updateLabels();
-            });
-
-            nadplataEffectSelect.addEventListener("change", () => {
-                state.overpaymentRates[index].effect = nadplataEffectSelect.value;
-            });
-        }
+        rateRange.step = "1";
     }
 
     syncInputWithRange(cyklInput, cyklRange, {
@@ -734,7 +717,6 @@ function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    // Zmienne oprocentowanie
     if (elements.zmienneOprocentowanieBtn?.checked && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn && elements.variableOprocentowanieWrapper) {
         if (state.variableRates.length === 0) {
             state.variableRates.push({ value: state.lastFormData.oprocentowanie || 7, period: 2 });
@@ -779,7 +761,6 @@ function updateVariableInputs() {
         if (!elements.zmienneOprocentowanieBtn?.checked) state.variableRates = [];
     }
 
-    // Nadpłata kredytu
     if (elements.nadplataKredytuBtn?.checked && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn && elements.nadplataKredytuWrapper) {
         if (state.overpaymentRates.length === 0) {
             state.overpaymentRates.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
