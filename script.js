@@ -871,7 +871,7 @@ function updateRodzajRatInfo() {
 function updateVariableInputs() {
     console.log("updateVariableInputs called");
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = Math.floor(maxCykl / 12) || 1;
+    const maxChanges = 50; // Zwiększamy limit zmian, aby umożliwić więcej nadpłat
 
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     const variableOprocentowanieInputs = document.getElementById("variableOprocentowanieInputs");
@@ -1218,13 +1218,13 @@ function renderVariableInputs(wrapper, changes, activeType, maxCykl, maxChanges,
 function addVariableChange(activeType) {
     console.log(`addVariableChange called for ${activeType}`);
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
-    const maxChanges = Math.floor(maxCykl / 12) || 1;
+    const maxChanges = 50; // Zwiększamy limit, aby umożliwić więcej zmian
+    const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
 
     let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
     console.log(`Current changes for ${activeType}:`, changes);
 
     // Znajdujemy największy okres w istniejących zmianach
-    const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
     const lastChange = changes.length > 0 ? changes.reduce((max, change) => Math.max(max, change.period), 0) : 0;
     const isMaxPeriodReached = lastChange >= maxPeriod;
 
@@ -1237,22 +1237,25 @@ function addVariableChange(activeType) {
         isMaxPeriodReached
     });
 
+    // Sprawdzamy, czy liczba zmian nie przekracza maksymalnej liczby
     if (changes.length >= maxChanges) {
         console.warn(`Maximum number of changes reached for ${activeType}: ${maxChanges}`);
         alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
         return;
     }
 
+    // Sprawdzamy, czy maksymalny okres został osiągnięty
     if (isMaxPeriodReached) {
         console.warn(`Maximum period reached for ${activeType}: ${maxPeriod}`);
         alert(`Nie można dodać więcej zmian, ponieważ osiągnięto maksymalny okres (${maxPeriod} miesięcy).`);
         return;
     }
 
-    // Nowy okres to największy istniejący okres + 1
-    const newCykl = lastChange ? lastChange + 1 : (activeType === "nadplata" ? 1 : 2);
+    // Nowy okres to największy istniejący okres + 1, ale nie większy niż maxPeriod
+    const newCykl = Math.min(lastChange + 1, maxPeriod);
     console.log(`New cycle (newCykl) for ${activeType}:`, newCykl);
 
+    // Tworzymy nowy obiekt zmiany
     const newChange = activeType === "oprocentowanie" 
         ? { period: newCykl, value: state.lastFormData.oprocentowanie }
         : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
@@ -1265,6 +1268,7 @@ function addVariableChange(activeType) {
     changes.sort((a, b) => a.period - b.period);
     console.log(`Sorted changes for ${activeType}:`, changes);
 
+    // Wywołujemy aktualizację DOM
     updateVariableInputs();
 }
 
