@@ -246,6 +246,150 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     },
 });
 
+function createVariableInputGroup(type, index, period, value, typeValue = "Jednorazowa", effectValue = "Skróć okres") {
+    const maxCykl = parseInt(elements.iloscRat.value) || 360;
+    const group = document.createElement("div");
+    group.classList.add("variable-input-group");
+    group.setAttribute("data-type", type);
+    group.setAttribute("data-index", index);
+
+    if (type === "oprocentowanie") {
+        group.innerHTML = `
+            <div class="fields-wrapper">
+                <div class="form-group">
+                    <label class="form-label">Od</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control variable-cykl" min="2" max="${maxCykl}" step="1" value="${period}">
+                        <span class="input-group-text">miesiąca</span>
+                    </div>
+                    <input type="range" class="form-range variable-cykl-range" min="2" max="${maxCykl}" step="1" value="${period}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Oprocentowanie</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="${value.toFixed(2).replace(".", ",")}">
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="${value}">
+                </div>
+            </div>
+            <div class="remove-first-btn-wrapper">
+                <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
+            </div>
+            <div class="remove-btn-wrapper">
+                <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
+            </div>
+        `;
+    } else if (type === "nadplata") {
+        const isJednorazowa = typeValue === "Jednorazowa";
+        group.innerHTML = `
+            <div class="fields-wrapper">
+                <div class="form-group">
+                    <label class="form-label">Nadpłata</label>
+                    <select class="form-select nadplata-type-select">
+                        <option value="Jednorazowa" ${typeValue === "Jednorazowa" ? "selected" : ""}>Jednorazowa</option>
+                        <option value="Miesięczna" ${typeValue === "Miesięczna" ? "selected" : ""}>Miesięczna</option>
+                        <option value="Kwartalna" ${typeValue === "Kwartalna" ? "selected" : ""}>Kwartalna</option>
+                        <option value="Roczna" ${typeValue === "Roczna" ? "selected" : ""}>Roczna</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Po nadpłacie</label>
+                    <select class="form-select nadplata-effect-select">
+                        <option value="Skróć okres" ${effectValue === "Skróć okres" ? "selected" : ""}>Skróć okres</option>
+                        <option value="Zmniejsz ratę" ${effectValue === "Zmniejsz ratę" ? "selected" : ""}>Zmniejsz ratę</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">${isJednorazowa ? "W" : "Od"}</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control variable-cykl" min="1" max="${maxCykl - 1}" step="1" value="${period}">
+                        <span class="input-group-text unit-miesiacu">${isJednorazowa ? "miesiącu" : "miesiąca"}</span>
+                    </div>
+                    <input type="range" class="form-range variable-cykl-range" min="1" max="${maxCykl - 1}" step="1" value="${period}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kwota</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control variable-rate" min="0" max="1000000" step="1" value="${value.toFixed(2).replace(".", ",")}">
+                        <span class="input-group-text unit-zl" style="width: 30px; text-align: center;">zł</span>
+                    </div>
+                    <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="${value}">
+                </div>
+            </div>
+            <div class="remove-first-btn-wrapper">
+                <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
+            </div>
+            <div class="remove-btn-wrapper">
+                <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
+            </div>
+        `;
+    }
+
+    const cyklInput = group.querySelector(".variable-cykl");
+    const cyklRange = group.querySelector(".variable-cykl-range");
+    const rateInput = group.querySelector(".variable-rate");
+    const rateRange = group.querySelector(".variable-rate-range");
+    const removeBtn = group.querySelector(".remove-btn");
+    const removeFirstBtn = group.querySelector(".remove-first-btn");
+
+    if (type === "nadplata") {
+        const nadplataTypeSelect = group.querySelector(".nadplata-type-select");
+        const nadplataEffectSelect = group.querySelector(".nadplata-effect-select");
+
+        nadplataTypeSelect.addEventListener("change", () => {
+            state.overpaymentRates[index].type = nadplataTypeSelect.value;
+            const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
+            const label = group.querySelector(".form-label:has(.variable-cykl)");
+            const unit = group.querySelector(".unit-miesiacu");
+            if (label && unit) {
+                label.textContent = isJednorazowa ? "W" : "Od";
+                unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
+            }
+        });
+
+        nadplataEffectSelect.addEventListener("change", () => {
+            state.overpaymentRates[index].effect = nadplataEffectSelect.value;
+        });
+    }
+
+    syncInputWithRange(cyklInput, cyklRange, {
+        isDecimal: false,
+        isVariableCykl: true,
+        activeType: type,
+        defaultValue: period,
+        onChange: (value) => {
+            if (type === "oprocentowanie") {
+                state.variableRates[index].period = value;
+                state.variableRates.sort((a, b) => a.period - b.period);
+            } else {
+                state.overpaymentRates[index].period = value;
+                state.overpaymentRates.sort((a, b) => a.period - b.period);
+            }
+            updateVariableInputs();
+        },
+    });
+
+    syncInputWithRange(rateInput, rateRange, {
+        isDecimal: true,
+        activeType: type,
+        index,
+        defaultValue: value,
+        onChange: (value) => {
+            if (type === "oprocentowanie") {
+                state.variableRates[index].value = value;
+            } else {
+                state.overpaymentRates[index].value = value;
+            }
+        },
+    });
+
+    removeBtn.addEventListener("click", () => removeVariableChange(index, type));
+    removeFirstBtn.addEventListener("click", () => removeFirstVariableChange(type));
+
+    return group;
+}
+
 function calculateLoan() {
     const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
     const kwota = parseFloat(kwotaInput) || 0;
@@ -752,55 +896,22 @@ function updateVariableInputs() {
         }
         elements.variableOprocentowanieInputs.classList.add("active");
 
-        const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group[data-type='oprocentowanie']");
-        groups.forEach((group, index) => {
-            const shouldShow = index < state.variableRates.length;
-            group.style.display = shouldShow ? "block" : "none";
-            if (shouldShow) {
-                const cyklInput = group.querySelector(".variable-cykl");
-                const cyklRange = group.querySelector(".variable-cykl-range");
-                const rateInput = group.querySelector(".variable-rate");
-                const rateRange = group.querySelector(".variable-rate-range");
+        elements.variableOprocentowanieWrapper.innerHTML = "";
+        state.variableRates.forEach((rate, index) => {
+            const group = createVariableInputGroup("oprocentowanie", index, rate.period, rate.value);
+            elements.variableOprocentowanieWrapper.appendChild(group);
 
-                const maxPeriodValue = maxCykl;
-                const minPeriod = 2;
-                let periodValue = Math.min(Math.max(state.variableRates[index].period || minPeriod, minPeriod), maxPeriodValue);
-                state.variableRates[index].period = periodValue;
-
-                syncInputWithRange(cyklInput, cyklRange, {
-                    isDecimal: false,
-                    isVariableCykl: true,
-                    activeType: "oprocentowanie",
-                    defaultValue: periodValue,
-                    onChange: (value) => {
-                        state.variableRates[index].period = value;
-                        state.variableRates.sort((a, b) => a.period - b.period);
-                        updateVariableInputs();
-                    },
-                });
-
-                syncInputWithRange(rateInput, rateRange, {
-                    isDecimal: true,
-                    activeType: "oprocentowanie",
-                    index,
-                    defaultValue: state.variableRates[index].value || state.lastFormData.oprocentowanie,
-                    onChange: (value) => {
-                        state.variableRates[index].value = value;
-                    },
-                });
-
-                const removeBtn = group.querySelector(".remove-btn");
-                const removeFirstBtn = group.querySelector(".remove-first-btn");
-                if (index === 0 && state.variableRates.length === 1) {
-                    if (removeFirstBtn) removeFirstBtn.style.display = "block";
-                    if (removeBtn) removeBtn.style.display = "none";
-                } else if (index === state.variableRates.length - 1 && state.variableRates.length > 1) {
-                    if (removeFirstBtn) removeFirstBtn.style.display = "none";
-                    if (removeBtn) removeBtn.style.display = "block";
-                } else {
-                    if (removeFirstBtn) removeFirstBtn.style.display = "none";
-                    if (removeBtn) removeBtn.style.display = "none";
-                }
+            const removeBtn = group.querySelector(".remove-btn");
+            const removeFirstBtn = group.querySelector(".remove-first-btn");
+            if (index === 0 && state.variableRates.length === 1) {
+                removeFirstBtn.style.display = "block";
+                removeBtn.style.display = "none";
+            } else if (index === state.variableRates.length - 1 && state.variableRates.length > 1) {
+                removeFirstBtn.style.display = "none";
+                removeBtn.style.display = "block";
+            } else {
+                removeFirstBtn.style.display = "none";
+                removeBtn.style.display = "none";
             }
         });
 
@@ -810,8 +921,7 @@ function updateVariableInputs() {
         if (elements.variableOprocentowanieInputs) elements.variableOprocentowanieInputs.classList.remove("active");
         if (elements.addVariableOprocentowanieBtn) elements.addVariableOprocentowanieBtn.style.display = "none";
         if (elements.variableOprocentowanieWrapper) {
-            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-            groups.forEach(group => group.style.display = "none");
+            elements.variableOprocentowanieWrapper.innerHTML = "";
         }
         if (!isZmienneOprocentowanie) {
             state.variableRates = [];
@@ -825,68 +935,22 @@ function updateVariableInputs() {
         }
         elements.nadplataKredytuInputs.classList.add("active");
 
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group[data-type='nadplata']");
-        groups.forEach((group, index) => {
-            const shouldShow = index < state.overpaymentRates.length;
-            group.style.display = shouldShow ? "block" : "none";
-            if (shouldShow) {
-                const cyklInput = group.querySelector(".variable-cykl");
-                const cyklRange = group.querySelector(".variable-cykl-range");
-                const rateInput = group.querySelector(".variable-rate");
-                const rateRange = group.querySelector(".variable-rate-range");
-                const nadplataTypeSelect = group.querySelector(".nadplata-type-select");
-                const nadplataEffectSelect = group.querySelector(".nadplata-effect-select");
+        elements.nadplataKredytuWrapper.innerHTML = "";
+        state.overpaymentRates.forEach((overpayment, index) => {
+            const group = createVariableInputGroup("nadplata", index, overpayment.period, overpayment.value, overpayment.type, overpayment.effect);
+            elements.nadplataKredytuWrapper.appendChild(group);
 
-                const maxPeriodValue = maxCykl - 1;
-                const minPeriod = 1;
-                let periodValue = Math.min(Math.max(state.overpaymentRates[index].period || minPeriod, minPeriod), maxPeriodValue);
-                state.overpaymentRates[index].period = periodValue;
-
-                syncInputWithRange(cyklInput, cyklRange, {
-                    isDecimal: false,
-                    isVariableCykl: true,
-                    activeType: "nadplata",
-                    defaultValue: periodValue,
-                    onChange: (value) => {
-                        state.overpaymentRates[index].period = value;
-                        state.overpaymentRates.sort((a, b) => a.period - b.period);
-                        updateVariableInputs();
-                    },
-                });
-
-                syncInputWithRange(rateInput, rateRange, {
-                    isDecimal: true,
-                    activeType: "nadplata",
-                    index,
-                    defaultValue: state.overpaymentRates[index].value || 1000,
-                    onChange: (value) => {
-                        state.overpaymentRates[index].value = value;
-                    },
-                });
-
-                nadplataTypeSelect.value = state.overpaymentRates[index].type || "Jednorazowa";
-                nadplataEffectSelect.value = state.overpaymentRates[index].effect || "Skróć okres";
-
-                const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
-                const label = group.querySelector(".form-label:has(.variable-cykl) .form-label");
-                const unit = group.querySelector(".unit-miesiacu");
-                if (label && unit) {
-                    label.textContent = isJednorazowa ? "W" : "Od";
-                    unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
-                }
-
-                const removeBtn = group.querySelector(".remove-btn");
-                const removeFirstBtn = group.querySelector(".remove-first-btn");
-                if (index === 0 && state.overpaymentRates.length === 1) {
-                    if (removeFirstBtn) removeFirstBtn.style.display = "block";
-                    if (removeBtn) removeBtn.style.display = "none";
-                } else if (index === state.overpaymentRates.length - 1 && state.overpaymentRates.length > 1) {
-                    if (removeFirstBtn) removeFirstBtn.style.display = "none";
-                    if (removeBtn) removeBtn.style.display = "block";
-                } else {
-                    if (removeFirstBtn) removeFirstBtn.style.display = "none";
-                    if (removeBtn) removeBtn.style.display = "none";
-                }
+            const removeBtn = group.querySelector(".remove-btn");
+            const removeFirstBtn = group.querySelector(".remove-first-btn");
+            if (index === 0 && state.overpaymentRates.length === 1) {
+                removeFirstBtn.style.display = "block";
+                removeBtn.style.display = "none";
+            } else if (index === state.overpaymentRates.length - 1 && state.overpaymentRates.length > 1) {
+                removeFirstBtn.style.display = "none";
+                removeBtn.style.display = "block";
+            } else {
+                removeFirstBtn.style.display = "none";
+                removeBtn.style.display = "none";
             }
         });
 
@@ -896,8 +960,7 @@ function updateVariableInputs() {
         if (elements.nadplataKredytuInputs) elements.nadplataKredytuInputs.classList.remove("active");
         if (elements.addNadplataKredytuBtn) elements.addNadplataKredytuBtn.style.display = "none";
         if (elements.nadplataKredytuWrapper) {
-            const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-            groups.forEach(group => group.style.display = "none");
+            elements.nadplataKredytuWrapper.innerHTML = "";
         }
         if (!isNadplataKredytu) {
             state.overpaymentRates = [];
@@ -1043,59 +1106,6 @@ elements.generatePdfBtn.addEventListener("click", () => {
     if (harmonogramTable) {
         doc.autoTable({ html: harmonogramTable });
         doc.save("harmonogram_kredytu.pdf");
-    }
-});
-
-document.querySelectorAll(".variable-input-group[data-type='oprocentowanie']").forEach((group, index) => {
-    const cyklInput = group.querySelector(".variable-cykl");
-    const cyklRange = group.querySelector(".variable-cykl-range");
-    const rateInput = group.querySelector(".variable-rate");
-    const rateRange = group.querySelector(".variable-rate-range");
-    const removeBtn = group.querySelector(".remove-btn");
-    const removeFirstBtn = group.querySelector(".remove-first-btn");
-
-    if (removeBtn) {
-        removeBtn.addEventListener("click", () => removeVariableChange(index, "oprocentowanie"));
-    }
-    if (removeFirstBtn) {
-        removeFirstBtn.addEventListener("click", () => removeFirstVariableChange("oprocentowanie"));
-    }
-});
-
-document.querySelectorAll(".variable-input-group[data-type='nadplata']").forEach((group, index) => {
-    const cyklInput = group.querySelector(".variable-cykl");
-    const cyklRange = group.querySelector(".variable-cykl-range");
-    const rateInput = group.querySelector(".variable-rate");
-    const rateRange = group.querySelector(".variable-rate-range");
-    const nadplataTypeSelect = group.querySelector(".nadplata-type-select");
-    const nadplataEffectSelect = group.querySelector(".nadplata-effect-select");
-    const removeBtn = group.querySelector(".remove-btn");
-    const removeFirstBtn = group.querySelector(".remove-first-btn");
-
-    if (nadplataTypeSelect) {
-        nadplataTypeSelect.addEventListener("change", (e) => {
-            state.overpaymentRates[index].type = nadplataTypeSelect.value;
-            const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
-            const label = group.querySelector(".form-label:has(.variable-cykl) .form-label");
-            const unit = group.querySelector(".unit-miesiacu");
-            if (label && unit) {
-                label.textContent = isJednorazowa ? "W" : "Od";
-                unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
-            }
-        });
-    }
-
-    if (nadplataEffectSelect) {
-        nadplataEffectSelect.addEventListener("change", () => {
-            state.overpaymentRates[index].effect = nadplataEffectSelect.value;
-        });
-    }
-
-    if (removeBtn) {
-        removeBtn.addEventListener("click", () => removeVariableChange(index, "nadplata"));
-    }
-    if (removeFirstBtn) {
-        removeFirstBtn.addEventListener("click", () => removeFirstVariableChange("nadplata"));
     }
 });
 
