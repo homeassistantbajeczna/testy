@@ -67,7 +67,6 @@ function syncInputWithRange(input, range, options = {}) {
 
     input.type = "number";
 
-    // Usuwamy stare listenery, jeśli istnieją
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
@@ -79,7 +78,6 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    // Ustawiamy krok dla suwaka
     if (stepOverride) range.step = stepOverride;
     else if (isVariableCykl) range.step = "1";
     else range.step = isDecimal ? "0.01" : "1";
@@ -88,7 +86,6 @@ function syncInputWithRange(input, range, options = {}) {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
 
-        // Konwersja wartości na liczbę
         if (typeof value === "string") {
             value = value.replace(",", ".").replace(/\s/g, "");
         }
@@ -104,16 +101,13 @@ function syncInputWithRange(input, range, options = {}) {
 
         const displayValue = isDecimal ? parsedValue.toFixed(2) : parsedValue.toString();
 
-        // Aktualizacja wartości w input i range
         input.value = displayValue;
         range.value = parsedValue;
 
-        // Aktualizacja dodatkowych informacji
         if (input.id === "kwota") updateKwotaInfo();
         if (input.id === "prowizja") updateProwizjaInfo();
         if (input.id === "iloscRat") updateLata();
 
-        // Wywołanie callbacka onChange, jeśli istnieje
         if (activeType && !skipOnChange && onChange) {
             onChange(parsedValue);
         } else {
@@ -137,7 +131,6 @@ function syncInputWithRange(input, range, options = {}) {
         updateValue(parsedValue, "Input");
     };
 
-    // Dodajemy nowe listenery
     input._eventListeners.input = inputHandler;
     input._eventListeners.blur = blurHandler;
     range._eventListeners.input = rangeHandler;
@@ -146,7 +139,6 @@ function syncInputWithRange(input, range, options = {}) {
     input.addEventListener("blur", blurHandler);
     range.addEventListener("input", rangeHandler);
 
-    // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
     let initialValue = defaultValue !== undefined ? defaultValue : parseFloat(input.value) || min;
@@ -156,7 +148,6 @@ function syncInputWithRange(input, range, options = {}) {
     updateValue(initialValue, "Initial", true);
 }
 
-// Inicjalizacja synchronizacji dla głównych pól formularza
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
     stepOverride: 100,
@@ -199,13 +190,13 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
 function createVariableInputGroup(type, index, period, value, typeValue = "Jednorazowa", effectValue = "Skróć okres") {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
 
-    // Klonujemy odpowiedni szablon
     const template = type === "oprocentowanie" 
         ? elements.variableOprocentowanieTemplate 
         : elements.nadplataKredytuTemplate;
     
     const group = document.importNode(template.content, true).querySelector(".variable-input-group");
     group.setAttribute("data-index", index);
+    group.setAttribute("data-type", type);
 
     const cyklInput = group.querySelector(".variable-cykl");
     const cyklRange = group.querySelector(".variable-cykl-range");
@@ -214,8 +205,10 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
     const removeBtn = group.querySelector(".remove-btn");
     const removeFirstBtn = group.querySelector(".remove-first-btn");
 
-    // Ustawiamy wartości maksymalne i początkowe
     if (type === "oprocentowanie") {
+        const minPeriod = index > 0 ? (state.variableRates[index - 1]?.period || 1) + 1 : 2;
+        cyklInput.min = minPeriod;
+        cyklRange.min = minPeriod;
         cyklInput.max = maxCykl;
         cyklRange.max = maxCykl;
         cyklInput.value = period;
@@ -223,6 +216,9 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         rateInput.value = value;
         rateRange.value = value;
     } else if (type === "nadplata") {
+        const minPeriod = index > 0 ? (state.overpaymentRates[index - 1]?.period || 0) + 1 : 1;
+        cyklInput.min = minPeriod;
+        cyklRange.min = minPeriod;
         cyklInput.max = maxCykl - 1;
         cyklRange.max = maxCykl - 1;
         cyklInput.value = period;
@@ -232,7 +228,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
 
         const nadplataTypeSelect = group.querySelector(".nadplata-type-select");
         const nadplataEffectSelect = group.querySelector(".nadplata-effect-select");
-        const label = group.querySelector(".form-label:has(.variable-cykl) + .input-group .variable-cykl")?.parentElement?.querySelector("label");
+        const label = group.querySelector(".form-label:has(.variable-cykl)");
         const unit = group.querySelector(".unit-miesiacu");
 
         if (nadplataTypeSelect && nadplataEffectSelect && label && unit) {
@@ -256,7 +252,6 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         }
     }
 
-    // Synchronizacja pól
     syncInputWithRange(cyklInput, cyklRange, {
         isDecimal: false,
         isVariableCykl: true,
@@ -404,18 +399,12 @@ function calculateLoan() {
         }
 
         let i = 1;
-        let lastRateChangeMonth = 0;
         while (i <= iloscRat && pozostalyKapital > 0.01) {
             let currentOprocentowanie = oprocentowanie;
-            let rateChanged = false;
             state.variableRates.forEach((rate) => {
                 if (i >= rate.period) {
                     currentOprocentowanie = parseFloat(rate.value);
                     monthlyRate = currentOprocentowanie / 100 / 12;
-                    if (i >= rate.period && lastRateChangeMonth < rate.period) {
-                        rateChanged = true;
-                        lastRateChangeMonth = rate.period;
-                    }
                 }
             });
 
@@ -500,22 +489,16 @@ function calculateLoan() {
     if (rodzajRat === "rowne") {
         let remainingMonths = iloscRat;
         let i = 1;
-        let lastRateChangeMonth = 0;
         while (i <= iloscRat && pozostalyKapital > 0.01) {
             let currentOprocentowanie = oprocentowanie;
-            let rateChanged = false;
             state.variableRates.forEach((rate) => {
                 if (i >= rate.period) {
                     currentOprocentowanie = parseFloat(rate.value);
                     monthlyRate = currentOprocentowanie / 100 / 12;
-                    if (i >= rate.period && lastRateChangeMonth < rate.period) {
-                        rateChanged = true;
-                        lastRateChangeMonth = rate.period;
-                    }
                 }
             });
 
-            if (rateChanged) {
+            if (i > 1 && state.variableRates.some(rate => i >= rate.period)) {
                 if (monthlyRate === 0) {
                     rata = pozostalyKapital / remainingMonths;
                 } else {
@@ -793,7 +776,6 @@ function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    // Aktualizacja zmiennego oprocentowania
     const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
     if (isZmienneOprocentowanie && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn && elements.variableOprocentowanieWrapper) {
         if (state.variableRates.length === 0) {
@@ -833,7 +815,6 @@ function updateVariableInputs() {
         }
     }
 
-    // Aktualizacja nadpłaty kredytu
     const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
     if (isNadplataKredytu && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn && elements.nadplataKredytuWrapper) {
         if (state.overpaymentRates.length === 0) {
@@ -1008,7 +989,7 @@ elements.generatePdfBtn.addEventListener("click", () => {
     const { jsPDF } = window.jspdf;
     if (!jsPDF) return;
     const doc = new jsPDF();
-    const harmonogramTable = document.getElementById("harmonogramTable");
+    const harmonogramTable = document.getElementById("harmonogramTabela");
     if (harmonogramTable) {
         doc.autoTable({ html: harmonogramTable });
         doc.save("harmonogram_kredytu.pdf");
