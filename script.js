@@ -1149,7 +1149,7 @@ function addVariableChange(activeType) {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    let changes = activeType === "oprocentowanie" ? state.variableRates : state overpaymentRates;
+    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
 
     const lastPeriod = changes.length > 0 ? changes[changes.length - 1].period : 0;
     const canAddMore = changes.length < maxChanges && lastPeriod < maxCykl;
