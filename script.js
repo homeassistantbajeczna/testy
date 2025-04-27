@@ -35,7 +35,6 @@ const elements = {
     kwotaInfo: document.getElementById("kwotaInfo"),
     lata: document.getElementById("lata"),
     prowizjaInfo: document.getElementById("prowizjaInfo"),
-    rodzajRatInfo: document.getElementById("rodzajRatInfo"),
 };
 
 const state = {
@@ -54,22 +53,16 @@ const state = {
     tempValues: {},
 };
 
-// Funkcja formatująca liczby z separatorem tysięcy (spacja) i przecinkiem jako separator dziesiętny
 function formatNumberWithSpaces(number) {
     if (isNaN(number)) return "0,00";
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
-// Synchronizacja inputów z suwakami
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, defaultValue } = options;
 
-    if (!input || !range) {
-        console.error(`Input or range not found: input=${input?.id}, range=${range?.id}`);
-        return;
-    }
+    if (!input || !range) return;
 
-    // Ustawiamy typ pola na text dla pól dziesiętnych, aby obsługiwać przecinek
     if (isDecimal) {
         input.type = "text";
     }
@@ -83,9 +76,6 @@ function syncInputWithRange(input, range, options = {}) {
         }
         if (input._eventListeners.change) {
             input.removeEventListener("change", input._eventListeners.change);
-        }
-        if (input._eventListeners.keypress) {
-            input.removeEventListener("keypress", input._eventListeners.keypress);
         }
         if (range._eventListeners.input) {
             range.removeEventListener("input", range._eventListeners.input);
@@ -172,53 +162,30 @@ function syncInputWithRange(input, range, options = {}) {
         delete state.tempValues[input.id || range.id];
     };
 
-    const rangeHandler = (skipOnChange = false) => {
-        updateValue(range.value, "Range", skipOnChange);
+    const rangeHandler = () => {
+        updateValue(range.value, "Range");
     };
-
-    const keypressHandler = (e) => {
-        const char = e.key;
-        if (isDecimal) {
-            if (!/[0-9.,\b]/.test(char)) {
-                e.preventDefault();
-            }
-            if ((char === "," || char === ".") && input.value.includes(",")) {
-                e.preventDefault();
-            }
-            const parts = input.value.split(",");
-            if (parts.length > 1 && parts[1].length >= 2 && /[0-9]/.test(char)) {
-                e.preventDefault();
-            }
-        } else {
-            if (!/[0-9\b]/.test(char)) {
-                e.preventDefault();
-            }
-        }
-    };
-
-    input._eventListeners.keypress = keypressHandler;
-    input.addEventListener("keypress", keypressHandler);
 
     input._eventListeners.input = inputHandler;
-    range._eventListeners.input = () => rangeHandler(isVariableCykl);
+    range._eventListeners.input = rangeHandler;
 
     if (activeType) {
         if (isVariableCykl) {
             input.addEventListener("input", inputHandler);
             input._eventListeners.change = inputChangeHandler;
             input.addEventListener("change", inputChangeHandler);
-            range.addEventListener("input", () => rangeHandler(true));
+            range.addEventListener("input", rangeHandler);
         } else {
             input.addEventListener("input", inputHandler);
             input._eventListeners.change = inputChangeHandler;
             input.addEventListener("change", inputChangeHandler);
-            range.addEventListener("input", () => rangeHandler(false));
+            range.addEventListener("input", rangeHandler);
         }
     } else {
         input.addEventListener("input", inputHandler);
         input._eventListeners.change = inputChangeHandler;
         input.addEventListener("change", inputChangeHandler);
-        range.addEventListener("input", () => rangeHandler(false));
+        range.addEventListener("input", rangeHandler);
     }
 
     const min = parseFloat(input.min) || 0;
@@ -279,7 +246,6 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     },
 });
 
-// Funkcja obliczania kredytu
 function calculateLoan() {
     const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
     const kwota = parseFloat(kwotaInput) || 0;
@@ -775,12 +741,6 @@ function updateProwizjaInfo() {
     }
 }
 
-function updateRodzajRatInfo() {
-    if (elements.rodzajRatInfo) {
-        elements.rodzajRatInfo.textContent = "Wybierz równe lub malejące";
-    }
-}
-
 function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
@@ -1038,7 +998,6 @@ function initializeTheme() {
     }
 }
 
-// Event Listeners
 elements.jednostkaProwizji.addEventListener("change", () => {
     updateProwizjaInput();
     updateProwizjaInfo();
@@ -1087,7 +1046,6 @@ elements.generatePdfBtn.addEventListener("click", () => {
     }
 });
 
-// Inicjalizacja dynamicznych pól
 document.querySelectorAll(".variable-input-group[data-type='oprocentowanie']").forEach((group, index) => {
     const cyklInput = group.querySelector(".variable-cykl");
     const cyklRange = group.querySelector(".variable-cykl-range");
@@ -1146,7 +1104,6 @@ function initializeApp() {
     updateKwotaInfo();
     updateLata();
     updateProwizjaInfo();
-    updateRodzajRatInfo();
     updateVariableInputs();
     initializeTheme();
 }
