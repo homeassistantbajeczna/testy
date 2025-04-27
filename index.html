@@ -103,49 +103,7 @@
                             </div>
                             <div class="variable-inputs" id="nadplataKredytuInputs">
                                 <div class="variable-inputs-wrapper" id="nadplataKredytuInputsWrapper">
-                                    <div class="variable-input-group" data-type="nadplata">
-                                        <div class="fields-wrapper">
-                                            <div class="form-group">
-                                                <label class="form-label">Nadpłata</label>
-                                                <select class="form-select nadplata-type-select">
-                                                    <option value="Jednorazowa" selected>Jednorazowa</option>
-                                                    <option value="Miesięczna">Miesięczna</option>
-                                                    <option value="Kwartalna">Kwartalna</option>
-                                                    <option value="Roczna">Roczna</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Po nadpłacie</label>
-                                                <select class="form-select nadplata-effect-select">
-                                                    <option value="Skróć okres" selected>Skróć okres</option>
-                                                    <option value="Zmniejsz ratę">Zmniejsz ratę</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">W</label>
-                                                <div class="input-group">
-                                                    <input type="number" class="form-control variable-cykl" min="1" max="419" step="1" value="1">
-                                                    <span class="input-group-text unit-miesiacu">miesiącu</span>
-                                                </div>
-                                                <input type="range" class="form-range variable-cykl-range" min="1" max="419" step="1" value="1">
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Kwota</label>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control variable-rate" min="0" max="1000000" step="1" value="1000,00">
-                                                    <span class="input-group-text unit-zl" style="width: 30px; text-align: center;">zł</span>
-                                                </div>
-                                                <input type="range" class="form-range variable-rate-range" min="0" max="1000000" step="1" value="1000">
-                                            </div>
-                                        </div>
-                                        <div class="remove-first-btn-wrapper">
-                                            <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
-                                        </div>
-                                        <div class="remove-btn-wrapper">
-                                            <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
-                                        </div>
-                                    </div>
-                                    <!-- Dodaj więcej grup variable-input-group, jeśli potrzebujesz więcej pól -->
+                                    <!-- Dynamiczne grupy będą dodawane tutaj -->
                                 </div>
                                 <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną nadpłatę</button>
                             </div>
@@ -160,33 +118,7 @@
                             </div>
                             <div class="variable-inputs" id="variableOprocentowanieInputs">
                                 <div class="variable-inputs-wrapper" id="variableOprocentowanieInputsWrapper">
-                                    <div class="variable-input-group" data-type="oprocentowanie">
-                                        <div class="fields-wrapper">
-                                            <div class="form-group">
-                                                <label class="form-label">Od</label>
-                                                <div class="input-group">
-                                                    <input type="number" class="form-control variable-cykl" min="2" max="420" step="1" value="2">
-                                                    <span class="input-group-text">miesiąca</span>
-                                                </div>
-                                                <input type="range" class="form-range variable-cykl-range" min="2" max="420" step="1" value="2">
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="form-label">Oprocentowanie</label>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="7,00">
-                                                    <span class="input-group-text">%</span>
-                                                </div>
-                                                <input type="range" class="form-range variable-rate-range" min="0.1" max="25" step="0.01" value="7">
-                                            </div>
-                                        </div>
-                                        <div class="remove-first-btn-wrapper">
-                                            <button type="button" class="btn btn-danger btn-sm remove-first-btn">Usuń</button>
-                                        </div>
-                                        <div class="remove-btn-wrapper">
-                                            <button type="button" class="btn btn-danger btn-sm remove-btn">Usuń</button>
-                                        </div>
-                                    </div>
-                                    <!-- Dodaj więcej grup variable-input-group, jeśli potrzebujesz więcej pól -->
+                                    <!-- Dynamiczne grupy będą dodawane tutaj -->
                                 </div>
                                 <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                             </div>
