@@ -235,15 +235,17 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
             nadplataTypeSelect.value = typeValue;
             nadplataEffectSelect.value = effectValue;
 
-            const isJednorazowa = typeValue === "Jednorazowa";
-            label.textContent = isJednorazowa ? "W" : "Od";
-            unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
+            const updateLabels = () => {
+                const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
+                label.textContent = isJednorazowa ? "W którym miesiącu" : "Od którego miesiąca";
+                unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
+            };
+
+            updateLabels();
 
             nadplataTypeSelect.addEventListener("change", () => {
                 state.overpaymentRates[index].type = nadplataTypeSelect.value;
-                const isJednorazowa = nadplataTypeSelect.value === "Jednorazowa";
-                label.textContent = isJednorazowa ? "W" : "Od";
-                unit.textContent = isJednorazowa ? "miesiącu" : "miesiąca";
+                updateLabels();
             });
 
             nadplataEffectSelect.addEventListener("change", () => {
@@ -261,11 +263,12 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
             if (type === "oprocentowanie") {
                 state.variableRates[index].period = value;
                 state.variableRates.sort((a, b) => a.period - b.period);
+                updateVariableInputs();
             } else {
                 state.overpaymentRates[index].period = value;
                 state.overpaymentRates.sort((a, b) => a.period - b.period);
+                updateVariableInputs();
             }
-            updateVariableInputs();
         },
     });
 
@@ -367,8 +370,6 @@ function calculateLoan() {
     let rata = 0;
     let iloscRatPoNadplacie = iloscRat;
 
-    let previousRata = 0;
-
     if (rodzajRat === "rowne") {
         if (monthlyRate === 0) {
             rata = kwota / iloscRat;
@@ -379,126 +380,20 @@ function calculateLoan() {
             alert("Błąd w obliczeniach raty. Sprawdź dane wejściowe.");
             return;
         }
-    }
 
-    if (rodzajRat === "malejace") {
-        let kapitalStaly = kwota / iloscRat;
-
-        let nadplataMiesieczna = 0;
-        let efektNadplaty = "Skróć okres";
-        state.overpaymentRates.forEach((overpayment) => {
-            if (overpayment.type === "Miesięczna" && overpayment.period <= 1) {
-                nadplataMiesieczna = parseFloat(overpayment.value);
-                efektNadplaty = overpayment.effect;
-            }
-        });
-
-        if (nadplataMiesieczna > 0 && efektNadplaty === "Zmniejsz ratę") {
-            kapitalStaly = (kwota - nadplataMiesieczna * iloscRat) / iloscRat;
-            if (kapitalStaly < 0) kapitalStaly = 0;
-        }
-
-        let i = 1;
-        while (i <= iloscRat && pozostalyKapital > 0.01) {
-            let currentOprocentowanie = oprocentowanie;
-            state.variableRates.forEach((rate) => {
-                if (i >= rate.period) {
-                    currentOprocentowanie = parseFloat(rate.value);
-                    monthlyRate = currentOprocentowanie / 100 / 12;
-                }
-            });
-
-            let odsetki = pozostalyKapital * monthlyRate;
-            let kapital = kapitalStaly;
-            let nadplata = 0;
-            let isOverpaymentMonth = false;
-
-            state.overpaymentRates.forEach((overpayment) => {
-                let isActive = false;
-                if (overpayment.type === "Jednorazowa") {
-                    isActive = i === overpayment.period;
-                } else if (overpayment.type === "Miesięczna") {
-                    isActive = i >= overpayment.period;
-                } else if (overpayment.type === "Kwartalna") {
-                    isActive = i >= overpayment.period && (i - overpayment.period) % 3 === 0;
-                } else if (overpayment.type === "Roczna") {
-                    isActive = i >= overpayment.period && (i - overpayment.period) % 12 === 0;
-                }
-
-                if (isActive) {
-                    nadplata += parseFloat(overpayment.value);
-                    sumaNadplat += nadplata;
-                    isOverpaymentMonth = true;
-                    if (overpayment.effect === "Skróć okres") {
-                        kapital += nadplata;
-                    } else {
-                        pozostalyKapital -= nadplata;
-                    }
-                    if (pozostalyKapital < 0) pozostalyKapital = 0;
-                }
-            });
-
-            if (kapital > pozostalyKapital) {
-                kapital = pozostalyKapital;
-            }
-
-            if (isOverpaymentMonth && i > 1) {
-                rata = previousRata;
-            } else {
-                rata = kapital + odsetki;
-                if (isNaN(rata) || rata <= 0) {
-                    rata = 0;
-                }
-            }
-
-            if (isOverpaymentMonth && i > 1) {
-                kapital = rata - odsetki;
-                if (kapital < 0) {
-                    kapital = 0;
-                    odsetki = rata;
-                }
-            }
-
-            pozostalyKapital -= kapital;
-            if (pozostalyKapital < 0) pozostalyKapital = 0;
-
-            sumaOdsetek += odsetki;
-            sumaKapitalu += kapital;
-
-            harmonogram.push({
-                rata: i,
-                kwotaRaty: rata.toFixed(2),
-                kapital: kapital.toFixed(2),
-                odsetki: odsetki.toFixed(2),
-                nadplata: nadplata.toFixed(2),
-                pozostalyKapital: pozostalyKapital.toFixed(2),
-                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
-            });
-
-            previousRata = rata;
-
-            if (pozostalyKapital <= 0.01) {
-                iloscRatPoNadplacie = i;
-                break;
-            }
-
-            i++;
-        }
-    }
-
-    if (rodzajRat === "rowne") {
         let remainingMonths = iloscRat;
-        let i = 1;
-        while (i <= iloscRat && pozostalyKapital > 0.01) {
+        for (let i = 1; i <= iloscRat && pozostalyKapital > 0.01; i++) {
             let currentOprocentowanie = oprocentowanie;
-            state.variableRates.forEach((rate) => {
-                if (i >= rate.period) {
-                    currentOprocentowanie = parseFloat(rate.value);
-                    monthlyRate = currentOprocentowanie / 100 / 12;
+            if (state.variableRates.length > 0) {
+                for (const rate of state.variableRates) {
+                    if (i >= rate.period) {
+                        currentOprocentowanie = rate.value;
+                        monthlyRate = currentOprocentowanie / 100 / 12;
+                    }
                 }
-            });
+            }
 
-            if (i > 1 && state.variableRates.some(rate => i >= rate.period)) {
+            if (i > 1 && state.variableRates.some(rate => i === rate.period)) {
                 if (monthlyRate === 0) {
                     rata = pozostalyKapital / remainingMonths;
                 } else {
@@ -510,7 +405,6 @@ function calculateLoan() {
             let odsetki = pozostalyKapital * monthlyRate;
             let kapital = rata - odsetki;
             let nadplata = 0;
-            let isOverpaymentMonth = false;
 
             if (kapital < 0) {
                 kapital = pozostalyKapital;
@@ -533,7 +427,6 @@ function calculateLoan() {
                     nadplata += parseFloat(overpayment.value);
                     sumaNadplat += nadplata;
                     pozostalyKapital -= nadplata;
-                    isOverpaymentMonth = true;
                     if (pozostalyKapital < 0) pozostalyKapital = 0;
 
                     if (overpayment.effect === "Skróć okres") {
@@ -547,15 +440,6 @@ function calculateLoan() {
                     }
                 }
             });
-
-            if (isOverpaymentMonth && i > 1) {
-                rata = previousRata;
-                kapital = rata - odsetki;
-                if (kapital < 0) {
-                    kapital = pozostalyKapital;
-                    odsetki = rata - kapital;
-                }
-            }
 
             if (pozostalyKapital <= 0.01) {
                 harmonogram.push({
@@ -586,14 +470,88 @@ function calculateLoan() {
                 oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
             });
 
-            previousRata = rata;
-
-            i++;
             remainingMonths--;
             if (remainingMonths <= 0 && pozostalyKapital > 0) {
                 remainingMonths = calculateRemainingMonths(pozostalyKapital, rata, monthlyRate);
                 iloscRatPoNadplacie = i + remainingMonths - 1;
             }
+        }
+    }
+
+    if (rodzajRat === "malejace") {
+        let kapitalStaly = kwota / iloscRat;
+        let i = 1;
+
+        while (i <= iloscRat && pozostalyKapital > 0.01) {
+            let currentOprocentowanie = oprocentowanie;
+            if (state.variableRates.length > 0) {
+                for (const rate of state.variableRates) {
+                    if (i >= rate.period) {
+                        currentOprocentowanie = rate.value;
+                        monthlyRate = currentOprocentowanie / 100 / 12;
+                    }
+                }
+            }
+
+            let odsetki = pozostalyKapital * monthlyRate;
+            let kapital = kapitalStaly;
+            let nadplata = 0;
+
+            state.overpaymentRates.forEach((overpayment) => {
+                let isActive = false;
+                if (overpayment.type === "Jednorazowa") {
+                    isActive = i === overpayment.period;
+                } else if (overpayment.type === "Miesięczna") {
+                    isActive = i >= overpayment.period;
+                } else if (overpayment.type === "Kwartalna") {
+                    isActive = i >= overpayment.period && (i - overpayment.period) % 3 === 0;
+                } else if (overpayment.type === "Roczna") {
+                    isActive = i >= overpayment.period && (i - overpayment.period) % 12 === 0;
+                }
+
+                if (isActive) {
+                    nadplata += parseFloat(overpayment.value);
+                    sumaNadplat += nadplata;
+                    if (overpayment.effect === "Skróć okres") {
+                        kapital += nadplata;
+                    } else {
+                        pozostalyKapital -= nadplata;
+                    }
+                    if (pozostalyKapital < 0) pozostalyKapital = 0;
+                }
+            });
+
+            if (kapital > pozostalyKapital) {
+                kapital = pozostalyKapital;
+            }
+
+            rata = kapital + odsetki;
+            if (isNaN(rata) || rata <= 0) {
+                rata = 0;
+            }
+
+            pozostalyKapital -= kapital;
+            if (pozostalyKapital < 0) pozostalyKapital = 0;
+
+            sumaOdsetek += odsetki;
+            sumaKapitalu += kapital;
+
+            harmonogram.push({
+                rata: i,
+                kwotaRaty: rata.toFixed(2),
+                kapital: kapital.toFixed(2),
+                odsetki: odsetki.toFixed(2),
+                nadplata: nadplata.toFixed(2),
+                pozostalyKapital: pozostalyKapital.toFixed(2),
+                oprocentowanie: (monthlyRate * 12 * 100).toFixed(2),
+            });
+
+            if (pozostalyKapital <= 0.01) {
+                iloscRatPoNadplacie = i;
+                break;
+            }
+
+            i++;
         }
     }
 
@@ -776,16 +734,25 @@ function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    const isZmienneOprocentowanie = elements.zmienneOprocentowanieBtn?.checked;
-    if (isZmienneOprocentowanie && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn && elements.variableOprocentowanieWrapper) {
+    // Zmienne oprocentowanie
+    if (elements.zmienneOprocentowanieBtn?.checked && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn && elements.variableOprocentowanieWrapper) {
         if (state.variableRates.length === 0) {
-            state.variableRates.push({ value: state.lastFormData.oprocentowanie, period: 2 });
+            state.variableRates.push({ value: state.lastFormData.oprocentowanie || 7, period: 2 });
         }
         elements.variableOprocentowanieInputs.classList.add("active");
 
         elements.variableOprocentowanieWrapper.innerHTML = "";
         state.variableRates.forEach((rate, index) => {
-            const group = createVariableInputGroup("oprocentowanie", index, rate.period, rate.value);
+            const minPeriod = index > 0 ? state.variableRates[index - 1].period + 1 : 2;
+            const group = createVariableInputGroup("oprocentowanie", index, Math.max(minPeriod, rate.period), rate.value);
+
+            const cyklInput = group.querySelector(".variable-cykl");
+            const cyklRange = group.querySelector(".variable-cykl-range");
+            cyklInput.min = minPeriod;
+            cyklRange.min = minPeriod;
+            cyklInput.max = maxCykl;
+            cyklRange.max = maxCykl;
+
             elements.variableOprocentowanieWrapper.appendChild(group);
 
             const removeBtn = group.querySelector(".remove-btn");
@@ -802,21 +769,18 @@ function updateVariableInputs() {
             }
         });
 
-        const isMaxPeriodReached = state.variableRates.some(rate => rate.period >= maxCykl);
-        elements.addVariableOprocentowanieBtn.style.display = (state.variableRates.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
+        const lastPeriod = state.variableRates.length > 0 ? state.variableRates[state.variableRates.length - 1].period : 0;
+        const canAddMore = state.variableRates.length < maxChanges && lastPeriod < maxCykl;
+        elements.addVariableOprocentowanieBtn.style.display = canAddMore ? "block" : "none";
     } else {
         if (elements.variableOprocentowanieInputs) elements.variableOprocentowanieInputs.classList.remove("active");
         if (elements.addVariableOprocentowanieBtn) elements.addVariableOprocentowanieBtn.style.display = "none";
-        if (elements.variableOprocentowanieWrapper) {
-            elements.variableOprocentowanieWrapper.innerHTML = "";
-        }
-        if (!isZmienneOprocentowanie) {
-            state.variableRates = [];
-        }
+        if (elements.variableOprocentowanieWrapper) elements.variableOprocentowanieWrapper.innerHTML = "";
+        if (!elements.zmienneOprocentowanieBtn?.checked) state.variableRates = [];
     }
 
-    const isNadplataKredytu = elements.nadplataKredytuBtn?.checked;
-    if (isNadplataKredytu && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn && elements.nadplataKredytuWrapper) {
+    // Nadpłata kredytu
+    if (elements.nadplataKredytuBtn?.checked && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn && elements.nadplataKredytuWrapper) {
         if (state.overpaymentRates.length === 0) {
             state.overpaymentRates.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
         }
@@ -824,7 +788,16 @@ function updateVariableInputs() {
 
         elements.nadplataKredytuWrapper.innerHTML = "";
         state.overpaymentRates.forEach((overpayment, index) => {
-            const group = createVariableInputGroup("nadplata", index, overpayment.period, overpayment.value, overpayment.type, overpayment.effect);
+            const minPeriod = index > 0 ? state.overpaymentRates[index - 1].period + 1 : 1;
+            const group = createVariableInputGroup("nadplata", index, Math.max(minPeriod, overpayment.period), overpayment.value, overpayment.type, overpayment.effect);
+
+            const cyklInput = group.querySelector(".variable-cykl");
+            const cyklRange = group.querySelector(".variable-cykl-range");
+            cyklInput.min = minPeriod;
+            cyklRange.min = minPeriod;
+            cyklInput.max = maxCykl - 1;
+            cyklRange.max = maxCykl - 1;
+
             elements.nadplataKredytuWrapper.appendChild(group);
 
             const removeBtn = group.querySelector(".remove-btn");
@@ -841,17 +814,14 @@ function updateVariableInputs() {
             }
         });
 
-        const isMaxPeriodReached = state.overpaymentRates.some(rate => rate.period >= (maxCykl - 1));
-        elements.addNadplataKredytuBtn.style.display = (state.overpaymentRates.length < maxChanges && !isMaxPeriodReached) ? "block" : "none";
+        const lastPeriod = state.overpaymentRates.length > 0 ? state.overpaymentRates[state.overpaymentRates.length - 1].period : 0;
+        const canAddMore = state.overpaymentRates.length < maxChanges && lastPeriod < (maxCykl - 1);
+        elements.addNadplataKredytuBtn.style.display = canAddMore ? "block" : "none";
     } else {
         if (elements.nadplataKredytuInputs) elements.nadplataKredytuInputs.classList.remove("active");
         if (elements.addNadplataKredytuBtn) elements.addNadplataKredytuBtn.style.display = "none";
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.innerHTML = "";
-        }
-        if (!isNadplataKredytu) {
-            state.overpaymentRates = [];
-        }
+        if (elements.nadplataKredytuWrapper) elements.nadplataKredytuWrapper.innerHTML = "";
+        if (!elements.nadplataKredytuBtn?.checked) state.overpaymentRates = [];
     }
 }
 
@@ -859,13 +829,11 @@ function addVariableChange(activeType) {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
-
+    const changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
     const maxPeriod = activeType === "nadplata" ? maxCykl - 1 : maxCykl;
-    const lastChange = changes.length > 0 ? changes.reduce((max, change) => Math.max(max, change.period), 0) : 0;
-    const isMaxPeriodReached = lastChange >= maxPeriod;
 
-    if (changes.length >= maxChanges || isMaxPeriodReached) {
+    const lastChange = changes.length > 0 ? changes[changes.length - 1].period : 0;
+    if (changes.length >= maxChanges || lastChange >= maxPeriod) {
         if (changes.length >= maxChanges) {
             alert(`Osiągnięto maksymalną liczbę zmian (${maxChanges}).`);
         }
@@ -877,18 +845,17 @@ function addVariableChange(activeType) {
         return;
     }
 
-    const newCykl = lastChange ? lastChange + 1 : (activeType === "nadplata" ? 1 : 2);
+    const newPeriod = lastChange + 1;
     const newChange = activeType === "oprocentowanie" 
-        ? { period: newCykl, value: state.lastFormData.oprocentowanie }
-        : { period: newCykl, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
+        ? { period: newPeriod, value: state.lastFormData.oprocentowanie || 7 }
+        : { period: newPeriod, value: 1000, type: "Jednorazowa", effect: "Skróć okres" };
 
     changes.push(newChange);
-    changes.sort((a, b) => a.period - b.period);
     updateVariableInputs();
 }
 
 function removeVariableChange(index, activeType) {
-    let changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
+    const changes = activeType === "oprocentowanie" ? state.variableRates : state.overpaymentRates;
     if (changes.length > 1) {
         changes.splice(index, 1);
         updateVariableInputs();
