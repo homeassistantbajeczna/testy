@@ -521,7 +521,7 @@ body {
 .range-slider {
     margin-top: 5px;
     height: 6px;
-    border: none; /* Usunięto ramkę */
+    border: none; /* Brak ramki na głównym elemencie */
     border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
     appearance: none;
     width: 100%;
@@ -536,7 +536,7 @@ body {
 .range-slider::-ms-track {
     background: var(--input-group-bg); /* #f5f5f5 w trybie jasnym */
     height: 6px;
-    border: none;
+    border: 1px solid var(--border-color); /* Dodano subtelną ramkę toru */
     border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
 }
 
@@ -544,27 +544,44 @@ body {
     color: transparent;
 }
 
-.range-slider::-webkit-slider-thumb,
-.range-slider::-moz-range-thumb,
-.range-slider::-ms-thumb {
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
-    width: 9px; /* Zmniejszone o 2px (z 11px) */
-    height: 9px; /* Zmniejszone o 2px (z 11px) */
+    width: 7px; /* Zmniejszone z 9px */
+    height: 7px; /* Zmniejszone z 9px */
     border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
     border: none;
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transform: translateY(1px); /* Przesunięte o 1px wyżej (z 2px) */
     will-change: transform;
 }
 
-.range-slider::-webkit-slider-thumb {
-    transform: translateY(2px);
+.range-slider::-moz-range-thumb {
     appearance: none;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
+    width: 7px; /* Zmniejszone z 9px */
+    height: 7px; /* Zmniejszone z 9px */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transform: translateY(-2px); /* Przesunięte o 1px wyżej (z -1px) */
+    will-change: transform;
 }
 
-.range-slider::-moz-range-thumb,
 .range-slider::-ms-thumb {
-    transform: translateY(-1px);
+    appearance: none;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
+    width: 7px; /* Zmniejszone z 9px */
+    height: 7px; /* Zmniejszone z 9px */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transform: translateY(-2px); /* Przesunięte o 1px wyżej (z -1px) */
+    will-change: transform;
 }
 
 .range-slider::-moz-range-progress,
@@ -579,21 +596,17 @@ body {
     border-radius: var(--border-radius);
 }
 
-.range-slider:focus::-webkit-slider-thumb,
+.range-slider:focus::-webkit-slider-thumb {
+    outline: none;
+    box-shadow: 0 0 4px var(--accent-gradient-start);
+    transform: translateY(1px) scale(1.1); /* Dopasowane przesunięcie przy :focus */
+}
+
 .range-slider:focus::-moz-range-thumb,
 .range-slider:focus::-ms-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: scale(1.1);
-}
-
-.range-slider:focus::-webkit-slider-thumb {
-    transform: translateY(2px) scale(1.1);
-}
-
-.range-slider:focus::-moz-range-thumb,
-.range-slider:focus::-ms-thumb {
-    transform: translateY(-1px) scale(1.1);
+    transform: translateY(-2px) scale(1.1); /* Dopasowane przesunięcie przy :focus */
 }
 
 
@@ -824,7 +837,7 @@ body {
     --shadow-color: rgba(255, 255, 255, 0.1);
     --logo-bg: #333333;
     --input-bg: #333333;
-    --input-group-bg: #333333; /* Ciemniejsze tło suwaków w trybie ciemnym */
+    --input-group-bg: #222222; /* Ciemniejsze tło suwaków w trybie ciemnym */
     --harmonogram-bg: #333333;
     --range-bg: #666666;
 }
@@ -864,33 +877,34 @@ body {
 .dark-mode .range-slider::-webkit-slider-runnable-track,
 .dark-mode .range-slider::-moz-range-track,
 .dark-mode .range-slider::-ms-track {
-    background: var(--input-group-bg); /* Ciemniejsze tło w trybie ciemnym (#333333) */
+    background: var(--input-group-bg); /* Ciemniejsze tło w trybie ciemnym (#222222) */
+    border: 1px solid var(--border-color); /* Subtelna ramka w trybie ciemnym */
     border-radius: var(--border-radius);
 }
 
-.dark-mode .range-slider::-webkit-slider-thumb,
-.dark-mode .range-slider::-moz-range-thumb,
-.dark-mode .range-slider::-ms-thumb {
+.dark-mode .range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
     transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transform: translateY(1px);
 }
 
-.dark-mode .range-slider::-webkit-slider-thumb {
-    transform: translateY(2px);
+.dark-mode .range-slider::-moz-range-thumb,
+.dark-mode .range-slider::-ms-thumb {
+    appearance: none;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    transform: translateY(-2px);
 }
 
 .dark-mode .range-slider:focus::-webkit-slider-thumb {
-    transform: translateY(2px) scale(1.1);
-}
-
-.dark-mode .range-slider::-moz-range-thumb,
-.dark-mode .range-slider::-ms-thumb {
-    transform: translateY(-1px);
+    transform: translateY(1px) scale(1.1);
 }
 
 .dark-mode .range-slider:focus::-moz-range-thumb,
 .dark-mode .range-slider:focus::-ms-thumb {
-    transform: translateY(-1px) scale(1.1);
+    transform: translateY(-2px) scale(1.1);
 }
 
 .dark-mode .range-slider::-moz-range-progress,
