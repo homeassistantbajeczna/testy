@@ -130,75 +130,6 @@ function updateKwotaInfo() {
     }
 }
 
-function updateVariableInputs(wrapper, templateId, ratesArray, iloscRat, type) {
-    try {
-        const template = document.getElementById(templateId)?.content.cloneNode(true);
-        if (!template) return;
-
-        const group = template.querySelector(".variable-input-group");
-        const inputs = group.querySelectorAll(".form-control");
-        const ranges = group.querySelectorAll(".form-range");
-        const removeBtn = group.querySelector(".remove-btn");
-        const removeFirstBtn = group.querySelector(".remove-first-btn");
-
-        if (type === "oprocentowanie") {
-            inputs[0].max = iloscRat;
-            ranges[0].max = iloscRat;
-        } else if (type === "nadplata") {
-            inputs[0].max = iloscRat;
-            ranges[0].max = iloscRat;
-            ranges[1].max = parseFloat(elements.kwota.value) || 500000;
-        }
-
-        const existingGroups = wrapper.querySelectorAll(".variable-input-group");
-        if (existingGroups.length === 0) {
-            removeFirstBtn.style.display = "block";
-        } else {
-            removeBtn.style.display = "block";
-        }
-
-        inputs.forEach((input, index) => {
-            const range = ranges[index];
-            if (input.classList.contains("variable-cykl")) {
-                syncInputWithRange(input, range);
-            } else if (input.classList.contains("variable-rate")) {
-                syncInputWithRange(input, range);
-            }
-
-            input.addEventListener("input", () => {
-                syncInputWithRange(input, range);
-                updateRatesArray(ratesArray, group, type);
-            });
-
-            range.addEventListener("input", () => {
-                input.value = range.value;
-                updateRatesArray(ratesArray, group, type);
-            });
-        });
-
-        if (type === "nadplata") {
-            const typeSelect = group.querySelector(".nadplata-type-select");
-            const effectSelect = group.querySelector(".nadplata-effect-select");
-            typeSelect?.addEventListener("change", () => updateRatesArray(ratesArray, group, type));
-            effectSelect?.addEventListener("change", () => updateRatesArray(ratesArray, group, type));
-        }
-
-        removeBtn?.addEventListener("click", () => {
-            group.remove();
-            updateRatesArray(ratesArray, null, type);
-        });
-
-        removeFirstBtn?.addEventListener("click", () => {
-            group.remove();
-            updateRatesArray(ratesArray, null, type);
-        });
-
-        wrapper.appendChild(template);
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji zmiennych wejść:", error);
-    }
-}
-
 function updateRatesArray(ratesArray, group, type) {
     try {
         ratesArray.length = 0;
@@ -633,28 +564,76 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.jednostkaProwizji?.addEventListener("change", updateProwizjaInfo);
 
+        // Obsługa pól nadpłaty kredytu
         elements.nadplataKredytuBtn?.addEventListener("change", () => {
             const isChecked = elements.nadplataKredytuBtn.checked;
             elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
-            if (isChecked && elements.nadplataKredytuWrapper.children.length === 0) {
-                updateVariableInputs(elements.nadplataKredytuWrapper, "nadplataKredytuTemplate", state.overpaymentRates, elements.iloscRat.value, "nadplata");
-            }
         });
 
-        elements.addNadplataKredytuBtn?.addEventListener("click", () => {
-            updateVariableInputs(elements.nadplataKredytuWrapper, "nadplataKredytuTemplate", state.overpaymentRates, elements.iloscRat.value, "nadplata");
-        });
-
+        // Obsługa pól zmiennego oprocentowania
         elements.zmienneOprocentowanieBtn?.addEventListener("change", () => {
             const isChecked = elements.zmienneOprocentowanieBtn.checked;
             elements.variableOprocentowanieInputs.classList.toggle("active", isChecked);
-            if (isChecked && elements.variableOprocentowanieWrapper.children.length === 0) {
-                updateVariableInputs(elements.variableOprocentowanieWrapper, "variableOprocentowanieTemplate", state.variableRates, elements.iloscRat.value, "oprocentowanie");
-            }
         });
 
-        elements.addVariableOprocentowanieBtn?.addEventListener("click", () => {
-            updateVariableInputs(elements.variableOprocentowanieWrapper, "variableOprocentowanieTemplate", state.variableRates, elements.iloscRat.value, "oprocentowanie");
+        // Obsługa zdarzeń dla statycznych pól nadpłaty
+        elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group").forEach(group => {
+            const inputs = group.querySelectorAll(".form-control");
+            const ranges = group.querySelectorAll(".form-range");
+            const typeSelect = group.querySelector(".nadplata-type-select");
+            const effectSelect = group.querySelector(".nadplata-effect-select");
+
+            inputs.forEach((input, index) => {
+                const range = ranges[index];
+                if (input.classList.contains("variable-cykl")) {
+                    input.max = elements.iloscRat.value;
+                    range.max = elements.iloscRat.value;
+                    syncInputWithRange(input, range);
+                } else if (input.classList.contains("variable-rate")) {
+                    range.max = parseFloat(elements.kwota.value) || 500000;
+                    syncInputWithRange(input, range);
+                }
+
+                input.addEventListener("input", () => {
+                    syncInputWithRange(input, range);
+                    updateRatesArray(state.overpaymentRates, group, "nadplata");
+                });
+
+                range.addEventListener("input", () => {
+                    input.value = range.value;
+                    updateRatesArray(state.overpaymentRates, group, "nadplata");
+                });
+            });
+
+            typeSelect?.addEventListener("change", () => updateRatesArray(state.overpaymentRates, group, "nadplata"));
+            effectSelect?.addEventListener("change", () => updateRatesArray(state.overpaymentRates, group, "nadplata"));
+        });
+
+        // Obsługa zdarzeń dla statycznych pól zmiennego oprocentowania
+        elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group").forEach(group => {
+            const inputs = group.querySelectorAll(".form-control");
+            const ranges = group.querySelectorAll(".form-range");
+
+            inputs.forEach((input, index) => {
+                const range = ranges[index];
+                if (input.classList.contains("variable-cykl")) {
+                    input.max = elements.iloscRat.value;
+                    range.max = elements.iloscRat.value;
+                    syncInputWithRange(input, range);
+                } else if (input.classList.contains("variable-rate")) {
+                    syncInputWithRange(input, range);
+                }
+
+                input.addEventListener("input", () => {
+                    syncInputWithRange(input, range);
+                    updateRatesArray(state.variableRates, group, "oprocentowanie");
+                });
+
+                range.addEventListener("input", () => {
+                    input.value = range.value;
+                    updateRatesArray(state.variableRates, group, "oprocentowanie");
+                });
+            });
         });
 
         elements.obliczBtn?.addEventListener("click", () => {
