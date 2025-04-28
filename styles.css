@@ -537,7 +537,7 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: none;
+    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
     box-shadow: none;
 }
 
@@ -546,7 +546,7 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: none;
+    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
 }
 
 /* Stylizacja toru suwaka dla Edge */
@@ -554,7 +554,7 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: none;
+    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
     color: transparent; /* Ukrywa domyślny tor w Edge */
 }
 
@@ -599,22 +599,19 @@ body {
     will-change: transform;
 }
 
-/* Stylizacja części toru przed klikaczem (progress) */
+/* Usunięcie progress (część toru przed klikaczem) */
 .range-slider::-moz-range-progress {
-    background: #000000; /* Czarny kolor dla części toru przed klikaczem */
-    height: 6px;
-    border-radius: var(--border-radius);
+    background: none; /* Brak progress */
 }
 
 .range-slider::-ms-fill-lower {
-    background: #000000; /* Czarny kolor dla części toru przed klikaczem */
-    height: 6px;
-    border-radius: var(--border-radius);
+    background: none; /* Brak progress */
 }
 
 /* Stylizacja części toru za klikaczem */
 .range-slider::-ms-fill-upper {
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
+    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
     height: 6px;
     border-radius: var(--border-radius);
 }
@@ -633,29 +630,14 @@ body {
     transform: translateY(-1px) scale(1.1);
 }
 
-/* Specyficzne style dla różnych suwaków */
-#kwotaRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-#iloscRatRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-#oprocentowanieRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-#prowizjaRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-.variable-cykl-range::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
+/* Usunięcie gradientu dla suwaków w Chrome (brak progress) */
+#kwotaRange::-webkit-slider-runnable-track,
+#iloscRatRange::-webkit-slider-runnable-track,
+#oprocentowanieRange::-webkit-slider-runnable-track,
+#prowizjaRange::-webkit-slider-runnable-track,
+.variable-cykl-range::-webkit-slider-runnable-track,
 .variable-rate-range::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+    background: var(--range-bg) !important; /* Jednolite tło toru */
 }
 
 
@@ -929,14 +911,17 @@ body {
 
 .dark-mode .range-slider::-webkit-slider-runnable-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
+    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
 }
 
 .dark-mode .range-slider::-moz-range-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
+    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
 }
 
 .dark-mode .range-slider::-ms-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
+    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
@@ -965,39 +950,25 @@ body {
 }
 
 .dark-mode .range-slider::-moz-range-progress {
-    background: #000000; /* Czarny kolor dla części toru przed klikaczem */
+    background: none; /* Brak progress */
 }
 
 .dark-mode .range-slider::-ms-fill-lower {
-    background: #000000; /* Czarny kolor dla części toru przed klikaczem */
+    background: none; /* Brak progress */
 }
 
 .dark-mode .range-slider::-ms-fill-upper {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
+    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
 }
 
-.dark-mode #kwotaRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-.dark-mode #iloscRatRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-.dark-mode #oprocentowanieRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-.dark-mode #prowizjaRange::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
-.dark-mode .variable-cykl-range::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
-}
-
+.dark-mode #kwotaRange::-webkit-slider-runnable-track,
+.dark-mode #iloscRatRange::-webkit-slider-runnable-track,
+.dark-mode #oprocentowanieRange::-webkit-slider-runnable-track,
+.dark-mode #prowizjaRange::-webkit-slider-runnable-track,
+.dark-mode .variable-cykl-range::-webkit-slider-runnable-track,
 .dark-mode .variable-rate-range::-webkit-slider-runnable-track {
-    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), var(--range-bg) calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+    background: var(--range-bg) !important; /* Jednolite tło toru */
 }
 
 .dark-mode .box-select .form-select,
