@@ -141,17 +141,17 @@ body {
 .header-row,
 .result-header {
     display: flex;
-    flex-direction: column; /* Zmieniamy na układ pionowy */
-    align-items: center; /* Wyśrodkowanie w poziomie */
+    flex-direction: column;
+    align-items: center;
     margin-bottom: 15px;
     position: relative;
 }
 
 .button-container {
     display: flex;
-    justify-content: space-between; /* Przyciski na końcach */
-    width: 100%; /* Zajmuje całą szerokość */
-    margin-bottom: 10px; /* Odstęp między przyciskami a nagłówkiem */
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
 }
 
 .header-row h4,
@@ -253,7 +253,7 @@ body {
 
 .form-group {
     flex: 1;
-    min-width: 120px;
+    min-width: 150px;
     max-width: 150px;
     display: flex;
     flex-direction: column;
@@ -309,15 +309,15 @@ body {
 
 .variable-input-group[data-type="nadplata"] .fields-wrapper {
     display: flex;
-    flex-wrap: nowrap;
+    flex-direction: column;
     gap: 15px;
     justify-content: center;
-    min-width: 480px;
+    min-width: 315px;
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 105px;
-    max-width: 105px;
+    min-width: 150px;
+    max-width: 150px;
     flex: none;
 }
 
@@ -343,6 +343,7 @@ body {
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
+    border-radius: var(--border-radius) var(--border-radius) 0 0; /* Lewy dolny i prawy górny róg prosty */
 }
 
 .form-control {
@@ -353,7 +354,7 @@ body {
     background: var(--input-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
     box-sizing: border-box;
     line-height: normal;
     display: inline-flex;
@@ -369,7 +370,7 @@ body {
     background: var(--input-group-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
     box-sizing: border-box;
     line-height: normal;
     display: inline-flex;
@@ -384,211 +385,101 @@ body {
 .input-group-text.unit-miesiacach { min-width: 75px; }
 .input-group-text.unit-zl { min-width: 40px; }
 
-.variable-input-group[data-type="nadplata"] .form-control {
-    width: 65px;
+.box-select .form-select {
+    border-radius: var(--border-radius) var(--border-radius) 0 0; /* Lewy dolny i prawy górny róg prosty */
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group,
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: center;
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
-    width: 55px;
-    margin: 0;
-    padding: 0 2px;
-    border: 1px solid var(--border-color);
+.box-fee .input-group .form-control {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
-    width: 50px;
-    min-width: 50px;
-    margin: 0;
-    padding: 0 2px;
-    font-size: 0.6em;
-    border: 1px solid var(--border-color);
-    background: var(--input-group-bg);
+.box-fee .input-group .form-select.jednostka-select {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
-    width: 65px;
-    margin: 0;
-    padding: 0 2px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-}
-
-.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
-    width: 40px;
-    min-width: 40px;
-    margin: 0;
-    padding: 0 2px;
-    font-size: 0.6em;
-    border: 1px solid var(--border-color);
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-}
-
-.variable-input-group[data-type="nadplata"] .input-group {
-    width: 105px;
-}
-
-.variable-input-group[data-type="nadplata"] .nadplata-type-select,
-.variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-    width: 105px;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-control {
+/* Style dla klas boxów */
+.box-select .form-select,
+.box-amount .form-control,
+.box-period .form-control,
+.box-rate .form-control,
+.box-fee .form-control {
     width: 110px;
 }
 
-.variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
-    width: 90px;
-    margin: 0;
-    padding: 0 2px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
-    width: 60px;
-    min-width: 60px;
-    margin: 0;
-    padding: 0 2px;
-    font-size: 0.6em;
-    border: 1px solid var(--border-color);
-    background: var(--input-group-bg);
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
-    width: 110px;
-    margin: 0;
-    padding: 0 2px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-}
-
-.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
-    width: 40px;
-    min-width: 40px;
-    margin: 0;
-    padding: 0 2px;
-    font-size: 0.6em;
-    border: 1px solid var(--border-color);
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-}
-
-.variable-input-group[data-type="oprocentowanie"] .input-group {
-    width: 150px;
-}
-
-#prowizja .input-group .form-control {
-    flex: 3;
-    border-radius: 5px 0 0 5px !important;
-    border-right: none;
-}
-
-#prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
-#prowizja .input-group .form-control[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-#prowizja .input-group .form-control[type="number"] {
-    -moz-appearance: textfield;
-}
-
-#prowizja .input-group .form-select.jednostka-select {
-    height: 22px !important;
-    font-size: var(--small-font-size) !important;
-    padding: 2px 12px 2px 4px !important;
-    text-align: center !important;
-    background-color: var(--input-bg) !important;
-    color: var(--primary-text) !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 0 5px 5px 0 !important;
-    border-left: 1px solid var(--border-color) !important;
-    box-sizing: border-box !important;
-    line-height: normal !important;
-    width: 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
-    flex: none !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 4px center !important;
-    background-size: 8px 8px !important;
-}
-
-.form-select,
-.variable-input-group .nadplata-type-select,
-.variable-input-group .nadplata-effect-select {
+.box-select .form-select {
     height: 22px;
-    font-size: var(--small-font-size);
     padding: 2px 12px 2px 4px;
     text-align: center;
     background-color: var(--input-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
     box-sizing: border-box;
     line-height: normal;
-    width: 100%;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 4px center !important;
-    background-size: 8px 8px !important;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 8px 8px;
+}
+
+.box-fee .input-group .form-select.jednostka-select {
+    height: 22px;
+    padding: 2px 12px 2px 4px;
+    text-align: center;
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    line-height: normal;
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    flex: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 8px 8px;
 }
 
 /* Style dla :focus */
-.form-select:focus,
-.form-group .form-control:focus,
-.form-group .form-select:focus,
-.variable-input-group .form-control:focus,
-.variable-input-group .form-select:focus,
-#prowizja .input-group .form-control:focus,
-#prowizja .input-group .form-select.jednostka-select:focus,
-.variable-input-group .nadplata-type-select:focus,
-.variable-input-group .nadplata-effect-select:focus {
-    outline: none !important;
-    box-shadow: 0 0 4px var(--accent-color) !important;
-    border: 1px solid var(--border-color) !important;
-    background-color: var(--input-bg) !important;
-    color: var(--primary-text) !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
+.box-select .form-select:focus,
+.box-amount .form-control:focus,
+.box-period .form-control:focus,
+.box-rate .form-control:focus,
+.box-fee .form-control:focus,
+.box-fee .input-group .form-select.jednostka-select:focus {
+    outline: none;
+    box-shadow: 0 0 4px var(--accent-color);
+    border: 1px solid var(--border-color);
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
-.form-select:focus,
-#prowizja .input-group .form-select.jednostka-select:focus,
-.variable-input-group .nadplata-type-select:focus,
-.variable-input-group .nadplata-effect-select:focus {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 4px center !important;
-    background-size: 8px 8px !important;
+.box-select .form-select:focus,
+.box-fee .input-group .form-select.jednostka-select:focus {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 8px 8px;
 }
 
 /* S U W A K I */
-input[type="range"].form-range {
+.box-amount .form-range,
+.box-period .form-range,
+.box-rate .form-range,
+.box-fee .form-range {
     margin-top: 5px;
     height: 6px;
     border: 2px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) var(--border-radius) 0 0; /* Lewy dolny i prawy górny róg prosty */
     appearance: none;
     width: 100%;
     margin-left: auto;
@@ -597,22 +488,43 @@ input[type="range"].form-range {
     background: transparent;
 }
 
-input[type="range"].form-range::-webkit-slider-runnable-track,
-input[type="range"].form-range::-moz-range-track,
-input[type="range"].form-range::-ms-track {
+.box-amount .form-range::-webkit-slider-runnable-track,
+.box-amount .form-range::-moz-range-track,
+.box-amount .form-range::-ms-track,
+.box-period .form-range::-webkit-slider-runnable-track,
+.box-period .form-range::-moz-range-track,
+.box-period .form-range::-ms-track,
+.box-rate .form-range::-webkit-slider-runnable-track,
+.box-rate .form-range::-moz-range-track,
+.box-rate .form-range::-ms-track,
+.box-fee .form-range::-webkit-slider-runnable-track,
+.box-fee .form-range::-moz-range-track,
+.box-fee .form-range::-ms-track {
     background: var(--input-group-bg);
     height: 6px;
     border: none;
     border-radius: var(--border-radius);
 }
 
-input[type="range"].form-range::-ms-track {
+.box-amount .form-range::-ms-track,
+.box-period .form-range::-ms-track,
+.box-rate .form-range::-ms-track,
+.box-fee .form-range::-ms-track {
     color: transparent;
 }
 
-input[type="range"].form-range::-webkit-slider-thumb,
-input[type="range"].form-range::-moz-range-thumb,
-input[type="range"].form-range::-ms-thumb {
+.box-amount .form-range::-webkit-slider-thumb,
+.box-amount .form-range::-moz-range-thumb,
+.box-amount .form-range::-ms-thumb,
+.box-period .form-range::-webkit-slider-thumb,
+.box-period .form-range::-moz-range-thumb,
+.box-period .form-range::-ms-thumb,
+.box-rate .form-range::-webkit-slider-thumb,
+.box-rate .form-range::-moz-range-thumb,
+.box-rate .form-range::-ms-thumb,
+.box-fee .form-range::-webkit-slider-thumb,
+.box-fee .form-range::-moz-range-thumb,
+.box-fee .form-range::-ms-thumb {
     background: var(--accent-gradient-start);
     width: 11px;
     height: 11px;
@@ -623,42 +535,78 @@ input[type="range"].form-range::-ms-thumb {
     will-change: transform;
 }
 
-input[type="range"].form-range::-webkit-slider-thumb {
+.box-amount .form-range::-webkit-slider-thumb,
+.box-period .form-range::-webkit-slider-thumb,
+.box-rate .form-range::-webkit-slider-thumb,
+.box-fee .form-range::-webkit-slider-thumb {
     transform: translateY(2px);
     appearance: none;
 }
 
-input[type="range"].form-range::-moz-range-thumb,
-input[type="range"].form-range::-ms-thumb {
+.box-amount .form-range::-moz-range-thumb,
+.box-amount .form-range::-ms-thumb,
+.box-period .form-range::-moz-range-thumb,
+.box-period .form-range::-ms-thumb,
+.box-rate .form-range::-moz-range-thumb,
+.box-rate .form-range::-ms-thumb,
+.box-fee .form-range::-moz-range-thumb,
+.box-fee .form-range::-ms-thumb {
     transform: translateY(-1px);
 }
 
-input[type="range"].form-range::-moz-range-progress,
-input[type="range"].form-range::-ms-fill-lower {
+.box-amount .form-range::-moz-range-progress,
+.box-amount .form-range::-ms-fill-lower,
+.box-period .form-range::-moz-range-progress,
+.box-period .form-range::-ms-fill-lower,
+.box-rate .form-range::-moz-range-progress,
+.box-rate .form-range::-ms-fill-lower,
+.box-fee .form-range::-moz-range-progress,
+.box-fee .form-range::-ms-fill-lower {
     background: var(--accent-gradient-start);
     height: 6px;
     border-radius: var(--border-radius);
 }
 
-input[type="range"].form-range::-ms-fill-upper {
+.box-amount .form-range::-ms-fill-upper,
+.box-period .form-range::-ms-fill-upper,
+.box-rate .form-range::-ms-fill-upper,
+.box-fee .form-range::-ms-fill-upper {
     background: var(--input-group-bg);
     border-radius: var(--border-radius);
 }
 
-input[type="range"].form-range:focus::-webkit-slider-thumb,
-input[type="range"].form-range:focus::-moz-range-thumb,
-input[type="range"].form-range:focus::-ms-thumb {
+.box-amount .form-range:focus::-webkit-slider-thumb,
+.box-amount .form-range:focus::-moz-range-thumb,
+.box-amount .form-range:focus::-ms-thumb,
+.box-period .form-range:focus::-webkit-slider-thumb,
+.box-period .form-range:focus::-moz-range-thumb,
+.box-period .form-range:focus::-ms-thumb,
+.box-rate .form-range:focus::-webkit-slider-thumb,
+.box-rate .form-range:focus::-moz-range-thumb,
+.box-rate .form-range:focus::-ms-thumb,
+.box-fee .form-range:focus::-webkit-slider-thumb,
+.box-fee .form-range:focus::-moz-range-thumb,
+.box-fee .form-range:focus::-ms-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
     transform: scale(1.1);
 }
 
-input[type="range"].form-range:focus::-webkit-slider-thumb {
+.box-amount .form-range:focus::-webkit-slider-thumb,
+.box-period .form-range:focus::-webkit-slider-thumb,
+.box-rate .form-range:focus::-webkit-slider-thumb,
+.box-fee .form-range:focus::-webkit-slider-thumb {
     transform: translateY(2px) scale(1.1);
 }
 
-input[type="range"].form-range:focus::-moz-range-thumb,
-input[type="range"].form-range:focus::-ms-thumb {
+.box-amount .form-range:focus::-moz-range-thumb,
+.box-amount .form-range:focus::-ms-thumb,
+.box-period .form-range:focus::-moz-range-thumb,
+.box-period .form-range:focus::-ms-thumb,
+.box-rate .form-range:focus::-moz-range-thumb,
+.box-rate .form-range:focus::-ms-thumb,
+.box-fee .form-range:focus::-moz-range-thumb,
+.box-fee .form-range:focus::-ms-thumb {
     transform: translateY(-1px) scale(1.1);
 }
 
@@ -915,62 +863,108 @@ input[type="range"].form-range:focus::-ms-thumb {
     border-color: var(--accent-gradient-start);
 }
 
-.dark-mode input[type="range"].form-range {
+.dark-mode .box-amount .form-range,
+.dark-mode .box-period .form-range,
+.dark-mode .box-rate .form-range,
+.dark-mode .box-fee .form-range {
     border-color: var(--border-color);
 }
 
-.dark-mode input[type="range"].form-range::-webkit-slider-runnable-track,
-.dark-mode input[type="range"].form-range::-moz-range-track,
-.dark-mode input[type="range"].form-range::-ms-track {
+.dark-mode .box-amount .form-range::-webkit-slider-runnable-track,
+.dark-mode .box-amount .form-range::-moz-range-track,
+.dark-mode .box-amount .form-range::-ms-track,
+.dark-mode .box-period .form-range::-webkit-slider-runnable-track,
+.dark-mode .box-period .form-range::-moz-range-track,
+.dark-mode .box-period .form-range::-ms-track,
+.dark-mode .box-rate .form-range::-webkit-slider-runnable-track,
+.dark-mode .box-rate .form-range::-moz-range-track,
+.dark-mode .box-rate .form-range::-ms-track,
+.dark-mode .box-fee .form-range::-webkit-slider-runnable-track,
+.dark-mode .box-fee .form-range::-moz-range-track,
+.dark-mode .box-fee .form-range::-ms-track {
     background: var(--input-group-bg);
     border-radius: var(--border-radius);
 }
 
-.dark-mode input[type="range"].form-range::-webkit-slider-thumb,
-.dark-mode input[type="range"].form-range::-moz-range-thumb,
-.dark-mode input[type="range"].form-range::-ms-thumb {
+.dark-mode .box-amount .form-range::-webkit-slider-thumb,
+.dark-mode .box-amount .form-range::-moz-range-thumb,
+.dark-mode .box-amount .form-range::-ms-thumb,
+.dark-mode .box-period .form-range::-webkit-slider-thumb,
+.dark-mode .box-period .form-range::-moz-range-thumb,
+.dark-mode .box-period .form-range::-ms-thumb,
+.dark-mode .box-rate .form-range::-webkit-slider-thumb,
+.dark-mode .box-rate .form-range::-moz-range-thumb,
+.dark-mode .box-rate .form-range::-ms-thumb,
+.dark-mode .box-fee .form-range::-webkit-slider-thumb,
+.dark-mode .box-fee .form-range::-moz-range-thumb,
+.dark-mode .box-fee .form-range::-ms-thumb {
     background: var(--accent-gradient-start);
     transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.dark-mode input[type="range"].form-range::-webkit-slider-thumb {
+.dark-mode .box-amount .form-range::-webkit-slider-thumb,
+.dark-mode .box-period .form-range::-webkit-slider-thumb,
+.dark-mode .box-rate .form-range::-webkit-slider-thumb,
+.dark-mode .box-fee .form-range::-webkit-slider-thumb {
     transform: translateY(3px);
 }
 
-.dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb {
+.dark-mode .box-amount .form-range:focus::-webkit-slider-thumb,
+.dark-mode .box-period .form-range:focus::-webkit-slider-thumb,
+.dark-mode .box-rate .form-range:focus::-webkit-slider-thumb,
+.dark-mode .box-fee .form-range:focus::-webkit-slider-thumb {
     transform: translateY(3px) scale(1.1);
 }
 
-.dark-mode input[type="range"].form-range::-moz-range-thumb,
-.dark-mode input[type="range"].form-range::-ms-thumb {
+.dark-mode .box-amount .form-range::-moz-range-thumb,
+.dark-mode .box-amount .form-range::-ms-thumb,
+.dark-mode .box-period .form-range::-moz-range-thumb,
+.dark-mode .box-period .form-range::-ms-thumb,
+.dark-mode .box-rate .form-range::-moz-range-thumb,
+.dark-mode .box-rate .form-range::-ms-thumb,
+.dark-mode .box-fee .form-range::-moz-range-thumb,
+.dark-mode .box-fee .form-range::-ms-thumb {
     transform: none;
 }
 
-.dark-mode input[type="range"].form-range:focus::-moz-range-thumb,
-.dark-mode input[type="range"].form-range:focus::-ms-thumb {
+.dark-mode .box-amount .form-range:focus::-moz-range-thumb,
+.dark-mode .box-amount .form-range:focus::-ms-thumb,
+.dark-mode .box-period .form-range:focus::-moz-range-thumb,
+.dark-mode .box-period .form-range:focus::-ms-thumb,
+.dark-mode .box-rate .form-range:focus::-moz-range-thumb,
+.dark-mode .box-rate .form-range:focus::-ms-thumb,
+.dark-mode .box-fee .form-range:focus::-moz-range-thumb,
+.dark-mode .box-fee .form-range:focus::-ms-thumb {
     transform: scale(1.1);
 }
 
-.dark-mode input[type="range"].form-range::-moz-range-progress,
-.dark-mode input[type="range"].form-range::-ms-fill-lower {
+.dark-mode .box-amount .form-range::-moz-range-progressDerek,
+.dark-mode .box-amount .form-range::-ms-fill-lower,
+.dark-mode .box-period .form-range::-moz-range-progress,
+.dark-mode .box-period .form-range::-ms-fill-lower,
+.dark-mode .box-rate .form-range::-moz-range-progress,
+.dark-mode .box-rate .form-range::-ms-fill-lower,
+.dark-mode .box-fee .form-range::-moz-range-progress,
+.dark-mode .box-fee .form-range::-ms-fill-lower {
     background: var(--accent-gradient-start);
     height: 6px;
     border-radius: var(--border-radius);
 }
 
-.dark-mode input[type="range"].form-range::-ms-fill-upper {
+.dark-mode .box-amount .form-range::-ms-fill-upper,
+.dark-mode .box-period .form-range::-ms-fill-upper,
+.dark-mode .box-rate .form-range::-ms-fill-upper,
+.dark-mode .box-fee .form-range::-ms-fill-upper {
     background: var(--input-group-bg);
     border-radius: var(--border-radius);
 }
 
-.dark-mode .form-select,
-.dark-mode #prowizja .input-group .form-select.jednostka-select,
-.dark-mode .variable-input-group .nadplata-type-select,
-.dark-mode .variable-input-group .nadplata-effect-select {
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%238b7d47" d="M0 2l4 4 4-4z"/></svg>') !important;
-    background-repeat: no-repeat !important;
-    background-position: right 4px center !important;
-    background-size: 8px 8px !important;
+.dark-mode .box-select .form-select,
+.dark-mode .box-fee .input-group .form-select.jednostka-select {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%238b7d47" d="M0 2l4 4 4-4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 8px 8px;
 }
 
 .dark-mode .harmonogram th {
@@ -996,30 +990,30 @@ input[type="range"].form-range:focus::-ms-thumb {
     }
 
     .form-group {
-        min-width: 110px;
-        max-width: 110px;
+        min-width: 150px;
+        max-width: 150px;
     }
 
     .input-group {
-        width: 148px;
+        width: 150px;
     }
 
     .variable-input-group[data-type="nadplata"] .fields-wrapper {
-        flex-wrap: wrap;
+        flex-direction: column;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group {
-        min-width: 105px;
-        max-width: 105px;
+        min-width: 150px;
+        max-width: 150px;
     }
 
     .variable-input-group[data-type="nadplata"] .input-group {
-        width: 105px;
+        width: 150px;
     }
 
     .variable-input-group[data-type="nadplata"] .nadplata-type-select,
     .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
-        width: 105px;
+        width: 150px;
     }
 
     .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
@@ -1084,16 +1078,19 @@ input[type="range"].form-range:focus::-ms-thumb {
         width: 148px;
     }
 
-    .form-select {
+    .box-select .form-select {
         width: 148px;
     }
 
-    .form-range {
+    .box-amount .form-range,
+    .box-period .form-range,
+    .box-rate .form-range,
+    .box-fee .form-range {
         width: 148px;
     }
 
     .variable-input-group[data-type="nadplata"] .fields-wrapper {
-        flex-wrap: wrap;
+        flex-direction: column;
     }
 
     .variable-input-group[data-type="nadplata"] .form-group {
