@@ -536,25 +536,25 @@ body {
 .range-slider::-webkit-slider-runnable-track {
     height: 6px;
     border-radius: var(--border-radius);
-    background: #FFFFFF !important; /* Biały kolor tła toru - wymuszamy */
-    border: none !important;
-    box-shadow: none !important;
+    background: #FFFFFF; /* Biały kolor tła toru */
+    border: none;
+    box-shadow: none;
 }
 
 /* Stylizacja toru suwaka dla Firefox */
 .range-slider::-moz-range-track {
     height: 6px;
     border-radius: var(--border-radius);
-    background: #FFFFFF !important; /* Biały kolor tła toru - wymuszamy */
-    border: none !important;
+    background: #FFFFFF; /* Biały kolor tła toru */
+    border: none;
 }
 
 /* Stylizacja toru suwaka dla Edge */
 .range-slider::-ms-track {
     height: 6px;
     border-radius: var(--border-radius);
-    background: #FFFFFF !important; /* Biały kolor tła toru - wymuszamy */
-    border: none !important;
+    background: #FFFFFF; /* Biały kolor tła toru */
+    border: none;
     color: transparent; /* Ukrywa domyślny tor w Edge */
 }
 
@@ -631,6 +631,31 @@ body {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
     transform: translateY(-1px) scale(1.1);
+}
+
+/* Specyficzne style dla różnych suwaków */
+#kwotaRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+#iloscRatRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+#oprocentowanieRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+#prowizjaRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+.variable-cykl-range::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+.variable-rate-range::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
 }
 
 
@@ -903,26 +928,15 @@ body {
 }
 
 .dark-mode .range-slider::-webkit-slider-runnable-track {
-    height: 6px;
-    border-radius: var(--border-radius);
-    background: #FFFFFF !important; /* Biały kolor tła toru w trybie ciemnym - wymuszamy */
-    border: none !important;
-    box-shadow: none !important;
+    background: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
 }
 
 .dark-mode .range-slider::-moz-range-track {
-    height: 6px;
-    border-radius: var(--border-radius);
-    background: #FFFFFF !important; /* Biały kolor tła toru w trybie ciemnym - wymuszamy */
-    border: none !important;
+    background: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
 }
 
 .dark-mode .range-slider::-ms-track {
-    height: 6px;
-    border-radius: var(--border-radius);
-    background: #FFFFFF !important; /* Biały kolor tła toru w trybie ciemnym - wymuszamy */
-    border: none !important;
-    color: transparent;
+    background: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
@@ -952,20 +966,38 @@ body {
 
 .dark-mode .range-slider::-moz-range-progress {
     background: #000000; /* Czarny kolor dla części toru przed klikaczem */
-    height: 6px;
-    border-radius: var(--border-radius);
 }
 
 .dark-mode .range-slider::-ms-fill-lower {
     background: #000000; /* Czarny kolor dla części toru przed klikaczem */
-    height: 6px;
-    border-radius: var(--border-radius);
 }
 
 .dark-mode .range-slider::-ms-fill-upper {
     background: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
-    height: 6px;
-    border-radius: var(--border-radius);
+}
+
+.dark-mode #kwotaRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+.dark-mode #iloscRatRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+.dark-mode #oprocentowanieRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+.dark-mode #prowizjaRange::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+.dark-mode .variable-cykl-range::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
+}
+
+.dark-mode .variable-rate-range::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, #000000 calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%), #FFFFFF calc((var(--value) - var(--min)) / (var(--max) - var(--min)) * 100%)) !important;
 }
 
 .dark-mode .box-select .form-select,
