@@ -533,7 +533,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
             harmonogram,
             calkowityKoszt: parseFloat(calkowityKoszt.toFixed(2)),
             calkowiteOdsetki: parseFloat(calkowiteOdsetki.toFixed(2)),
-            calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2(ws) }),
+            calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2)), // Poprawiono składnię
             prowizja: parseFloat(prowizjaKwota.toFixed(2)),
             pozostaleRaty,
         };
@@ -800,29 +800,41 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
-                input.max = elements.kwota.value;
-                input.nextElementSibling.nextElementSibling.max = elements.kwota.value;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                    input.max = elements.kwota.value;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = elements.kwota.value;
+                    }
+                });
+            }
         });
 
         elements.kwota?.addEventListener("blur", () => {
             let validatedValue = validateKwota(elements.kwota.value);
             elements.kwota.value = validatedValue.toFixed(2);
             syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
-                input.max = validatedValue;
-                input.nextElementSibling.nextElementSibling.max = validatedValue;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                    input.max = validatedValue;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = validatedValue;
+                    }
+                });
+            }
         });
 
         elements.kwotaRange?.addEventListener("input", () => {
             elements.kwota.value = parseFloat(elements.kwotaRange.value).toFixed(2);
             updateKwotaInfo();
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
-                input.max = elements.kwota.value;
-                input.nextElementSibling.nextElementSibling.max = elements.kwota.value;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                    input.max = elements.kwota.value;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = elements.kwota.value;
+                    }
+                });
+            }
         });
 
         elements.kwotaRange?.addEventListener("change", () => {
@@ -830,10 +842,14 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwota.value = validatedValue.toFixed(2);
             elements.kwotaRange.value = validatedValue;
             updateKwotaInfo();
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
-                input.max = validatedValue;
-                input.nextElementSibling.nextElementSibling.max = validatedValue;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                    input.max = validatedValue;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = validatedValue;
+                    }
+                });
+            }
         });
 
         // Inicjalizacja boxa Ilość Rat
@@ -858,41 +874,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 elements.iloscRat.value = value;
             }
             syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = elements.iloscRat.value - 1;
-                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value - 1;
-            });
-            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = elements.iloscRat.value;
-                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = elements.iloscRat.value - 1;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value - 1;
+                    }
+                });
+            }
+            if (elements.variableOprocentowanieWrapper) {
+                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = elements.iloscRat.value;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value;
+                    }
+                });
+            }
         });
 
         elements.iloscRat?.addEventListener("blur", () => {
             let validatedValue = validateIloscRat(elements.iloscRat.value);
             elements.iloscRat.value = validatedValue;
             syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = validatedValue - 1;
-                input.nextElementSibling.nextElementSibling.max = validatedValue - 1;
-            });
-            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = validatedValue;
-                input.nextElementSibling.nextElementSibling.max = validatedValue;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = validatedValue - 1;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = validatedValue - 1;
+                    }
+                });
+            }
+            if (elements.variableOprocentowanieWrapper) {
+                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = validatedValue;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = validatedValue;
+                    }
+                });
+            }
         });
 
         elements.iloscRatRange?.addEventListener("input", () => {
             elements.iloscRat.value = parseInt(elements.iloscRatRange.value);
             updateLata();
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = elements.iloscRat.value - 1;
-                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value - 1;
-            });
-            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = elements.iloscRat.value;
-                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = elements.iloscRat.value - 1;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value - 1;
+                    }
+                });
+            }
+            if (elements.variableOprocentowanieWrapper) {
+                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = elements.iloscRat.value;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value;
+                    }
+                });
+            }
         });
 
         elements.iloscRatRange?.addEventListener("change", () => {
@@ -900,14 +940,22 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.value = validatedValue;
             elements.iloscRatRange.value = validatedValue;
             updateLata();
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = validatedValue - 1;
-                input.nextElementSibling.nextElementSibling.max = validatedValue - 1;
-            });
-            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = validatedValue;
-                input.nextElementSibling.nextElementSibling.max = validatedValue;
-            });
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = validatedValue - 1;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = validatedValue - 1;
+                    }
+                });
+            }
+            if (elements.variableOprocentowanieWrapper) {
+                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = validatedValue;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = validatedValue;
+                    }
+                });
+            }
         });
 
         // Inicjalizacja pozostałych pól
