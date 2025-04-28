@@ -19,7 +19,7 @@
     --small-font-size: 11px; /* Było 0.7em, czyli ok. 11.2px */
     --border-radius: 8px;
     --range-bg: #e5e5e5;
-    --range-border-light: #999999; /* Jaśniejszy szary dla trybu jasnego */
+    --range-border-light: #cccccc; /* Jaśniejszy szary dla trybu jasnego */
     --range-border-dark: #ffffff; /* Biały dla trybu ciemnego */
 }
 
@@ -567,16 +567,16 @@ body {
 .range-slider::after {
     content: '';
     position: absolute;
-    width: 6px; /* Zwiększona szerokość dla większego wcięcia */
+    width: 6px; /* Szerokość dla wyraźnego wcięcia */
     height: 6px; /* Wysokość toru suwaka */
-    background: var(--range-border-light); /* Kolor w trybie jasnym (#999999) */
+    background: var(--range-border-light); /* Kolor w trybie jasnym (#cccccc) */
     top: 50%;
     transform: translateY(-50%);
 }
 
 .range-slider::before {
     left: 0; /* Lewa krawędź */
-    border-top-left-radius: 6px; /* Większe zaokrąglenie po lewej stronie */
+    border-top-left-radius: 6px; /* Zaokrąglenie po lewej stronie */
     border-bottom-left-radius: 6px;
     border-top-right-radius: 0; /* Brak zaokrąglenia po prawej stronie */
     border-bottom-right-radius: 0;
@@ -585,10 +585,10 @@ body {
 
 .range-slider::after {
     right: 0; /* Prawa krawędź */
-    border-top-right-radius: 6px; /* Większe zaokrąglenie po prawej stronie */
+    border-top-right-radius: 6px; /* Zaokrąglenie po prawej stronie */
     border-bottom-right-radius: 6px;
-    border-top-left-radius: 0; /* Brak zaokrąglenia po lewej stronie */
-    border-bottom-left-radius: 0;
+    border-top-left-radius: 3px; /* Subtelne wcięcie po lewej stronie */
+    border-bottom-left-radius: 3px;
     transform: translateX(50%) translateY(-50%); /* Przesunięcie w prawo, aby być dokładnie na końcu toru */
 }
 
