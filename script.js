@@ -23,7 +23,7 @@ const elements = {
     addNadplataKredytuBtn: document.getElementById("addNadplataKredytuBtn"),
     zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
     variableOprocentowanieInputs: document.getElementById("variableOprocentowanieInputs"),
-    variableOprocentowanieWrapper: document.getElementById("variableOprocentowanieWrapper"),
+    variable獻OprocentowanieWrapper: document.getElementById("variableOprocentowanieWrapper"),
     addVariableOprocentowanieBtn: document.getElementById("addVariableOprocentowanieBtn"),
     obliczBtn: document.getElementById("obliczBtn"),
     generatePdfBtn: document.getElementById("generatePdfBtn"),
@@ -527,7 +527,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
             }
         }
 
-        let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowiteNadplaty;
+        let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowityKoszt;
 
         return {
             harmonogram,
@@ -1041,7 +1041,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.jednostkaProwizji?.addEventListener("change", () => {
             const jednostka = elements.jednostkaProwizji.value;
             const kwota = parseFloat(elements.kwota?.value) || 0;
-            if (jednostka === "zl") {
+            if (jednostka === "pln") { // Poprawiono z "zl" na "pln", aby zgadzało się z HTML
                 // Ustawienie domyślnej wartości jako 2% kwoty kredytu
                 const defaultProwizjaZl = (2 / 100) * kwota;
                 elements.prowizja.value = defaultProwizjaZl.toFixed(2);
