@@ -314,13 +314,46 @@ body {
     flex-direction: column;
     gap: 15px;
     justify-content: center;
-    min-width: 315px;
+    width: 495px; /* Stała szerokość dla 3 boxów (150px każdy) + odstępy (15px * 2) */
+    min-width: 495px;
+    max-width: 495px;
 }
 
-.variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 150px;
+/* Górny wiersz: TYP NADPŁATY i EFEKT NADPŁATY */
+.variable-input-group[data-type="nadplata"] .form-row:first-child {
+    display: flex;
+    justify-content: space-between; /* Równomierne rozmieszczenie */
+    gap: 15px;
+    flex-wrap: nowrap; /* Zapobiega zawijaniu */
+    width: 100%; /* Zajmuje pełną szerokość .fields-wrapper */
+}
+
+.variable-input-group[data-type="nadplata"] .form-row:first-child .form-group.box-select {
+    flex: 0 0 150px; /* Stała szerokość */
     max-width: 150px;
-    flex: none;
+    min-width: 150px;
+}
+
+/* Dolny wiersz: KWOTA NADPŁATY, OD, DO */
+.variable-input-group[data-type="nadplata"] .form-row:nth-child(2) {
+    display: flex;
+    justify-content: flex-start; /* Wyrównanie do lewej */
+    gap: 15px;
+    flex-wrap: nowrap; /* Wszystkie boxy w jednej linii */
+    width: 100%; /* Zajmuje pełną szerokość .fields-wrapper */
+}
+
+.variable-input-group[data-type="nadplata"] .form-row:nth-child(2) .form-group {
+    flex: 0 0 150px; /* Stała szerokość dla boxów w dolnym wierszu */
+    max-width: 150px;
+    min-width: 150px;
+    margin-right: 0; /* Usuwamy dodatkowy margines */
+}
+
+.variable-input-group[data-type="nadplata"] .box-period {
+    flex: 0 0 150px;
+    max-width: 150px;
+    min-width: 150px;
 }
 
 .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
