@@ -74,15 +74,23 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
 
 function validateKwota(value) {
     let parsedValue = parseFloat(value) || 0;
-    // Ograniczenie do dwóch miejsc po przecinku
     parsedValue = parseFloat(parsedValue.toFixed(2));
-    // Ustawienie minimalnej wartości na 50 000, jeśli wprowadzono mniej
     if (parsedValue < 50000) {
         parsedValue = 50000;
     }
-    // Ustawienie maksymalnej wartości na 5 000 000, jeśli wprowadzono więcej
     if (parsedValue > 5000000) {
         parsedValue = 5000000;
+    }
+    return parsedValue;
+}
+
+function validateIloscRat(value) {
+    let parsedValue = parseInt(value) || 0;
+    if (parsedValue < 12) {
+        parsedValue = 12;
+    }
+    if (parsedValue > 420) {
+        parsedValue = 420;
     }
     return parsedValue;
 }
@@ -525,7 +533,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
             harmonogram,
             calkowityKoszt: parseFloat(calkowityKoszt.toFixed(2)),
             calkowiteOdsetki: parseFloat(calkowiteOdsetki.toFixed(2)),
-            calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2)),
+            calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2(ws) }),
             prowizja: parseFloat(prowizjaKwota.toFixed(2)),
             pozostaleRaty,
         };
@@ -770,19 +778,20 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
         // Inicjalizacja boxa Kwota Kredytu
         if (elements.kwota) {
-            elements.kwota.min = 1;
+            elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
-            elements.kwota.step = 0.01; // Umożliwia wprowadzanie wartości z dwoma miejscami po przecinku
+            elements.kwota.step = 0.01;
+            elements.kwota.value = 500000; // Domyślna wartość
         }
         if (elements.kwotaRange) {
-            elements.kwotaRange.min = 1;
+            elements.kwotaRange.min = 50000;
             elements.kwotaRange.max = 5000000;
             elements.kwotaRange.step = 0.01;
+            elements.kwotaRange.value = 500000; // Domyślna wartość
         }
 
         elements.kwota?.addEventListener("input", () => {
             let value = elements.kwota.value;
-            // Ograniczenie do dwóch miejsc po przecinku podczas wpisywania
             if (value.includes(".")) {
                 const parts = value.split(".");
                 if (parts[1].length > 2) {
@@ -799,7 +808,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.kwota?.addEventListener("blur", () => {
             let validatedValue = validateKwota(elements.kwota.value);
-            elements.kwota.value = validatedValue.toFixed(2); // Ustawienie wartości z dwoma miejscami po przecinku
+            elements.kwota.value = validatedValue.toFixed(2);
             syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
                 input.max = validatedValue;
@@ -827,8 +836,27 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        // Inicjalizacja pozostałych pól
+        // Inicjalizacja boxa Ilość Rat
+        if (elements.iloscRat) {
+            elements.iloscRat.min = 12;
+            elements.iloscRat.max = 420;
+            elements.iloscRat.step = 1;
+            elements.iloscRat.value = 360; // Domyślna wartość
+        }
+        if (elements.iloscRatRange) {
+            elements.iloscRatRange.min = 12;
+            elements.iloscRatRange.max = 420;
+            elements.iloscRatRange.step = 1;
+            elements.iloscRatRange.value = 360; // Domyślna wartość
+        }
+
         elements.iloscRat?.addEventListener("input", () => {
+            // Zablokowanie możliwości wprowadzania wartości dziesiętnych
+            let value = elements.iloscRat.value;
+            if (value.includes(".")) {
+                value = parseInt(value);
+                elements.iloscRat.value = value;
+            }
             syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                 input.max = elements.iloscRat.value - 1;
@@ -839,8 +867,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value;
             });
         });
+
+        elements.iloscRat?.addEventListener("blur", () => {
+            let validatedValue = validateIloscRat(elements.iloscRat.value);
+            elements.iloscRat.value = validatedValue;
+            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = validatedValue - 1;
+                input.nextElementSibling.nextElementSibling.max = validatedValue - 1;
+            });
+            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = validatedValue;
+                input.nextElementSibling.nextElementSibling.max = validatedValue;
+            });
+        });
+
         elements.iloscRatRange?.addEventListener("input", () => {
-            elements.iloscRat.value = elements.iloscRatRange.value;
+            elements.iloscRat.value = parseInt(elements.iloscRatRange.value);
             updateLata();
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                 input.max = elements.iloscRat.value - 1;
@@ -852,6 +895,22 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+        elements.iloscRatRange?.addEventListener("change", () => {
+            let validatedValue = validateIloscRat(elements.iloscRatRange.value);
+            elements.iloscRat.value = validatedValue;
+            elements.iloscRatRange.value = validatedValue;
+            updateLata();
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = validatedValue - 1;
+                input.nextElementSibling.nextElementSibling.max = validatedValue - 1;
+            });
+            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = validatedValue;
+                input.nextElementSibling.nextElementSibling.max = validatedValue;
+            });
+        });
+
+        // Inicjalizacja pozostałych pól
         elements.oprocentowanie?.addEventListener("input", () => {
             syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange);
         });
