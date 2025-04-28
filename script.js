@@ -23,7 +23,7 @@ const elements = {
     addNadplataKredytuBtn: document.getElementById("addNadplataKredytuBtn"),
     zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
     variableOprocentowanieInputs: document.getElementById("variableOprocentowanieInputs"),
-    variable獻OprocentowanieWrapper: document.getElementById("variableOprocentowanieWrapper"),
+    variableOprocentowanieWrapper: document.getElementById("variableOprocentowanieWrapper"),
     addVariableOprocentowanieBtn: document.getElementById("addVariableOprocentowanieBtn"),
     obliczBtn: document.getElementById("obliczBtn"),
     generatePdfBtn: document.getElementById("generatePdfBtn"),
@@ -101,6 +101,7 @@ function updateProwizjaInfo() {
         const jednostka = elements.jednostkaProwizji?.value || "procent";
         const kwota = parseFloat(elements.kwota?.value) || 0;
         let prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
+        if (isNaN(prowizjaKwota)) prowizjaKwota = 0; // Dodatkowa walidacja
         if (elements.prowizjaInfo) {
             elements.prowizjaInfo.textContent = `Prowizja: ${prowizjaKwota.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
         }
@@ -527,7 +528,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
             }
         }
 
-        let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowityKoszt;
+        let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota;
 
         return {
             harmonogram,
@@ -1081,10 +1082,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             updateProwizjaInfo();
         });
-    } catch (error) {
-        console.error("Błąd podczas inicjalizacji aplikacji:", error);
-    }
-});
 
         // Inicjalizacja sekcji Nadpłata Kredytu
         elements.nadplataKredytuBtn?.addEventListener("change", () => {
