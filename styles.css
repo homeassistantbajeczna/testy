@@ -538,7 +538,7 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
     box-shadow: none;
     position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
@@ -548,7 +548,7 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
     position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
 
@@ -557,19 +557,20 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
     color: transparent; /* Ukrywa domyślny tor w Edge */
     position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
 
-/* Dodanie bocznych krawędzi za pomocą pseudo-elementów */
+/* Dodanie zaokrąglonych krawędzi na końcach toru suwaka */
 .range-slider::before,
 .range-slider::after {
     content: '';
     position: absolute;
-    width: 1px; /* Grubość krawędzi */
+    width: 6px; /* Szerokość krawędzi (taka sama jak wysokość toru, aby była okrągła) */
     height: 6px; /* Wysokość toru suwaka */
-    background: var(--range-border-light); /* Kolor krawędzi w trybie jasnym (#999999) */
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w klikaczu */
+    border-radius: 50%; /* Okrągły kształt */
     top: 50%;
     transform: translateY(-50%);
 }
@@ -635,7 +636,7 @@ body {
 /* Stylizacja części toru za klikaczem */
 .range-slider::-ms-fill-upper {
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
     height: 6px;
     border-radius: var(--border-radius);
 }
@@ -766,6 +767,14 @@ body {
 
 
 /* P O D S U M O W A N I E */
+.summary-footer {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .summary-footer {
     display: flex;
     justify-content: space-around;
@@ -935,22 +944,22 @@ body {
 
 .dark-mode .range-slider::-webkit-slider-runnable-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
 }
 
 .dark-mode .range-slider::-moz-range-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
 }
 
 .dark-mode .range-slider::-ms-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
 }
 
 .dark-mode .range-slider::before,
 .dark-mode .range-slider::after {
-    background: var(--range-border-dark); /* Kolor krawędzi w trybie ciemnym (#ffffff) */
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient w trybie ciemnym */
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
@@ -988,7 +997,7 @@ body {
 
 .dark-mode .range-slider::-ms-fill-upper {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: none; /* Usunięto obramowanie */
+    border: none; /* Brak obramowania */
 }
 
 .dark-mode #kwotaRange::-webkit-slider-runnable-track,
