@@ -571,10 +571,10 @@ body {
 
 .range-slider::after {
     right: 0; /* Prawa krawędź */
-    border-top-right-radius: 6px; /* Zaokrąglenie po prawej stronie */
-    border-bottom-right-radius: 6px;
-    border-top-left-radius: 2px; /* Subtelne wcięcie po lewej stronie */
-    border-bottom-left-radius: 2px;
+    border-top-left-radius: 6px; /* Zaokrąglenie po lewej stronie (jak w ::before) */
+    border-bottom-left-radius: 6px;
+    border-top-right-radius: 2px; /* Subtelne wcięcie po prawej stronie (jak w ::before) */
+    border-bottom-right-radius: 2px;
     transform: translateX(50%) translateY(-50%); /* Przesunięcie w prawo, aby być dokładnie na końcu toru */
 }
 
