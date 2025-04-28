@@ -548,36 +548,6 @@ body {
     position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
 
-/* Dodanie krawędzi w kształcie półksiężyca na końcach toru suwaka */
-.range-slider::before,
-.range-slider::after {
-    content: '';
-    position: absolute;
-    width: 6px; /* Szerokość dla wyraźnego wcięcia */
-    height: 6px; /* Wysokość toru suwaka */
-    background: var(--range-border-light); /* Kolor w trybie jasnym (#cccccc) */
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.range-slider::before {
-    left: 0; /* Lewa krawędź */
-    border-top-left-radius: 6px; /* Zaokrąglenie po lewej stronie */
-    border-bottom-left-radius: 6px;
-    border-top-right-radius: 2px; /* Subtelne wcięcie po prawej stronie */
-    border-bottom-right-radius: 2px;
-    transform: translateX(-50%) translateY(-50%); /* Przesunięcie w lewo, aby być dokładnie na końcu toru */
-}
-
-.range-slider::after {
-    right: 0; /* Prawa krawędź */
-    border-top-right-radius: 6px; /* Zaokrąglenie po prawej stronie */
-    border-bottom-right-radius: 6px;
-    border-top-left-radius: 2px; /* Subtelne wcięcie po lewej stronie */
-    border-bottom-left-radius: 2px;
-    transform: translateX(50%) translateY(-50%); /* Przesunięcie w prawo, aby być dokładnie na końcu toru */
-}
-
 /* Stylizacja klikacza (thumb) */
 .range-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -930,11 +900,6 @@ body {
 .dark-mode .range-slider::-ms-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
     border: none; /* Brak obramowania */
-}
-
-.dark-mode .range-slider::before,
-.dark-mode .range-slider::after {
-    background: var(--range-border-dark); /* Kolor w trybie ciemnym (#ffffff) */
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
