@@ -530,6 +530,7 @@ body {
     outline: none;
     background: none; /* Usuwamy tło z elementu głównego */
     overflow: visible; /* Zapobiega obcinaniu krawędzi */
+    position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
 
 /* Stylizacja toru suwaka dla Webkit (Chrome, Safari) */
@@ -537,8 +538,9 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
+    border: none; /* Usunięto obramowanie */
     box-shadow: none;
+    position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
 
 /* Stylizacja toru suwaka dla Firefox */
@@ -546,7 +548,8 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
+    border: none; /* Usunięto obramowanie */
+    position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
 
 /* Stylizacja toru suwaka dla Edge */
@@ -554,8 +557,29 @@ body {
     height: 6px;
     border-radius: var(--border-radius);
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
+    border: none; /* Usunięto obramowanie */
     color: transparent; /* Ukrywa domyślny tor w Edge */
+    position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
+}
+
+/* Dodanie bocznych krawędzi za pomocą pseudo-elementów */
+.range-slider::before,
+.range-slider::after {
+    content: '';
+    position: absolute;
+    width: 1px; /* Grubość krawędzi */
+    height: 6px; /* Wysokość toru suwaka */
+    background: var(--range-border-light); /* Kolor krawędzi w trybie jasnym (#999999) */
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.range-slider::before {
+    left: 0; /* Lewa krawędź */
+}
+
+.range-slider::after {
+    right: 0; /* Prawa krawędź */
 }
 
 /* Stylizacja klikacza (thumb) */
@@ -611,7 +635,7 @@ body {
 /* Stylizacja części toru za klikaczem */
 .range-slider::-ms-fill-upper {
     background: var(--range-bg); /* Tło toru w trybie jasnym (#e5e5e5) */
-    border: 1px solid var(--range-border-light); /* Krawędź w trybie jasnym (#999999) */
+    border: none; /* Usunięto obramowanie */
     height: 6px;
     border-radius: var(--border-radius);
 }
@@ -911,17 +935,22 @@ body {
 
 .dark-mode .range-slider::-webkit-slider-runnable-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
+    border: none; /* Usunięto obramowanie */
 }
 
 .dark-mode .range-slider::-moz-range-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
+    border: none; /* Usunięto obramowanie */
 }
 
 .dark-mode .range-slider::-ms-track {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
+    border: none; /* Usunięto obramowanie */
+}
+
+.dark-mode .range-slider::before,
+.dark-mode .range-slider::after {
+    background: var(--range-border-dark); /* Kolor krawędzi w trybie ciemnym (#ffffff) */
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
@@ -959,7 +988,7 @@ body {
 
 .dark-mode .range-slider::-ms-fill-upper {
     background: var(--range-bg); /* Tło toru w trybie ciemnym (#666666) */
-    border: 1px solid var(--range-border-dark); /* Krawędź w trybie ciemnym (#ffffff) */
+    border: none; /* Usunięto obramowanie */
 }
 
 .dark-mode #kwotaRange::-webkit-slider-runnable-track,
