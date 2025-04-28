@@ -14,9 +14,9 @@
     <div class="logo-container">
         <img src="cropped-logo-FB-1.png" id="siteLogo" alt="Finance Brothers Logo" class="logo d-block mx-auto">
         <div class="zoom-controls">
-            <button id="zoomInBtn" class="btn btn-sm" aria-label="Powiększ">+</button>
-            <button id="zoomOutBtn" class="btn btn-sm" aria-label="Pomniejsz">-</button>
-            <button id="toggleDarkModeBtn" class="btn btn-sm" aria-label="Przełącz tryb ciemny">🌙</button>
+            <button id="zoomInBtn" class="btn btn-additional" aria-label="Powiększ">+</button>
+            <button id="zoomOutBtn" class="btn btn-additional" aria-label="Pomniejsz">-</button>
+            <button id="toggleDarkModeBtn" class="btn btn-additional" aria-label="Przełącz tryb ciemny">🌙</button>
         </div>
     </div>
 
@@ -98,7 +98,7 @@
                             </div>
                             <div class="variable-inputs" id="nadplataKredytuInputs">
                                 <div class="variable-inputs-wrapper" id="nadplataKredytuWrapper"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną zmianę</button>
+                                <button type="button" class="btn btn-functional" id="addNadplataKredytuBtn" aria-label="Dodaj kolejną nadpłatę kredytu">Dodaj kolejną zmianę</button>
                             </div>
                         </div>
                         
@@ -113,7 +113,7 @@
                             </div>
                             <div class="variable-inputs" id="variableOprocentowanieInputs">
                                 <div class="variable-inputs-wrapper" id="variableOprocentowanieWrapper"></div>
-                                <button type="button" class="btn btn-secondary btn-sm" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
+                                <button type="button" class="btn btn-functional" id="addVariableOprocentowanieBtn" aria-label="Dodaj kolejne zmienne oprocentowanie">Dodaj kolejną zmianę</button>
                             </div>
                         </div>
 
@@ -145,10 +145,10 @@
                                     </div>
                                 </div>
                                 <div class="remove-first-btn-wrapper">
-                                    <button type="button" class="btn btn-danger btn-sm remove-first-btn" style="display: none;">Usuń</button>
+                                    <button type="button" class="btn btn-reset remove-first-btn" style="display: none;">Usuń</button>
                                 </div>
                                 <div class="remove-btn-wrapper">
-                                    <button type="button" class="btn btn-danger btn-sm remove-btn" style="display: none;">Usuń</button>
+                                    <button type="button" class="btn btn-reset remove-btn" style="display: none;">Usuń</button>
                                 </div>
                             </div>
                         </template>
@@ -191,10 +191,10 @@
                                     </div>
                                 </div>
                                 <div class="remove-first-btn-wrapper">
-                                    <button type="button" class="btn btn-danger btn-sm remove-first-btn" style="display: none;">Usuń</button>
+                                    <button type="button" class="btn btn-reset remove-first-btn" style="display: none;">Usuń</button>
                                 </div>
                                 <div class="remove-btn-wrapper">
-                                    <button type="button" class="btn btn-danger btn-sm remove-btn" style="display: none;">Usuń</button>
+                                    <button type="button" class="btn btn-reset remove-btn" style="display: none;">Usuń</button>
                                 </div>
                             </div>
                         </template>
@@ -208,8 +208,8 @@
             <!-- Podsekcja: Nagłówek wyników -->
             <div class="result-header">
                 <h4>Podsumowanie wyników</h4>
-                <button class="btn btn-secondary" onclick="showForm()">Powrót do edycji</button>
-                <button id="generatePdfBtn" class="btn btn-primary btn-sm">Generuj PDF</button>
+                <button class="btn btn-functional" onclick="showForm()">Powrót do edycji</button>
+                <button id="generatePdfBtn" class="btn btn-functional">Generuj PDF</button>
             </div>
 
             <!-- Podsekcja: Wykres i podsumowanie -->
