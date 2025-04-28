@@ -191,18 +191,32 @@ function createNadplataKredytuGroup() {
                     </div>
                     <input type="range" class="form-range range-slider variable-rate-range" min="0" max="1000000" step="1" value="1000">
                 </div>
-                <div class="form-group box-period">
+                <div class="form-group box-period box-period-start">
                     <label class="form-label">W</label>
                     <div class="input-group">
-                        <input type="number" class="form-control variable-cykl" min="1" max="419" step="1" value="1">
+                        <input type="number" class="form-control variable-cykl variable-cykl-start" min="1" max="419" step="1" value="1">
                         <span class="input-group-text unit-miesiacu">miesiącu</span>
                     </div>
-                    <input type="range" class="form-range range-slider variable-cykl-range" min="1" max="419" step="1" value="1">
+                    <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-start-range" min="1" max="419" step="1" value="1">
                 </div>
             </div>
         </div>
     `;
     return group;
+}
+
+function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue) {
+    const box = document.createElement("div");
+    box.classList.add("form-group", "box-period", "box-period-end");
+    box.innerHTML = `
+        <label class="form-label">DO</label>
+        <div class="input-group">
+            <input type="number" class="form-control variable-cykl variable-cykl-end" min="${minValue}" max="${maxValue}" step="1" value="${defaultValue}">
+            <span class="input-group-text unit-miesiacu">miesiąca</span>
+        </div>
+        <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-end-range" min="${minValue}" max="${maxValue}" step="1" value="${defaultValue}">
+    `;
+    return box;
 }
 
 function initializeNadplataKredytuGroup(group) {
@@ -213,32 +227,115 @@ function initializeNadplataKredytuGroup(group) {
     const ranges = group.querySelectorAll(".form-range");
     const typeSelect = group.querySelector(".nadplata-type-select");
     const effectSelect = group.querySelector(".nadplata-effect-select");
+    const periodStartBox = group.querySelector(".box-period-start");
+    const periodLabel = periodStartBox?.querySelector(".form-label");
+    const periodUnit = periodStartBox?.querySelector(".unit-miesiacu");
+    const formRow = periodStartBox?.parentElement;
+
+    const updatePeriodBox = () => {
+        const type = typeSelect?.value || "Jednorazowa";
+        const periodStartInput = group.querySelector(".variable-cykl-start");
+        const periodStartRange = group.querySelector(".variable-cykl-start-range");
+        const existingEndBox = group.querySelector(".box-period-end");
+
+        // Aktualizacja nagłówka i jednostki w boxie W/OD
+        if (type === "Jednorazowa") {
+            if (periodLabel) periodLabel.textContent = "W";
+            if (periodUnit) periodUnit.textContent = "miesiącu";
+            // Usuń box DO, jeśli istnieje
+            if (existingEndBox) {
+                existingEndBox.remove();
+            }
+        } else {
+            if (periodLabel) periodLabel.textContent = "OD";
+            if (periodUnit) periodUnit.textContent = "miesiąca";
+            // Dodaj lub zaktualizuj box DO
+            if (!existingEndBox) {
+                const minValue = parseInt(periodStartInput?.value) || 1;
+                const maxValue = iloscRat - 1;
+                const defaultValue = iloscRat - 1;
+                const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue);
+                formRow?.appendChild(endBox);
+
+                // Inicjalizacja inputów i suwaka w boxie DO
+                const endInput = endBox.querySelector(".variable-cykl-end");
+                const endRange = endBox.querySelector(".variable-cykl-end-range");
+
+                endInput?.addEventListener("input", () => {
+                    syncInputWithRange(endInput, endRange);
+                    updateRatesArray("nadplata");
+                });
+
+                endRange?.addEventListener("input", () => {
+                    endInput.value = endRange.value;
+                    updateRatesArray("nadplata");
+                });
+            } else {
+                // Zaktualizuj wartości min/max w boxie DO
+                const endInput = existingEndBox.querySelector(".variable-cykl-end");
+                const endRange = existingEndBox.querySelector(".variable-cykl-end-range");
+                const minValue = parseInt(periodStartInput?.value) || 1;
+                const maxValue = iloscRat - 1;
+                if (endInput) {
+                    endInput.min = minValue;
+                    endInput.max = maxValue;
+                    if (parseInt(endInput.value) < minValue) endInput.value = minValue;
+                    if (parseInt(endInput.value) > maxValue) endInput.value = maxValue;
+                }
+                if (endRange) {
+                    endRange.min = minValue;
+                    endRange.max = maxValue;
+                    if (parseInt(endRange.value) < minValue) endRange.value = minValue;
+                    if (parseInt(endRange.value) > maxValue) endRange.value = maxValue;
+                }
+            }
+        }
+    };
 
     inputs.forEach((input, index) => {
         const range = ranges[index];
-        if (input.classList.contains("variable-cykl")) {
+        if (input.classList.contains("variable-cykl-start")) {
             input.max = iloscRat - 1;
             range.max = iloscRat - 1;
             syncInputWithRange(input, range);
+
+            input.addEventListener("input", () => {
+                syncInputWithRange(input, range);
+                updatePeriodBox(); // Aktualizuj box DO przy zmianie OD
+                updateRatesArray("nadplata");
+            });
+
+            range.addEventListener("input", () => {
+                input.value = range.value;
+                updatePeriodBox(); // Aktualizuj box DO przy zmianie OD
+                updateRatesArray("nadplata");
+            });
         } else if (input.classList.contains("variable-rate")) {
             input.max = kwota;
             range.max = kwota;
             syncInputWithRange(input, range);
+
+            input.addEventListener("input", () => {
+                syncInputWithRange(input, range);
+                updateRatesArray("nadplata");
+            });
+
+            range.addEventListener("input", () => {
+                input.value = range.value;
+                updateRatesArray("nadplata");
+            });
         }
-
-        input.addEventListener("input", () => {
-            syncInputWithRange(input, range);
-            updateRatesArray("nadplata");
-        });
-
-        range.addEventListener("input", () => {
-            input.value = range.value;
-            updateRatesArray("nadplata");
-        });
     });
 
-    typeSelect?.addEventListener("change", () => updateRatesArray("nadplata"));
+    typeSelect?.addEventListener("change", () => {
+        updatePeriodBox();
+        updateRatesArray("nadplata");
+    });
+
     effectSelect?.addEventListener("change", () => updateRatesArray("nadplata"));
+
+    // Początkowa aktualizacja boxa W/OD i ewentualne dodanie boxa DO
+    updatePeriodBox();
 }
 
 function resetNadplataKredytuSection() {
@@ -298,15 +395,18 @@ function updateRatesArray(type) {
             state.overpaymentRates.length = 0;
             const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
             groups.forEach(group => {
-                const periodInput = group.querySelector(".variable-cykl");
+                const periodStartInput = group.querySelector(".variable-cykl-start");
+                const periodEndInput = group.querySelector(".variable-cykl-end");
                 const valueInput = group.querySelector(".variable-rate");
                 const typeSelect = group.querySelector(".nadplata-type-select");
                 const effectSelect = group.querySelector(".nadplata-effect-select");
-                const period = parseInt(periodInput?.value) || 0;
+                const periodStart = parseInt(periodStartInput?.value) || 0;
+                const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || 0 : periodStart;
                 const value = parseFloat(valueInput?.value) || 0;
-                if (period > 0 && value > 0) {
+                if (periodStart > 0 && value > 0) {
                     state.overpaymentRates.push({
-                        period,
+                        periodStart,
+                        periodEnd,
                         value,
                         type: typeSelect?.value || "Jednorazowa",
                         effect: effectSelect?.value || "Skróć okres",
