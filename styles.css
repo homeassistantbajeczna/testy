@@ -23,8 +23,6 @@
     --range-border-dark: #ffffff; /* Biały dla trybu ciemnego */
 }
 
-
-
 /* R E S E T   I   B A Z A */
 *,
 ::after,
@@ -45,8 +43,6 @@ body {
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
 }
-
-
 
 /* K O N T E N E R Y */
 .container,
@@ -112,8 +108,6 @@ body {
     max-width: 1000px;
 }
 
-
-
 /* L O G O   I   N A G Ł Ó W E K */
 .logo-container {
     background-color: var(--logo-bg);
@@ -177,8 +171,6 @@ body {
     margin-bottom: 10px;
     text-align: center;
 }
-
-
 
 /* C H E C K B O X Y */
 .checkbox-row {
@@ -244,8 +236,6 @@ body {
 .checkbox-label input:checked + .checkbox-custom::after {
     opacity: 1;
 }
-
-
 
 /* F O R M U L A R Z */
 .form-row,
@@ -346,8 +336,6 @@ body {
     max-width: 150px;
     flex: none;
 }
-
-
 
 /* I N P U T Y   I   S E L E C T Y */
 .input-group {
@@ -515,8 +503,6 @@ body {
     background-size: 8px 8px;
 }
 
-
-
 /* S U W A K I */
 .range-slider {
     margin-top: 5px;
@@ -578,8 +564,8 @@ body {
     left: 0; /* Lewa krawędź */
     border-top-left-radius: 6px; /* Zaokrąglenie po lewej stronie */
     border-bottom-left-radius: 6px;
-    border-top-right-radius: 0; /* Brak zaokrąglenia po prawej stronie */
-    border-bottom-right-radius: 0;
+    border-top-right-radius: 2px; /* Subtelne wcięcie po prawej stronie */
+    border-bottom-right-radius: 2px;
     transform: translateX(-50%) translateY(-50%); /* Przesunięcie w lewo, aby być dokładnie na końcu toru */
 }
 
@@ -587,8 +573,8 @@ body {
     right: 0; /* Prawa krawędź */
     border-top-right-radius: 6px; /* Zaokrąglenie po prawej stronie */
     border-bottom-right-radius: 6px;
-    border-top-left-radius: 3px; /* Subtelne wcięcie po lewej stronie */
-    border-bottom-left-radius: 3px;
+    border-top-left-radius: 2px; /* Subtelne wcięcie po lewej stronie */
+    border-bottom-left-radius: 2px;
     transform: translateX(50%) translateY(-50%); /* Przesunięcie w prawo, aby być dokładnie na końcu toru */
 }
 
@@ -674,8 +660,6 @@ body {
     background: var(--range-bg) !important; /* Jednolite tło toru */
 }
 
-
-
 /* O P I S Y   I   D A N E */
 .sub-info {
     font-size: 6px; /* Było 0.4em, czyli ok. 6.4px */
@@ -684,8 +668,6 @@ body {
     align-self: flex-start;
     width: 100%;
 }
-
-
 
 /* W Y N I K I   I   H A R M O N O G R A M */
 .harmonogram {
@@ -729,8 +711,6 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-
-
 /* W Y K R E S */
 .chart-container {
     margin-top: 20px;
@@ -773,8 +753,6 @@ body {
     font-size: 11px; /* Było 0.7em, czyli ok. 11.2px */
 }
 
-
-
 /* P O D S U M O W A N I E */
 .summary-footer {
     display: flex;
@@ -798,8 +776,6 @@ body {
 .highlight.green {
     background-color: var(--highlight-green);
 }
-
-
 
 /* P R Z Y C I S K I */
 /* Wspólne style dla wszystkich przycisków */
@@ -885,8 +861,6 @@ body {
     justify-content: center;
     margin-top: 5px;
 }
-
-
 
 /* D A R K   M O D E */
 .dark-mode {
@@ -1028,8 +1002,6 @@ body {
 .dark-mode .harmonogram td {
     border-bottom: 1px solid var(--border-color);
 }
-
-
 
 /* R E S P O N S Y W N O Ś Ć */
 @media (max-width: 575px) {
