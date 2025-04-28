@@ -345,7 +345,7 @@ body {
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
-    border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
 }
 
 .form-control {
@@ -356,7 +356,7 @@ body {
     background: var(--input-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-radius: var(--border-radius) 0 0 0; /* Tylko lewy górny zaokrąglony */
     box-sizing: border-box;
     line-height: normal;
     display: inline-flex;
@@ -372,7 +372,7 @@ body {
     background: var(--input-group-bg);
     color: var(--primary-text);
     border: 1px solid var(--border-color);
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-radius: 0 0 var(--border-radius) 0; /* Tylko prawy dolny zaokrąglony */
     box-sizing: border-box;
     line-height: normal;
     display: inline-flex;
@@ -388,15 +388,15 @@ body {
 .input-group-text.unit-zl { min-width: 40px; }
 
 .box-select .form-select {
-    border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
 }
 
 .box-fee .input-group .form-control {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-radius: var(--border-radius) 0 0 0; /* Tylko lewy górny zaokrąglony */
 }
 
 .box-fee .input-group .form-select.jednostka-select {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-radius: 0 0 var(--border-radius) 0; /* Tylko prawy dolny zaokrąglony */
 }
 
 /* Style dla klas boxów */
@@ -481,7 +481,7 @@ body {
     margin-top: 5px;
     height: 6px;
     border: 2px solid var(--range-border-light); /* Jaśniejszy szary w trybie jasnym */
-    border-radius: var(--border-radius); /* Zaokrąglone krawędzie */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
     appearance: none;
     width: 100%;
     margin-left: auto;
@@ -496,7 +496,7 @@ body {
     background: var(--input-group-bg);
     height: 6px;
     border: none;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Dopasowane do border-radius */
 }
 
 .range-slider::-ms-track {
@@ -530,12 +530,12 @@ body {
 .range-slider::-ms-fill-lower {
     background: var(--accent-gradient-start);
     height: 6px;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
 }
 
 .range-slider::-ms-fill-upper {
     background: var(--input-group-bg);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
 }
 
 .range-slider:focus::-webkit-slider-thumb,
@@ -689,7 +689,7 @@ body {
     height: 35px;
     min-width: 140px;
     padding: 5px 12px;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     color: #000000;
 }
@@ -705,7 +705,7 @@ body {
     font-size: 0.625em;
     height: 25px;
     padding: 5px 12px;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     color: #000000;
 }
@@ -721,7 +721,7 @@ body {
     font-size: 0.625em;
     height: 25px;
     padding: 5px 12px;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
     background: #dc3545;
     color: #ffffff;
 }
@@ -737,7 +737,7 @@ body {
     width: 25px;
     height: 25px;
     padding: 0;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     color: #000000;
     font-size: 0.9em;
@@ -816,7 +816,7 @@ body {
 .dark-mode .range-slider::-moz-range-track,
 .dark-mode .range-slider::-ms-track {
     background: var(--input-group-bg);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb,
@@ -848,12 +848,12 @@ body {
 .dark-mode .range-slider::-ms-fill-lower {
     background: var(--accent-gradient-start);
     height: 6px;
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
 }
 
 .dark-mode .range-slider::-ms-fill-upper {
     background: var(--input-group-bg);
-    border-radius: var(--border-radius);
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
 }
 
 .dark-mode .box-select .form-select,
