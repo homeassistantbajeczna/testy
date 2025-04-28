@@ -423,7 +423,7 @@ body {
 .box-select .form-select {
     width: 150px; /* Taka sama szerokość jak inne boxy z jednostką */
     height: 22px;
-    font-size: 8px; /* Było 0.5em, czyli 8px */
+    font-size: 11px; /* Powiększone o 3px (z 8px do 11px) */
     padding: 2px 12px 2px 4px;
     text-align: center;
     background-color: var(--input-bg);
@@ -442,7 +442,7 @@ body {
 
 .box-fee .input-group .form-select.jednostka-select {
     height: 22px;
-    font-size: 8px; /* Było 0.5em, czyli 8px */
+    font-size: 11px; /* Powiększone o 3px (z 8px do 11px) */
     padding: 2px 12px 2px 4px;
     text-align: center;
     background-color: var(--input-bg);
@@ -463,13 +463,38 @@ body {
     background-size: 8px 8px;
 }
 
+/* Style dla selectów w szablonie nadpłaty */
+.nadplata-type-select,
+.nadplata-effect-select {
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
+    width: 150px;
+    height: 22px;
+    font-size: 11px; /* Powiększone o 3px (z 8px do 11px) */
+    padding: 2px 12px 2px 4px;
+    text-align: center;
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    line-height: normal;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    background-size: 8px 8px;
+}
+
 /* Style dla :focus */
 .box-select .form-select:focus,
 .box-amount .form-control:focus,
 .box-period .form-control:focus,
 .box-rate .form-control:focus,
 .box-fee .form-control:focus,
-.box-fee .input-group .form-select.jednostka-select:focus {
+.box-fee .input-group .form-select.jednostka-select:focus,
+.nadplata-type-select:focus,
+.nadplata-effect-select:focus {
     outline: none;
     box-shadow: 0 0 4px var(--accent-color);
     border: 1px solid var(--border-color);
@@ -481,7 +506,9 @@ body {
 }
 
 .box-select .form-select:focus,
-.box-fee .input-group .form-select.jednostka-select:focus {
+.box-fee .input-group .form-select.jednostka-select:focus,
+.nadplata-type-select:focus,
+.nadplata-effect-select:focus {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 4px center;
@@ -494,7 +521,7 @@ body {
 .range-slider {
     margin-top: 5px;
     height: 6px;
-    border: 2px solid var(--range-border-light); /* Jaśniejszy szary w trybie jasnym */
+    border: none; /* Usunięto ramkę */
     border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
     appearance: none;
     width: 100%;
@@ -507,7 +534,7 @@ body {
 .range-slider::-webkit-slider-runnable-track,
 .range-slider::-moz-range-track,
 .range-slider::-ms-track {
-    background: var(--input-group-bg);
+    background: var(--input-group-bg); /* #f5f5f5 w trybie jasnym */
     height: 6px;
     border: none;
     border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
@@ -520,10 +547,10 @@ body {
 .range-slider::-webkit-slider-thumb,
 .range-slider::-moz-range-thumb,
 .range-slider::-ms-thumb {
-    background: var(--accent-gradient-start);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
+    width: 9px; /* Zmniejszone o 2px (z 11px) */
+    height: 9px; /* Zmniejszone o 2px (z 11px) */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
     border: none;
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
@@ -797,7 +824,7 @@ body {
     --shadow-color: rgba(255, 255, 255, 0.1);
     --logo-bg: #333333;
     --input-bg: #333333;
-    --input-group-bg: #444444;
+    --input-group-bg: #333333; /* Ciemniejsze tło suwaków w trybie ciemnym */
     --harmonogram-bg: #333333;
     --range-bg: #666666;
 }
@@ -834,40 +861,36 @@ body {
     border-color: var(--accent-gradient-start);
 }
 
-.dark-mode .range-slider {
-    border-color: var(--range-border-dark); /* Białe krawędzie w trybie ciemnym */
-}
-
 .dark-mode .range-slider::-webkit-slider-runnable-track,
 .dark-mode .range-slider::-moz-range-track,
 .dark-mode .range-slider::-ms-track {
-    background: var(--input-group-bg);
+    background: var(--input-group-bg); /* Ciemniejsze tło w trybie ciemnym (#333333) */
     border-radius: var(--border-radius);
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb,
 .dark-mode .range-slider::-moz-range-thumb,
 .dark-mode .range-slider::-ms-thumb {
-    background: var(--accent-gradient-start);
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
     transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
-    transform: translateY(3px);
+    transform: translateY(2px);
 }
 
 .dark-mode .range-slider:focus::-webkit-slider-thumb {
-    transform: translateY(3px) scale(1.1);
+    transform: translateY(2px) scale(1.1);
 }
 
 .dark-mode .range-slider::-moz-range-thumb,
 .dark-mode .range-slider::-ms-thumb {
-    transform: none;
+    transform: translateY(-1px);
 }
 
 .dark-mode .range-slider:focus::-moz-range-thumb,
 .dark-mode .range-slider:focus::-ms-thumb {
-    transform: scale(1.1);
+    transform: translateY(-1px) scale(1.1);
 }
 
 .dark-mode .range-slider::-moz-range-progress,
@@ -883,7 +906,9 @@ body {
 }
 
 .dark-mode .box-select .form-select,
-.dark-mode .box-fee .input-group .form-select.jednostka-select {
+.dark-mode .box-fee .input-group .form-select.jednostka-select,
+.dark-mode .nadplata-type-select,
+.dark-mode .nadplata-effect-select {
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%238b7d47" d="M0 2l4 4 4-4z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 4px center;
