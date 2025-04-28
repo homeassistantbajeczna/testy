@@ -970,13 +970,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elements.oprocentowanie) {
             elements.oprocentowanie.min = 0.1; // Minimalna wartość 0.1
             elements.oprocentowanie.max = 25;
-            elements.oprocentowanie.step = 0.01; // Zmiana kroku na 0.01
+            elements.oprocentowanie.step = 0.01;
             elements.oprocentowanie.value = 7; // Domyślna wartość
         }
         if (elements.oprocentowanieRange) {
             elements.oprocentowanieRange.min = 0.1; // Minimalna wartość 0.1
             elements.oprocentowanieRange.max = 25;
-            elements.oprocentowanieRange.step = 0.01; // Zmiana kroku na 0.01
+            elements.oprocentowanieRange.step = 0.01;
             elements.oprocentowanieRange.value = 7; // Domyślna wartość
         }
 
@@ -984,7 +984,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.oprocentowanie?.addEventListener("keydown", (event) => {
             const allowedKeys = [
                 "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                "ArrowUp", "ArrowDown", "Home", "End", "."
+                "ArrowUp", "ArrowDown", "Home", "End", ".", "," // Dodajemy przecinek
             ];
             // Zezwalaj na cyfry i dozwolone klawisze
             if (
@@ -1021,13 +1021,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elements.prowizja) {
             elements.prowizja.min = 0; // Minimalna wartość 0
             elements.prowizja.max = 25; // Początkowo w procentach
-            elements.prowizja.step = 0.01; // Zmiana kroku na 0.01
+            elements.prowizja.step = 0.01;
             elements.prowizja.value = 2; // Domyślna wartość w procentach
         }
         if (elements.prowizjaRange) {
             elements.prowizjaRange.min = 0; // Minimalna wartość 0
             elements.prowizjaRange.max = 25; // Początkowo w procentach
-            elements.prowizjaRange.step = 0.01; // Zmiana kroku na 0.01
+            elements.prowizjaRange.step = 0.01;
             elements.prowizjaRange.value = 2; // Domyślna wartość w procentach
         }
 
@@ -1035,7 +1035,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.prowizja?.addEventListener("keydown", (event) => {
             const allowedKeys = [
                 "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                "ArrowUp", "ArrowDown", "Home", "End", "."
+                "ArrowUp", "ArrowDown", "Home", "End", ".", "," // Dodajemy przecinek
             ];
             // Zezwalaj na cyfry i dozwolone klawisze
             if (
