@@ -249,6 +249,34 @@ body {
     text-align: left;
 }
 
+.form-row:first-child {
+    justify-content: space-between;
+}
+
+.form-row:first-child .form-group.box-select {
+    flex: 0 0 48%;
+    max-width: 48%;
+}
+
+.form-row:nth-child(2) {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.form-row:nth-child(2) .form-group {
+    flex: 1 1 30%;
+    min-width: 200px;
+    margin-right: 1rem;
+}
+
+.box-period {
+    flex: 1 1 30%;
+    min-width: 200px;
+    margin-right: 1rem;
+}
+
+/* Koniec dodanych stylów */
+
 #creditForm .form-row:first-child {
     margin-bottom: 30px;
 }
@@ -265,7 +293,7 @@ body {
 
 .form-label,
 .variable-input-group .form-label {
-    font-size: 11px; /* Użyto --small-font-size */
+    font-size: 11px;
     text-transform: uppercase;
     margin-bottom: 2px;
     text-align: left;
