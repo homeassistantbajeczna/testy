@@ -780,13 +780,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elements.kwota) {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
-            elements.kwota.step = 100; // Zmiana kroku na 100
+            elements.kwota.step = 100;
             elements.kwota.value = 500000; // Domyślna wartość
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
             elements.kwotaRange.max = 5000000;
-            elements.kwotaRange.step = 100; // Zmiana kroku na 100
+            elements.kwotaRange.step = 100;
             elements.kwotaRange.value = 500000; // Domyślna wartość
         }
 
