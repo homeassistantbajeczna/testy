@@ -165,22 +165,24 @@ function createNadplataKredytuGroup() {
     group.setAttribute("data-type", "nadplata");
     group.innerHTML = `
         <div class="fields-wrapper">
-            <div class="form-row">
-                <div class="form-group box-select">
-                    <label class="form-label">Typ nadpłaty</label>
-                    <select class="form-select nadplata-type-select">
-                        <option value="Jednorazowa">Jednorazowa</option>
-                        <option value="Miesięczna">Miesięczna</option>
-                        <option value="Kwartalna">Kwartalna</option>
-                        <option value="Roczna">Roczna</option>
-                    </select>
-                </div>
-                <div class="form-group box-select">
-                    <label class="form-label">Efekt nadpłaty</label>
-                    <select class="form-select nadplata-effect-select">
-                        <option value="Skróć okres">Skróć okres</option>
-                        <option value="Zmniejsz ratę">Zmniejsz ratę</option>
-                    </select>
+            <div class="form-row-container">
+                <div class="form-row">
+                    <div class="form-group box-select">
+                        <label class="form-label">Typ nadpłaty</label>
+                        <select class="form-select nadplata-type-select">
+                            <option value="Jednorazowa">Jednorazowa</option>
+                            <option value="Miesięczna">Miesięczna</option>
+                            <option value="Kwartalna">Kwartalna</option>
+                            <option value="Roczna">Roczna</option>
+                        </select>
+                    </div>
+                    <div class="form-group box-select">
+                        <label class="form-label">Efekt nadpłaty</label>
+                        <select class="form-select nadplata-effect-select">
+                            <option value="Skróć okres">Skróć okres</option>
+                            <option value="Zmniejsz ratę">Zmniejsz ratę</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="form-row">
@@ -206,6 +208,7 @@ function createNadplataKredytuGroup() {
     return group;
 }
 
+// Pozostałe funkcje bez zmian
 function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue) {
     const box = document.createElement("div");
     box.classList.add("form-group", "box-period", "box-period-end");
