@@ -548,8 +548,8 @@ body {
     -webkit-appearance: none;
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
-    width: 7px; /* Zmniejszone z 9px */
-    height: 7px; /* Zmniejszone z 9px */
+    width: 11px; /* Powiększone o 4px (z 7px) */
+    height: 11px; /* Powiększone o 4px (z 7px) */
     border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
     border: none;
     cursor: pointer;
@@ -561,8 +561,8 @@ body {
 .range-slider::-moz-range-thumb {
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
-    width: 7px; /* Zmniejszone z 9px */
-    height: 7px; /* Zmniejszone z 9px */
+    width: 11px; /* Powiększone o 4px (z 7px) */
+    height: 11px; /* Powiększone o 4px (z 7 + 4px (z 7px) */
     border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
     border: none;
     cursor: pointer;
@@ -574,8 +574,8 @@ body {
 .range-slider::-ms-thumb {
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
-    width: 7px; /* Zmniejszone z 9px */
-    height: 7px; /* Zmniejszone z 9px */
+    width: 11px; /* Powiększone o 4px (z 7px) */
+    height: 11px; /* Powiększone o 4px (z 7px) */
     border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
     border: none;
     cursor: pointer;
