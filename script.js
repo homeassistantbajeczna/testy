@@ -1,3 +1,4 @@
+
 const APP_TITLE = "Kalkulator Kredytu Hipotecznego";
 
 const elements = {
