@@ -238,18 +238,15 @@ function initializeNadplataKredytuGroup(group) {
         const periodStartRange = group.querySelector(".variable-cykl-start-range");
         const existingEndBox = group.querySelector(".box-period-end");
 
-        // Aktualizacja nagłówka i jednostki w boxie W/OD
         if (type === "Jednorazowa") {
             if (periodLabel) periodLabel.textContent = "W";
             if (periodUnit) periodUnit.textContent = "miesiącu";
-            // Usuń box DO, jeśli istnieje
             if (existingEndBox) {
                 existingEndBox.remove();
             }
         } else {
             if (periodLabel) periodLabel.textContent = "OD";
             if (periodUnit) periodUnit.textContent = "miesiąca";
-            // Dodaj lub zaktualizuj box DO
             if (!existingEndBox) {
                 const minValue = parseInt(periodStartInput?.value) || 1;
                 const maxValue = iloscRat - 1;
@@ -257,7 +254,6 @@ function initializeNadplataKredytuGroup(group) {
                 const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue);
                 formRow?.appendChild(endBox);
 
-                // Inicjalizacja inputów i suwaka w boxie DO
                 const endInput = endBox.querySelector(".variable-cykl-end");
                 const endRange = endBox.querySelector(".variable-cykl-end-range");
 
@@ -271,7 +267,6 @@ function initializeNadplataKredytuGroup(group) {
                     updateRatesArray("nadplata");
                 });
             } else {
-                // Zaktualizuj wartości min/max w boxie DO
                 const endInput = existingEndBox.querySelector(".variable-cykl-end");
                 const endRange = existingEndBox.querySelector(".variable-cykl-end-range");
                 const minValue = parseInt(periodStartInput?.value) || 1;
@@ -301,13 +296,13 @@ function initializeNadplataKredytuGroup(group) {
 
             input.addEventListener("input", () => {
                 syncInputWithRange(input, range);
-                updatePeriodBox(); // Aktualizuj box DO przy zmianie OD
+                updatePeriodBox();
                 updateRatesArray("nadplata");
             });
 
             range.addEventListener("input", () => {
                 input.value = range.value;
-                updatePeriodBox(); // Aktualizuj box DO przy zmianie OD
+                updatePeriodBox();
                 updateRatesArray("nadplata");
             });
         } else if (input.classList.contains("variable-rate")) {
@@ -334,7 +329,6 @@ function initializeNadplataKredytuGroup(group) {
 
     effectSelect?.addEventListener("change", () => updateRatesArray("nadplata"));
 
-    // Początkowa aktualizacja boxa W/OD i ewentualne dodanie boxa DO
     updatePeriodBox();
 }
 
