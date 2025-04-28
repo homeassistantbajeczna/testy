@@ -529,6 +529,7 @@ body {
     margin-right: auto;
     outline: none;
     background: transparent;
+    overflow: visible; /* Zapobiega obcinaniu krawędzi */
 }
 
 .range-slider::-webkit-slider-runnable-track,
@@ -536,8 +537,9 @@ body {
 .range-slider::-ms-track {
     background: var(--input-group-bg); /* #f5f5f5 w trybie jasnym */
     height: 6px;
-    border: 1px solid var(--border-color); /* Dodano subtelną ramkę toru */
+    border: 1px solid var(--border-color); /* Subtelna ramka toru */
     border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
+    box-sizing: border-box; /* Zapewnia widoczność ramki */
 }
 
 .range-slider::-ms-track {
@@ -837,7 +839,7 @@ body {
     --shadow-color: rgba(255, 255, 255, 0.1);
     --logo-bg: #333333;
     --input-bg: #333333;
-    --input-group-bg: #222222; /* Ciemniejsze tło suwaków w trybie ciemnym */
+    --input-group-bg: #1a1a1a; /* Ciemniejsze tło toru suwaka w trybie ciemnym */
     --harmonogram-bg: #333333;
     --range-bg: #666666;
 }
@@ -864,6 +866,10 @@ body {
     border-color: var(--border-color);
 }
 
+.dark-mode .input-group-text {
+    background: #222222; /* Zachowujemy jaśniejsze tło dla input-group-text w trybie ciemnym */
+}
+
 .dark-mode .checkbox-custom {
     background: var(--input-bg);
     border-color: var(--border-color);
@@ -877,9 +883,10 @@ body {
 .dark-mode .range-slider::-webkit-slider-runnable-track,
 .dark-mode .range-slider::-moz-range-track,
 .dark-mode .range-slider::-ms-track {
-    background: var(--input-group-bg); /* Ciemniejsze tło w trybie ciemnym (#222222) */
+    background: var(--input-group-bg); /* Ciemniejsze tło w trybie ciemnym (#1a1a1a) */
     border: 1px solid var(--border-color); /* Subtelna ramka w trybie ciemnym */
     border-radius: var(--border-radius);
+    box-sizing: border-box; /* Zapewnia widoczność ramki */
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
