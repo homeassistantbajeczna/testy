@@ -176,7 +176,6 @@ function createNadplataKredytuGroup() {
                     <input type="range" class="form-range range-slider variable-cykl-range" min="1" max="419" step="1" value="1">
                 </div>
             </div>
-            <button type="button" class="btn btn-danger remove-btn" aria-label="Usuń nadpłatę">Usuń</button>
         </div>
     `;
     return group;
@@ -190,7 +189,6 @@ function initializeNadplataKredytuGroup(group) {
     const ranges = group.querySelectorAll(".form-range");
     const typeSelect = group.querySelector(".nadplata-type-select");
     const effectSelect = group.querySelector(".nadplata-effect-select");
-    const removeBtn = group.querySelector(".remove-btn");
 
     inputs.forEach((input, index) => {
         const range = ranges[index];
@@ -217,11 +215,36 @@ function initializeNadplataKredytuGroup(group) {
 
     typeSelect?.addEventListener("change", () => updateRatesArray("nadplata"));
     effectSelect?.addEventListener("change", () => updateRatesArray("nadplata"));
+}
 
-    removeBtn?.addEventListener("click", () => {
-        group.remove();
-        updateRatesArray("nadplata");
-    });
+function updateNadplataKredytuRemoveButtons() {
+    const wrapper = elements.nadplataKredytuWrapper;
+    const groups = wrapper.querySelectorAll(".variable-input-group");
+    const existingRemoveBtn = wrapper.querySelector(".remove-btn");
+
+    if (existingRemoveBtn) {
+        existingRemoveBtn.remove();
+    }
+
+    if (groups.length > 0) {
+        const lastGroup = groups[groups.length - 1];
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.classList.add("btn", "btn-danger", "remove-btn");
+        removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
+        removeBtn.textContent = "Usuń";
+        lastGroup.appendChild(removeBtn);
+
+        removeBtn.addEventListener("click", () => {
+            lastGroup.remove();
+            updateRatesArray("nadplata");
+            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+                elements.nadplataKredytuBtn.checked = false;
+                elements.nadplataKredytuInputs.classList.remove("active");
+            }
+            updateNadplataKredytuRemoveButtons();
+        });
+    }
 }
 
 function updateRatesArray(type) {
@@ -287,7 +310,6 @@ function createVariableOprocentowanieGroup() {
                 </div>
                 <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.1" value="7">
             </div>
-            <button type="button" class="btn btn-danger remove-btn" aria-label="Usuń oprocentowanie">Usuń</button>
         </div>
     `;
     return group;
@@ -298,7 +320,6 @@ function initializeVariableOprocentowanieGroup(group) {
 
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
-    const removeBtn = group.querySelector(".remove-btn");
 
     inputs.forEach((input, index) => {
         const range = ranges[index];
@@ -320,11 +341,36 @@ function initializeVariableOprocentowanieGroup(group) {
             updateRatesArray("oprocentowanie");
         });
     });
+}
 
-    removeBtn?.addEventListener("click", () => {
-        group.remove();
-        updateRatesArray("oprocentowanie");
-    });
+function updateVariableOprocentowanieRemoveButtons() {
+    const wrapper = elements.variableOprocentowanieWrapper;
+    const groups = wrapper.querySelectorAll(".variable-input-group");
+    const existingRemoveBtn = wrapper.querySelector(".remove-btn");
+
+    if (existingRemoveBtn) {
+        existingRemoveBtn.remove();
+    }
+
+    if (groups.length > 0) {
+        const lastGroup = groups[groups.length - 1];
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.classList.add("btn", "btn-danger", "remove-btn");
+        removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
+        removeBtn.textContent = "Usuń";
+        lastGroup.appendChild(removeBtn);
+
+        removeBtn.addEventListener("click", () => {
+            lastGroup.remove();
+            updateRatesArray("oprocentowanie");
+            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+                elements.zmienneOprocentowanieBtn.checked = false;
+                elements.variableOprocentowanieInputs.classList.remove("active");
+            }
+            updateVariableOprocentowanieRemoveButtons();
+        });
+    }
 }
 
 // F U N K C J E    O B L I C Z E N I A    K R E D Y T U
@@ -757,10 +803,13 @@ document.addEventListener("DOMContentLoaded", () => {
             initializeNadplataKredytuGroup(group);
         });
 
+        updateNadplataKredytuRemoveButtons();
+
         elements.addNadplataKredytuBtn?.addEventListener("click", () => {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
+            updateNadplataKredytuRemoveButtons();
         });
 
         // Inicjalizacja sekcji Zmienne Oprocentowanie
@@ -773,10 +822,13 @@ document.addEventListener("DOMContentLoaded", () => {
             initializeVariableOprocentowanieGroup(group);
         });
 
+        updateVariableOprocentowanieRemoveButtons();
+
         elements.addVariableOprocentowanieBtn?.addEventListener("click", () => {
             const newGroup = createVariableOprocentowanieGroup();
             elements.variableOprocentowanieWrapper.appendChild(newGroup);
             initializeVariableOprocentowanieGroup(newGroup);
+            updateVariableOprocentowanieRemoveButtons();
         });
 
         // Przycisk Oblicz
