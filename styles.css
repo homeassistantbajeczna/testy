@@ -302,7 +302,7 @@ body {
 
 .variable-rate-container {
     margin-top: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     text-align: center;
 }
 
@@ -629,7 +629,6 @@ input[type="range"].form-range {
     margin-left: auto;
     margin-right: auto;
     outline: none;
-    transition: all 0.2s ease;
     background: transparent;
 }
 
@@ -638,7 +637,6 @@ input[type="range"].form-range::-webkit-slider-runnable-track {
     height: 6px;
     border: none;
     border-radius: var(--border-radius);
-    transition: none;
 }
 
 input[type="range"].form-range::-moz-range-track {
@@ -646,7 +644,6 @@ input[type="range"].form-range::-moz-range-track {
     height: 6px;
     border: none;
     border-radius: var(--border-radius);
-    transition: none;
 }
 
 input[type="range"].form-range::-ms-track {
@@ -654,7 +651,6 @@ input[type="range"].form-range::-ms-track {
     height: 6px;
     border: none;
     border-radius: var(--border-radius);
-    transition: none;
     color: transparent;
 }
 
@@ -667,7 +663,7 @@ input[type="range"].form-range::-webkit-slider-thumb {
     cursor: pointer;
     appearance: none;
     transform: translateY(2px);
-    transition: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
     will-change: transform;
 }
 
@@ -679,7 +675,7 @@ input[type="range"].form-range::-moz-range-thumb {
     border: none;
     cursor: pointer;
     transform: translateY(-1px);
-    transition: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
     will-change: transform;
 }
 
@@ -691,7 +687,7 @@ input[type="range"].form-range::-ms-thumb {
     border: none;
     cursor: pointer;
     transform: translateY(-1px);
-    transition: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
     will-change: transform;
 }
 
@@ -699,7 +695,6 @@ input[type="range"].form-range::-moz-range-progress {
     background: var(--accent-gradient-start);
     height: 6px;
     border-radius: var(--border-radius);
-    transition: none;
 }
 
 input[type="range"].form-range::-ms-fill-lower {
@@ -1060,7 +1055,7 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 .round-btn.accent:hover {
-    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important línea
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start)) !important;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -1212,17 +1207,17 @@ input[type="range"].form-range:focus::-ms-thumb {
 .dark-mode input[type="range"].form-range::-webkit-slider-thumb {
     background: var(--accent-gradient-start-black);
     transform: translateY(3px);
-    transition: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .dark-mode input[type="range"].form-range::-moz-range-thumb {
     background: var(--accent-gradient-start-black);
-    transition: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .dark-mode input[type="range"].form-range::-ms-thumb {
     background: var(--accent-gradient-start-black);
-    transition: none;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb {
@@ -1241,7 +1236,6 @@ input[type="range"].form-range:focus::-ms-thumb {
     background: var(--accent-gradient-start-black);
     height: 6px;
     border-radius: var(--border-radius);
-    transition: none;
 }
 
 .dark-mode input[type="range"].form-range::-ms-fill-lower {
