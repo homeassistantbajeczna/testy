@@ -45,7 +45,7 @@
                                 <div class="sub-info" id="kwotaInfo">Kwota kredytu: 500 000,00 zł</div>
                             </div>
                             <div class="form-group">
-                                <label for="iloscRat" class="form-label">Ilość rat</label>
+                                "Ilość rat</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="iloscRat" min="12" max="420" step="1" value="360">
                                     <span class="input-group-text">mc-y</span>
@@ -207,9 +207,11 @@
         <div class="result-section" id="resultSection" style="display: none;">
             <!-- Podsekcja: Nagłówek wyników -->
             <div class="result-header">
+                <div class="button-container">
+                    <button class="btn btn-functional" onclick="showForm()">Powrót do edycji</button>
+                    <button id="generatePdfBtn" class="btn btn-functional">Generuj PDF</button>
+                </div>
                 <h4>Podsumowanie wyników</h4>
-                <button class="btn btn-functional" onclick="showForm()">Powrót do edycji</button>
-                <button id="generatePdfBtn" class="btn btn-functional">Generuj PDF</button>
             </div>
 
             <!-- Podsekcja: Wykres i podsumowanie -->
