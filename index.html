@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Kredytu Hipotecznego</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYm
+
+Dr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -24,15 +26,6 @@
     <div class="container">
         <!-- Sekcja: Formularz -->
         <div class="form-section" id="formSection">
-            <!-- Podsekcja: Porównaj kredyt -->
-            <div class="checkbox-row compare-credit-row">
-                <label class="checkbox-label" id="porownajKredytLabel">
-                    <input type="checkbox" id="porownajKredytBtn">
-                    <span class="checkbox-custom"></span>
-                    Porównaj Kredyt
-                </label>
-            </div>
-
             <!-- Podsekcja: Nagłówek formularza -->
             <div class="header-row">
                 <h4>Kalkulator Kredytu Hipotecznego</h4>
@@ -40,20 +33,20 @@
 
             <!-- Podsekcja: Formularz danych kredytu -->
             <div class="form-container">
-                <div class="form-wrapper">
-                    <form id="obligacjeForm">
+                <div>
+                    <form id="creditForm">
                         <!-- Wiersz 1: Kwota kredytu, Ilość rat, Oprocentowanie -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="kwota" class="form-label">Kwota kredytu</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="kwota" min="50000" max="5000000" step="100" value="500000">
-                                    <span class="input-group-text">zł</span>
+                                    <span class="input-group-text unit-zl">zł</span>
                                 </div>
                                 <input type="range" class="form-range" id="kwotaRange" min="50000" max="5000000" step="100" value="500000">
                                 <div class="sub-info" id="kwotaInfo">Kwota kredytu: 500 000,00 zł</div>
                             </div>
-                            <div class="form-group" id="iloscRatGroup">
+                            <div class="form-group">
                                 <label for="iloscRat" class="form-label">Ilość rat</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="iloscRat" min="12" max="420" step="1" value="360">
@@ -82,7 +75,7 @@
                                 </select>
                                 <div class="sub-info" id="rodzajRatInfo">Wybierz równe lub malejące</div>
                             </div>
-                            <div class="form-group" id="prowizjaGroup">
+                            <div class="form-group">
                                 <label for="prowizja" class="form-label">Prowizja</label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" id="prowizja" min="0" max="1250000" step="0.1" value="2">
@@ -93,17 +86,6 @@
                                 </div>
                                 <input type="range" class="form-range" id="prowizjaRange" min="0" max="1250000" step="0.1" value="2">
                                 <div class="sub-info" id="prowizjaInfo">Prowizja: 10 000,00 zł</div>
-                            </div>
-                        </div>
-
-                        <!-- Podsekcja: Bezpieczny Kredyt 2% -->
-                        <div class="variable-rate-container" id="bezpiecznyKredytContainer">
-                            <div class="checkbox-row">
-                                <label class="checkbox-label" id="bezpiecznyKredytLabel">
-                                    <input type="checkbox" id="bezpiecznyKredytBtn">
-                                    <span class="checkbox-custom"></span>
-                                    Bezpieczny Kredyt 2%
-                                </label>
                             </div>
                         </div>
 
@@ -148,7 +130,7 @@
                             <div class="variable-input-group" data-type="oprocentowanie">
                                 <div class="fields-wrapper">
                                     <div class="form-group">
-                                        <label class="form-label">Od którego miesiąca</label>
+                                        <label class="form-label">Od którego miesiaca</label>
                                         <div class="input-group">
                                             <input type="number" class="form-control variable-cykl" min="2" step="1">
                                             <span class="input-group-text unit-miesiacu">miesiąca</span>
@@ -189,7 +171,7 @@
                                         <label class="form-label">Kwota nadpłaty</label>
                                         <div class="input-group">
                                             <input type="number" class="form-control variable-rate" min="0" step="1">
-                                            <span class="input-group-text">zł</span>
+                                            <span class="input-group-text unit-zl">zł</span>
                                         </div>
                                         <input type="range" class="form-range variable-rate-range" min="0" step="1">
                                     </div>
@@ -228,11 +210,9 @@
             <!-- Podsekcja: Nagłówek wyników -->
             <div class="result-header">
                 <h4>Podsumowanie wyników</h4>
+                <button class="btn btn-secondary" onclick="showForm()">Powrót do edycji</button>
                 <button id="generatePdfBtn" class="btn btn-primary btn-sm">Generuj PDF</button>
             </div>
-
-            <!-- Przycisk: Powrót do edycji -->
-            <button class="btn btn-secondary mb-3" onclick="showForm()">Powrót do edycji</button>
 
             <!-- Podsekcja: Wykres i podsumowanie -->
             <div class="result-container">
