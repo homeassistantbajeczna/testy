@@ -70,7 +70,7 @@ function debounce(func, wait) {
     };
 }
 
-// Zmodyfikowana funkcja syncInputWithRange z debouncingiem
+// Funkcja syncInputWithRange
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, defaultValue } = options;
 
@@ -81,7 +81,6 @@ function syncInputWithRange(input, range, options = {}) {
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
-    // Usuwanie istniejących listenerów
     const removeListeners = () => {
         if (input._eventListeners.input) input.removeEventListener("input", input._eventListeners.input);
         if (input._eventListeners.change) input.removeEventListener("change", input._eventListeners.change);
@@ -91,12 +90,10 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
-    // Ustawienie kroku suwaka
     if (stepOverride) range.step = stepOverride;
     else if (isVariableCykl) range.step = "1";
     else range.step = isDecimal ? "0.01" : "1";
 
-    // Funkcja aktualizująca wartości
     const updateValue = (value, source, skipOnChange = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
@@ -116,11 +113,9 @@ function syncInputWithRange(input, range, options = {}) {
 
         const displayValue = isDecimal ? parsedValue.toFixed(2) : parsedValue.toString();
 
-        // Aktualizacja tylko pola tekstowego i suwaka podczas przesuwania
         input.value = displayValue;
         range.value = parsedValue;
 
-        // Zapis wartości w stanie
         if (activeType && !skipOnChange && onChange) {
             onChange(parsedValue);
         } else {
@@ -128,14 +123,12 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
-    // Funkcje aktualizujące informacje (tylko po zakończeniu przesuwania)
     const updateAdditionalInfo = () => {
         if (input.id === "kwota") updateKwotaInfo();
         if (input.id === "prowizja") updateProwizjaInfo();
         if (input.id === "iloscRat") updateLata();
     };
 
-    // Debouncing dla aktualizacji dodatkowych informacji
     const debouncedUpdateAdditionalInfo = debounce(() => {
         requestAnimationFrame(updateAdditionalInfo);
     }, 50);
@@ -175,7 +168,6 @@ function syncInputWithRange(input, range, options = {}) {
     range.addEventListener("input", rangeInputHandler);
     range.addEventListener("change", rangeChangeHandler);
 
-    // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
     let initialValue = defaultValue !== undefined ? defaultValue : parseFloat(input.value) || min;
@@ -186,7 +178,6 @@ function syncInputWithRange(input, range, options = {}) {
     updateAdditionalInfo();
 }
 
-// Inicjalizacja synchronizacji dla głównych suwaków
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
     stepOverride: 100,
@@ -201,8 +192,6 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     defaultValue: state.lastFormData.iloscRat,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
-        // Aktualizacja zmiennych suwaków tylko po zakończeniu przesuwania
-        // (wywoływane w rangeChangeHandler)
     },
 });
 
@@ -223,7 +212,7 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     },
 });
 
-// Funkcja tworząca dynamiczne grupy suwaków
+// Poprawiona funkcja createVariableInputGroup
 function createVariableInputGroup(type, index, period, value, typeValue = "Jednorazowa", effectValue = "Skróć okres") {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
 
@@ -232,6 +221,11 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         : elements.nadplataKredytuTemplate;
     
     const group = document.importNode(template.content, true).querySelector(".variable-input-group");
+    if (!group) {
+        console.error(`Nie udało się załadować szablonu dla typu: ${type}`);
+        return null;
+    }
+
     group.setAttribute("data-index", index);
     group.setAttribute("data-type", type);
 
@@ -242,69 +236,76 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
     const removeBtn = group.querySelector(".remove-btn");
     const removeFirstBtn = group.querySelector(".remove-first-btn");
 
-    if (type === "oprocentowanie") {
-        const minPeriod = index > 0 ? (state.variableRates[index - 1]?.period || 1) + 1 : 2;
-        cyklInput.min = minPeriod;
-        cyklRange.min = minPeriod;
-        cyklInput.max = maxCykl;
-        cyklRange.max = maxCykl;
-        cyklInput.value = period;
-        cyklRange.value = period;
-        rateInput.value = value;
-        rateRange.value = value;
-        rateRange.step = "0.01";
-    } else if (type === "nadplata") {
-        const minPeriod = index > 0 ? (state.overpaymentRates[index - 1]?.period || 0) + 1 : 1;
-        cyklInput.min = minPeriod;
-        cyklRange.min = minPeriod;
-        cyklInput.max = maxCykl - 1;
-        cyklRange.max = maxCykl - 1;
-        cyklInput.value = period;
-        cycleRange.value = period;
-        rateInput.value = value;
-        rateRange.value = value;
-        rateRange.step = "1";
+    if (!cyklInput || !cyklRange || !rateInput || !rateRange || !removeBtn || !removeFirstBtn) {
+        console.error(`Brak wymaganych elementów w grupie dla typu: ${type}, index: ${index}`);
+        return null;
     }
 
-    syncInputWithRange(cyklInput, cyklRange, {
-        isDecimal: false,
-        isVariableCykl: true,
-        activeType: type,
-        defaultValue: period,
-        onChange: (value) => {
-            if (type === "oprocentowanie") {
-                state.variableRates[index].period = value;
-                state.variableRates.sort((a, b) => a.period - b.period);
-                // Aktualizacja tylko po zakończeniu przesuwania
-            } else {
-                state.overpaymentRates[index].period = value;
-                state.overpaymentRates.sort((a, b) => a.period - b.period);
-                // Aktualizacja tylko po zakończeniu przesuwania
-            }
-        },
-    });
+    try {
+        if (type === "oprocentowanie") {
+            const minPeriod = index > 0 ? (state.variableRates[index - 1]?.period || 1) + 1 : 2;
+            cyklInput.min = minPeriod;
+            cyklRange.min = minPeriod;
+            cyklInput.max = maxCykl;
+            cyklRange.max = maxCykl;
+            cyklInput.value = period;
+            cyklRange.value = period;
+            rateInput.value = value;
+            rateRange.value = value;
+            rateRange.step = "0.01";
+        } else if (type === "nadplata") {
+            const minPeriod = index > 0 ? (state.overpaymentRates[index - 1]?.period || 0) + 1 : 1;
+            cyklInput.min = minPeriod;
+            cyklRange.min = minPeriod;
+            cyklInput.max = maxCykl - 1;
+            cyklRange.max = maxCykl - 1;
+            cyklInput.value = period;
+            cyklRange.value = period; // Poprawiono literówkę: "cycleRange" na "cyklRange"
+            rateInput.value = value;
+            rateRange.value = value;
+            rateRange.step = "1";
+        }
 
-    syncInputWithRange(rateInput, rateRange, {
-        isDecimal: true,
-        activeType: type,
-        index,
-        defaultValue: value,
-        onChange: (value) => {
-            if (type === "oprocentowanie") {
-                state.variableRates[index].value = value;
-            } else {
-                state.overpaymentRates[index].value = value;
-            }
-        },
-    });
+        syncInputWithRange(cyklInput, cyklRange, {
+            isDecimal: false,
+            isVariableCykl: true,
+            activeType: type,
+            defaultValue: period,
+            onChange: (value) => {
+                if (type === "oprocentowanie") {
+                    state.variableRates[index].period = value;
+                    state.variableRates.sort((a, b) => a.period - b.period);
+                } else {
+                    state.overpaymentRates[index].period = value;
+                    state.overpaymentRates.sort((a, b) => a.period - b.period);
+                }
+            },
+        });
 
-    removeBtn.addEventListener("click", () => removeVariableChange(index, type));
-    removeFirstBtn.addEventListener("click", () => removeFirstVariableChange(type));
+        syncInputWithRange(rateInput, rateRange, {
+            isDecimal: true,
+            activeType: type,
+            index,
+            defaultValue: value,
+            onChange: (value) => {
+                if (type === "oprocentowanie") {
+                    state.variableRates[index].value = value;
+                } else {
+                    state.overpaymentRates[index].value = value;
+                }
+            },
+        });
 
-    return group;
+        removeBtn.addEventListener("click", () => removeVariableChange(index, type));
+        removeFirstBtn.addEventListener("click", () => removeFirstVariableChange(type));
+
+        return group;
+    } catch (error) {
+        console.error(`Błąd podczas tworzenia grupy dla typu: ${type}, index: ${index}`, error);
+        return null;
+    }
 }
 
-// Funkcja obliczająca kredyt
 function calculateLoan() {
     const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
     const kwota = parseFloat(kwotaInput) || 0;
@@ -312,7 +313,7 @@ function calculateLoan() {
     const oprocentowanieInput = elements.oprocentowanie.value.replace(",", ".").replace(/\s/g, "");
     let oprocentowanie = parseFloat(oprocentowanieInput) || 0;
     const rodzajRat = elements.rodzajRat.value || "rowne";
-    const prowizjaInput = elements.prowizja.value.replace(",", ".").replace(/\s/g, "");
+    the prowizjaInput = elements.prowizja.value.replace(",", ".").replace(/\s/g, "");
     const prowizja = parseFloat(prowizjaInput) || 0;
     const jednostkaProwizji = elements.jednostkaProwizji.value || "procent";
 
@@ -743,134 +744,138 @@ function updateProwizjaInfo() {
     }
 }
 
-// Zmodyfikowana funkcja updateVariableInputs
 function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
 
-    if (elements.zmienneOprocentowanieBtn?.checked && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn && elements.variableOprocentowanieWrapper) {
-        if (state.variableRates.length === 0) {
-            state.variableRates.push({ value: state.lastFormData.oprocentowanie || 7, period: 2 });
-        }
-        elements.variableOprocentowanieInputs.classList.add("active");
+    try {
+        if (elements.zmienneOprocentowanieBtn?.checked && elements.variableOprocentowanieInputs && elements.addVariableOprocentowanieBtn && elements.variableOprocentowanieWrapper) {
+            if (state.variableRates.length === 0) {
+                state.variableRates.push({ value: state.lastFormData.oprocentowanie || 7, period: 2 });
+            }
+            elements.variableOprocentowanieInputs.classList.add("active");
 
-        // Zamiast czyścić cały wrapper, aktualizujemy tylko zmienione elementy
-        const existingGroups = Array.from(elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group[data-type='oprocentowanie']"));
-        const newGroups = state.variableRates.map((rate, index) => {
-            const minPeriod = index > 0 ? state.variableRates[index - 1].period + 1 : 2;
-            let group = existingGroups.find(g => parseInt(g.getAttribute("data-index")) === index);
+            const existingGroups = Array.from(elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group[data-type='oprocentowanie']"));
+            const newGroups = state.variableRates.map((rate, index) => {
+                const minPeriod = index > 0 ? state.variableRates[index - 1].period + 1 : 2;
+                let group = existingGroups.find(g => parseInt(g.getAttribute("data-index")) === index);
 
-            if (!group) {
-                group = createVariableInputGroup("oprocentowanie", index, Math.max(minPeriod, rate.period), rate.value);
-            } else {
+                if (!group) {
+                    group = createVariableInputGroup("oprocentowanie", index, Math.max(minPeriod, rate.period), rate.value);
+                    if (!group) return null;
+                } else {
+                    const cyklInput = group.querySelector(".variable-cykl");
+                    const cyklRange = group.querySelector(".variable-cykl-range");
+                    const rateInput = group.querySelector(".variable-rate");
+                    const rateRange = group.querySelector(".variable-rate-range");
+                    cyklInput.value = rate.period;
+                    cyklRange.value = rate.period;
+                    rateInput.value = rate.value;
+                    rateRange.value = rate.value;
+                }
+
                 const cyklInput = group.querySelector(".variable-cykl");
                 const cyklRange = group.querySelector(".variable-cykl-range");
-                const rateInput = group.querySelector(".variable-rate");
-                const rateRange = group.querySelector(".variable-rate-range");
-                cyklInput.value = rate.period;
-                cyklRange.value = rate.period;
-                rateInput.value = rate.value;
-                rateRange.value = rate.value;
-            }
+                cyklInput.min = minPeriod;
+                cyklRange.min = minPeriod;
+                cyklInput.max = maxCykl;
+                cyklRange.max = maxCykl;
 
-            const cyklInput = group.querySelector(".variable-cykl");
-            const cyklRange = group.querySelector(".variable-cykl-range");
-            cyklInput.min = minPeriod;
-            cyklRange.min = minPeriod;
-            cyklInput.max = maxCykl;
-            cyklRange.max = maxCykl;
+                const removeBtn = group.querySelector(".remove-btn");
+                const removeFirstBtn = group.querySelector(".remove-first-btn");
+                if (index === 0 && state.variableRates.length === 1) {
+                    removeFirstBtn.style.display = "block";
+                    removeBtn.style.display = "none";
+                } else if (index === state.variableRates.length - 1 && state.variableRates.length > 1) {
+                    removeFirstBtn.style.display = "none";
+                    removeBtn.style.display = "block";
+                } else {
+                    removeFirstBtn.style.display = "none";
+                    removeBtn.style.display = "none";
+                }
 
-            const removeBtn = group.querySelector(".remove-btn");
-            const removeFirstBtn = group.querySelector(".remove-first-btn");
-            if (index === 0 && state.variableRates.length === 1) {
-                removeFirstBtn.style.display = "block";
-                removeBtn.style.display = "none";
-            } else if (index === state.variableRates.length - 1 && state.variableRates.length > 1) {
-                removeFirstBtn.style.display = "none";
-                removeBtn.style.display = "block";
-            } else {
-                removeFirstBtn.style.display = "none";
-                removeBtn.style.display = "none";
-            }
+                return group;
+            }).filter(group => group !== null);
 
-            return group;
-        });
+            elements.variableOprocentowanieWrapper.innerHTML = "";
+            newGroups.forEach(group => elements.variableOprocentowanieWrapper.appendChild(group));
 
-        elements.variableOprocentowanieWrapper.innerHTML = "";
-        newGroups.forEach(group => elements.variableOprocentowanieWrapper.appendChild(group));
-
-        const lastPeriod = state.variableRates.length > 0 ? state.variableRates[state.variableRates.length - 1].period : 0;
-        const canAddMore = state.variableRates.length < maxChanges && lastPeriod < maxCykl;
-        elements.addVariableOprocentowanieBtn.style.display = canAddMore ? "block" : "none";
-    } else {
-        if (elements.variableOprocentowanieInputs) elements.variableOprocentowanieInputs.classList.remove("active");
-        if (elements.addVariableOprocentowanieBtn) elements.addVariableOprocentowanieBtn.style.display = "none";
-        if (elements.variableOprocentowanieWrapper) elements.variableOprocentowanieWrapper.innerHTML = "";
-        if (!elements.zmienneOprocentowanieBtn?.checked) state.variableRates = [];
-    }
-
-    if (elements.nadplataKredytuBtn?.checked && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn && elements.nadplataKredytuWrapper) {
-        if (state.overpaymentRates.length === 0) {
-            state.overpaymentRates.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
+            const lastPeriod = state.variableRates.length > 0 ? state.variableRates[state.variableRates.length - 1].period : 0;
+            const canAddMore = state.variableRates.length < maxChanges && lastPeriod < maxCykl;
+            elements.addVariableOprocentowanieBtn.style.display = canAddMore ? "block" : "none";
+        } else {
+            if (elements.variableOprocentowanieInputs) elements.variableOprocentowanieInputs.classList.remove("active");
+            if (elements.addVariableOprocentowanieBtn) elements.addVariableOprocentowanieBtn.style.display = "none";
+            if (elements.variableOprocentowanieWrapper) elements.variableOprocentowanieWrapper.innerHTML = "";
+            if (!elements.zmienneOprocentowanieBtn?.checked) state.variableRates = [];
         }
-        elements.nadplataKredytuInputs.classList.add("active");
 
-        const existingGroups = Array.from(elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group[data-type='nadplata']"));
-        const newGroups = state.overpaymentRates.map((overpayment, index) => {
-            const minPeriod = index > 0 ? state.overpaymentRates[index - 1].period + 1 : 1;
-            let group = existingGroups.find(g => parseInt(g.getAttribute("data-index")) === index);
+        if (elements.nadplataKredytuBtn?.checked && elements.nadplataKredytuInputs && elements.addNadplataKredytuBtn && elements.nadplataKredytuWrapper) {
+            if (state.overpaymentRates.length === 0) {
+                state.overpaymentRates.push({ value: 1000, period: 1, type: "Jednorazowa", effect: "Skróć okres" });
+            }
+            elements.nadplataKredytuInputs.classList.add("active");
 
-            if (!group) {
-                group = createVariableInputGroup("nadplata", index, Math.max(minPeriod, overpayment.period), overpayment.value, overpayment.type, overpayment.effect);
-            } else {
+            const existingGroups = Array.from(elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group[data-type='nadplata']"));
+            const newGroups = state.overpaymentRates.map((overpayment, index) => {
+                const minPeriod = index > 0 ? state.overpaymentRates[index - 1].period + 1 : 1;
+                let group = existingGroups.find(g => parseInt(g.getAttribute("data-index")) === index);
+
+                if (!group) {
+                    group = createVariableInputGroup("nadplata", index, Math.max(minPeriod, overpayment.period), overpayment.value, overpayment.type, overpayment.effect);
+                    if (!group) return null;
+                } else {
+                    const cyklInput = group.querySelector(".variable-cykl");
+                    const cyklRange = group.querySelector(".variable-cykl-range");
+                    const rateInput = group.querySelector(".variable-rate");
+                    const rateRange = group.querySelector(".variable-rate-range");
+                    const typeSelect = group.querySelector(".nadplata-type-select");
+                    const effectSelect = group.querySelector(".nadplata-effect-select");
+                    cyklInput.value = overpayment.period;
+                    cyklRange.value = overpayment.period;
+                    rateInput.value = overpayment.value;
+                    rateRange.value = overpayment.value;
+                    typeSelect.value = overpayment.type;
+                    effectSelect.value = overpayment.effect;
+                }
+
                 const cyklInput = group.querySelector(".variable-cykl");
                 const cyklRange = group.querySelector(".variable-cykl-range");
-                const rateInput = group.querySelector(".variable-rate");
-                const rateRange = group.querySelector(".variable-rate-range");
-                const typeSelect = group.querySelector(".nadplata-type-select");
-                const effectSelect = group.querySelector(".nadplata-effect-select");
-                cyklInput.value = overpayment.period;
-                cyklRange.value = overpayment.period;
-                rateInput.value = overpayment.value;
-                rateRange.value = overpayment.value;
-                typeSelect.value = overpayment.type;
-                effectSelect.value = overpayment.effect;
-            }
+                cyklInput.min = minPeriod;
+                cyklRange.min = minPeriod;
+                cyklInput.max = maxCykl - 1;
+                cyklRange.max = maxCykl - 1;
 
-            const cyklInput = group.querySelector(".variable-cykl");
-            const cyklRange = group.querySelector(".variable-cykl-range");
-            cyklInput.min = minPeriod;
-            cyklRange.min = minPeriod;
-            cyklInput.max = maxCykl - 1;
-            cyklRange.max = maxCykl - 1;
+                const removeBtn = group.querySelector(".remove-btn");
+                const removeFirstBtn = group.querySelector(".remove-first-btn");
+                if (index === 0 && state.overpaymentRates.length === 1) {
+                    removeFirstBtn.style.display = "block";
+                    removeBtn.style.display = "none";
+                } else if (index === state.overpaymentRates.length - 1 && state.overpaymentRates.length > 1) {
+                    removeFirstBtn.style.display = "none";
+                    removeBtn.style.display = "block";
+                } else {
+                    removeFirstBtn.style.display = "none";
+                    removeBtn.style.display = "none";
+                }
 
-            const removeBtn = group.querySelector(".remove-btn");
-            const removeFirstBtn = group.querySelector(".remove-first-btn");
-            if (index === 0 && state.overpaymentRates.length === 1) {
-                removeFirstBtn.style.display = "block";
-                removeBtn.style.display = "none";
-            } else if (index === state.overpaymentRates.length - 1 && state.overpaymentRates.length > 1) {
-                removeFirstBtn.style.display = "none";
-                removeBtn.style.display = "block";
-            } else {
-                removeFirstBtn.style.display = "none";
-                removeBtn.style.display = "none";
-            }
+                return group;
+            }).filter(group => group !== null);
 
-            return group;
-        });
+            elements.nadplataKredytuWrapper.innerHTML = "";
+            newGroups.forEach(group => elements.nadplataKredytuWrapper.appendChild(group));
 
-        elements.nadplataKredytuWrapper.innerHTML = "";
-        newGroups.forEach(group => elements.nadplataKredytuWrapper.appendChild(group));
-
-        const lastPeriod = state.overpaymentRates.length > 0 ? state.overpaymentRates[state.overpaymentRates.length - 1].period : 0;
-        const canAddMore = state.overpaymentRates.length < maxChanges && lastPeriod < (maxCykl - 1);
-        elements.addNadplataKredytuBtn.style.display = canAddMore ? "block" : "none";
-    } else {
-        if (elements.nadplataKredytuInputs) elements.nadplataKredytuInputs.classList.remove("active");
-        if (elements.addNadplataKredytuBtn) elements.addNadplataKredytuBtn.style.display = "none";
-        if (elements.nadplataKredytuWrapper) elements.nadplataKredytuWrapper.innerHTML = "";
-        if (!elements.nadplataKredytuBtn?.checked) state.overpaymentRates = [];
+            const lastPeriod = state.overpaymentRates.length > 0 ? state.overpaymentRates[state.overpaymentRates.length - 1].period : 0;
+            const canAddMore = state.overpaymentRates.length < maxChanges && lastPeriod < (maxCykl - 1);
+            elements.addNadplataKredytuBtn.style.display = canAddMore ? "block" : "none";
+        } else {
+            if (elements.nadplataKredytuInputs) elements.nadplataKredytuInputs.classList.remove("active");
+            if (elements.addNadplataKredytuBtn) elements.addNadplataKredytuBtn.style.display = "none";
+            if (elements.nadplataKredytuWrapper) elements.nadplataKredytuWrapper.innerHTML = "";
+            if (!elements.nadplataKredytuBtn?.checked) state.overpaymentRates = [];
+        }
+    } catch (error) {
+        console.error("Błąd podczas aktualizacji zmiennych wejść:", error);
     }
 }
 
