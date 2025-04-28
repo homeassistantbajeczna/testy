@@ -339,4 +339,791 @@ body {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    justify-content
+    justify-content: center;
+    align-items: center;
+}
+
+.form-control {
+    height: 22px;
+    font-size: var(--small-font-size);
+    padding: 2px;
+    text-align: center;
+    background: var(--input-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    line-height: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-group-text {
+    height: 22px;
+    font-size: var(--small-font-size);
+    padding: 2px 5px;
+    text-align: center;
+    background: var(--input-group-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    line-height: normal;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.input-group-text.unit-miesiacu { min-width: 50px; }
+.input-group-text.unit-miesiaca { min-width: 65px; }
+.input-group-text.unit-miesiacach { min-width: 75px; }
+.input-group-text.unit-zl { min-width: 40px; }
+
+.variable-input-group[data-type="nadplata"] .form-control {
+    width: 65px;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group,
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group,
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .form-control {
+    width: 55px;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(3) .input-group-text.unit-miesiacu {
+    width: 50px;
+    min-width: 50px;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 0.6em;
+    border: 1px solid var(--border-color);
+    background: var(--input-group-bg);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .form-control {
+    width: 65px;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.variable-input-group[data-type="nadplata"] .form-group:nth-child(4) .input-group-text.unit-zl {
+    width: 40px;
+    min-width: 40px;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 0.6em;
+    border: 1px solid var(--border-color);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.variable-input-group[data-type="nadplata"] .input-group {
+    width: 105px;
+}
+
+.variable-input-group[data-type="nadplata"] .nadplata-type-select,
+.variable-input-group[data-type="nadplata"] .nadplata-effect-select {
+    width: 105px;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-control {
+    width: 110px;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-control.variable-cykl {
+    width: 90px;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(1) .input-group-text {
+    width: 60px;
+    min-width: 60px;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 0.6em;
+    border: 1px solid var(--border-color);
+    background: var(--input-group-bg);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .form-control {
+    width: 110px;
+    margin: 0;
+    padding: 0 2px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.variable-input-group[data-type="oprocentowanie"] .form-group:nth-child(2) .input-group-text {
+    width: 40px;
+    min-width: 40px;
+    margin: 0;
+    padding: 0 2px;
+    font-size: 0.6em;
+    border: 1px solid var(--border-color);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.variable-input-group[data-type="oprocentowanie"] .input-group {
+    width: 150px;
+}
+
+#prowizja .input-group .form-control {
+    flex: 3;
+    border-radius: 5px 0 0 5px !important;
+    border-right: none;
+}
+
+#prowizja .input-group .form-control[type="number"]::-webkit-inner-spin-button,
+#prowizja .input-group .form-control[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#prowizja .input-group .form-control[type="number"] {
+    -moz-appearance: textfield;
+}
+
+#prowizja .input-group .form-select.jednostka-select {
+    height: 22px !important;
+    font-size: var(--small-font-size) !important;
+    padding: 2px 12px 2px 4px !important;
+    text-align: center !important;
+    background-color: var(--input-bg) !important;
+    color: var(--primary-text) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 0 5px 5px 0 !important;
+    border-left: 1px solid var(--border-color) !important;
+    box-sizing: border-box !important;
+    line-height: normal !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    flex: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
+    background-size: 8px 8px !important;
+}
+
+.form-select,
+.variable-input-group .nadplata-type-select,
+.variable-input-group .nadplata-effect-select {
+    height: 22px;
+    font-size: var(--small-font-size);
+    padding: 2px 12px 2px 4px;
+    text-align: center;
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    line-height: normal;
+    width: 100%;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
+    background-size: 8px 8px !important;
+}
+
+/* Style dla :focus */
+.form-select:focus,
+.form-group .form-control:focus,
+.form-group .form-select:focus,
+.variable-input-group .form-control:focus,
+.variable-input-group .form-select:focus,
+#prowizja .input-group .form-control:focus,
+#prowizja .input-group .form-select.jednostka-select:focus,
+.variable-input-group .nadplata-type-select:focus,
+.variable-input-group .nadplata-effect-select:focus {
+    outline: none !important;
+    box-shadow: 0 0 4px var(--accent-color) !important;
+    border: 1px solid var(--border-color) !important;
+    background-color: var(--input-bg) !important;
+    color: var(--primary-text) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+.form-select:focus,
+#prowizja .input-group .form-select.jednostka-select:focus,
+.variable-input-group .nadplata-type-select:focus,
+.variable-input-group .nadplata-effect-select:focus {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%23C2B280" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
+    background-size: 8px 8px !important;
+}
+
+/* S U W A K I */
+input[type="range"].form-range {
+    margin-top: 5px;
+    height: 6px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    appearance: none;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    outline: none;
+    background: transparent;
+}
+
+input[type="range"].form-range::-webkit-slider-runnable-track,
+input[type="range"].form-range::-moz-range-track,
+input[type="range"].form-range::-ms-track {
+    background: var(--input-group-bg);
+    height: 6px;
+    border: none;
+    border-radius: var(--border-radius);
+}
+
+input[type="range"].form-range::-ms-track {
+    color: transparent;
+}
+
+input[type="range"].form-range::-webkit-slider-thumb,
+input[type="range"].form-range::-moz-range-thumb,
+input[type="range"].form-range::-ms-thumb {
+    background: var(--accent-gradient-start);
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    will-change: transform;
+}
+
+input[type="range"].form-range::-webkit-slider-thumb {
+    transform: translateY(2px);
+    appearance: none;
+}
+
+input[type="range"].form-range::-moz-range-thumb,
+input[type="range"].form-range::-ms-thumb {
+    transform: translateY(-1px);
+}
+
+input[type="range"].form-range::-moz-range-progress,
+input[type="range"].form-range::-ms-fill-lower {
+    background: var(--accent-gradient-start);
+    height: 6px;
+    border-radius: var(--border-radius);
+}
+
+input[type="range"].form-range::-ms-fill-upper {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
+}
+
+input[type="range"].form-range:focus::-webkit-slider-thumb,
+input[type="range"].form-range:focus::-moz-range-thumb,
+input[type="range"].form-range:focus::-ms-thumb {
+    outline: none;
+    box-shadow: 0 0 4px var(--accent-gradient-start);
+    transform: scale(1.1);
+}
+
+input[type="range"].form-range:focus::-webkit-slider-thumb {
+    transform: translateY(2px) scale(1.1);
+}
+
+input[type="range"].form-range:focus::-moz-range-thumb,
+input[type="range"].form-range:focus::-ms-thumb {
+    transform: translateY(-1px) scale(1.1);
+}
+
+/* O P I S Y   I   D A N E */
+.sub-info {
+    font-size: 0.4em;
+    margin-top: 2px;
+    text-align: left;
+    align-self: flex-start;
+    width: 100%;
+}
+
+/* W Y N I K I   I   H A R M O N O G R A M */
+.harmonogram {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.harmonogram-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-toggle {
+    transition: color 0.3s ease;
+}
+
+#harmonogramContent {
+    margin-top: 10px;
+}
+
+.harmonogram table {
+    width: 100%;
+    font-size: 0.8em;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.harmonogram th {
+    background-color: var(--accent-color);
+    color: #000000;
+    padding: 8px;
+    text-align: center;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.harmonogram td {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* W Y K R E S */
+.chart-container {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 600px;
+    background-color: transparent;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.chart {
+    width: 100%;
+    height: 300px;
+}
+
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.color-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+.legend-text {
+    font-size: 0.7em;
+}
+
+/* P O D S U M O W A N I E */
+.summary-footer {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.highlight {
+    font-size: 0.7em;
+    padding: 5px 10px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.highlight.yellow {
+    background-color: var(--highlight-yellow);
+}
+
+.highlight.green {
+    background-color: var(--highlight-green);
+}
+
+/* P R Z Y C I S K I */
+/* Wspólne style dla wszystkich przycisków */
+.btn {
+    transition: transform 0.2s ease, box-shadow 0.3s ease, scale 0.2s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* Przycisk główny ("Oblicz") */
+.btn-primary {
+    font-size: 0.9em;
+    height: 35px;
+    min-width: 140px;
+    padding: 5px 12px;
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    color: #000000;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+/* Przyciski funkcyjne ("Dodaj kolejną...", "Generuj PDF", "Powrót do edycji") */
+.btn-functional {
+    font-size: 0.625em;
+    height: 25px;
+    padding: 5px 12px;
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    color: #000000;
+}
+
+.btn-functional:hover {
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+/* Przycisk reset ("Usuń") */
+.btn-reset {
+    font-size: 0.625em;
+    height: 25px;
+    padding: 5px 12px;
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    background: #dc3545;
+    color: #ffffff;
+}
+
+.btn-reset:hover {
+    background: #c82333;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+/* Przyciski dodatkowe ("+", "-", tryb jasny/ciemny) */
+.btn-additional {
+    width: 25px;
+    height: 25px;
+    padding: 0;
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    color: #000000;
+    font-size: 0.9em;
+}
+
+.btn-additional:hover {
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+/* Kontenery dla przycisków reset */
+.remove-btn-wrapper,
+.remove-first-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+/* D A R K   M O D E */
+.dark-mode {
+    --primary-bg: #1a1a1a;
+    --primary-text: #e0e0e0;
+    --secondary-bg: #2c2c2c;
+    --accent-gradient-start: #8b7d47;
+    --accent-gradient-end: #a3945c;
+    --border-color: #444444;
+    --border-color-rgb: 68, 68, 68;
+    --highlight-yellow: #91ADD9;
+    --highlight-green: #BBBBD2;
+    --shadow-color: rgba(255, 255, 255, 0.1);
+    --logo-bg: #333333;
+    --input-bg: #333333;
+    --input-group-bg: #444444;
+    --harmonogram-bg: #333333;
+    --range-bg: #666666;
+}
+
+.dark-mode body {
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+}
+
+.dark-mode .container {
+    background: var(--secondary-bg);
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.dark-mode .logo-container {
+    background-color: var(--logo-bg);
+}
+
+.dark-mode .form-control,
+.dark-mode .form-select,
+.dark-mode .input-group-text {
+    background: var(--input-bg);
+    color: var(--primary-text);
+    border-color: var(--border-color);
+}
+
+.dark-mode .checkbox-custom {
+    background: var(--input-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .checkbox-label input:checked + .checkbox-custom {
+    background-color: var(--accent-gradient-start);
+    border-color: var(--accent-gradient-start);
+}
+
+.dark-mode input[type="range"].form-range {
+    border-color: var(--border-color);
+}
+
+.dark-mode input[type="range"].form-range::-webkit-slider-runnable-track,
+.dark-mode input[type="range"].form-range::-moz-range-track,
+.dark-mode input[type="range"].form-range::-ms-track {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
+}
+
+.dark-mode input[type="range"].form-range::-webkit-slider-thumb,
+.dark-mode input[type="range"].form-range::-moz-range-thumb,
+.dark-mode input[type="range"].form-range::-ms-thumb {
+    background: var(--accent-gradient-start);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.dark-mode input[type="range"].form-range::-webkit-slider-thumb {
+    transform: translateY(3px);
+}
+
+.dark-mode input[type="range"].form-range:focus::-webkit-slider-thumb {
+    transform: translateY(3px) scale(1.1);
+}
+
+.dark-mode input[type="range"].form-range::-moz-range-thumb,
+.dark-mode input[type="range"].form-range::-ms-thumb {
+    transform: none;
+}
+
+.dark-mode input[type="range"].form-range:focus::-moz-range-thumb,
+.dark-mode input[type="range"].form-range:focus::-ms-thumb {
+    transform: scale(1.1);
+}
+
+.dark-mode input[type="range"].form-range::-moz-range-progress,
+.dark-mode input[type="range"].form-range::-ms-fill-lower {
+    background: var(--accent-gradient-start);
+    height: 6px;
+    border-radius: var(--border-radius);
+}
+
+.dark-mode input[type="range"].form-range::-ms-fill-upper {
+    background: var(--input-group-bg);
+    border-radius: var(--border-radius);
+}
+
+.dark-mode .form-select,
+.dark-mode #prowizja .input-group .form-select.jednostka-select,
+.dark-mode .variable-input-group .nadplata-type-select,
+.dark-mode .variable-input-group .nadplata-effect-select {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="%238b7d47" d="M0 2l4 4 4-4z"/></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
+    background-size: 8px 8px !important;
+}
+
+.dark-mode .harmonogram th {
+    background-color: var(--accent-gradient-start) !important;
+    color: #000000 !important;
+}
+
+.dark-mode .harmonogram td {
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* R E S P O N S I W N O Ś Ć */
+@media (max-width: 767px) {
+    .container {
+        padding: 10px;
+        margin-top: 20px;
+    }
+
+    .form-row,
+    .fields-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .form-group {
+        min-width: 110px;
+        max-width: 110px;
+    }
+
+    .input-group {
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .fields-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group {
+        min-width: 105px;
+        max-width: 105px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .input-group {
+        width: 105px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .nadplata-type-select,
+    .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
+        width: 105px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group {
+        min-width: 150px;
+        max-width: 150px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .input-group {
+        width: 150px;
+    }
+
+    .chart-container {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 575px) {
+    .logo-container {
+        padding: 10px;
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
+    }
+
+    .logo,
+    #siteLogo {
+        max-width: 150px;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        display: block;
+    }
+
+    .header-row h4,
+    .result-header h4 {
+        font-size: 1em;
+    }
+
+    .result-wrapper-chart h5,
+    .result-wrapper-harmonogram h5 {
+        font-size: 0.9em;
+    }
+
+    .chart-legend {
+        gap: 5px;
+    }
+
+    .summary-footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .form-group {
+        min-width: 148px;
+        max-width: 148px;
+    }
+
+    .input-group {
+        width: 148px;
+    }
+
+    .form-select {
+        width: 148px;
+    }
+
+    .form-range {
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .fields-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group {
+        min-width: 148px;
+        max-width: 148px;
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .input-group {
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .nadplata-type-select,
+    .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group {
+        min-width: 148px;
+        max-width: 148px;
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .input-group {
+        width: 148px;
+    }
+
+    .chart-container {
+        max-width: 100%;
+    }
+}
