@@ -56,6 +56,8 @@ const state = {
 
 let creditChart = null;
 
+// F U N K C J E    O G Ó L N E
+
 function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
     try {
         const parsedValue = parseFloat(input?.value) || 0;
@@ -130,35 +132,202 @@ function updateKwotaInfo() {
     }
 }
 
-function updateRatesArray(ratesArray, group, type) {
-    try {
-        ratesArray.length = 0;
-        const groups = (group ? group.parentElement : document.getElementById(`${type === "oprocentowanie" ? "variableOprocentowanie" : "nadplataKredytu"}Wrapper`)).querySelectorAll(".variable-input-group");
-        groups.forEach(g => {
-            const periodInput = g.querySelector(".variable-cykl");
-            const valueInput = g.querySelector(".variable-rate");
-            const period = parseInt(periodInput?.value) || 0;
-            const value = parseFloat(valueInput?.value) || 0;
+// F U N K C J E    N A D P Ł A T A     K R E D Y T U
 
-            if (period > 0 && value > 0) {
-                if (type === "oprocentowanie") {
-                    ratesArray.push({ period, value });
-                } else if (type === "nadplata") {
-                    const typeSelect = g.querySelector(".nadplata-type-select");
-                    const effectSelect = g.querySelector(".nadplata-effect-select");
-                    ratesArray.push({
+function createNadplataKredytuGroup() {
+    const group = document.createElement("div");
+    group.classList.add("variable-input-group");
+    group.setAttribute("data-type", "nadplata");
+    group.innerHTML = `
+        <div class="fields-wrapper">
+            <div class="form-row">
+                <div class="form-group box-select">
+                    <label class="form-label">Typ nadpłaty</label>
+                    <select class="form-select nadplata-type-select">
+                        <option value="Jednorazowa">Jednorazowa</option>
+                        <option value="Miesięczna">Miesięczna</option>
+                        <option value="Kwartalna">Kwartalna</option>
+                        <option value="Roczna">Roczna</option>
+                    </select>
+                </div>
+                <div class="form-group box-select">
+                    <label class="form-label">Efekt nadpłaty</label>
+                    <select class="form-select nadplata-effect-select">
+                        <option value="Skróć okres">Skróć okres</option>
+                        <option value="Zmniejsz ratę">Zmniejsz ratę</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group box-amount">
+                    <label class="form-label">Kwota nadpłaty</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control variable-rate" min="0" max="1000000" step="1" value="1000">
+                        <span class="input-group-text unit-zl">zł</span>
+                    </div>
+                    <input type="range" class="form-range range-slider variable-rate-range" min="0" max="1000000" step="1" value="1000">
+                </div>
+                <div class="form-group box-period">
+                    <label class="form-label">W</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control variable-cykl" min="1" max="419" step="1" value="1">
+                        <span class="input-group-text unit-miesiacu">miesiącu</span>
+                    </div>
+                    <input type="range" class="form-range range-slider variable-cykl-range" min="1" max="419" step="1" value="1">
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger remove-btn" aria-label="Usuń nadpłatę">Usuń</button>
+        </div>
+    `;
+    return group;
+}
+
+function initializeNadplataKredytuGroup(group) {
+    const kwota = parseFloat(elements.kwota?.value) || 500000;
+    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
+
+    const inputs = group.querySelectorAll(".form-control");
+    const ranges = group.querySelectorAll(".form-range");
+    const typeSelect = group.querySelector(".nadplata-type-select");
+    const effectSelect = group.querySelector(".nadplata-effect-select");
+    const removeBtn = group.querySelector(".remove-btn");
+
+    inputs.forEach((input, index) => {
+        const range = ranges[index];
+        if (input.classList.contains("variable-cykl")) {
+            input.max = iloscRat - 1;
+            range.max = iloscRat - 1;
+            syncInputWithRange(input, range);
+        } else if (input.classList.contains("variable-rate")) {
+            input.max = kwota;
+            range.max = kwota;
+            syncInputWithRange(input, range);
+        }
+
+        input.addEventListener("input", () => {
+            syncInputWithRange(input, range);
+            updateRatesArray("nadplata");
+        });
+
+        range.addEventListener("input", () => {
+            input.value = range.value;
+            updateRatesArray("nadplata");
+        });
+    });
+
+    typeSelect?.addEventListener("change", () => updateRatesArray("nadplata"));
+    effectSelect?.addEventListener("change", () => updateRatesArray("nadplata"));
+
+    removeBtn?.addEventListener("click", () => {
+        group.remove();
+        updateRatesArray("nadplata");
+    });
+}
+
+function updateRatesArray(type) {
+    try {
+        if (type === "oprocentowanie") {
+            state.variableRates.length = 0;
+            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+            groups.forEach(group => {
+                const periodInput = group.querySelector(".variable-cykl");
+                const valueInput = group.querySelector(".variable-rate");
+                const period = parseInt(periodInput?.value) || 0;
+                const value = parseFloat(valueInput?.value) || 0;
+                if (period > 0 && value > 0) {
+                    state.variableRates.push({ period, value });
+                }
+            });
+        } else if (type === "nadplata") {
+            state.overpaymentRates.length = 0;
+            const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+            groups.forEach(group => {
+                const periodInput = group.querySelector(".variable-cykl");
+                const valueInput = group.querySelector(".variable-rate");
+                const typeSelect = group.querySelector(".nadplata-type-select");
+                const effectSelect = group.querySelector(".nadplata-effect-select");
+                const period = parseInt(periodInput?.value) || 0;
+                const value = parseFloat(valueInput?.value) || 0;
+                if (period > 0 && value > 0) {
+                    state.overpaymentRates.push({
                         period,
                         value,
                         type: typeSelect?.value || "Jednorazowa",
                         effect: effectSelect?.value || "Skróć okres",
                     });
                 }
-            }
-        });
+            });
+        }
     } catch (error) {
         console.error("Błąd podczas aktualizacji tablicy stawek:", error);
     }
 }
+
+// F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
+
+function createVariableOprocentowanieGroup() {
+    const group = document.createElement("div");
+    group.classList.add("variable-input-group");
+    group.setAttribute("data-type", "oprocentowanie");
+    group.innerHTML = `
+        <div class="fields-wrapper">
+            <div class="form-group box-period">
+                <label class="form-label">Od</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-cykl" min="2" max="420" step="1" value="2">
+                    <span class="input-group-text unit-miesiaca">miesiąca</span>
+                </div>
+                <input type="range" class="form-range range-slider variable-cykl-range" min="2" max="420" step="1" value="2">
+            </div>
+            <div class="form-group box-rate">
+                <label class="form-label">Oprocentowanie</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
+                    <span class="input-group-text">%</span>
+                </div>
+                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.1" value="7">
+            </div>
+            <button type="button" class="btn btn-danger remove-btn" aria-label="Usuń oprocentowanie">Usuń</button>
+        </div>
+    `;
+    return group;
+}
+
+function initializeVariableOprocentowanieGroup(group) {
+    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
+
+    const inputs = group.querySelectorAll(".form-control");
+    const ranges = group.querySelectorAll(".form-range");
+    const removeBtn = group.querySelector(".remove-btn");
+
+    inputs.forEach((input, index) => {
+        const range = ranges[index];
+        if (input.classList.contains("variable-cykl")) {
+            input.max = iloscRat;
+            range.max = iloscRat;
+            syncInputWithRange(input, range);
+        } else if (input.classList.contains("variable-rate")) {
+            syncInputWithRange(input, range);
+        }
+
+        input.addEventListener("input", () => {
+            syncInputWithRange(input, range);
+            updateRatesArray("oprocentowanie");
+        });
+
+        range.addEventListener("input", () => {
+            input.value = range.value;
+            updateRatesArray("oprocentowanie");
+        });
+    });
+
+    removeBtn?.addEventListener("click", () => {
+        group.remove();
+        updateRatesArray("oprocentowanie");
+    });
+}
+
+// F U N K C J E    O B L I C Z E N I A    K R E D Y T U
 
 function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, nadplata, activeOverpayment, rodzajRat) {
     let odsetki = pozostalyKapital * currentOprocentowanie;
@@ -286,6 +455,8 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
         return null;
     }
 }
+
+// F U N K C J E    W Y N I K I    I    W Y K R E S Y
 
 function updateChart(data) {
     try {
@@ -451,6 +622,8 @@ function generatePDF(data) {
     }
 }
 
+// F U N K C J E    I N T E R F E J S U
+
 function showResults() {
     try {
         if (elements.formSection) elements.formSection.style.display = "none";
@@ -512,22 +685,32 @@ function toggleDarkMode() {
     }
 }
 
-// Inicjalizacja aplikacji
+// I N I C J A L I Z A C J A    A P L I K A C J I
+
 document.addEventListener("DOMContentLoaded", () => {
     try {
+        // Inicjalizacja pól głównych
         elements.kwota?.addEventListener("input", () => {
             syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                input.max = elements.kwota.value;
+                input.nextElementSibling.nextElementSibling.max = elements.kwota.value;
+            });
         });
         elements.kwotaRange?.addEventListener("input", () => {
             elements.kwota.value = elements.kwotaRange.value;
             updateKwotaInfo();
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                input.max = elements.kwota.value;
+                input.nextElementSibling.nextElementSibling.max = elements.kwota.value;
+            });
         });
 
         elements.iloscRat?.addEventListener("input", () => {
             syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = elements.iloscRat.value;
-                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value;
+                input.max = elements.iloscRat.value - 1;
+                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value - 1;
             });
             elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                 input.max = elements.iloscRat.value;
@@ -538,8 +721,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.value = elements.iloscRatRange.value;
             updateLata();
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = elements.iloscRat.value;
-                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value;
+                input.max = elements.iloscRat.value - 1;
+                input.nextElementSibling.nextElementSibling.max = elements.iloscRat.value - 1;
             });
             elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                 input.max = elements.iloscRat.value;
@@ -564,78 +747,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.jednostkaProwizji?.addEventListener("change", updateProwizjaInfo);
 
-        // Obsługa pól nadpłaty kredytu
+        // Inicjalizacja sekcji Nadpłata Kredytu
         elements.nadplataKredytuBtn?.addEventListener("change", () => {
             const isChecked = elements.nadplataKredytuBtn.checked;
             elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
         });
 
-        // Obsługa pól zmiennego oprocentowania
+        elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group").forEach(group => {
+            initializeNadplataKredytuGroup(group);
+        });
+
+        elements.addNadplataKredytuBtn?.addEventListener("click", () => {
+            const newGroup = createNadplataKredytuGroup();
+            elements.nadplataKredytuWrapper.appendChild(newGroup);
+            initializeNadplataKredytuGroup(newGroup);
+        });
+
+        // Inicjalizacja sekcji Zmienne Oprocentowanie
         elements.zmienneOprocentowanieBtn?.addEventListener("change", () => {
             const isChecked = elements.zmienneOprocentowanieBtn.checked;
             elements.variableOprocentowanieInputs.classList.toggle("active", isChecked);
         });
 
-        // Obsługa zdarzeń dla statycznych pól nadpłaty
-        elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group").forEach(group => {
-            const inputs = group.querySelectorAll(".form-control");
-            const ranges = group.querySelectorAll(".form-range");
-            const typeSelect = group.querySelector(".nadplata-type-select");
-            const effectSelect = group.querySelector(".nadplata-effect-select");
-
-            inputs.forEach((input, index) => {
-                const range = ranges[index];
-                if (input.classList.contains("variable-cykl")) {
-                    input.max = elements.iloscRat.value;
-                    range.max = elements.iloscRat.value;
-                    syncInputWithRange(input, range);
-                } else if (input.classList.contains("variable-rate")) {
-                    range.max = parseFloat(elements.kwota.value) || 500000;
-                    syncInputWithRange(input, range);
-                }
-
-                input.addEventListener("input", () => {
-                    syncInputWithRange(input, range);
-                    updateRatesArray(state.overpaymentRates, group, "nadplata");
-                });
-
-                range.addEventListener("input", () => {
-                    input.value = range.value;
-                    updateRatesArray(state.overpaymentRates, group, "nadplata");
-                });
-            });
-
-            typeSelect?.addEventListener("change", () => updateRatesArray(state.overpaymentRates, group, "nadplata"));
-            effectSelect?.addEventListener("change", () => updateRatesArray(state.overpaymentRates, group, "nadplata"));
-        });
-
-        // Obsługa zdarzeń dla statycznych pól zmiennego oprocentowania
         elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group").forEach(group => {
-            const inputs = group.querySelectorAll(".form-control");
-            const ranges = group.querySelectorAll(".form-range");
-
-            inputs.forEach((input, index) => {
-                const range = ranges[index];
-                if (input.classList.contains("variable-cykl")) {
-                    input.max = elements.iloscRat.value;
-                    range.max = elements.iloscRat.value;
-                    syncInputWithRange(input, range);
-                } else if (input.classList.contains("variable-rate")) {
-                    syncInputWithRange(input, range);
-                }
-
-                input.addEventListener("input", () => {
-                    syncInputWithRange(input, range);
-                    updateRatesArray(state.variableRates, group, "oprocentowanie");
-                });
-
-                range.addEventListener("input", () => {
-                    input.value = range.value;
-                    updateRatesArray(state.variableRates, group, "oprocentowanie");
-                });
-            });
+            initializeVariableOprocentowanieGroup(group);
         });
 
+        elements.addVariableOprocentowanieBtn?.addEventListener("click", () => {
+            const newGroup = createVariableOprocentowanieGroup();
+            elements.variableOprocentowanieWrapper.appendChild(newGroup);
+            initializeVariableOprocentowanieGroup(newGroup);
+        });
+
+        // Przycisk Oblicz
         elements.obliczBtn?.addEventListener("click", () => {
             state.lastFormData = {
                 kwota: parseFloat(elements.kwota?.value) || 500000,
