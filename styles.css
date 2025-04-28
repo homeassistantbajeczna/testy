@@ -314,25 +314,26 @@ body {
     flex-direction: column;
     gap: 15px;
     justify-content: center;
-    min-width: 315px; /* Minimalna szerokość dla 2 boxów (150px każdy) + odstęp (15px) */
+    min-width: 480px; /* Minimalna szerokość dla 3 boxów (150px każdy) + odstępy (2 x 15px) */
 }
 
-.variable-input-group[data-type="nadplata"] .form-group {
-    min-width: 150px;
-    max-width: 150px;
-    flex: none;
+/* Kontener dla górnego wiersza */
+.variable-input-group[data-type="nadplata"] .form-row-container {
+    display: flex;
+    justify-content: center;
+    width: 315px; /* Stała szerokość dla 2 boxów (150px każdy) + odstęp (15px) */
 }
 
 /* Górny wiersz: TYP NADPŁATY i EFEKT NADPŁATY */
-.variable-input-group[data-type="nadplata"] .form-row:first-child {
+.variable-input-group[data-type="nadplata"] .form-row-container .form-row {
     display: flex;
-    justify-content: center; /* Wyrównanie do środka */
+    justify-content: space-between; /* Równomierne rozmieszczenie */
     gap: 15px;
     flex-wrap: nowrap; /* Zapobiega zawijaniu */
-    width: auto; /* Dopasowuje się do zawartości */
+    width: 100%; /* Zajmuje pełną szerokość .form-row-container */
 }
 
-.variable-input-group[data-type="nadplata"] .form-row:first-child .form-group.box-select {
+.variable-input-group[data-type="nadplata"] .form-row-container .form-group.box-select {
     flex: 0 0 150px; /* Stała szerokość */
     max-width: 150px;
     min-width: 150px;
