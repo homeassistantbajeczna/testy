@@ -16,12 +16,14 @@
     --input-group-bg: #f5f5f5;
     --range-track: #d3d3d3;
     --harmonogram-bg: #f9f9f9;
-    --small-font-size: 0.7em;
+    --small-font-size: 11px; /* Było 0.7em, czyli ok. 11.2px */
     --border-radius: 8px;
     --range-bg: #e5e5e5;
     --range-border-light: #999999; /* Jaśniejszy szary dla trybu jasnego */
     --range-border-dark: #ffffff; /* Biały dla trybu ciemnego */
 }
+
+
 
 /* R E S E T   I   B A Z A */
 *,
@@ -34,15 +36,17 @@ body {
     margin: 0;
     background-color: var(--primary-bg);
     font-family: 'Montserrat', sans-serif;
-    font-size: var(--bs-body-font-size, 1rem);
-    font-weight: var(--bs-body-font-weight, 400);
-    line-height: var(--bs-body-line-height, 1.5);
+    font-size: 16px; /* Było 1rem, dla pewności ustawiamy 16px */
+    font-weight: 400;
+    line-height: 1.5;
     color: var(--primary-text);
-    text-align: var(--bs-body-text-align, left);
+    text-align: left;
     padding: 10px;
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
 }
+
+
 
 /* K O N T E N E R Y */
 .container,
@@ -108,6 +112,8 @@ body {
     max-width: 1000px;
 }
 
+
+
 /* L O G O   I   N A G Ł Ó W E K */
 .logo-container {
     background-color: var(--logo-bg);
@@ -159,7 +165,7 @@ body {
 .header-row h4,
 .result-header h4 {
     font-weight: 700;
-    font-size: 1.2em;
+    font-size: 19px; /* Było 1.2em, czyli ok. 19.2px */
     text-align: center;
     margin: 0;
 }
@@ -167,10 +173,12 @@ body {
 .result-wrapper-chart h5,
 .result-wrapper-harmonogram h5 {
     font-weight: 700;
-    font-size: 1em;
+    font-size: 16px; /* Było 1em, czyli 16px */
     margin-bottom: 10px;
     text-align: center;
 }
+
+
 
 /* C H E C K B O X Y */
 .checkbox-row {
@@ -188,7 +196,7 @@ body {
     align-items: center;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
-    font-size: clamp(0.65em, 1vw, var(--small-font-size));
+    font-size: 11px; /* Było clamp(0.65em, 1vw, var(--small-font-size)) */
     cursor: pointer;
     position: relative;
     margin: 5px 10px;
@@ -237,6 +245,8 @@ body {
     opacity: 1;
 }
 
+
+
 /* F O R M U L A R Z */
 .form-row,
 .fields-wrapper {
@@ -265,7 +275,7 @@ body {
 
 .form-label,
 .variable-input-group .form-label {
-    font-size: var(--small-font-size);
+    font-size: 11px; /* Użyto --small-font-size */
     text-transform: uppercase;
     margin-bottom: 2px;
     text-align: left;
@@ -337,6 +347,8 @@ body {
     flex: none;
 }
 
+
+
 /* I N P U T Y   I   S E L E C T Y */
 .input-group {
     width: 150px;
@@ -350,7 +362,7 @@ body {
 
 .form-control {
     height: 22px;
-    font-size: var(--small-font-size);
+    font-size: 11px; /* Użyto --small-font-size */
     padding: 2px;
     text-align: center;
     background: var(--input-bg);
@@ -366,7 +378,7 @@ body {
 
 .input-group-text {
     height: 22px;
-    font-size: var(--small-font-size);
+    font-size: 11px; /* Użyto --small-font-size */
     padding: 2px 5px;
     text-align: center;
     background: var(--input-group-bg);
@@ -411,7 +423,7 @@ body {
 .box-select .form-select {
     width: 150px; /* Taka sama szerokość jak inne boxy z jednostką */
     height: 22px;
-    font-size: 0.5em; /* Zwiększona czcionka o 2px (z 0.4em do 0.5em) */
+    font-size: 8px; /* Było 0.5em, czyli 8px */
     padding: 2px 12px 2px 4px;
     text-align: center;
     background-color: var(--input-bg);
@@ -430,7 +442,7 @@ body {
 
 .box-fee .input-group .form-select.jednostka-select {
     height: 22px;
-    font-size: 0.5em; /* Zwiększona czcionka */
+    font-size: 8px; /* Było 0.5em, czyli 8px */
     padding: 2px 12px 2px 4px;
     text-align: center;
     background-color: var(--input-bg);
@@ -476,12 +488,14 @@ body {
     background-size: 8px 8px;
 }
 
+
+
 /* S U W A K I */
 .range-slider {
     margin-top: 5px;
     height: 6px;
     border: 2px solid var(--range-border-light); /* Jaśniejszy szary w trybie jasnym */
-    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
+    border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
     appearance: none;
     width: 100%;
     margin-left: auto;
@@ -496,7 +510,7 @@ body {
     background: var(--input-group-bg);
     height: 6px;
     border: none;
-    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Dopasowane do border-radius */
+    border-radius: var(--border-radius); /* Wszystkie krawędzie zaokrąglone */
 }
 
 .range-slider::-ms-track {
@@ -530,12 +544,12 @@ body {
 .range-slider::-ms-fill-lower {
     background: var(--accent-gradient-start);
     height: 6px;
-    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    border-radius: var(--border-radius);
 }
 
 .range-slider::-ms-fill-upper {
     background: var(--input-group-bg);
-    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    border-radius: var(--border-radius);
 }
 
 .range-slider:focus::-webkit-slider-thumb,
@@ -555,14 +569,18 @@ body {
     transform: translateY(-1px) scale(1.1);
 }
 
+
+
 /* O P I S Y   I   D A N E */
 .sub-info {
-    font-size: 0.4em;
+    font-size: 6px; /* Było 0.4em, czyli ok. 6.4px */
     margin-top: 2px;
     text-align: left;
     align-self: flex-start;
     width: 100%;
 }
+
+
 
 /* W Y N I K I   I   H A R M O N O G R A M */
 .harmonogram {
@@ -587,7 +605,7 @@ body {
 
 .harmonogram table {
     width: 100%;
-    font-size: 0.8em;
+    font-size: 13px; /* Było 0.8em, czyli ok. 12.8px */
     border-collapse: collapse;
     margin-top: 10px;
 }
@@ -605,6 +623,8 @@ body {
     text-align: center;
     border-bottom: 1px solid var(--border-color);
 }
+
+
 
 /* W Y K R E S */
 .chart-container {
@@ -645,8 +665,10 @@ body {
 }
 
 .legend-text {
-    font-size: 0.7em;
+    font-size: 11px; /* Było 0.7em, czyli ok. 11.2px */
 }
+
+
 
 /* P O D S U M O W A N I E */
 .summary-footer {
@@ -658,7 +680,7 @@ body {
 }
 
 .highlight {
-    font-size: 0.7em;
+    font-size: 11px; /* Było 0.7em, czyli ok. 11.2px */
     padding: 5px 10px;
     border-radius: 5px;
     position: relative;
@@ -671,6 +693,8 @@ body {
 .highlight.green {
     background-color: var(--highlight-green);
 }
+
+
 
 /* P R Z Y C I S K I */
 /* Wspólne style dla wszystkich przycisków */
@@ -685,7 +709,7 @@ body {
 
 /* Przycisk główny ("Oblicz") */
 .btn-primary {
-    font-size: 0.9em;
+    font-size: 14px; /* Było 0.9em, czyli ok. 14.4px */
     height: 35px;
     min-width: 140px;
     padding: 5px 12px;
@@ -702,7 +726,7 @@ body {
 
 /* Przyciski funkcyjne ("Dodaj kolejną...", "Generuj PDF", "Powrót do edycji") */
 .btn-functional {
-    font-size: 0.625em;
+    font-size: 10px; /* Było 0.625em, czyli ok. 10px */
     height: 25px;
     padding: 5px 12px;
     border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
@@ -718,7 +742,7 @@ body {
 
 /* Przycisk reset ("Usuń") */
 .btn-reset {
-    font-size: 0.625em;
+    font-size: 10px; /* Było 0.625em, czyli ok. 10px */
     height: 25px;
     padding: 5px 12px;
     border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
@@ -740,7 +764,7 @@ body {
     border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Lewy górny i prawy dolny zaokrąglone */
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     color: #000000;
-    font-size: 0.9em;
+    font-size: 14px; /* Było 0.9em, czyli ok. 14.4px */
 }
 
 .btn-additional:hover {
@@ -756,6 +780,8 @@ body {
     justify-content: center;
     margin-top: 5px;
 }
+
+
 
 /* D A R K   M O D E */
 .dark-mode {
@@ -816,7 +842,7 @@ body {
 .dark-mode .range-slider::-moz-range-track,
 .dark-mode .range-slider::-ms-track {
     background: var(--input-group-bg);
-    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    border-radius: var(--border-radius);
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb,
@@ -848,12 +874,12 @@ body {
 .dark-mode .range-slider::-ms-fill-lower {
     background: var(--accent-gradient-start);
     height: 6px;
-    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    border-radius: var(--border-radius);
 }
 
 .dark-mode .range-slider::-ms-fill-upper {
     background: var(--input-group-bg);
-    border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    border-radius: var(--border-radius);
 }
 
 .dark-mode .box-select .form-select,
@@ -873,7 +899,9 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-/* R E S P O N S I W N O Ś Ć */
+
+
+/* R E S P O N S Y W N O Ś Ć */
 @media (max-width: 575px) {
     .logo-container {
         padding: 10px;
@@ -891,12 +919,12 @@ body {
 
     .header-row h4,
     .result-header h4 {
-        font-size: 1em;
+        font-size: 16px; /* Zmniejszone z 19px */
     }
 
     .result-wrapper-chart h5,
     .result-wrapper-harmonogram h5 {
-        font-size: 0.9em;
+        font-size: 14px; /* Zmniejszone z 16px */
     }
 
     .chart-legend {
