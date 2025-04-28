@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Kredytu Hipotecznego</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYm
-
-Dr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -133,7 +131,7 @@ Dr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
                                         <label class="form-label">Od którego miesiaca</label>
                                         <div class="input-group">
                                             <input type="number" class="form-control variable-cykl" min="2" step="1">
-                                            <span class="input-group-text unit-miesiacu">miesiąca</span>
+                                            <span class="input-group-text unit-miesiaca">miesiąca</span>
                                         </div>
                                         <input type="range" class="form-range variable-cykl-range" min="2" step="1">
                                     </div>
@@ -223,25 +221,25 @@ Dr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
                         </div>
                         <div class="chart-legend">
                             <div class="legend-item" data-index="0">
-                                <div class="color-box" style="background-color: #28a745;" data-tooltip="Kapitał: -">
+                                <div class="color-box" style="background-color: #28a745;">
                                     <span class="value" id="valueKapital">-</span>
                                 </div>
                                 <span class="legend-text">Kapitał</span>
                             </div>
                             <div class="legend-item" data-index="1">
-                                <div class="color-box" style="background-color: #007bff;" data-tooltip="Odsetki: -">
+                                <div class="color-box" style="background-color: #007bff;">
                                     <span class="value" id="valueOdsetki">-</span>
                                 </div>
                                 <span class="legend-text">Odsetki</span>
                             </div>
                             <div class="legend-item" data-index="2">
-                                <div class="color-box" style="background-color: #dc3545;" data-tooltip="Nadpłaty: -">
+                                <div class="color-box" style="background-color: #dc3545;">
                                     <span class="value" id="valueNadplata">-</span>
                                 </div>
                                 <span class="legend-text">Nadpłaty</span>
                             </div>
                             <div class="legend-item" data-index="3">
-                                <div class="color-box" style="background-color: #6f42c1;" data-tooltip="Prowizja: -">
+                                <div class="color-box" style="background-color: #6f42c1;">
                                     <span class="value" id="valueProwizja">-</span>
                                 </div>
                                 <span class="legend-text">Prowizja</span>
@@ -249,8 +247,8 @@ Dr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
                         </div>
                     </div>
                     <div class="summary-footer">
-                        <span class="highlight yellow" data-hover="360 miesięcy">Okres kredytowania: <span id="okresPoNadplacie">-</span> mc-y</span>
-                        <span class="highlight green" data-hover="">Całkowita kwota spłaty: <span id="koszt">-</span> zł</span>
+                        <span class="highlight yellow">Okres kredytowania: <span id="okresPoNadplacie">-</span> mc-y</span>
+                        <span class="highlight green">Całkowita kwota spłaty: <span id="koszt">-</span> zł</span>
                     </div>
                 </div>
             </div>
