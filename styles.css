@@ -314,18 +314,22 @@ body {
     flex-direction: column;
     gap: 15px;
     justify-content: center;
-    width: 495px; /* Stała szerokość dla 3 boxów (150px każdy) + odstępy (15px * 2) */
-    min-width: 495px;
-    max-width: 495px;
+    min-width: 315px; /* Minimalna szerokość dla 2 boxów (150px każdy) + odstęp (15px) */
+}
+
+.variable-input-group[data-type="nadplata"] .form-group {
+    min-width: 150px;
+    max-width: 150px;
+    flex: none;
 }
 
 /* Górny wiersz: TYP NADPŁATY i EFEKT NADPŁATY */
 .variable-input-group[data-type="nadplata"] .form-row:first-child {
     display: flex;
-    justify-content: space-between; /* Równomierne rozmieszczenie */
+    justify-content: center; /* Wyrównanie do środka */
     gap: 15px;
     flex-wrap: nowrap; /* Zapobiega zawijaniu */
-    width: 100%; /* Zajmuje pełną szerokość .fields-wrapper */
+    width: auto; /* Dopasowuje się do zawartości */
 }
 
 .variable-input-group[data-type="nadplata"] .form-row:first-child .form-group.box-select {
@@ -337,10 +341,10 @@ body {
 /* Dolny wiersz: KWOTA NADPŁATY, OD, DO */
 .variable-input-group[data-type="nadplata"] .form-row:nth-child(2) {
     display: flex;
-    justify-content: flex-start; /* Wyrównanie do lewej */
+    justify-content: center; /* Wyrównanie do środka */
     gap: 15px;
     flex-wrap: nowrap; /* Wszystkie boxy w jednej linii */
-    width: 100%; /* Zajmuje pełną szerokość .fields-wrapper */
+    width: auto; /* Dopasowuje się do zawartości */
 }
 
 .variable-input-group[data-type="nadplata"] .form-row:nth-child(2) .form-group {
