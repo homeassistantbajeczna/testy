@@ -816,6 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const isChecked = elements.nadplataKredytuBtn.checked;
             elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
             if (isChecked) {
+                resetNadplataKredytuSection(); // Resetuj sekcję przed dodaniem nowego wiersza
                 const newGroup = createNadplataKredytuGroup();
                 elements.nadplataKredytuWrapper.appendChild(newGroup);
                 initializeNadplataKredytuGroup(newGroup);
@@ -837,6 +838,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const isChecked = elements.zmienneOprocentowanieBtn.checked;
             elements.variableOprocentowanieInputs.classList.toggle("active", isChecked);
             if (isChecked) {
+                resetVariableOprocentowanieSection(); // Resetuj sekcję przed dodaniem nowego wiersza
                 const newGroup = createVariableOprocentowanieGroup();
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
@@ -919,6 +921,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 elements.toggleDarkModeBtn.textContent = "☀️";
             }
         }
+
+        // Reset sekcji na starcie, aby usunąć domyślne wiersze
+        resetNadplataKredytuSection();
+        resetVariableOprocentowanieSection();
 
         updateKwotaInfo();
         updateLata();
