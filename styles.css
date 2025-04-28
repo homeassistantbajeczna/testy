@@ -946,16 +946,6 @@ input[type="range"].form-range:focus::-ms-thumb {
 }
 
 /* R E S P O N S I W N O Ś Ć */
-@media (max-width: 991px) {
-    .result-container {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .result-wrapper-chart {
-        max-width: 100%;
-    }
-}
 
 @media (max-width: 767px) {
     .container {
@@ -1042,5 +1032,59 @@ input[type="range"].form-range:focus::-ms-thumb {
         flex-direction: column;
         align-items: center;
         gap: 5px;
+    }
+
+    .form-group {
+        min-width: 148px;
+        max-width: 148px;
+    }
+
+    .input-group {
+        width: 148px;
+    }
+
+    .form-select {
+        width: 148px;
+    }
+
+    .form-range {
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .fields-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .variable-input-group[data-type="nadplata"] .form-group {
+        min-width: 148px;
+        max-width: 148px;
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .input-group {
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="nadplata"] .nadplata-type-select,
+    .variable-input-group[data-type="nadplata"] .nadplata-effect-select {
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .fields-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .form-group {
+        min-width: 148px;
+        max-width: 148px;
+        width: 148px;
+    }
+
+    .variable-input-group[data-type="oprocentowanie"] .input-group {
+        width: 148px;
+    }
+
+    .chart-container {
+        max-width: 100%;
     }
 }
