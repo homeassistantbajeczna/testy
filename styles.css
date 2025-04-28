@@ -562,25 +562,32 @@ body {
     position: relative; /* Umożliwia pozycjonowanie pseudo-elementów */
 }
 
-/* Dodanie zaokrąglonych krawędzi na końcach toru suwaka */
+/* Dodanie krawędzi w kształcie półksiężyca na końcach toru suwaka */
 .range-slider::before,
 .range-slider::after {
     content: '';
     position: absolute;
-    width: 6px; /* Szerokość krawędzi (taka sama jak wysokość toru, aby była okrągła) */
+    width: 3px; /* Szerokość półksiężyca (połowa wysokości toru) */
     height: 6px; /* Wysokość toru suwaka */
-    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w klikaczu */
-    border-radius: 50%; /* Okrągły kształt */
+    background: var(--range-border-light); /* Kolor w trybie jasnym (#999999) */
     top: 50%;
     transform: translateY(-50%);
 }
 
 .range-slider::before {
     left: 0; /* Lewa krawędź */
+    border-top-left-radius: 3px; /* Zaokrąglenie po lewej stronie */
+    border-bottom-left-radius: 3px;
+    border-top-right-radius: 0; /* Brak zaokrąglenia po prawej stronie */
+    border-bottom-right-radius: 0;
 }
 
 .range-slider::after {
     right: 0; /* Prawa krawędź */
+    border-top-right-radius: 3px; /* Zaokrąglenie po prawej stronie */
+    border-bottom-right-radius: 3px;
+    border-top-left-radius: 0; /* Brak zaokrąglenia po lewej stronie */
+    border-bottom-left-radius: 0;
 }
 
 /* Stylizacja klikacza (thumb) */
@@ -775,14 +782,6 @@ body {
     gap: 10px;
 }
 
-.summary-footer {
-    display: flex;
-    justify-content: space-around;
-    margin-top: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
 .highlight {
     font-size: 11px; /* Było 0.7em, czyli ok. 11.2px */
     padding: 5px 10px;
@@ -959,7 +958,7 @@ body {
 
 .dark-mode .range-slider::before,
 .dark-mode .range-slider::after {
-    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient w trybie ciemnym */
+    background: var(--range-border-dark); /* Kolor w trybie ciemnym (#ffffff) */
 }
 
 .dark-mode .range-slider::-webkit-slider-thumb {
