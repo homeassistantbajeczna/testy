@@ -780,13 +780,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elements.kwota) {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
-            elements.kwota.step = 0.01;
+            elements.kwota.step = 100; // Zmiana kroku na 100
             elements.kwota.value = 500000; // Domyślna wartość
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
             elements.kwotaRange.max = 5000000;
-            elements.kwotaRange.step = 0.01;
+            elements.kwotaRange.step = 100; // Zmiana kroku na 100
             elements.kwotaRange.value = 500000; // Domyślna wartość
         }
 
@@ -866,9 +866,16 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRatRange.value = 360; // Domyślna wartość
         }
 
+        // Zablokowanie wprowadzania przecinka i kropki
+        elements.iloscRat?.addEventListener("keydown", (event) => {
+            if (event.key === "," || event.key === ".") {
+                event.preventDefault();
+            }
+        });
+
         elements.iloscRat?.addEventListener("input", () => {
             let value = elements.iloscRat.value;
-            // Zablokowanie możliwości wprowadzania przecinka i kropki
+            // Dodatkowe zabezpieczenie na wypadek wklejenia wartości z przecinkiem lub kropką
             if (value.includes(",") || value.includes(".")) {
                 value = value.replace(/[,|.]/g, "");
                 elements.iloscRat.value = value;
@@ -994,16 +1001,56 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanie.value = parseFloat(elements.oprocentowanieRange.value).toFixed(2);
         });
 
-        // Inicjalizacja pozostałych pól
+        // Inicjalizacja boxa Prowizja
+        if (elements.prowizja) {
+            elements.prowizja.min = 0;
+            elements.prowizja.max = 25; // Początkowo w procentach
+            elements.prowizja.step = 0.1;
+            elements.prowizja.value = 2; // Domyślna wartość w procentach
+        }
+        if (elements.prowizjaRange) {
+            elements.prowizjaRange.min = 0;
+            elements.prowizjaRange.max = 25; // Początkowo w procentach
+            elements.prowizjaRange.step = 0.1;
+            elements.prowizjaRange.value = 2; // Domyślna wartość w procentach
+        }
+
         elements.prowizja?.addEventListener("input", () => {
+            let value = elements.prowizja.value;
+            // Zamiana przecinka na kropkę, jeśli użytkownik wpisuje przecinek
+            if (value.includes(",")) {
+                value = value.replace(",", ".");
+                elements.prowizja.value = value;
+            }
+            // Ograniczenie do dwóch miejsc po przecinku
+            if (value.includes(".")) {
+                const parts = value.split(".");
+                if (parts[1].length > 2) {
+                    value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                    elements.prowizja.value = value;
+                }
+            }
             syncInputWithRange(elements.prowizja, elements.prowizjaRange, updateProwizjaInfo);
         });
+
         elements.prowizjaRange?.addEventListener("input", () => {
-            elements.prowizja.value = elements.prowizjaRange.value;
+            elements.prowizja.value = parseFloat(elements.prowizjaRange.value).toFixed(2);
             updateProwizjaInfo();
         });
 
-        elements.jednostkaProwizji?.addEventListener("change", updateProwizjaInfo);
+        elements.jednostkaProwizji?.addEventListener("change", () => {
+            const jednostka = elements.jednostkaProwizji.value;
+            const kwota = parseFloat(elements.kwota?.value) || 0;
+            if (jednostka === "zl") {
+                // Ustawienie domyślnej wartości jako 2% kwoty kredytu
+                const defaultProwizjaZl = (2 / 100) * kwota;
+                elements.prowizja.value = defaultProwizjaZl.toFixed(2);
+            } else {
+                // Przywracamy domyślną wartość procentową (2%)
+                elements.prowizja.value = 2;
+            }
+            updateProwizjaInfo();
+        });
 
         // Inicjalizacja sekcji Nadpłata Kredytu
         elements.nadplataKredytuBtn?.addEventListener("change", () => {
