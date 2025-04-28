@@ -72,6 +72,21 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
     }
 }
 
+function validateKwota(value) {
+    let parsedValue = parseFloat(value) || 0;
+    // Ograniczenie do dwóch miejsc po przecinku
+    parsedValue = parseFloat(parsedValue.toFixed(2));
+    // Ustawienie minimalnej wartości na 50 000, jeśli wprowadzono mniej
+    if (parsedValue < 50000) {
+        parsedValue = 50000;
+    }
+    // Ustawienie maksymalnej wartości na 5 000 000, jeśli wprowadzono więcej
+    if (parsedValue > 5000000) {
+        parsedValue = 5000000;
+    }
+    return parsedValue;
+}
+
 function updateProwizjaInfo() {
     try {
         const prowizja = parseFloat(elements.prowizja?.value) || 0;
@@ -753,16 +768,47 @@ function toggleDarkMode() {
 
 document.addEventListener("DOMContentLoaded", () => {
     try {
-        // Inicjalizacja pól głównych
+        // Inicjalizacja boxa Kwota Kredytu
+        if (elements.kwota) {
+            elements.kwota.min = 1;
+            elements.kwota.max = 5000000;
+            elements.kwota.step = 0.01; // Umożliwia wprowadzanie wartości z dwoma miejscami po przecinku
+        }
+        if (elements.kwotaRange) {
+            elements.kwotaRange.min = 1;
+            elements.kwotaRange.max = 5000000;
+            elements.kwotaRange.step = 0.01;
+        }
+
         elements.kwota?.addEventListener("input", () => {
+            let value = elements.kwota.value;
+            // Ograniczenie do dwóch miejsc po przecinku podczas wpisywania
+            if (value.includes(".")) {
+                const parts = value.split(".");
+                if (parts[1].length > 2) {
+                    value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                    elements.kwota.value = value;
+                }
+            }
             syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
                 input.max = elements.kwota.value;
                 input.nextElementSibling.nextElementSibling.max = elements.kwota.value;
             });
         });
+
+        elements.kwota?.addEventListener("blur", () => {
+            let validatedValue = validateKwota(elements.kwota.value);
+            elements.kwota.value = validatedValue.toFixed(2); // Ustawienie wartości z dwoma miejscami po przecinku
+            syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                input.max = validatedValue;
+                input.nextElementSibling.nextElementSibling.max = validatedValue;
+            });
+        });
+
         elements.kwotaRange?.addEventListener("input", () => {
-            elements.kwota.value = elements.kwotaRange.value;
+            elements.kwota.value = parseFloat(elements.kwotaRange.value).toFixed(2);
             updateKwotaInfo();
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
                 input.max = elements.kwota.value;
@@ -770,6 +816,18 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
+        elements.kwotaRange?.addEventListener("change", () => {
+            let validatedValue = validateKwota(elements.kwotaRange.value);
+            elements.kwota.value = validatedValue.toFixed(2);
+            elements.kwotaRange.value = validatedValue;
+            updateKwotaInfo();
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach(input => {
+                input.max = validatedValue;
+                input.nextElementSibling.nextElementSibling.max = validatedValue;
+            });
+        });
+
+        // Inicjalizacja pozostałych pól
         elements.iloscRat?.addEventListener("input", () => {
             syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
@@ -816,7 +874,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const isChecked = elements.nadplataKredytuBtn.checked;
             elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
             if (isChecked) {
-                resetNadplataKredytuSection(); // Resetuj sekcję przed dodaniem nowego wiersza
+                resetNadplataKredytuSection();
                 const newGroup = createNadplataKredytuGroup();
                 elements.nadplataKredytuWrapper.appendChild(newGroup);
                 initializeNadplataKredytuGroup(newGroup);
@@ -838,7 +896,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const isChecked = elements.zmienneOprocentowanieBtn.checked;
             elements.variableOprocentowanieInputs.classList.toggle("active", isChecked);
             if (isChecked) {
-                resetVariableOprocentowanieSection(); // Resetuj sekcję przed dodaniem nowego wiersza
+                resetVariableOprocentowanieSection();
                 const newGroup = createVariableOprocentowanieGroup();
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
@@ -922,7 +980,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Reset sekcji na starcie, aby usunąć domyślne wiersze
         resetNadplataKredytuSection();
         resetVariableOprocentowanieSection();
 
