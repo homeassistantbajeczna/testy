@@ -779,13 +779,18 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 /* P R Z Y C I S K I */
 .btn {
-    font-size: 0.9em; /* Zwiększono z 0.7em */
-    padding: 6px 12px; /* Zwiększono z 5px 10px */
+    font-size: 0.9em;
+    padding: 5px 12px; /* Dostosowano padding, aby wysokość wynosiła 25px */
+    line-height: 1; /* Zapobiega zwiększaniu wysokości przez line-height */
+    height: 25px; /* Ustawiono dokładnie 25px */
     border-radius: var(--border-radius) 0 var(--border-radius) 0;
     transition: transform 0.2s ease, box-shadow 0.3s ease, scale 0.2s ease;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     border: none;
     color: #000000;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn:hover {
@@ -794,19 +799,30 @@ input[type="range"].form-range:focus::-ms-thumb {
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
+/* Wyjątek dla przycisku "Oblicz" */
+.btn[value="Oblicz"] {
+    padding: 6px 12px; /* Zachowano większy padding */
+    height: auto; /* Pozwala na większą wysokość */
+}
+
 .remove-btn-wrapper .btn-danger,
 .remove-first-btn-wrapper .btn-danger {
-    background: #dc3545 !important; /* Czerwony, bez gradientu */
+    background: #dc3545 !important;
     border: none;
     color: #ffffff;
-    font-size: 0.9em; /* Zmniejszono z 0.8em, dopasowano do .btn */
-    padding: 6px 12px; /* Zmniejszono z 6px 12px, dopasowano do .btn */
+    font-size: 0.9em;
+    padding: 5px 12px; /* Dostosowano padding, aby wysokość wynosiła 25px */
+    line-height: 1;
+    height: 25px;
     border-radius: var(--border-radius) 0 var(--border-radius) 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .remove-btn-wrapper .btn-danger:hover,
 .remove-first-btn-wrapper .btn-danger:hover {
-    background: #c82333 !important; /* Ciemniejszy czerwony przy hover */
+    background: #c82333 !important;
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -816,7 +832,7 @@ input[type="range"].form-range:focus::-ms-thumb {
     border: none;
     color: #000000;
     width: 25px;
-    height: 25px;
+    height: 25px; /* Już jest 25px, brak zmian */
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1017,14 +1033,14 @@ input[type="range"].form-range:focus::-ms-thumb {
 @media (max-width: 575px) {
     .logo-container {
         padding: 10px;
-        justify-content: flex-start !important; /* Przesunięcie logo na lewo */
-        align-items: flex-start !important; /* Wyrównanie do lewej strony */
+        justify-content: flex-start !important;
+        align-items: flex-start !important;
     }
 
     .logo,
     #siteLogo {
         max-width: 150px;
-        margin-left: 0 !important; /* Usunięcie automatycznego marginesu */
+        margin-left: 0 !important;
         margin-right: 0 !important;
         display: block;
     }
