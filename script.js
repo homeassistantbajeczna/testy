@@ -30,8 +30,8 @@ const elements = {
     koszt: document.getElementById("koszt"),
     variableOprocentowanieInputs: document.getElementById("variableOprocentowanieInputs"),
     nadplataKredytuInputs: document.getElementById("nadplataKredytuInputs"),
-    variableOprocentowanieWrapper: document.getElementById("variableOprocentowanieInputsWrapper"),
-    nadplataKredytuWrapper: document.getElementById("nadplataKredytuInputsWrapper"),
+    variableOprocentowanieWrapper: document.getElementById("variableOprocentowanieWrapper"),
+    nadplataKredytuWrapper: document.getElementById("nadplataKredytuWrapper"),
     kwotaInfo: document.getElementById("kwotaInfo"),
     lata: document.getElementById("lata"),
     prowizjaInfo: document.getElementById("prowizjaInfo"),
@@ -55,11 +55,22 @@ const state = {
     tempValues: {},
 };
 
+// Funkcja formatująca liczby z separatorami
 function formatNumberWithSpaces(number) {
     if (isNaN(number)) return "0,00";
     return number.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
 
+// Funkcja pomocnicza do debouncingu
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+// Zmodyfikowana funkcja syncInputWithRange z debouncingiem
 function syncInputWithRange(input, range, options = {}) {
     const { isDecimal = false, onChange, isVariableCykl = false, index, activeType, stepOverride, defaultValue } = options;
 
@@ -70,6 +81,7 @@ function syncInputWithRange(input, range, options = {}) {
     input._eventListeners = input._eventListeners || {};
     range._eventListeners = range._eventListeners || {};
 
+    // Usuwanie istniejących listenerów
     const removeListeners = () => {
         if (input._eventListeners.input) input.removeEventListener("input", input._eventListeners.input);
         if (input._eventListeners.change) input.removeEventListener("change", input._eventListeners.change);
@@ -79,10 +91,12 @@ function syncInputWithRange(input, range, options = {}) {
 
     removeListeners();
 
+    // Ustawienie kroku suwaka
     if (stepOverride) range.step = stepOverride;
     else if (isVariableCykl) range.step = "1";
     else range.step = isDecimal ? "0.01" : "1";
 
+    // Funkcja aktualizująca wartości
     const updateValue = (value, source, skipOnChange = false) => {
         const min = parseFloat(input.min) || 0;
         const max = parseFloat(input.max) || Infinity;
@@ -102,13 +116,11 @@ function syncInputWithRange(input, range, options = {}) {
 
         const displayValue = isDecimal ? parsedValue.toFixed(2) : parsedValue.toString();
 
+        // Aktualizacja tylko pola tekstowego i suwaka podczas przesuwania
         input.value = displayValue;
         range.value = parsedValue;
 
-        if (input.id === "kwota") updateKwotaInfo();
-        if (input.id === "prowizja") updateProwizjaInfo();
-        if (input.id === "iloscRat") updateLata();
-
+        // Zapis wartości w stanie
         if (activeType && !skipOnChange && onChange) {
             onChange(parsedValue);
         } else {
@@ -116,25 +128,41 @@ function syncInputWithRange(input, range, options = {}) {
         }
     };
 
+    // Funkcje aktualizujące informacje (tylko po zakończeniu przesuwania)
+    const updateAdditionalInfo = () => {
+        if (input.id === "kwota") updateKwotaInfo();
+        if (input.id === "prowizja") updateProwizjaInfo();
+        if (input.id === "iloscRat") updateLata();
+    };
+
+    // Debouncing dla aktualizacji dodatkowych informacji
+    const debouncedUpdateAdditionalInfo = debounce(() => {
+        requestAnimationFrame(updateAdditionalInfo);
+    }, 50);
+
     const inputInputHandler = () => {
         let rawValue = input.value.replace(/\s/g, "");
         updateValue(rawValue, "Input");
+        debouncedUpdateAdditionalInfo();
     };
 
     const inputChangeHandler = () => {
         let rawValue = input.value.replace(/\s/g, "");
         const parsedValue = parseFloat(rawValue) || (parseFloat(input.min) || 0);
         updateValue(parsedValue, "Input");
+        updateAdditionalInfo();
     };
 
     const rangeInputHandler = () => {
         const rawValue = range.value;
         updateValue(rawValue, "Range");
+        debouncedUpdateAdditionalInfo();
     };
 
     const rangeChangeHandler = () => {
         const rawValue = range.value;
         updateValue(rawValue, "Range");
+        updateAdditionalInfo();
     };
 
     input._eventListeners.input = inputInputHandler;
@@ -147,6 +175,7 @@ function syncInputWithRange(input, range, options = {}) {
     range.addEventListener("input", rangeInputHandler);
     range.addEventListener("change", rangeChangeHandler);
 
+    // Inicjalizacja wartości
     const min = parseFloat(input.min) || 0;
     const max = parseFloat(input.max) || Infinity;
     let initialValue = defaultValue !== undefined ? defaultValue : parseFloat(input.value) || min;
@@ -154,16 +183,16 @@ function syncInputWithRange(input, range, options = {}) {
     initialValue = Math.max(min, Math.min(max, initialValue));
 
     updateValue(initialValue, "Initial", true);
+    updateAdditionalInfo();
 }
 
+// Inicjalizacja synchronizacji dla głównych suwaków
 syncInputWithRange(elements.kwota, elements.kwotaRange, {
     isDecimal: true,
     stepOverride: 100,
     defaultValue: state.lastFormData.kwota,
     onChange: (value) => {
         state.lastFormData.kwota = value;
-        updateProwizjaInfo();
-        updateKwotaInfo();
     },
 });
 
@@ -172,8 +201,8 @@ syncInputWithRange(elements.iloscRat, elements.iloscRatRange, {
     defaultValue: state.lastFormData.iloscRat,
     onChange: (value) => {
         state.lastFormData.iloscRat = value;
-        updateLata();
-        updateVariableInputs();
+        // Aktualizacja zmiennych suwaków tylko po zakończeniu przesuwania
+        // (wywoływane w rangeChangeHandler)
     },
 });
 
@@ -191,10 +220,10 @@ syncInputWithRange(elements.prowizja, elements.prowizjaRange, {
     defaultValue: state.lastFormData.prowizja,
     onChange: (value) => {
         state.lastFormData.prowizja = value;
-        updateProwizjaInfo();
     },
 });
 
+// Funkcja tworząca dynamiczne grupy suwaków
 function createVariableInputGroup(type, index, period, value, typeValue = "Jednorazowa", effectValue = "Skróć okres") {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
 
@@ -231,7 +260,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
         cyklInput.max = maxCykl - 1;
         cyklRange.max = maxCykl - 1;
         cyklInput.value = period;
-        cyklRange.value = period;
+        cycleRange.value = period;
         rateInput.value = value;
         rateRange.value = value;
         rateRange.step = "1";
@@ -246,11 +275,11 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
             if (type === "oprocentowanie") {
                 state.variableRates[index].period = value;
                 state.variableRates.sort((a, b) => a.period - b.period);
-                updateVariableInputs();
+                // Aktualizacja tylko po zakończeniu przesuwania
             } else {
                 state.overpaymentRates[index].period = value;
                 state.overpaymentRates.sort((a, b) => a.period - b.period);
-                updateVariableInputs();
+                // Aktualizacja tylko po zakończeniu przesuwania
             }
         },
     });
@@ -275,6 +304,7 @@ function createVariableInputGroup(type, index, period, value, typeValue = "Jedno
     return group;
 }
 
+// Funkcja obliczająca kredyt
 function calculateLoan() {
     const kwotaInput = elements.kwota.value.replace(",", ".").replace(/\s/g, "");
     const kwota = parseFloat(kwotaInput) || 0;
@@ -713,6 +743,7 @@ function updateProwizjaInfo() {
     }
 }
 
+// Zmodyfikowana funkcja updateVariableInputs
 function updateVariableInputs() {
     const maxCykl = parseInt(elements.iloscRat.value) || 360;
     const maxChanges = Math.floor(maxCykl / 12) || 1;
@@ -723,10 +754,24 @@ function updateVariableInputs() {
         }
         elements.variableOprocentowanieInputs.classList.add("active");
 
-        elements.variableOprocentowanieWrapper.innerHTML = "";
-        state.variableRates.forEach((rate, index) => {
+        // Zamiast czyścić cały wrapper, aktualizujemy tylko zmienione elementy
+        const existingGroups = Array.from(elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group[data-type='oprocentowanie']"));
+        const newGroups = state.variableRates.map((rate, index) => {
             const minPeriod = index > 0 ? state.variableRates[index - 1].period + 1 : 2;
-            const group = createVariableInputGroup("oprocentowanie", index, Math.max(minPeriod, rate.period), rate.value);
+            let group = existingGroups.find(g => parseInt(g.getAttribute("data-index")) === index);
+
+            if (!group) {
+                group = createVariableInputGroup("oprocentowanie", index, Math.max(minPeriod, rate.period), rate.value);
+            } else {
+                const cyklInput = group.querySelector(".variable-cykl");
+                const cyklRange = group.querySelector(".variable-cykl-range");
+                const rateInput = group.querySelector(".variable-rate");
+                const rateRange = group.querySelector(".variable-rate-range");
+                cyklInput.value = rate.period;
+                cyklRange.value = rate.period;
+                rateInput.value = rate.value;
+                rateRange.value = rate.value;
+            }
 
             const cyklInput = group.querySelector(".variable-cykl");
             const cyklRange = group.querySelector(".variable-cykl-range");
@@ -734,8 +779,6 @@ function updateVariableInputs() {
             cyklRange.min = minPeriod;
             cyklInput.max = maxCykl;
             cyklRange.max = maxCykl;
-
-            elements.variableOprocentowanieWrapper.appendChild(group);
 
             const removeBtn = group.querySelector(".remove-btn");
             const removeFirstBtn = group.querySelector(".remove-first-btn");
@@ -749,7 +792,12 @@ function updateVariableInputs() {
                 removeFirstBtn.style.display = "none";
                 removeBtn.style.display = "none";
             }
+
+            return group;
         });
+
+        elements.variableOprocentowanieWrapper.innerHTML = "";
+        newGroups.forEach(group => elements.variableOprocentowanieWrapper.appendChild(group));
 
         const lastPeriod = state.variableRates.length > 0 ? state.variableRates[state.variableRates.length - 1].period : 0;
         const canAddMore = state.variableRates.length < maxChanges && lastPeriod < maxCykl;
@@ -767,10 +815,27 @@ function updateVariableInputs() {
         }
         elements.nadplataKredytuInputs.classList.add("active");
 
-        elements.nadplataKredytuWrapper.innerHTML = "";
-        state.overpaymentRates.forEach((overpayment, index) => {
+        const existingGroups = Array.from(elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group[data-type='nadplata']"));
+        const newGroups = state.overpaymentRates.map((overpayment, index) => {
             const minPeriod = index > 0 ? state.overpaymentRates[index - 1].period + 1 : 1;
-            const group = createVariableInputGroup("nadplata", index, Math.max(minPeriod, overpayment.period), overpayment.value, overpayment.type, overpayment.effect);
+            let group = existingGroups.find(g => parseInt(g.getAttribute("data-index")) === index);
+
+            if (!group) {
+                group = createVariableInputGroup("nadplata", index, Math.max(minPeriod, overpayment.period), overpayment.value, overpayment.type, overpayment.effect);
+            } else {
+                const cyklInput = group.querySelector(".variable-cykl");
+                const cyklRange = group.querySelector(".variable-cykl-range");
+                const rateInput = group.querySelector(".variable-rate");
+                const rateRange = group.querySelector(".variable-rate-range");
+                const typeSelect = group.querySelector(".nadplata-type-select");
+                const effectSelect = group.querySelector(".nadplata-effect-select");
+                cyklInput.value = overpayment.period;
+                cyklRange.value = overpayment.period;
+                rateInput.value = overpayment.value;
+                rateRange.value = overpayment.value;
+                typeSelect.value = overpayment.type;
+                effectSelect.value = overpayment.effect;
+            }
 
             const cyklInput = group.querySelector(".variable-cykl");
             const cyklRange = group.querySelector(".variable-cykl-range");
@@ -778,8 +843,6 @@ function updateVariableInputs() {
             cyklRange.min = minPeriod;
             cyklInput.max = maxCykl - 1;
             cyklRange.max = maxCykl - 1;
-
-            elements.nadplataKredytuWrapper.appendChild(group);
 
             const removeBtn = group.querySelector(".remove-btn");
             const removeFirstBtn = group.querySelector(".remove-first-btn");
@@ -793,7 +856,12 @@ function updateVariableInputs() {
                 removeFirstBtn.style.display = "none";
                 removeBtn.style.display = "none";
             }
+
+            return group;
         });
+
+        elements.nadplataKredytuWrapper.innerHTML = "";
+        newGroups.forEach(group => elements.nadplataKredytuWrapper.appendChild(group));
 
         const lastPeriod = state.overpaymentRates.length > 0 ? state.overpaymentRates[state.overpaymentRates.length - 1].period : 0;
         const canAddMore = state.overpaymentRates.length < maxChanges && lastPeriod < (maxCykl - 1);
