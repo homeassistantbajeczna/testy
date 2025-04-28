@@ -141,23 +141,25 @@ body {
 .header-row,
 .result-header {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column; /* Zmieniamy na układ pionowy */
+    align-items: center; /* Wyśrodkowanie w poziomie */
     margin-bottom: 15px;
     position: relative;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between; /* Przyciski na końcach */
+    width: 100%; /* Zajmuje całą szerokość */
+    margin-bottom: 10px; /* Odstęp między przyciskami a nagłówkiem */
 }
 
 .header-row h4,
 .result-header h4 {
     font-weight: 700;
     font-size: 1.2em;
-    flex: 1;
     text-align: center;
     margin: 0;
-}
-
-.result-header .btn {
-    margin-left: 10px;
 }
 
 .result-wrapper-chart h5,
