@@ -19,6 +19,8 @@
     --small-font-size: 0.7em;
     --border-radius: 8px;
     --range-bg: #e5e5e5;
+    --range-border-light: #666666; /* Ciemniejszy szary dla trybu jasnego */
+    --range-border-dark: #ffffff; /* Biały dla trybu ciemnego */
 }
 
 /* R E S E T   I   B A Z A */
@@ -408,6 +410,7 @@ body {
 
 .box-select .form-select {
     height: 22px;
+    font-size: 0.4em; /* Zmniejszona czcionka */
     padding: 2px 12px 2px 4px;
     text-align: center;
     background-color: var(--input-bg);
@@ -426,6 +429,7 @@ body {
 
 .box-fee .input-group .form-select.jednostka-select {
     height: 22px;
+    font-size: 0.4em; /* Zmniejszona czcionka */
     padding: 2px 12px 2px 4px;
     text-align: center;
     background-color: var(--input-bg);
@@ -478,8 +482,8 @@ body {
 .box-fee .form-range {
     margin-top: 5px;
     height: 6px;
-    border: 2px solid var(--border-color);
-    border-radius: var(--border-radius) var(--border-radius) 0 0; /* Lewy dolny i prawy górny róg prosty */
+    border: 2px solid var(--range-border-light); /* Ciemniejszy szary w trybie jasnym */
+    border-radius: var(--border-radius); /* Zaokrąglone krawędzie */
     appearance: none;
     width: 100%;
     margin-left: auto;
@@ -867,7 +871,7 @@ body {
 .dark-mode .box-period .form-range,
 .dark-mode .box-rate .form-range,
 .dark-mode .box-fee .form-range {
-    border-color: var(--border-color);
+    border-color: var(--range-border-dark); /* Białe krawędzie w trybie ciemnym */
 }
 
 .dark-mode .box-amount .form-range::-webkit-slider-runnable-track,
@@ -938,7 +942,7 @@ body {
     transform: scale(1.1);
 }
 
-.dark-mode .box-amount .form-range::-moz-range-progressDerek,
+.dark-mode .box-amount .form-range::-moz-range-progress,
 .dark-mode .box-amount .form-range::-ms-fill-lower,
 .dark-mode .box-period .form-range::-moz-range-progress,
 .dark-mode .box-period .form-range::-ms-fill-lower,
