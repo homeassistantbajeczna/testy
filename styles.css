@@ -135,7 +135,7 @@ body {
     transform: translateY(-50%);
     display: flex;
     gap: 5px;
-    min-width: 90px; /* Dodane, aby zmieściły się okrągłe przyciski */
+    min-width: 90px;
 }
 
 .header-row,
@@ -779,9 +779,9 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 /* P R Z Y C I S K I */
 .btn {
-    font-size: 0.7em;
-    padding: 5px 10px;
-    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Zaokrąglone lewa i prawa strona */
+    font-size: 0.9em; /* Zwiększono z 0.7em */
+    padding: 6px 12px; /* Zwiększono z 5px 10px */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
     transition: transform 0.2s ease, box-shadow 0.3s ease, scale 0.2s ease;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     border: none;
@@ -794,17 +794,19 @@ input[type="range"].form-range:focus::-ms-thumb {
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
-.btn-danger {
-    background-color: #dc3545 !important; /* Czerwony, z wyższym priorytetem */
+.remove-btn-wrapper .btn-danger,
+.remove-first-btn-wrapper .btn-danger {
+    background: #dc3545 !important; /* Czerwony, bez gradientu */
     border: none;
     color: #ffffff;
-    font-size: 0.8em;
-    padding: 6px 12px;
-    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Zaokrąglone lewa i prawa strona */
+    font-size: 0.9em; /* Zmniejszono z 0.8em, dopasowano do .btn */
+    padding: 6px 12px; /* Zmniejszono z 6px 12px, dopasowano do .btn */
+    border-radius: var(--border-radius) 0 var(--border-radius) 0;
 }
 
-.btn-danger:hover {
-    background-color: #c82333 !important; /* Ciemniejszy czerwony przy hover */
+.remove-btn-wrapper .btn-danger:hover,
+.remove-first-btn-wrapper .btn-danger:hover {
+    background: #c82333 !important; /* Ciemniejszy czerwony przy hover */
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
@@ -1015,14 +1017,16 @@ input[type="range"].form-range:focus::-ms-thumb {
 @media (max-width: 575px) {
     .logo-container {
         padding: 10px;
-        justify-content: flex-start; /* Przesunięcie logo na lewo */
+        justify-content: flex-start !important; /* Przesunięcie logo na lewo */
+        align-items: flex-start !important; /* Wyrównanie do lewej strony */
     }
 
     .logo,
     #siteLogo {
         max-width: 150px;
-        margin-left: 0; /* Usunięcie automatycznego marginesu */
-        margin-right: 0;
+        margin-left: 0 !important; /* Usunięcie automatycznego marginesu */
+        margin-right: 0 !important;
+        display: block;
     }
 
     .header-row h4,
