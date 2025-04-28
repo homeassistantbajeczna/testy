@@ -781,30 +781,15 @@ input[type="range"].form-range:focus::-ms-thumb {
     font-size: 0.7em;
     padding: 5px 10px;
     border-radius: var(--border-radius);
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-}
-
-.btn-primary {
+    transition: transform 0.2s ease, box-shadow 0.3s ease, scale 0.2s ease;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     border: none;
     color: #000000;
 }
 
-.btn-primary:hover {
+.btn:hover {
     background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px var(--shadow-color);
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border: none;
-    color: #ffffff;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
@@ -816,7 +801,20 @@ input[type="range"].form-range:focus::-ms-thumb {
 
 .btn-danger:hover {
     background-color: #c82333;
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 12px var(--shadow-color);
+}
+
+.zoom-controls .btn {
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    border: none;
+    color: #000000;
+    padding: 2px 8px;
+}
+
+.zoom-controls .btn:hover {
+    background: linear-gradient(135deg, var(--accent-gradient-end), var(--accent-gradient-start));
+    transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
