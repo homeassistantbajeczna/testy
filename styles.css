@@ -548,39 +548,39 @@ body {
     -webkit-appearance: none;
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
-    width: 11px; /* Powiększone o 4px (z 7px) */
-    height: 11px; /* Powiększone o 4px (z 7px) */
-    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
+    width: 11px;
+    height: 11px;
+    border-radius: 4px 0 4px 0; /* Mniejsze, proporcjonalne zaokrąglenie */
     border: none;
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-    transform: translateY(1px); /* Przesunięte o 1px wyżej (z 2px) */
+    transform: translateY(2px); /* Obniżone o 1px (z 1px na 2px) */
     will-change: transform;
 }
 
 .range-slider::-moz-range-thumb {
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
-    width: 11px; /* Powiększone o 4px (z 7px) */
-    height: 11px; /* Powiększone o 4px (z 7 + 4px (z 7px) */
-    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
+    width: 11px;
+    height: 11px;
+    border-radius: 4px 0 4px 0; /* Mniejsze, proporcjonalne zaokrąglenie */
     border: none;
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-    transform: translateY(-2px); /* Przesunięte o 1px wyżej (z -1px) */
+    transform: translateY(-1px); /* Obniżone o 1px (z -2px na -1px) */
     will-change: transform;
 }
 
 .range-slider::-ms-thumb {
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
-    width: 11px; /* Powiększone o 4px (z 7px) */
-    height: 11px; /* Powiększone o 4px (z 7px) */
-    border-radius: var(--border-radius) 0 var(--border-radius) 0; /* Prawy górny i lewy dolny proste */
+    width: 11px;
+    height: 11px;
+    border-radius: 4px 0 4px 0; /* Mniejsze, proporcjonalne zaokrąglenie */
     border: none;
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-    transform: translateY(-2px); /* Przesunięte o 1px wyżej (z -1px) */
+    transform: translateY(-1px); /* Obniżone o 1px (z -2px na -1px) */
     will-change: transform;
 }
 
@@ -599,14 +599,14 @@ body {
 .range-slider:focus::-webkit-slider-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: translateY(1px) scale(1.1); /* Dopasowane przesunięcie przy :focus */
+    transform: translateY(2px) scale(1.1); /* Dopasowane przesunięcie przy :focus */
 }
 
 .range-slider:focus::-moz-range-thumb,
 .range-slider:focus::-ms-thumb {
     outline: none;
     box-shadow: 0 0 4px var(--accent-gradient-start);
-    transform: translateY(-2px) scale(1.1); /* Dopasowane przesunięcie przy :focus */
+    transform: translateY(-1px) scale(1.1); /* Dopasowane przesunięcie przy :focus */
 }
 
 
@@ -887,7 +887,7 @@ body {
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-    transform: translateY(1px);
+    transform: translateY(2px);
 }
 
 .dark-mode .range-slider::-moz-range-thumb,
@@ -895,16 +895,16 @@ body {
     appearance: none;
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end)); /* Gradient jak w przyciskach */
     transition: transform 0.1s ease, box-shadow 0.1s ease;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .dark-mode .range-slider:focus::-webkit-slider-thumb {
-    transform: translateY(1px) scale(1.1);
+    transform: translateY(2px) scale(1.1);
 }
 
 .dark-mode .range-slider:focus::-moz-range-thumb,
 .dark-mode .range-slider:focus::-ms-thumb {
-    transform: translateY(-2px) scale(1.1);
+    transform: translateY(-1px) scale(1.1);
 }
 
 .dark-mode .range-slider::-moz-range-progress,
