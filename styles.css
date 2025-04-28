@@ -312,7 +312,7 @@ body {
 }
 
 .variable-inputs.active {
-    display: block;
+    display: block !important;
 }
 
 .variable-inputs-wrapper {
