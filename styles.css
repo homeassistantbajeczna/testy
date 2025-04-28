@@ -528,7 +528,7 @@ body {
     margin-left: auto;
     margin-right: auto;
     outline: none;
-    background: transparent;
+    background: #FFFFFF; /* Biały kolor tła jako fallback */
     overflow: visible; /* Zapobiega obcinaniu krawędzi */
 }
 
@@ -536,14 +536,17 @@ body {
 .range-slider::-webkit-slider-runnable-track {
     height: 6px;
     border-radius: var(--border-radius);
-    background: #FFFFFF; /* Biały kolor tła toru */
+    background-color: #FFFFFF; /* Biały kolor tła toru */
+    border: none;
+    box-shadow: none;
 }
 
 /* Stylizacja toru suwaka dla Firefox */
 .range-slider::-moz-range-track {
     height: 6px;
     border-radius: var(--border-radius);
-    background: #FFFFFF; /* Biały kolor tła toru */
+    background-color: #FFFFFF; /* Biały kolor tła toru */
+    border: none;
 }
 
 /* Stylizacja toru suwaka dla Edge */
@@ -899,16 +902,23 @@ body {
     border-color: var(--accent-gradient-start);
 }
 
+.dark-mode .range-slider {
+    background: #FFFFFF; /* Biały kolor tła jako fallback w trybie ciemnym */
+}
+
 .dark-mode .range-slider::-webkit-slider-runnable-track {
     height: 6px;
     border-radius: var(--border-radius);
-    background: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
+    background-color: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
+    border: none;
+    box-shadow: none;
 }
 
 .dark-mode .range-slider::-moz-range-track {
     height: 6px;
     border-radius: var(--border-radius);
-    background: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
+    background-color: #FFFFFF; /* Biały kolor tła toru w trybie ciemnym */
+    border: none;
 }
 
 .dark-mode .range-slider::-ms-track {
