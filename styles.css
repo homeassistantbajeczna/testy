@@ -567,7 +567,7 @@ body {
 .range-slider::after {
     content: '';
     position: absolute;
-    width: 3px; /* Szerokość półksiężyca (połowa wysokości toru) */
+    width: 6px; /* Zwiększona szerokość dla większego wcięcia */
     height: 6px; /* Wysokość toru suwaka */
     background: var(--range-border-light); /* Kolor w trybie jasnym (#999999) */
     top: 50%;
@@ -576,18 +576,20 @@ body {
 
 .range-slider::before {
     left: 0; /* Lewa krawędź */
-    border-top-left-radius: 3px; /* Zaokrąglenie po lewej stronie */
-    border-bottom-left-radius: 3px;
+    border-top-left-radius: 6px; /* Większe zaokrąglenie po lewej stronie */
+    border-bottom-left-radius: 6px;
     border-top-right-radius: 0; /* Brak zaokrąglenia po prawej stronie */
     border-bottom-right-radius: 0;
+    transform: translateX(-50%) translateY(-50%); /* Przesunięcie w lewo, aby być dokładnie na końcu toru */
 }
 
 .range-slider::after {
     right: 0; /* Prawa krawędź */
-    border-top-right-radius: 3px; /* Zaokrąglenie po prawej stronie */
-    border-bottom-right-radius: 3px;
+    border-top-right-radius: 6px; /* Większe zaokrąglenie po prawej stronie */
+    border-bottom-right-radius: 6px;
     border-top-left-radius: 0; /* Brak zaokrąglenia po lewej stronie */
     border-bottom-left-radius: 0;
+    transform: translateX(50%) translateY(-50%); /* Przesunięcie w prawo, aby być dokładnie na końcu toru */
 }
 
 /* Stylizacja klikacza (thumb) */
