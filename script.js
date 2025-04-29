@@ -293,7 +293,9 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
         }
 
         if (currentIndex === Array.from(groups).indexOf(currentGroup) && i >= parseInt(currentGroup.querySelector(".variable-cykl-start")?.value)) {
-            if (type === "Miesięczna") {
+            if (type === "Jednorazowa" && i === parseInt(currentGroup.querySelector(".variable-cykl-start")?.value)) {
+                nadplata = value;
+            } else if (type === "Miesięczna") {
                 nadplata = value;
             } else if (type === "Kwartalna" && (i - parseInt(currentGroup.querySelector(".variable-cykl-start")?.value) + 1) % 3 === 0) {
                 nadplata = value;
@@ -491,6 +493,7 @@ function initializeNadplataKredytuGroup(group) {
     const updateOverpaymentLimit = (input, range, group) => {
         const type = typeSelect?.value || "Jednorazowa";
         const periodStartInput = group.querySelector(".variable-cykl-start");
+        const periodStartRange = group.querySelector(".variable-cykl-start-range");
         const periodEndInput = group.querySelector(".variable-cykl-end");
         const periodStart = parseInt(periodStartInput?.value) || 1;
         const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
@@ -505,6 +508,7 @@ function initializeNadplataKredytuGroup(group) {
             group
         );
 
+        // Oblicz maksymalną kwotę nadpłaty w zależności od typu
         if (type !== "Jednorazowa") {
             let frequencyMultiplier = 1;
             if (type === "Miesięczna") {
@@ -539,6 +543,16 @@ function initializeNadplataKredytuGroup(group) {
             state.overpaymentRates,
             group
         );
+
+        // Ograniczenie pola "W" (periodStart) do przedostatniego miesiąca
+        const maxPeriodStart = Math.max(1, maxEndPeriod - 1);
+        periodStartInput.max = maxPeriodStart;
+        periodStartRange.max = maxPeriodStart;
+        if (parseInt(periodStartInput.value) > maxPeriodStart) {
+            periodStartInput.value = maxPeriodStart;
+            periodStartRange.value = maxPeriodStart;
+        }
+
         if (periodEndInput) {
             periodEndInput.max = maxEndPeriod;
             const endRange = group.querySelector(".variable-cykl-end-range");
@@ -594,17 +608,6 @@ function initializeNadplataKredytuGroup(group) {
             updateNadplataKredytuRemoveButtons();
         } else {
             elements.addNadplataKredytuBtn.style.display = "block";
-        }
-
-        if (type === "Miesięczna") {
-            const maxPossibleStart = maxEndPeriod - 1;
-            periodStartInput.max = maxPossibleStart;
-            const startRange = group.querySelector(".variable-cykl-start-range");
-            startRange.max = maxPossibleStart;
-            if (parseInt(periodStartInput.value) > maxPossibleStart) {
-                periodStartInput.value = maxPossibleStart;
-                startRange.value = maxPossibleStart;
-            }
         }
     };
 
@@ -1032,6 +1035,9 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAllOverpaymentLimits();
     });
 });
+
+
+
 
 // F U N K C J E    W Y N I K I    I    W Y K R E S Y
 
