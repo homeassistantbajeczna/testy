@@ -358,9 +358,6 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 
 
-
-// F U N K C J E    N A D P Ł A T A     K R E D Y T U
-
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -404,7 +401,6 @@ function createNadplataKredytuGroup() {
                 </div>
             </div>
         </div>
-        <div class="button-wrapper"></div>
     `;
     return group;
 }
@@ -885,7 +881,6 @@ function initializeNadplataKredytuGroup(group) {
     const rateRange = group.querySelector(".variable-rate-range");
     updateOverpaymentLimit(rateInput, rateRange, group);
 
-    // Po zainicjalizowaniu grupy, upewniamy się, że przyciski są dodane
     updateNadplataKredytuRemoveButtons();
 }
 
@@ -902,24 +897,20 @@ function updateNadplataKredytuRemoveButtons() {
     const groups = wrapper.querySelectorAll(".variable-input-group");
     console.log("Liczba grup nadpłaty:", groups.length);
 
-    // Usuń wszystkie istniejące przyciski w wrapperach
+    // Usuń wszystkie istniejące button-wrappery
     groups.forEach((group, index) => {
-        const buttonWrapper = group.querySelector(".button-wrapper");
-        if (buttonWrapper) {
-            buttonWrapper.innerHTML = ""; // Wyczyść wrapper przycisków
-            console.log(`Wyczyszczono button-wrapper dla grupy ${index + 1}`);
-        } else {
-            console.log(`Brak button-wrapper w grupie ${index + 1}`);
+        const existingButtonWrapper = group.querySelector(".button-wrapper");
+        if (existingButtonWrapper) {
+            existingButtonWrapper.remove();
+            console.log(`Usunięto istniejący button-wrapper dla grupy ${index + 1}`);
         }
     });
 
     // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną nadpłatę" do ostatniej grupy
     groups.forEach((group, index) => {
-        const buttonWrapper = group.querySelector(".button-wrapper");
-        if (!buttonWrapper) {
-            console.error(`Brak button-wrapper w grupie ${index + 1}`);
-            return;
-        }
+        const buttonWrapper = document.createElement("div");
+        buttonWrapper.classList.add("button-wrapper");
+        group.appendChild(buttonWrapper);
 
         console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
 
