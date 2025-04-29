@@ -510,8 +510,18 @@ function initializeNadplataKredytuGroup(group) {
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
         const currentIndex = Array.from(groups).indexOf(group);
 
-        // Obliczamy pozostały kapitał, uwzględniając nadpłaty z poprzednich grup
-        let previousOverpayments = [];
+        // Obliczamy pozostały kapitał sekwencyjnie, uwzględniając wszystkie poprzednie nadpłaty
+        let remainingCapital = calculateRemainingCapital(
+            parseFloat(elements.kwota?.value) || 500000,
+            parseFloat(elements.oprocentowanie?.value) || 7,
+            parseInt(elements.iloscRat?.value) || 360,
+            elements.rodzajRat?.value || "rowne",
+            state.variableRates,
+            [],
+            0
+        );
+
+        // Przetwarzamy nadpłaty z poprzednich grup
         for (let i = 0; i < currentIndex; i++) {
             const prevGroup = groups[i];
             const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
@@ -520,38 +530,44 @@ function initializeNadplataKredytuGroup(group) {
             const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
             const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
 
-            previousOverpayments.push({
+            const previousOverpayments = [{
                 type: prevType,
                 start: prevPeriodStart,
                 end: prevPeriodEnd,
                 amount: prevAmount,
                 effect: prevEffect
-            });
+            }];
+
+            // Obliczamy pozostały kapitał po każdej nadpłacie
+            remainingCapital = calculateRemainingCapital(
+                parseFloat(elements.kwota?.value) || 500000,
+                parseFloat(elements.oprocentowanie?.value) || 7,
+                parseInt(elements.iloscRat?.value) || 360,
+                elements.rodzajRat?.value || "rowne",
+                state.variableRates,
+                previousOverpayments,
+                prevPeriodStart - 1
+            );
         }
+
+        // Obliczamy pozostały kapitał do momentu bieżącej nadpłaty
+        remainingCapital = calculateRemainingCapital(
+            parseFloat(elements.kwota?.value) || 500000,
+            parseFloat(elements.oprocentowanie?.value) || 7,
+            parseInt(elements.iloscRat?.value) || 360,
+            elements.rodzajRat?.value || "rowne",
+            state.variableRates,
+            [],
+            periodStart - 1
+        );
 
         let maxAllowed;
 
         if (type === "Jednorazowa") {
-            maxAllowed = calculateRemainingCapital(
-                parseFloat(elements.kwota?.value) || 500000,
-                parseFloat(elements.oprocentowanie?.value) || 7,
-                parseInt(elements.iloscRat?.value) || 360,
-                elements.rodzajRat?.value || "rowne",
-                state.variableRates,
-                previousOverpayments,
-                periodStart - 1
-            );
+            maxAllowed = remainingCapital;
         } else {
             const kwotaKredytu = parseFloat(elements.kwota?.value) || 500000;
-            maxAllowed = Math.min(kwotaKredytu * 0.1, calculateRemainingCapital(
-                parseFloat(elements.kwota?.value) || 500000,
-                parseFloat(elements.oprocentowanie?.value) || 7,
-                parseInt(elements.iloscRat?.value) || 360,
-                elements.rodzajRat?.value || "rowne",
-                state.variableRates,
-                previousOverpayments,
-                periodStart - 1
-            ));
+            maxAllowed = Math.min(kwotaKredytu * 0.1, remainingCapital);
         }
 
         // Aktualizujemy limit
@@ -583,16 +599,6 @@ function initializeNadplataKredytuGroup(group) {
         periodStartInput.max = maxPeriodStart;
         periodStartRange.max = maxPeriodStart;
 
-        let remainingCapital = calculateRemainingCapital(
-            parseFloat(elements.kwota?.value) || 500000,
-            parseFloat(elements.oprocentowanie?.value) || 7,
-            parseInt(elements.iloscRat?.value) || 360,
-            elements.rodzajRat?.value || "rowne",
-            state.variableRates,
-            state.overpaymentRates,
-            periodStart - 1
-        );
-
         // Jeśli pozostały kapitał jest mniejszy lub równy 0, blokujemy dodawanie nowych nadpłat
         if (remainingCapital <= 0) {
             elements.addNadplataKredytuBtn.style.display = "none";
@@ -614,14 +620,23 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = g.querySelector(".variable-rate");
             const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                const type = typeSelect?.value || "Jednorazowa";
+                const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
                 const periodStartInput = g.querySelector(".variable-cykl-start");
                 const periodEndInput = g.querySelector(".variable-cykl-end");
                 const periodStart = parseInt(periodStartInput?.value) || 2;
                 const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
-                // Obliczamy poprzednie nadpłaty dynamicznie
-                let previousOverpayments = [];
+                // Obliczamy pozostały kapitał sekwencyjnie
+                let remainingCapital = calculateRemainingCapital(
+                    parseFloat(elements.kwota?.value) || 500000,
+                    parseFloat(elements.oprocentowanie?.value) || 7,
+                    parseInt(elements.iloscRat?.value) || 360,
+                    elements.rodzajRat?.value || "rowne",
+                    state.variableRates,
+                    [],
+                    0
+                );
+
                 for (let i = 0; i < index; i++) {
                     const prevGroup = groups[i];
                     const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
@@ -630,38 +645,42 @@ function initializeNadplataKredytuGroup(group) {
                     const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
                     const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
 
-                    previousOverpayments.push({
+                    const previousOverpayments = [{
                         type: prevType,
                         start: prevPeriodStart,
                         end: prevPeriodEnd,
                         amount: prevAmount,
                         effect: prevEffect
-                    });
+                    }];
+
+                    remainingCapital = calculateRemainingCapital(
+                        parseFloat(elements.kwota?.value) || 500000,
+                        parseFloat(elements.oprocentowanie?.value) || 7,
+                        parseInt(elements.iloscRat?.value) || 360,
+                        elements.rodzajRat?.value || "rowne",
+                        state.variableRates,
+                        previousOverpayments,
+                        prevPeriodStart - 1
+                    );
                 }
+
+                remainingCapital = calculateRemainingCapital(
+                    parseFloat(elements.kwota?.value) || 500000,
+                    parseFloat(elements.oprocentowanie?.value) || 7,
+                    parseInt(elements.iloscRat?.value) || 360,
+                    elements.rodzajRat?.value || "rowne",
+                    state.variableRates,
+                    [],
+                    periodStart - 1
+                );
 
                 let maxAllowed;
 
                 if (type === "Jednorazowa") {
-                    maxAllowed = calculateRemainingCapital(
-                        parseFloat(elements.kwota?.value) || 500000,
-                        parseFloat(elements.oprocentowanie?.value) || 7,
-                        parseInt(elements.iloscRat?.value) || 360,
-                        elements.rodzajRat?.value || "rowne",
-                        state.variableRates,
-                        previousOverpayments,
-                        periodStart - 1
-                    );
+                    maxAllowed = remainingCapital;
                 } else {
                     const kwotaKredytu = parseFloat(elements.kwota?.value) || 500000;
-                    maxAllowed = Math.min(kwotaKredytu * 0.1, calculateRemainingCapital(
-                        parseFloat(elements.kwota?.value) || 500000,
-                        parseFloat(elements.oprocentowanie?.value) || 7,
-                        parseInt(elements.iloscRat?.value) || 360,
-                        elements.rodzajRat?.value || "rowne",
-                        state.variableRates,
-                        previousOverpayments,
-                        periodStart - 1
-                    ));
+                    maxAllowed = Math.min(kwotaKredytu * 0.1, remainingCapital);
                 }
 
                 rateInput.max = maxAllowed;
