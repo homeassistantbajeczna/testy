@@ -359,6 +359,31 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 // F U N K C J E    N A D P Ł A T A    K R E D Y T U
 
+// Dodajemy definicję updateRatesArray
+function updateRatesArray(type) {
+    if (type === "nadplata") {
+        state.overpaymentRates = [];
+        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+        groups.forEach(group => {
+            const typeSelect = group.querySelector(".nadplata-type-select");
+            const effectSelect = group.querySelector(".nadplata-effect-select");
+            const rateInput = group.querySelector(".variable-rate");
+            const periodStartInput = group.querySelector(".variable-cykl-start");
+            const periodEndInput = group.querySelector(".variable-cykl-end");
+
+            const overpayment = {
+                type: typeSelect?.value || "Jednorazowa",
+                effect: effectSelect?.value || "Skróć okres",
+                amount: parseFloat(rateInput?.value) || 0,
+                start: parseInt(periodStartInput?.value) || 2,
+                end: periodEndInput ? parseInt(periodEndInput?.value) || 2 : null
+            };
+            state.overpaymentRates.push(overpayment);
+        });
+    }
+    // Możemy dodać obsługę innych typów, np. "zmienne-oprocentowanie", jeśli funkcja jest używana w innych sekcjach
+}
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -979,7 +1004,6 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         resetNadplataKredytuSection();
     }
 });
-
 
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
