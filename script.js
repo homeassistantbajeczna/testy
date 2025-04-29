@@ -361,6 +361,8 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 // F U N K C J E    N A D P Ł A T A     K R E D Y T U
 
+// F U N K C J E    N A D P Ł A T A     K R E D Y T U
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -620,7 +622,7 @@ function initializeNadplataKredytuGroup(group) {
             }
         } else {
             const addButton = elements.nadplataKredytuWrapper.querySelector(".add-overpayment-btn");
-            if (addButton) addButton.style.display = "block";
+            if (addButton) addButton.style.display = "inline-block";
         }
 
         updateRatesArray("nadplata");
@@ -894,20 +896,25 @@ function resetNadplataKredytuSection() {
     state.overpaymentRates = [];
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
-    addNewNadplataButtons(); // Dodajemy nowe przyciski po zresetowaniu sekcji
+    addNewNadplataButtons(); // Dodajemy nowy przycisk po zresetowaniu sekcji
 }
 
 function addNewNadplataButtons() {
     const wrapper = elements.nadplataKredytuWrapper;
-    const groups = wrapper.querySelectorAll(".variable-input-group");
 
-    // Usuwamy istniejące przyciski, jeśli istnieją
+    // Usuwamy istniejący przycisk, jeśli istnieje
     const existingButtonWrapper = wrapper.querySelector(".nadplata-buttons-wrapper");
     if (existingButtonWrapper) {
         existingButtonWrapper.remove();
     }
 
-    // Tworzymy nowy wrapper dla przycisków
+    // Usuwamy stary przycisk "DODAJ KOLEJNĄ ZMIANĘ", jeśli istnieje w DOM-ie
+    const oldAddButton = wrapper.querySelector("#addNadplataKredytuBtn");
+    if (oldAddButton) {
+        oldAddButton.remove();
+    }
+
+    // Tworzymy nowy wrapper dla przycisku
     const buttonWrapper = document.createElement("div");
     buttonWrapper.classList.add("nadplata-buttons-wrapper");
     buttonWrapper.style.marginTop = "10px";
@@ -918,7 +925,7 @@ function addNewNadplataButtons() {
     const addButton = document.createElement("button");
     addButton.type = "button";
     addButton.classList.add("add-overpayment-btn");
-    addButton.textContent = "Dodaj kolejną nadpłatę";
+    addButton.textContent = "DODAJ KOLEJNĄ NADPŁATĘ";
     addButton.style.padding = "5px 10px";
     addButton.style.backgroundColor = "#28a745";
     addButton.style.color = "#fff";
@@ -928,25 +935,11 @@ function addNewNadplataButtons() {
     addButton.style.fontSize = "14px";
     addButton.style.lineHeight = "1.5";
     addButton.style.display = "inline-block";
+    addButton.style.textTransform = "uppercase";
+    addButton.style.fontWeight = "bold";
 
-    // Przycisk "Usuń nadpłatę"
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.classList.add("remove-overpayment-btn");
-    removeButton.textContent = "Usuń nadpłatę";
-    removeButton.style.padding = "5px 10px";
-    removeButton.style.backgroundColor = "#ff4d4d";
-    removeButton.style.color = "#fff";
-    removeButton.style.border = "none";
-    removeButton.style.borderRadius = "4px";
-    removeButton.style.cursor = "pointer";
-    removeButton.style.fontSize = "14px";
-    removeButton.style.lineHeight = "1.5";
-    removeButton.style.display = groups.length > 0 ? "inline-block" : "none"; // Ukrywamy, jeśli nie ma grup
-
-    // Dodajemy przyciski do wrappera
+    // Dodajemy przycisk do wrappera
     buttonWrapper.appendChild(addButton);
-    buttonWrapper.appendChild(removeButton);
     wrapper.appendChild(buttonWrapper);
 
     // Logika dla przycisku "Dodaj kolejną nadpłatę"
@@ -956,27 +949,6 @@ function addNewNadplataButtons() {
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
         updateAllOverpaymentLimits();
-        removeButton.style.display = "inline-block"; // Pokazujemy przycisk "Usuń", jeśli dodano nową grupę
-    });
-
-    // Logika dla przycisku "Usuń nadpłatę"
-    removeButton.addEventListener("click", () => {
-        const groups = wrapper.querySelectorAll(".variable-input-group");
-        if (groups.length > 0) {
-            const lastGroup = groups[groups.length - 1];
-            lastGroup.remove();
-            updateRatesArray("nadplata");
-            updateAllOverpaymentLimits();
-
-            const remainingGroups = wrapper.querySelectorAll(".variable-input-group");
-            if (remainingGroups.length === 0) {
-                elements.nadplataKredytuBtn.checked = false;
-                elements.nadplataKredytuInputs.classList.remove("active");
-                resetNadplataKredytuSection();
-            } else {
-                removeButton.style.display = "inline-block";
-            }
-        }
     });
 }
 
@@ -991,7 +963,7 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         elements.nadplataKredytuWrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
-        addNewNadplataButtons(); // Dodajemy nowe przyciski
+        addNewNadplataButtons(); // Dodajemy nowy przycisk
     } else {
         resetNadplataKredytuSection();
     }
