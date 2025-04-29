@@ -507,6 +507,28 @@ function initializeNadplataKredytuGroup(group) {
         const periodStart = parseInt(periodStartInput?.value) || 2;
         const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
+        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+        const currentIndex = Array.from(groups).indexOf(group);
+
+        // Obliczamy pozostały kapitał, uwzględniając nadpłaty z poprzednich grup
+        let previousOverpayments = [];
+        for (let i = 0; i < currentIndex; i++) {
+            const prevGroup = groups[i];
+            const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
+            const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 2;
+            const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
+            const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
+            const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
+
+            previousOverpayments.push({
+                type: prevType,
+                start: prevPeriodStart,
+                end: prevPeriodEnd,
+                amount: prevAmount,
+                effect: prevEffect
+            });
+        }
+
         let maxAllowed;
 
         if (type === "Jednorazowa") {
@@ -516,11 +538,7 @@ function initializeNadplataKredytuGroup(group) {
                 parseInt(elements.iloscRat?.value) || 360,
                 elements.rodzajRat?.value || "rowne",
                 state.variableRates,
-                state.overpaymentRates.filter((_, idx) => {
-                    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-                    const currentIndex = Array.from(groups).indexOf(group);
-                    return idx < currentIndex;
-                }),
+                previousOverpayments,
                 periodStart - 1
             );
         } else {
@@ -531,11 +549,7 @@ function initializeNadplataKredytuGroup(group) {
                 parseInt(elements.iloscRat?.value) || 360,
                 elements.rodzajRat?.value || "rowne",
                 state.variableRates,
-                state.overpaymentRates.filter((_, idx) => {
-                    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-                    const currentIndex = Array.from(groups).indexOf(group);
-                    return idx < currentIndex;
-                }),
+                previousOverpayments,
                 periodStart - 1
             ));
         }
@@ -550,9 +564,6 @@ function initializeNadplataKredytuGroup(group) {
             input.value = maxAllowed.toFixed(2);
             range.value = maxAllowed;
         }
-
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        const currentIndex = Array.from(groups).indexOf(group);
 
         let minPeriodStart = 2;
         if (currentIndex > 0) {
@@ -609,6 +620,25 @@ function initializeNadplataKredytuGroup(group) {
                 const periodStart = parseInt(periodStartInput?.value) || 2;
                 const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
+                // Obliczamy poprzednie nadpłaty dynamicznie
+                let previousOverpayments = [];
+                for (let i = 0; i < index; i++) {
+                    const prevGroup = groups[i];
+                    const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
+                    const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 2;
+                    const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
+                    const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
+                    const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
+
+                    previousOverpayments.push({
+                        type: prevType,
+                        start: prevPeriodStart,
+                        end: prevPeriodEnd,
+                        amount: prevAmount,
+                        effect: prevEffect
+                    });
+                }
+
                 let maxAllowed;
 
                 if (type === "Jednorazowa") {
@@ -618,11 +648,7 @@ function initializeNadplataKredytuGroup(group) {
                         parseInt(elements.iloscRat?.value) || 360,
                         elements.rodzajRat?.value || "rowne",
                         state.variableRates,
-                        state.overpaymentRates.filter((_, idx) => {
-                            const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-                            const currentIndex = Array.from(groups).indexOf(g);
-                            return idx < currentIndex;
-                        }),
+                        previousOverpayments,
                         periodStart - 1
                     );
                 } else {
@@ -633,11 +659,7 @@ function initializeNadplataKredytuGroup(group) {
                         parseInt(elements.iloscRat?.value) || 360,
                         elements.rodzajRat?.value || "rowne",
                         state.variableRates,
-                        state.overpaymentRates.filter((_, idx) => {
-                            const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-                            const currentIndex = Array.from(groups).indexOf(g);
-                            return idx < currentIndex;
-                        }),
+                        previousOverpayments,
                         periodStart - 1
                     ));
                 }
@@ -874,7 +896,6 @@ function updateNadplataKredytuRemoveButtons() {
         });
     }
 }
-
 
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
