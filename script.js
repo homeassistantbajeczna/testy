@@ -603,10 +603,59 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = g.querySelector(".variable-rate");
             const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                // Wywołujemy updateOverpaymentLimit, aby zaktualizować limit i wartość
-                updateOverpaymentLimit(rateInput, rateRange, g);
+                // Aktualizujemy limit
+                const type = typeSelect?.value || "Jednorazowa";
+                const periodStartInput = g.querySelector(".variable-cykl-start");
+                const periodEndInput = g.querySelector(".variable-cykl-end");
+                const periodStart = parseInt(periodStartInput?.value) || 2;
+                const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
+
+                let maxAllowed;
+
+                if (type === "Jednorazowa") {
+                    maxAllowed = calculateRemainingCapital(
+                        parseFloat(elements.kwota?.value) || 500000,
+                        parseFloat(elements.oprocentowanie?.value) || 7,
+                        parseInt(elements.iloscRat?.value) || 360,
+                        elements.rodzajRat?.value || "rowne",
+                        state.variableRates,
+                        state.overpaymentRates.filter((_, idx) => {
+                            const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+                            const currentIndex = Array.from(groups).indexOf(g);
+                            return idx < currentIndex;
+                        }),
+                        periodStart - 1
+                    );
+                } else {
+                    const kwotaKredytu = parseFloat(elements.kwota?.value) || 500000;
+                    maxAllowed = Math.min(kwotaKredytu * 0.1, calculateRemainingCapital(
+                        parseFloat(elements.kwota?.value) || 500000,
+                        parseFloat(elements.oprocentowanie?.value) || 7,
+                        parseInt(elements.iloscRat?.value) || 360,
+                        elements.rodzajRat?.value || "rowne",
+                        state.variableRates,
+                        state.overpaymentRates.filter((_, idx) => {
+                            const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+                            const currentIndex = Array.from(groups).indexOf(g);
+                            return idx < currentIndex;
+                        }),
+                        periodStart - 1
+                    ));
+                }
+
+                rateInput.max = maxAllowed;
+                rateRange.max = maxAllowed;
+
+                // Zawsze aktualizujemy wartość "Kwota nadpłaty", jeśli przekracza nowy limit
+                let value = parseFloat(rateInput.value) || 0;
+                if (value > maxAllowed) {
+                    rateInput.value = maxAllowed.toFixed(2);
+                    rateRange.value = maxAllowed;
+                }
             }
         });
+        updateRatesArray("nadplata");
+        updateNadplataKredytuRemoveButtons();
     };
 
     if (!elements.kwota.dataset.listenerAdded) {
@@ -752,9 +801,11 @@ function updateNadplataKredytuRemoveButtons() {
     const wrapper = elements.nadplataKredytuWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
 
+    // Usuwamy istniejące przyciski "Usuń"
     const existingRemoveBtnWrappers = wrapper.querySelectorAll(".remove-btn-wrapper");
     existingRemoveBtnWrappers.forEach(btnWrapper => btnWrapper.remove());
 
+    // Dodajemy przycisk "Usuń" pod ostatnim wierszem nadpłaty
     if (groups.length > 0) {
         const lastGroup = groups[groups.length - 1];
         const removeBtnWrapper = document.createElement("div");
@@ -789,7 +840,6 @@ function updateNadplataKredytuRemoveButtons() {
         });
     }
 }
-
 
 
 
