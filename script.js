@@ -543,11 +543,11 @@ function initializeNadplataKredytuGroup(group) {
         input.max = maxAllowed;
         range.max = maxAllowed;
 
+        // Zawsze aktualizujemy wartość "Kwota nadpłaty", jeśli przekracza nowy limit
         let value = parseFloat(input.value) || 0;
         if (value > maxAllowed) {
-            value = maxAllowed;
-            input.value = value.toFixed(2);
-            range.value = value;
+            input.value = maxAllowed.toFixed(2);
+            range.value = maxAllowed;
         }
 
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
@@ -600,12 +600,6 @@ function initializeNadplataKredytuGroup(group) {
             const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
                 updateOverpaymentLimit(rateInput, rateRange, g);
-                let value = parseFloat(rateInput.value) || 0;
-                let maxAllowed = parseFloat(rateInput.max) || 5000000;
-                if (value > maxAllowed) {
-                    rateInput.value = maxAllowed.toFixed(2);
-                    rateRange.value = maxAllowed;
-                }
             }
         });
     };
@@ -634,34 +628,20 @@ function initializeNadplataKredytuGroup(group) {
             input.addEventListener("input", () => {
                 syncInputWithRange(input, range);
                 updatePeriodBox();
-                updateRatesArray("nadplata");
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 updateOverpaymentLimit(rateInput, rateRange, group);
-                // Zawsze aktualizujemy "Kwota nadpłaty", jeśli przekracza nowy limit
-                let currentValue = parseFloat(rateInput.value) || 0;
-                let newMax = parseFloat(rateInput.max) || 5000000;
-                if (currentValue > newMax) {
-                    rateInput.value = newMax.toFixed(2);
-                    rateRange.value = newMax;
-                }
+                updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
             });
 
             range.addEventListener("input", () => {
                 input.value = range.value;
                 updatePeriodBox();
-                updateRatesArray("nadplata");
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 updateOverpaymentLimit(rateInput, rateRange, group);
-                // Zawsze aktualizujemy "Kwota nadpłaty", jeśli przekracza nowy limit
-                let currentValue = parseFloat(rateInput.value) || 0;
-                let newMax = parseFloat(rateInput.max) || 5000000;
-                if (currentValue > newMax) {
-                    rateInput.value = newMax.toFixed(2);
-                    rateRange.value = newMax;
-                }
+                updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
             });
         } else if (input.classList.contains("variable-rate")) {
@@ -711,7 +691,7 @@ function initializeNadplataKredytuGroup(group) {
                     if (newValue > maxAllowed) {
                         e.preventDefault();
                         input.value = maxAllowed.toFixed(2);
-                        rateRange.value = maxAllowed;
+                        range.value = maxAllowed;
                     }
                 } else {
                     e.preventDefault();
@@ -809,7 +789,6 @@ function updateNadplataKredytuRemoveButtons() {
         });
     }
 }
-
 
 
 
