@@ -490,8 +490,8 @@ function initializeNadplataKredytuGroup(group) {
         if (endInput && endRange) {
             const minValue = parseInt(periodStartInput?.value) || 1;
             endInput.min = minValue;
-            endInput.max = maxEndPeriod;
             endRange.min = minValue;
+            endInput.max = maxEndPeriod;
             endRange.max = maxEndPeriod;
             if (parseInt(endInput.value) < minValue) endInput.value = minValue;
             if (parseInt(endInput.value) > maxEndPeriod) endInput.value = maxEndPeriod;
@@ -546,35 +546,10 @@ function initializeNadplataKredytuGroup(group) {
             periodStartRange.value = minPeriodStart;
         }
 
-        const maxEndPeriod = calculateMaxEndPeriod(
-            parseFloat(elements.kwota?.value) || 500000,
-            parseFloat(elements.oprocentowanie?.value) || 7,
-            parseInt(elements.iloscRat?.value) || 360,
-            elements.rodzajRat?.value || "rowne",
-            state.variableRates,
-            state.overpaymentRates,
-            group
-        );
-
-        const maxPeriodStart = Math.max(1, maxEndPeriod - 1);
+        // Ustawiamy maksymalny okres startu na podstawie całkowitej liczby rat, a nie maxEndPeriod
+        const maxPeriodStart = iloscRat - 1;
         periodStartInput.max = maxPeriodStart;
         periodStartRange.max = maxPeriodStart;
-        if (parseInt(periodStartInput.value) > maxPeriodStart) {
-            periodStartInput.value = maxPeriodStart;
-            periodStartRange.value = maxPeriodStart;
-        }
-
-        if (periodEndInput) {
-            periodEndInput.max = maxEndPeriod;
-            const endRange = group.querySelector(".variable-cykl-end-range");
-            if (endRange) {
-                endRange.max = maxEndPeriod;
-                if (parseInt(periodEndInput.value) > maxEndPeriod) {
-                    periodEndInput.value = maxEndPeriod;
-                    endRange.value = maxEndPeriod;
-                }
-            }
-        }
 
         let remainingCapital = calculateRemainingCapital(
             parseFloat(elements.kwota?.value) || 500000,
@@ -743,11 +718,9 @@ function updateNadplataKredytuRemoveButtons() {
     const wrapper = elements.nadplataKredytuWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
 
-    // Usuń wszystkie istniejące przyciski "USUŃ"
     const existingRemoveBtnWrappers = wrapper.querySelectorAll(".remove-btn-wrapper");
     existingRemoveBtnWrappers.forEach(btnWrapper => btnWrapper.remove());
 
-    // Dodaj przycisk "USUŃ" tylko do ostatniej grupy
     if (groups.length > 0) {
         const lastGroup = groups[groups.length - 1];
         const removeBtnWrapper = document.createElement("div");
