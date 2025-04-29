@@ -650,29 +650,59 @@ function initializeNadplataKredytuGroup(group) {
             input.addEventListener("keydown", (e) => {
                 if (e.key === "Enter" || e.key === "Tab") return;
 
-                let value = parseFloat(input.value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
-                let newValueStr = input.value;
-                if (e.key >= "0" && e.key <= "9") {
-                    newValueStr += e.key;
-                } else if (e.key === "Backspace") {
-                    newValueStr = newValueStr.slice(0, -1);
-                } else if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "Delete") {
-                    return;
-                } else {
-                    e.preventDefault();
-                    return;
-                }
+                let currentValue = input.value;
 
-                let newValue = parseFloat(newValueStr) || 0;
-                if (newValue > maxAllowed) {
+                // Pozwól na wpisywanie cyfr, kropki, Backspace, Delete i strzałek
+                if (
+                    (e.key >= "0" && e.key <= "9") ||
+                    e.key === "." ||
+                    e.key === "Backspace" ||
+                    e.key === "Delete" ||
+                    e.key === "ArrowLeft" ||
+                    e.key === "ArrowRight"
+                ) {
+                    let newValueStr = currentValue;
+                    if (e.key === "Backspace") {
+                        newValueStr = newValueStr.slice(0, -1);
+                    } else if (e.key === "Delete") {
+                        return;
+                    } else if (e.key >= "0" && e.key <= "9") {
+                        newValueStr += e.key;
+                    } else if (e.key === ".") {
+                        if (newValueStr.includes(".")) {
+                            e.preventDefault();
+                            return;
+                        }
+                        newValueStr += e.key;
+                    }
+
+                    let newValue = parseFloat(newValueStr) || 0;
+                    if (newValue > maxAllowed) {
+                        e.preventDefault();
+                        input.value = maxAllowed.toFixed(2);
+                        range.value = maxAllowed;
+                    }
+                } else {
                     e.preventDefault();
                 }
             });
 
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value) || 0;
-                value = Math.max(100, Math.min(value, parseFloat(range.max)));
+                let maxAllowed = parseFloat(range.max) || 5000000;
+                value = Math.max(100, Math.min(value, maxAllowed));
+                input.value = value.toFixed(2);
+                range.value = value;
+                updateOverpaymentLimit(input, range, group);
+                updateRatesArray("nadplata");
+                updateAllOverpaymentLimits();
+            });
+
+            range.addEventListener("change", () => {
+                let value = parseFloat(range.value) || 0;
+                let maxAllowed = parseFloat(range.max) || 5000000;
+                value = Math.max(100, Math.min(value, maxAllowed));
                 input.value = value.toFixed(2);
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
@@ -746,11 +776,65 @@ function updateNadplataKredytuRemoveButtons() {
                         updateOverpaymentLimit(rateInput, rateRange, g);
                     }
                 });
-                updateNadplataKredytuRemoveButtons(); // Wywołaj ponownie, aby dodać przycisk do nowego ostatniego wiersza
             }
+            updateNadplataKredytuRemoveButtons(); // Wywołaj ponownie, aby dodać przycisk do nowego ostatniego wiersza
         });
     }
 }
+
+// Aktualizacja limitów przy zmianie kwoty kredytu
+document.addEventListener("DOMContentLoaded", () => {
+    const updateAllOverpaymentLimits = () => {
+        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+        groups.forEach(group => {
+            const rateInput = group.querySelector(".variable-rate");
+            const rateRange = group.querySelector(".variable-rate-range");
+            if (rateInput && rateRange) {
+                updateOverpaymentLimit(rateInput, rateRange, group);
+                let value = parseFloat(rateInput.value) || 0;
+                let maxAllowed = parseFloat(rateInput.max) || 5000000;
+                if (value > maxAllowed) {
+                    rateInput.value = maxAllowed.toFixed(2);
+                    rateRange.value = maxAllowed;
+                }
+            }
+        });
+    };
+
+    elements.kwota?.addEventListener("input", () => {
+        let value = elements.kwota.value;
+        if (value.includes(".")) {
+            const parts = value.split(".");
+            if (parts[1].length > 2) {
+                value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                elements.kwota.value = value;
+            }
+        }
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        updateAllOverpaymentLimits();
+    });
+
+    elements.kwota?.addEventListener("blur", () => {
+        let validatedValue = validateKwota(elements.kwota.value);
+        elements.kwota.value = validatedValue.toFixed(2);
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        updateAllOverpaymentLimits();
+    });
+
+    elements.kwotaRange?.addEventListener("input", () => {
+        elements.kwota.value = parseFloat(elements.kwotaRange.value).toFixed(2);
+        updateKwotaInfo();
+        updateAllOverpaymentLimits();
+    });
+
+    elements.kwotaRange?.addEventListener("change", () => {
+        let validatedValue = validateKwota(elements.kwotaRange.value);
+        elements.kwota.value = validatedValue.toFixed(2);
+        elements.kwotaRange.value = validatedValue;
+        updateKwotaInfo();
+        updateAllOverpaymentLimits();
+    });
+});
 
 
 
