@@ -638,11 +638,10 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 updateOverpaymentLimit(rateInput, rateRange, group);
-                // Jeśli suwak "Kwota nadpłaty" był na maksimum, ustawiamy na nowe maksimum
+                // Zawsze aktualizujemy "Kwota nadpłaty", jeśli przekracza nowy limit
                 let currentValue = parseFloat(rateInput.value) || 0;
-                let previousMax = parseFloat(rateInput.max) || 5000000;
                 let newMax = parseFloat(rateInput.max) || 5000000;
-                if (Math.abs(currentValue - previousMax) < 0.01) { // Sprawdzamy, czy był na maksimum
+                if (currentValue > newMax) {
                     rateInput.value = newMax.toFixed(2);
                     rateRange.value = newMax;
                 }
@@ -656,11 +655,10 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 updateOverpaymentLimit(rateInput, rateRange, group);
-                // Dynamicznie aktualizujemy "Kwota nadpłaty", jeśli była na maksimum
+                // Zawsze aktualizujemy "Kwota nadpłaty", jeśli przekracza nowy limit
                 let currentValue = parseFloat(rateInput.value) || 0;
-                let previousMax = parseFloat(rateInput.max) || 5000000;
                 let newMax = parseFloat(rateInput.max) || 5000000;
-                if (Math.abs(currentValue - previousMax) < 0.01) { // Sprawdzamy, czy był na maksimum
+                if (currentValue > newMax) {
                     rateInput.value = newMax.toFixed(2);
                     rateRange.value = newMax;
                 }
@@ -713,7 +711,7 @@ function initializeNadplataKredytuGroup(group) {
                     if (newValue > maxAllowed) {
                         e.preventDefault();
                         input.value = maxAllowed.toFixed(2);
-                        range.value = maxAllowed;
+                        rateRange.value = maxAllowed;
                     }
                 } else {
                     e.preventDefault();
@@ -811,7 +809,6 @@ function updateNadplataKredytuRemoveButtons() {
         });
     }
 }
-
 
 
 
