@@ -540,6 +540,7 @@ function initializeNadplataKredytuGroup(group) {
             ));
         }
 
+        // Aktualizujemy limit
         input.max = maxAllowed;
         range.max = maxAllowed;
 
@@ -599,7 +600,7 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = g.querySelector(".variable-rate");
             const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                // Aktualizujemy limit i wartość "Kwota nadpłaty"
+                // Wywołujemy updateOverpaymentLimit, aby zaktualizować limit i wartość
                 updateOverpaymentLimit(rateInput, rateRange, g);
             }
         });
