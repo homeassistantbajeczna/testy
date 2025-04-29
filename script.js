@@ -1045,59 +1045,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
     }
 }
 
-// Aktualizacja limitów przy zmianie kwoty kredytu
-document.addEventListener("DOMContentLoaded", () => {
-    const updateAllOverpaymentLimits = () => {
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach(group => {
-            const rateInput = group.querySelector(".variable-rate");
-            const rateRange = group.querySelector(".variable-rate-range");
-            if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, rateRange, group);
-                let value = parseFloat(rateInput.value) || 0;
-                let maxAllowed = parseFloat(rateInput.max) || 5000000;
-                if (value > maxAllowed) {
-                    rateInput.value = maxAllowed.toFixed(2);
-                    rateRange.value = maxAllowed;
-                }
-            }
-        });
-    };
-
-    elements.kwota?.addEventListener("input", () => {
-        let value = elements.kwota.value;
-        if (value.includes(".")) {
-            const parts = value.split(".");
-            if (parts[1].length > 2) {
-                value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                elements.kwota.value = value;
-            }
-        }
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
-    });
-
-    elements.kwota?.addEventListener("blur", () => {
-        let validatedValue = validateKwota(elements.kwota.value);
-        elements.kwota.value = validatedValue.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
-    });
-
-    elements.kwotaRange?.addEventListener("input", () => {
-        elements.kwota.value = parseFloat(elements.kwotaRange.value).toFixed(2);
-        updateKwotaInfo();
-        updateAllOverpaymentLimits();
-    });
-
-    elements.kwotaRange?.addEventListener("change", () => {
-        let validatedValue = validateKwota(elements.kwotaRange.value);
-        elements.kwota.value = validatedValue.toFixed(2);
-        elements.kwotaRange.value = validatedValue;
-        updateKwotaInfo();
-        updateAllOverpaymentLimits();
-    });
-});
 
 
 
@@ -1358,48 +1305,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                    const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range);
-                });
-            }
+            updateAllOverpaymentLimits();
         });
-
+        
         elements.kwota?.addEventListener("blur", () => {
             let validatedValue = validateKwota(elements.kwota.value);
             elements.kwota.value = validatedValue.toFixed(2);
             syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                    const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range);
-                });
-            }
+            updateAllOverpaymentLimits();
         });
-
+        
         elements.kwotaRange?.addEventListener("input", () => {
             elements.kwota.value = parseFloat(elements.kwotaRange.value).toFixed(2);
             updateKwotaInfo();
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                    const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range);
-                });
-            }
+            updateAllOverpaymentLimits();
         });
-
+        
         elements.kwotaRange?.addEventListener("change", () => {
             let validatedValue = validateKwota(elements.kwotaRange.value);
             elements.kwota.value = validatedValue.toFixed(2);
             elements.kwotaRange.value = validatedValue;
             updateKwotaInfo();
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                    const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range);
-                });
-            }
+            updateAllOverpaymentLimits();
         });
 
         // Inicjalizacja boxa Ilość Rat
@@ -1631,6 +1558,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 elements.nadplataKredytuWrapper.appendChild(newGroup);
                 initializeNadplataKredytuGroup(newGroup);
                 updateNadplataKredytuRemoveButtons();
+                updateRatesArray("nadplata"); // Dodajemy to wywołanie
             } else {
                 resetNadplataKredytuSection();
             }
@@ -1641,6 +1569,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
             updateNadplataKredytuRemoveButtons();
+            updateRatesArray("nadplata");
         });
 
         // Inicjalizacja sekcji Zmienne Oprocentowanie
