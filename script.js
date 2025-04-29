@@ -510,14 +510,12 @@ function initializeNadplataKredytuGroup(group) {
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
         const currentIndex = Array.from(groups).indexOf(group);
 
-        // Obliczamy pozostały kapitał sekwencyjnie, uwzględniając wszystkie poprzednie nadpłaty
         let remainingCapital = parseFloat(elements.kwota?.value) || 500000;
         const oprocentowanie = parseFloat(elements.oprocentowanie?.value) || 7;
         const iloscRat = parseInt(elements.iloscRat?.value) || 360;
         const rodzajRat = elements.rodzajRat?.value || "rowne";
         const monthlyRate = oprocentowanie / 100 / 12;
 
-        // Obliczamy raty i pozostały kapitał z uwzględnieniem poprzednich nadpłat
         let previousOverpayments = [];
         for (let i = 0; i < currentIndex; i++) {
             const prevGroup = groups[i];
@@ -536,21 +534,18 @@ function initializeNadplataKredytuGroup(group) {
             });
         }
 
-        // Symulujemy spłatę kredytu do okresu bieżącej nadpłaty, uwzględniając wszystkie poprzednie nadpłaty
         let currentCapital = remainingCapital;
         let rata = rodzajRat === "rowne"
             ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat))
             : (currentCapital / iloscRat) + (currentCapital * monthlyRate);
 
         for (let month = 1; month <= periodStart - 1; month++) {
-            // Obliczamy odsetki i spłatę kapitału dla bieżącego miesiąca
             const odsetki = currentCapital * monthlyRate;
             let kapital = rata - odsetki;
             if (kapital > currentCapital) kapital = currentCapital;
 
             currentCapital -= kapital;
 
-            // Sprawdzamy, czy w tym miesiącu występuje nadpłata
             previousOverpayments.forEach(overpayment => {
                 let applyOverpayment = false;
                 if (overpayment.type === "Jednorazowa" && overpayment.start === month) {
@@ -567,7 +562,6 @@ function initializeNadplataKredytuGroup(group) {
                     if (overpaymentAmount > currentCapital) overpaymentAmount = currentCapital;
                     currentCapital -= overpaymentAmount;
 
-                    // Jeśli efektem jest "Zmniejsz ratę", przeliczamy ratę
                     if (overpayment.effect === "Zmniejsz ratę") {
                         const remainingMonths = iloscRat - month;
                         rata = rodzajRat === "rowne"
@@ -591,11 +585,9 @@ function initializeNadplataKredytuGroup(group) {
             maxAllowed = Math.min(kwotaKredytu * 0.1, remainingCapital);
         }
 
-        // Aktualizujemy limit
         input.max = maxAllowed;
         range.max = maxAllowed;
 
-        // Zawsze aktualizujemy wartość "Kwota nadpłaty", jeśli przekracza nowy limit
         let value = parseFloat(input.value) || 0;
         if (value > maxAllowed) {
             input.value = maxAllowed.toFixed(2);
@@ -620,10 +612,8 @@ function initializeNadplataKredytuGroup(group) {
         periodStartInput.max = maxPeriodStart;
         periodStartRange.max = maxPeriodStart;
 
-        // Jeśli pozostały kapitał jest mniejszy lub równy 0, blokujemy dodawanie nowych nadpłat
         if (remainingCapital <= 0) {
             elements.addNadplataKredytuBtn.style.display = "none";
-            // Usuwamy nadpłaty, które są po tej grupie
             for (let i = groups.length - 1; i > currentIndex; i--) {
                 groups[i].remove();
             }
@@ -647,7 +637,6 @@ function initializeNadplataKredytuGroup(group) {
                 const periodStart = parseInt(periodStartInput?.value) || 2;
                 const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
-                // Obliczamy pozostały kapitał sekwencyjnie
                 let remainingCapital = parseFloat(elements.kwota?.value) || 500000;
                 const oprocentowanie = parseFloat(elements.oprocentowanie?.value) || 7;
                 const iloscRat = parseInt(elements.iloscRat?.value) || 360;
@@ -700,7 +689,7 @@ function initializeNadplataKredytuGroup(group) {
                             if (overpaymentAmount > currentCapital) overpaymentAmount = currentCapital;
                             currentCapital -= overpaymentAmount;
 
-                            if (overpayment.effect === "Zmniejsz ratę") {
+                            if (overpayment.effect === "ZmniejsANT ratę") {
                                 const remainingMonths = iloscRat - month;
                                 rata = rodzajRat === "rowne"
                                     ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
@@ -785,8 +774,7 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value.toFixed(2);
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
-                
-                // Aktualizujemy kolejne grupy nadpłaty
+
                 const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
                 const currentIndex = Array.from(groups).indexOf(group);
                 for (let i = currentIndex + 1; i < groups.length; i++) {
@@ -847,8 +835,7 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value.toFixed(2);
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
-                
-                // Aktualizujemy kolejne grupy nadpłaty
+
                 const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
                 const currentIndex = Array.from(groups).indexOf(group);
                 for (let i = currentIndex + 1; i < groups.length; i++) {
@@ -869,8 +856,7 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value.toFixed(2);
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
-                
-                // Aktualizujemy kolejne grupy nadpłaty
+
                 const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
                 const currentIndex = Array.from(groups).indexOf(group);
                 for (let i = currentIndex + 1; i < groups.length; i++) {
@@ -901,7 +887,6 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     updateOverpaymentLimit(rateInput, rateRange, group);
-    // Dodajemy wywołanie, aby przycisk "Usuń" pojawił się od razu po dodaniu wiersza
     updateNadplataKredytuRemoveButtons();
 }
 
@@ -927,11 +912,13 @@ function updateNadplataKredytuRemoveButtons() {
         const lastGroup = groups[groups.length - 1];
         const removeBtnWrapper = document.createElement("div");
         removeBtnWrapper.classList.add("remove-btn-wrapper");
+        removeBtnWrapper.style.display = "block"; // Upewniamy się, że przycisk jest widoczny
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.classList.add("btn-reset");
         removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
         removeBtn.textContent = "Usuń";
+        removeBtn.style.display = "inline-block"; // Upewniamy się, że przycisk jest widoczny
         removeBtnWrapper.appendChild(removeBtn);
         lastGroup.appendChild(removeBtnWrapper);
 
@@ -944,7 +931,6 @@ function updateNadplataKredytuRemoveButtons() {
                 elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
             } else {
-                // Aktualizujemy limity dla pozostałych grup
                 remainingGroups.forEach(g => {
                     const rateInput = g.querySelector(".variable-rate");
                     const rateRange = g.querySelector(".variable-rate-range");
@@ -952,12 +938,42 @@ function updateNadplataKredytuRemoveButtons() {
                         updateOverpaymentLimit(rateInput, rateRange, g);
                     }
                 });
-                // Ponownie aktualizujemy przyciski "Usuń" i "Dodaj kolejną zmianę"
                 updateNadplataKredytuRemoveButtons();
             }
         });
     }
+
+    // Upewniamy się, że przycisk "Dodaj kolejną zmianę" jest na dole
+    if (elements.addNadplataKredytuBtn.parentNode) {
+        elements.addNadplataKredytuBtn.parentNode.removeChild(elements.addNadplataKredytuBtn);
+    }
+    wrapper.appendChild(elements.addNadplataKredytuBtn);
 }
+
+// Inicjalizacja sekcji "Nadpłata kredytu"
+elements.nadplataKredytuBtn?.addEventListener("change", () => {
+    const isChecked = elements.nadplataKredytuBtn.checked;
+    elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
+
+    if (isChecked) {
+        const newGroup = createNadplataKredytuGroup();
+        elements.nadplataKredytuWrapper.appendChild(newGroup);
+        initializeNadplataKredytuGroup(newGroup);
+        updateRatesArray("nadplata");
+        updateNadplataKredytuRemoveButtons(); // Dodajemy wywołanie, aby upewnić się, że przycisk "Usuń" się pojawi
+    } else {
+        resetNadplataKredytuSection();
+    }
+});
+
+// Obsługa przycisku "Dodaj kolejną zmianę"
+elements.addNadplataKredytuBtn?.addEventListener("click", () => {
+    const newGroup = createNadplataKredytuGroup();
+    elements.nadplataKredytuWrapper.insertBefore(newGroup, elements.addNadplataKredytuBtn);
+    initializeNadplataKredytuGroup(newGroup);
+    updateRatesArray("nadplata");
+    updateNadplataKredytuRemoveButtons();
+});
 
 
 
