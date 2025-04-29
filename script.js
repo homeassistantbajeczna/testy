@@ -361,6 +361,8 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 // F U N K C J E    N A D P Ł A T A     K R E D Y T U
 
+// F U N K C J E    N A D P Ł A T A     K R E D Y T U
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -909,22 +911,26 @@ function updateNadplataKredytuRemoveButtons() {
         const lastGroup = groups[groups.length - 1];
         const removeBtnWrapper = document.createElement("div");
         removeBtnWrapper.classList.add("remove-btn-wrapper");
-        removeBtnWrapper.style.display = "block";
+        removeBtnWrapper.style.display = "block !important";
+        removeBtnWrapper.style.visibility = "visible !important";
+        removeBtnWrapper.style.opacity = "1 !important";
         removeBtnWrapper.style.marginTop = "10px";
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.classList.add("btn-remove-nadplata");
         removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
         removeBtn.textContent = "Usuń";
-        removeBtn.style.display = "inline-block";
-        removeBtn.style.visibility = "visible";
-        removeBtn.style.opacity = "1";
+        removeBtn.style.display = "inline-block !important";
+        removeBtn.style.visibility = "visible !important";
+        removeBtn.style.opacity = "1 !important";
         removeBtn.style.padding = "5px 10px";
         removeBtn.style.backgroundColor = "#ff4d4d";
         removeBtn.style.color = "#fff";
         removeBtn.style.border = "none";
         removeBtn.style.borderRadius = "4px";
         removeBtn.style.cursor = "pointer";
+        removeBtn.style.fontSize = "14px";
+        removeBtn.style.lineHeight = "1.5";
         removeBtnWrapper.appendChild(removeBtn);
         lastGroup.appendChild(removeBtnWrapper);
 
