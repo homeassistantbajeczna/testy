@@ -156,6 +156,52 @@ function updateKwotaInfo() {
     }
 }
 
+// F U N K C J E    P O M O C N I C Z E
+
+function calculateRemainingCapital(kwota, oprocentowanie, iloscRat, rodzajRat, variableRates, targetMonth) {
+    let remainingCapital = kwota;
+    const monthlyInterestRate = oprocentowanie / 100 / 12;
+    let activeVariableRates = [...variableRates].sort((a, b) => a.period - b.period);
+
+    for (let i = 1; i <= targetMonth; i++) {
+        let currentInterestRate = monthlyInterestRate;
+        let activeRate = activeVariableRates.find(rate => rate.period === i);
+        if (activeRate) {
+            currentInterestRate = activeRate.value / 100 / 12;
+        }
+
+        let odsetki = remainingCapital * currentInterestRate;
+        let rataKapitalowa = 0;
+        let rataCalkowita = 0;
+
+        if (rodzajRat === "rowne") {
+            let q = 1 + currentInterestRate;
+            rataCalkowita = kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1);
+            rataKapitalowa = rataCalkowita - odsetki;
+
+            if (rataKapitalowa > remainingCapital) {
+                rataKapitalowa = remainingCapital;
+            }
+        } else {
+            rataKapitalowa = kwota / iloscRat;
+            rataCalkowita = rataKapitalowa + odsetki;
+
+            if (rataKapitalowa > remainingCapital) {
+                rataKapitalowa = remainingCapital;
+            }
+        }
+
+        remainingCapital -= rataKapitalowa;
+
+        if (remainingCapital <= 0) {
+            remainingCapital = 0;
+            break;
+        }
+    }
+
+    return parseFloat(remainingCapital.toFixed(2));
+}
+
 // F U N K C J E    N A D P Ł A T A     K R E D Y T U
 
 function createNadplataKredytuGroup() {
@@ -222,6 +268,8 @@ function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue) {
 function initializeNadplataKredytuGroup(group) {
     const kwota = parseFloat(elements.kwota?.value) || 500000;
     const iloscRat = parseInt(elements.iloscRat?.value) || 360;
+    const oprocentowanie = parseFloat(elements.oprocentowanie?.value) || 7;
+    const rodzajRat = elements.rodzajRat?.value || "rowne";
 
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
@@ -287,14 +335,16 @@ function initializeNadplataKredytuGroup(group) {
         }
     };
 
-    const calculateTotalOverpayment = () => {
+    const calculateTotalOverpayment = (excludeGroup = null) => {
         let total = 0;
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach(group => {
-            const valueInput = group.querySelector(".variable-rate");
-            const typeSelect = group.querySelector(".nadplata-type-select");
-            const periodStartInput = group.querySelector(".variable-cykl-start");
-            const periodEndInput = group.querySelector(".variable-cykl-end");
+        groups.forEach(g => {
+            if (g === excludeGroup) return; // Pomijamy bieżący wiersz, jeśli excludeGroup jest określony
+
+            const valueInput = g.querySelector(".variable-rate");
+            const typeSelect = g.querySelector(".nadplata-type-select");
+            const periodStartInput = g.querySelector(".variable-cykl-start");
+            const periodEndInput = g.querySelector(".variable-cykl-end");
 
             const value = parseFloat(valueInput?.value) || 0;
             const type = typeSelect?.value || "Jednorazowa";
@@ -316,25 +366,61 @@ function initializeNadplataKredytuGroup(group) {
     };
 
     const updateOverpaymentLimit = (input, range) => {
-        const totalOverpayment = calculateTotalOverpayment();
-        const remainingLoanAmount = kwota - totalOverpayment + parseFloat(input.value || 0); // Dodajemy bieżącą wartość inputu, bo jest już wliczona w totalOverpayment
-        const maxAllowed = Math.min(5000000, remainingLoanAmount);
+        const type = typeSelect?.value || "Jednorazowa";
+        const periodStartInput = group.querySelector(".variable-cykl-start");
+        const periodEndInput = group.querySelector(".variable-cykl-end");
+        const periodStart = parseInt(periodStartInput?.value) || 1;
+        const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
+
+        let maxAllowed;
+        if (type === "Jednorazowa") {
+            // Oblicz pozostały kapitał w wybranym miesiącu (bez uwzględniania nadpłaty)
+            const remainingCapital = calculateRemainingCapital(
+                kwota,
+                oprocentowanie,
+                iloscRat,
+                rodzajRat,
+                state.variableRates,
+                periodStart - 1 // -1, bo nadpłata jest w wybranym miesiącu, więc bierzemy kapitał przed tym miesiącem
+            );
+            maxAllowed = Math.min(5000000, remainingCapital);
+        } else {
+            // Dla nadpłaty cyklicznej obliczamy limit na podstawie pozostałej kwoty kredytu
+            const totalOverpayment = calculateTotalOverpayment(group); // Pomijamy bieżący wiersz
+            const remainingLoanAmount = kwota - totalOverpayment;
+            let frequencyMultiplier = 1;
+            if (type === "Miesięczna") {
+                frequencyMultiplier = periodEnd - periodStart + 1;
+            } else if (type === "Kwartalna") {
+                frequencyMultiplier = Math.floor((periodEnd - periodStart + 1) / 3);
+            } else if (type === "Roczna") {
+                frequencyMultiplier = Math.floor((periodEnd - periodStart + 1) / 12);
+            }
+            maxAllowed = Math.min(5000000, remainingLoanAmount / frequencyMultiplier);
+        }
+
+        // Zapewniamy, że maxAllowed nie jest ujemne
+        maxAllowed = Math.max(100, maxAllowed);
 
         input.max = maxAllowed;
         range.max = maxAllowed;
 
-        if (parseFloat(input.value) > maxAllowed) {
-            input.value = maxAllowed.toFixed(2);
-            range.value = maxAllowed;
+        // Jeśli bieżąca wartość przekracza limit, ustawiamy na maksymalną dozwoloną
+        let value = parseFloat(input.value) || 0;
+        if (value > maxAllowed) {
+            value = maxAllowed;
+            input.value = value.toFixed(2);
+            range.value = value;
         }
 
         // Blokada dodawania nowych wierszy, jeśli kredyt jest spłacony
+        const totalOverpayment = calculateTotalOverpayment();
         if (totalOverpayment >= kwota) {
-            elements.nadplataKredytuBtn.disabled = true;
-            elements.nadplataKredytuBtn.parentElement.classList.add("disabled");
+            elements.addNadplataKredytuBtn.disabled = true;
+            elements.addNadplataKredytuBtn.classList.add("disabled");
         } else {
-            elements.nadplataKredytuBtn.disabled = false;
-            elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
+            elements.addNadplataKredytuBtn.disabled = false;
+            elements.addNadplataKredytuBtn.classList.remove("disabled");
         }
     };
 
@@ -349,12 +435,14 @@ function initializeNadplataKredytuGroup(group) {
                 syncInputWithRange(input, range);
                 updatePeriodBox();
                 updateRatesArray("nadplata");
+                updateOverpaymentLimit(input.parentElement.parentElement.parentElement.querySelector(".variable-rate"), range.parentElement.parentElement.parentElement.querySelector(".variable-rate-range"));
             });
 
             range.addEventListener("input", () => {
                 input.value = range.value;
                 updatePeriodBox();
                 updateRatesArray("nadplata");
+                updateOverpaymentLimit(input.parentElement.parentElement.parentElement.querySelector(".variable-rate"), range.parentElement.parentElement.parentElement.querySelector(".variable-rate-range"));
             });
         } else if (input.classList.contains("variable-rate")) {
             input.max = kwota;
@@ -362,9 +450,8 @@ function initializeNadplataKredytuGroup(group) {
             syncInputWithRange(input, range);
 
             input.addEventListener("input", () => {
-                // Formatowanie do 2 miejsc po przecinku
                 let value = parseFloat(input.value) || 0;
-                value = Math.max(100, Math.min(value, 5000000)); // Ograniczenie min i max
+                value = Math.max(100, Math.min(value, 5000000));
                 input.value = value.toFixed(2);
                 range.value = value;
                 updateOverpaymentLimit(input, range);
@@ -373,7 +460,7 @@ function initializeNadplataKredytuGroup(group) {
 
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value) || 0;
-                value = Math.max(100, Math.min(value, 5000000)); // Ograniczenie min i max
+                value = Math.max(100, Math.min(value, 5000000));
                 input.value = value.toFixed(2);
                 updateOverpaymentLimit(input, range);
                 updateRatesArray("nadplata");
@@ -406,6 +493,8 @@ function resetNadplataKredytuSection() {
     state.overpaymentRates = [];
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
+    elements.addNadplataKredytuBtn.disabled = false;
+    elements.addNadplataKredytuBtn.classList.remove("disabled");
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -438,7 +527,6 @@ function updateNadplataKredytuRemoveButtons() {
                 resetNadplataKredytuSection();
             }
             updateNadplataKredytuRemoveButtons();
-            // Po usunięciu wiersza, aktualizujemy ograniczenia dla pozostałych
             const remainingGroups = wrapper.querySelectorAll(".variable-input-group");
             remainingGroups.forEach(group => {
                 const rateInput = group.querySelector(".variable-rate");
@@ -487,7 +575,6 @@ function updateRatesArray(type) {
                     });
                 }
             });
-            // Po aktualizacji tablicy, sprawdzamy ograniczenia dla wszystkich wierszy
             groups.forEach(group => {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
@@ -1050,7 +1137,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.iloscRat?.addEventListener("input", () => {
             let value = elements.iloscRat.value;
-            // Dodatkowe zabezpieczenie na wypadek wklejenia wartości z przecinkiem lub kropką
             if (value.includes(",") || value.includes(".")) {
                 value = value.replace(/[,|.]/g, "");
                 elements.iloscRat.value = value;
@@ -1142,28 +1228,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Inicjalizacja boxa Oprocentowanie
         if (elements.oprocentowanie) {
-            elements.oprocentowanie.min = 0.1; // Minimalna wartość 0.1
+            elements.oprocentowanie.min = 0.1;
             elements.oprocentowanie.max = 25;
             elements.oprocentowanie.step = 0.01;
-            elements.oprocentowanie.value = 7; // Domyślna wartość
+            elements.oprocentowanie.value = 7;
         }
         if (elements.oprocentowanieRange) {
-            elements.oprocentowanieRange.min = 0.1; // Minimalna wartość 0.1
+            elements.oprocentowanieRange.min = 0.1;
             elements.oprocentowanieRange.max = 25;
             elements.oprocentowanieRange.step = 0.01;
-            elements.oprocentowanieRange.value = 7; // Domyślna wartość
+            elements.oprocentowanieRange.value = 7;
         }
 
-        // Blokada liter i niedozwolonych znaków
         elements.oprocentowanie?.addEventListener("keydown", (event) => {
             const allowedKeys = [
                 "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                "ArrowUp", "ArrowDown", "Home", "End", ".", "," // Dodajemy przecinek
+                "ArrowUp", "ArrowDown", "Home", "End", ".", ","
             ];
-            // Zezwalaj na cyfry i dozwolone klawisze
             if (
                 !allowedKeys.includes(event.key) &&
-                !/^[0-9]$/.test(event.key) // Tylko cyfry
+                !/^[0-9]$/.test(event.key)
             ) {
                 event.preventDefault();
             }
@@ -1171,12 +1255,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.oprocentowanie?.addEventListener("input", () => {
             let value = elements.oprocentowanie.value;
-            // Zamiana przecinka na kropkę, jeśli użytkownik wpisuje przecinek
             if (value.includes(",")) {
                 value = value.replace(",", ".");
                 elements.oprocentowanie.value = value;
             }
-            // Ograniczenie do dwóch miejsc po przecinku
             if (value.includes(".")) {
                 const parts = value.split(".");
                 if (parts[1].length > 2) {
@@ -1193,28 +1275,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Inicjalizacja boxa Prowizja
         if (elements.prowizja) {
-            elements.prowizja.min = 0; // Minimalna wartość 0
-            elements.prowizja.max = 25; // Początkowo w procentach
+            elements.prowizja.min = 0;
+            elements.prowizja.max = 25;
             elements.prowizja.step = 0.01;
-            elements.prowizja.value = 2; // Domyślna wartość w procentach
+            elements.prowizja.value = 2;
         }
         if (elements.prowizjaRange) {
-            elements.prowizjaRange.min = 0; // Minimalna wartość 0
-            elements.prowizjaRange.max = 25; // Początkowo w procentach
+            elements.prowizjaRange.min = 0;
+            elements.prowizjaRange.max = 25;
             elements.prowizjaRange.step = 0.01;
-            elements.prowizjaRange.value = 2; // Domyślna wartość w procentach
+            elements.prowizjaRange.value = 2;
         }
 
-        // Blokada liter i niedozwolonych znaków
         elements.prowizja?.addEventListener("keydown", (event) => {
             const allowedKeys = [
                 "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                "ArrowUp", "ArrowDown", "Home", "End", ".", "," // Dodajemy przecinek
+                "ArrowUp", "ArrowDown", "Home", "End", ".", ","
             ];
-            // Zezwalaj na cyfry i dozwolone klawisze
             if (
                 !allowedKeys.includes(event.key) &&
-                !/^[0-9]$/.test(event.key) // Tylko cyfry
+                !/^[0-9]$/.test(event.key)
             ) {
                 event.preventDefault();
             }
@@ -1222,12 +1302,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.prowizja?.addEventListener("input", () => {
             let value = elements.prowizja.value;
-            // Zamiana przecinka na kropkę, jeśli użytkownik wpisuje przecinek
             if (value.includes(",")) {
                 value = value.replace(",", ".");
                 elements.prowizja.value = value;
             }
-            // Ograniczenie do dwóch miejsc po przecinku
             if (value.includes(".")) {
                 const parts = value.split(".");
                 if (parts[1].length > 2) {
@@ -1247,11 +1325,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const jednostka = elements.jednostkaProwizji.value;
             const kwota = parseFloat(elements.kwota?.value) || 0;
             if (jednostka === "zl") {
-                // Ustawienie domyślnej wartości jako 2% kwoty kredytu
                 const defaultProwizjaZl = (2 / 100) * kwota;
                 elements.prowizja.value = defaultProwizjaZl.toFixed(2);
             } else {
-                // Przywracamy domyślną wartość procentową (2%)
                 elements.prowizja.value = 2;
             }
             updateProwizjaInfo();
