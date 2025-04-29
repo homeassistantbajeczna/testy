@@ -593,6 +593,13 @@ function updateAllOverpaymentLimits() {
     const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
     let lastRemainingCapital = null;
 
+    // Logowanie wartości wejściowych dla debugowania
+    console.log("Wartości wejściowe:");
+    console.log("Kwota kredytu:", elements.kwota?.value);
+    console.log("Oprocentowanie:", elements.oprocentowanie?.value);
+    console.log("Ilość rat:", elements.iloscRat?.value);
+    console.log("Rodzaj rat:", elements.rodzajRat?.value);
+
     // Oblicz remainingCapital dla widoczności przycisku
     let remainingCapital = parseFloat(elements.kwota?.value) || 500000;
     const oprocentowanie = parseFloat(elements.oprocentowanie?.value) || 7;
@@ -605,7 +612,7 @@ function updateAllOverpaymentLimits() {
         ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat))
         : (currentCapital / iloscRat) + (currentCapital * monthlyRate);
 
-    console.log(`[updateAllOverpaymentLimits] Początkowy kapitał: ${currentCapital}`);
+    console.log(`[updateAllOverpaymentLimits] Początkowy kapitał: ${currentCapital}, rata: ${rata}`);
 
     // Zbierz wszystkie nadpłaty z istniejących grup
     let allOverpayments = [];
@@ -628,6 +635,8 @@ function updateAllOverpaymentLimits() {
             amount: amount,
             effect: effect
         });
+
+        console.log(`Grupa ${index}: typ=${type}, start=${periodStart}, end=${periodEnd}, amount=${amount}, effect=${effect}`);
     });
 
     // Iteruj przez wszystkie miesiące kredytu
@@ -768,7 +777,7 @@ function updateAllOverpaymentLimits() {
     console.log("Remaining capital dla ostatniej grupy:", lastRemainingCapital);
 
     updateRatesArray("nadplata");
-    return lastRemainingCapital;
+    return lastRemainingCapital !== null ? lastRemainingCapital : remainingCapital;
 }
 
 function initializeNadplataKredytuGroup(group) {
@@ -1140,12 +1149,14 @@ function updateNadplataKredytuRemoveButtons() {
         const remainingCapital = updateAllOverpaymentLimits();
         const addBtn = existingRemoveBtnWrapper.querySelector(".btn-functional");
         console.log("Remaining capital przed ukryciem przycisku:", remainingCapital);
-        if (remainingCapital !== null && remainingCapital <= 0) {
-            addBtn.style.display = "none";
-            console.log("Ukryto przycisk 'Dodaj kolejną nadpłatę', ponieważ osiągnięto limit nadpłaty");
-        } else {
+
+        // Dodatkowe zabezpieczenie: jeśli remainingCapital jest null lub undefined, pokaż przycisk
+        if (remainingCapital === null || remainingCapital === undefined || remainingCapital > 0) {
             addBtn.style.display = "block";
             console.log("Przycisk 'Dodaj kolejną nadpłatę' jest widoczny");
+        } else {
+            addBtn.style.display = "none";
+            console.log("Ukryto przycisk 'Dodaj kolejną nadpłatę', ponieważ osiągnięto limit nadpłaty");
         }
     }
 }
