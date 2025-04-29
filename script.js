@@ -158,6 +158,7 @@ function updateKwotaInfo() {
 
 
 
+Nadal nie działa ten przycisk więc proponuję powrócić do tego kodu i wdrożyć poprawki:
 // F U N K C J E    P O M O C N I C Z E
 
 function calculateRemainingCapital(kwota, oprocentowanie, iloscRat, rodzajRat, variableRates, overpaymentRates, targetMonth) {
@@ -249,18 +250,6 @@ function calculateMaxOverpayment(kwota, oprocentowanie, iloscRat, rodzajRat, var
         overpaymentRates.filter((_, idx) => idx < currentIndex),
         periodStart - 1
     );
-
-    // Odejmij nadpłaty z wcześniejszych grup
-    for (let i = 0; i < currentIndex; i++) {
-        const group = groups[i];
-        const type = group.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-        const groupPeriodStart = parseInt(group.querySelector(".variable-cykl-start")?.value) || 1;
-        const value = parseFloat(group.querySelector(".variable-rate")?.value) || 0;
-
-        if (type === "Jednorazowa" && groupPeriodStart < periodStart) {
-            remainingCapital -= value;
-        }
-    }
 
     return Math.max(100, remainingCapital);
 }
@@ -741,16 +730,13 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     updateOverpaymentLimit(rateInput, rateRange, group);
-    updateNadplataKredytuRemoveButtons();
 }
 
 function resetNadplataKredytuSection() {
     elements.nadplataKredytuWrapper.innerHTML = "";
     state.overpaymentRates = [];
     elements.nadplataKredytuBtn.disabled = false;
-    elements.nadplataKredytuBtn.checked = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
-    elements.nadplataKredytuInputs.classList.remove("active");
     elements.addNadplataKredytuBtn.style.display = "block";
     updateNadplataKredytuRemoveButtons();
 }
@@ -781,6 +767,8 @@ function updateNadplataKredytuRemoveButtons() {
             updateRatesArray("nadplata");
             const remainingGroups = wrapper.querySelectorAll(".variable-input-group");
             if (remainingGroups.length === 0) {
+                elements.nadplataKredytuBtn.checked = false;
+                elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
             } else {
                 elements.addNadplataKredytuBtn.style.display = "block";
@@ -791,13 +779,13 @@ function updateNadplataKredytuRemoveButtons() {
                         updateOverpaymentLimit(rateInput, rateRange, g);
                     }
                 });
-                updateNadplataKredytuRemoveButtons(); // Wywołaj ponownie, aby dodać przycisk do nowego ostatniego wiersza
             }
+            updateNadplataKredytuRemoveButtons(); // Wywołaj ponownie, aby dodać przycisk do nowego ostatniego wiersza
         });
     }
 }
 
-// Aktualizacja limitów przy zmianie kwoty kredytu i obsługa przycisku "NADPŁATA KREDYTU"
+// Aktualizacja limitów przy zmianie kwoty kredytu
 document.addEventListener("DOMContentLoaded", () => {
     const updateAllOverpaymentLimits = () => {
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
@@ -815,37 +803,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     };
-
-    // Obsługa przycisku "NADPŁATA KREDYTU"
-    elements.nadplataKredytuBtn?.addEventListener("click", () => {
-        const isChecked = elements.nadplataKredytuBtn.checked;
-        if (isChecked) {
-            // Aktywuj sekcję nadpłaty
-            elements.nadplataKredytuInputs.classList.add("active");
-            elements.nadplataKredytuBtn.parentElement.classList.add("disabled");
-            elements.nadplataKredytuBtn.disabled = true;
-
-            // Dodaj pierwszą grupę nadpłaty, jeśli nie istnieje
-            const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-            if (groups.length === 0) {
-                const newGroup = createNadplataKredytuGroup();
-                elements.nadplataKredytuWrapper.appendChild(newGroup);
-                initializeNadplataKredytuGroup(newGroup);
-            }
-        } else {
-            // Dezaktywuj sekcję nadpłaty
-            resetNadplataKredytuSection();
-        }
-        updateRatesArray("nadplata");
-    });
-
-    // Obsługa przycisku "DODAJ KOLEJNĄ NADPŁATĘ"
-    elements.addNadplataKredytuBtn?.addEventListener("click", () => {
-        const newGroup = createNadplataKredytuGroup();
-        elements.nadplataKredytuWrapper.appendChild(newGroup);
-        initializeNadplataKredytuGroup(newGroup);
-        updateRatesArray("nadplata");
-    });
 
     elements.kwota?.addEventListener("input", () => {
         let value = elements.kwota.value;
@@ -880,9 +837,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateKwotaInfo();
         updateAllOverpaymentLimits();
     });
-
-    // Inicjalizacja przycisków "USUŃ" po załadowaniu strony
-    updateNadplataKredytuRemoveButtons();
 });
 
 
