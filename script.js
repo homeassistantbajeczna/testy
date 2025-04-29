@@ -359,29 +359,6 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 // F U N K C J E    N A D P Ł A T A    K R E D Y T U
 
-function updateRatesArray(type) {
-    if (type === "nadplata") {
-        state.overpaymentRates = [];
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach(group => {
-            const typeSelect = group.querySelector(".nadplata-type-select");
-            const effectSelect = group.querySelector(".nadplata-effect-select");
-            const rateInput = group.querySelector(".variable-rate");
-            const periodStartInput = group.querySelector(".variable-cykl-start");
-            const periodEndInput = group.querySelector(".variable-cykl-end");
-
-            const overpayment = {
-                type: typeSelect?.value || "Jednorazowa",
-                effect: effectSelect?.value || "Skróć okres",
-                amount: parseFloat(rateInput?.value) || 0,
-                start: parseInt(periodStartInput?.value) || 2,
-                end: periodEndInput ? parseInt(periodEndInput?.value) || 2 : null
-            };
-            state.overpaymentRates.push(overpayment);
-        });
-    }
-}
-
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -921,17 +898,87 @@ function updateNadplataKredytuRemoveButtons() {
     const groups = wrapper.querySelectorAll(".variable-input-group");
     console.log("Liczba grup nadpłaty:", groups.length);
 
-    // Usuń wszystkie istniejące remove-btn-wrappery
+    // Usuń wszystkie istniejące button-wrappery
     groups.forEach((group, index) => {
-        const existingRemoveBtnWrapper = group.querySelector(".remove-btn-wrapper");
-        if (existingRemoveBtnWrapper) {
-            existingRemoveBtnWrapper.remove();
-            console.log(`Usunięto istniejący remove-btn-wrapper dla grupy ${index + 1}`);
+        const existingButtonWrapper = group.querySelector(".button-wrapper");
+        if (existingButtonWrapper) {
+            existingButtonWrapper.remove();
+            console.log(`Usunięto istniejący button-wrapper dla grupy ${index + 1}`);
         }
     });
 
-    // Dodaj przyciski tylko do ostatniej grupy
-    groups.forEach((group, index
+    // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną nadpłatę" do ostatniej grupy
+    groups.forEach((group, index) => {
+        const buttonWrapper = document.createElement("div");
+        buttonWrapper.classList.add("button-wrapper");
+        group.appendChild(buttonWrapper);
+
+        console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
+
+        // Dodaj przycisk "Usuń" do każdej grupy
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
+        removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
+        removeBtn.textContent = "Usuń";
+        buttonWrapper.appendChild(removeBtn);
+        console.log(`Dodano przycisk "Usuń" do grupy ${index + 1}`);
+
+        removeBtn.addEventListener("click", () => {
+            console.log(`Kliknięto "Usuń" w grupie ${index + 1}`);
+            group.remove();
+            updateRatesArray("nadplata");
+            updateAllOverpaymentLimits();
+            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+                elements.nadplataKredytuBtn.checked = false;
+                elements.nadplataKredytuInputs.classList.remove("active");
+                resetNadplataKredytuSection();
+            }
+            updateNadplataKredytuRemoveButtons();
+        });
+
+        // Dodaj przycisk "Dodaj kolejną nadpłatę" tylko do ostatniej grupy
+        if (index === groups.length - 1) {
+            const addBtn = document.createElement("button");
+            addBtn.type = "button";
+            addBtn.classList.add("btn", "btn-functional");
+            addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
+            addBtn.textContent = "Dodaj kolejną nadpłatę";
+            buttonWrapper.appendChild(addBtn);
+            console.log(`Dodano przycisk "Dodaj kolejną nadpłatę" do grupy ${index + 1}`);
+
+            addBtn.addEventListener("click", () => {
+                console.log("Kliknięto 'Dodaj kolejną nadpłatę'");
+                const newGroup = createNadplataKredytuGroup();
+                wrapper.appendChild(newGroup);
+                initializeNadplataKredytuGroup(newGroup);
+                updateRatesArray("nadplata");
+                updateAllOverpaymentLimits();
+                updateNadplataKredytuRemoveButtons();
+            });
+        }
+    });
+}
+
+// Inicjalizacja sekcji "Nadpłata kredytu"
+elements.nadplataKredytuBtn?.addEventListener("change", () => {
+    console.log("Zmiana stanu checkboxa Nadpłata Kredytu");
+    const isChecked = elements.nadplataKredytuBtn.checked;
+    elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
+
+    if (isChecked) {
+        console.log("Checkbox zaznaczony - inicjalizacja sekcji Nadpłata Kredytu");
+        elements.nadplataKredytuWrapper.innerHTML = "";
+        const newGroup = createNadplataKredytuGroup();
+        elements.nadplataKredytuWrapper.appendChild(newGroup);
+        initializeNadplataKredytuGroup(newGroup);
+        updateRatesArray("nadplata");
+        updateNadplataKredytuRemoveButtons();
+    } else {
+        console.log("Checkbox odznaczony - reset sekcji Nadpłata Kredytu");
+        resetNadplataKredytuSection();
+    }
+});
 
 
 
