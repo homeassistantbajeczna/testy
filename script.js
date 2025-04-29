@@ -208,7 +208,7 @@ function calculateRemainingCapital(kwota, oprocentowanie, iloscRat, rodzajRat, v
 
             if (rataKapitalowa > remainingCapital) {
                 rataKapitalowa = remainingCapital;
-           -models
+            }
         } else {
             rataKapitalowa = kwota / iloscRat;
             rataCalkowita = rataKapitalowa + odsetki;
