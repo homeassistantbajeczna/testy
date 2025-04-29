@@ -354,6 +354,11 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
     return maxEndPeriod;
 }
 
+
+
+
+
+
 // F U N K C J E    N A D P Ł A T A     K R E D Y T U
 
 function createNadplataKredytuGroup() {
@@ -512,16 +517,15 @@ function initializeNadplataKredytuGroup(group) {
             group
         );
 
-        if (type === "Jednorazowa") {
-            input.max = maxAllowed;
-            range.max = maxAllowed;
+        // Ustawienie maksymalnej wartości dla każdego typu nadpłaty
+        input.max = maxAllowed;
+        range.max = maxAllowed;
 
-            let value = parseFloat(input.value) || 0;
-            if (value > maxAllowed) {
-                value = maxAllowed;
-                input.value = value.toFixed(2);
-                range.value = value;
-            }
+        let value = parseFloat(input.value) || 0;
+        if (value > maxAllowed) {
+            value = maxAllowed;
+            input.value = value.toFixed(2);
+            range.value = value;
         }
 
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
@@ -581,12 +585,6 @@ function initializeNadplataKredytuGroup(group) {
             state.overpaymentRates,
             periodStart - 1
         );
-
-        // Uwzględnij bieżącą nadpłatę w obliczeniach
-        if (type === "Jednorazowa") {
-            const currentValue = parseFloat(input.value) || 0;
-            remainingCapital -= currentValue;
-        }
 
         if (remainingCapital <= 0) {
             for (let i = groups.length - 1; i > currentIndex; i--) {
@@ -657,7 +655,6 @@ function initializeNadplataKredytuGroup(group) {
                 let maxAllowed = parseFloat(input.max) || 5000000;
                 let currentValue = input.value;
 
-                // Pozwól na wpisywanie cyfr, kropki, Backspace, Delete i strzałek
                 if (
                     (e.key >= "0" && e.key <= "9") ||
                     e.key === "." ||
@@ -781,64 +778,14 @@ function updateNadplataKredytuRemoveButtons() {
                     }
                 });
             }
-            updateNadplataKredytuRemoveButtons(); // Wywołaj ponownie, aby dodać przycisk do nowego ostatniego wiersza
+            updateNadplataKredytuRemoveButtons();
         });
     }
 }
 
-// Aktualizacja limitów przy zmianie kwoty kredytu
-document.addEventListener("DOMContentLoaded", () => {
-    const updateAllOverpaymentLimits = () => {
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach(group => {
-            const rateInput = group.querySelector(".variable-rate");
-            const rateRange = group.querySelector(".variable-rate-range");
-            if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, rateRange, group);
-                let value = parseFloat(rateInput.value) || 0;
-                let maxAllowed = parseFloat(rateInput.max) || 5000000;
-                if (value > maxAllowed) {
-                    rateInput.value = maxAllowed.toFixed(2);
-                    rateRange.value = maxAllowed;
-                }
-            }
-        });
-    };
 
-    elements.kwota?.addEventListener("input", () => {
-        let value = elements.kwota.value;
-        if (value.includes(".")) {
-            const parts = value.split(".");
-            if (parts[1].length > 2) {
-                value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                elements.kwota.value = value;
-            }
-        }
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
-    });
 
-    elements.kwota?.addEventListener("blur", () => {
-        let validatedValue = validateKwota(elements.kwota.value);
-        elements.kwota.value = validatedValue.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
-    });
 
-    elements.kwotaRange?.addEventListener("input", () => {
-        elements.kwota.value = parseFloat(elements.kwotaRange.value).toFixed(2);
-        updateKwotaInfo();
-        updateAllOverpaymentLimits();
-    });
-
-    elements.kwotaRange?.addEventListener("change", () => {
-        let validatedValue = validateKwota(elements.kwotaRange.value);
-        elements.kwota.value = validatedValue.toFixed(2);
-        elements.kwotaRange.value = validatedValue;
-        updateKwotaInfo();
-        updateAllOverpaymentLimits();
-    });
-});
 
 
 
