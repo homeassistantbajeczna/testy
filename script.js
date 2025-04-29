@@ -354,11 +354,6 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
     return maxEndPeriod;
 }
 
-
-
-
-// F U N K C J E    N A D P Ł A T A    K R E D Y T U
-
 // Dodajemy definicję updateRatesArray
 function updateRatesArray(type) {
     if (type === "nadplata") {
@@ -383,6 +378,11 @@ function updateRatesArray(type) {
     }
     // Możemy dodać obsługę innych typów, np. "zmienne-oprocentowanie", jeśli funkcja jest używana w innych sekcjach
 }
+
+
+
+
+// F U N K C J E    N A D P Ł A T A    K R E D Y T U
 
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
@@ -938,11 +938,15 @@ function updateNadplataKredytuRemoveButtons() {
         if (index === groups.length - 1) {
             const removeBtnWrapper = document.createElement("div");
             removeBtnWrapper.classList.add("remove-btn-wrapper");
+            // Dodajemy styl inline, aby przyciski były jeden nad drugim
+            removeBtnWrapper.style.display = "flex";
+            removeBtnWrapper.style.flexDirection = "column";
+            removeBtnWrapper.style.alignItems = "flex-end";
             group.appendChild(removeBtnWrapper);
 
             console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
 
-            // Dodaj przycisk "Dodaj kolejną nadpłatę" (pierwzy w kolejności DOM)
+            // Dodaj przycisk "Dodaj kolejną nadpłatę" (pierwszy w kolejności DOM)
             const addBtn = document.createElement("button");
             addBtn.type = "button";
             addBtn.classList.add("btn", "btn-functional");
@@ -958,7 +962,9 @@ function updateNadplataKredytuRemoveButtons() {
                 initializeNadplataKredytuGroup(newGroup);
                 updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
-                updateNadplataKredytuRemoveButtons();
+                setTimeout(() => {
+                    updateNadplataKredytuRemoveButtons();
+                }, 0);
             });
 
             // Dodaj przycisk "Usuń" (drugi w kolejności DOM, więc będzie nad "Dodaj")
@@ -972,15 +978,21 @@ function updateNadplataKredytuRemoveButtons() {
 
             removeBtn.addEventListener("click", () => {
                 console.log(`Kliknięto "Usuń" w grupie ${index + 1}`);
-                group.remove();
-                updateRatesArray("nadplata");
-                updateAllOverpaymentLimits();
-                if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+                // Jeśli usuwamy pierwszą grupę (index 0 w kontekście całej listy), wyłącz checkbox "Nadpłata Kredytu"
+                const currentIndex = Array.from(wrapper.querySelectorAll(".variable-input-group")).indexOf(group);
+                if (currentIndex === 0) {
+                    console.log("Usuwanie pierwszej grupy – wyłączanie checkboxa Nadpłata Kredytu");
                     elements.nadplataKredytuBtn.checked = false;
                     elements.nadplataKredytuInputs.classList.remove("active");
                     resetNadplataKredytuSection();
+                } else {
+                    group.remove();
+                    updateRatesArray("nadplata");
+                    updateAllOverpaymentLimits();
+                    setTimeout(() => {
+                        updateNadplataKredytuRemoveButtons();
+                    }, 0);
                 }
-                updateNadplataKredytuRemoveButtons();
             });
         }
     });
@@ -999,7 +1011,9 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         elements.nadplataKredytuWrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
-        updateNadplataKredytuRemoveButtons();
+        setTimeout(() => {
+            updateNadplataKredytuRemoveButtons();
+        }, 0);
     } else {
         console.log("Checkbox odznaczony - reset sekcji Nadpłata Kredytu");
         resetNadplataKredytuSection();
