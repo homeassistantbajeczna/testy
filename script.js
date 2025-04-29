@@ -447,6 +447,12 @@ function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue) {
 }
 
 function updateOverpaymentLimit(input, range, group) {
+    // Zabezpieczenie przed undefined group
+    if (!group || !group.parentElement) {
+        console.log("Group jest undefined lub nie istnieje w DOM, pomijam updateOverpaymentLimit");
+        return 0;
+    }
+
     const typeSelect = group.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
     const periodStartInput = group.querySelector(".variable-cykl-start");
@@ -467,6 +473,7 @@ function updateOverpaymentLimit(input, range, group) {
     let previousOverpayments = [];
     for (let i = 0; i < currentIndex; i++) {
         const prevGroup = groups[i];
+        if (!prevGroup || !prevGroup.parentElement) continue; // Pomijamy grupy, które nie istnieją w DOM
         const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
         const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 2;
         const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
@@ -487,14 +494,17 @@ function updateOverpaymentLimit(input, range, group) {
         ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat))
         : (currentCapital / iloscRat) + (currentCapital * monthlyRate);
 
+    console.log(`Grupa ${currentIndex}, początkowy kapitał: ${currentCapital}`);
+
     for (let month = 1; month <= periodStart - 1; month++) {
         const odsetki = currentCapital * monthlyRate;
         let kapital = rata - odsetki;
         if (kapital > currentCapital) kapital = currentCapital;
 
         currentCapital -= kapital;
+        console.log(`Miesiąc ${month}, kapitał po spłacie raty: ${currentCapital}`);
 
-        previousOverpayments.forEach(overpayment => {
+        previousOverpayments.forEach((overpayment, idx) => {
             let applyOverpayment = false;
             if (overpayment.type === "Jednorazowa" && overpayment.start === month) {
                 applyOverpayment = true;
@@ -509,12 +519,14 @@ function updateOverpaymentLimit(input, range, group) {
                 let overpaymentAmount = overpayment.amount;
                 if (overpaymentAmount > currentCapital) overpaymentAmount = currentCapital;
                 currentCapital -= overpaymentAmount;
+                console.log(`Miesiąc ${month}, nadpłata ${idx + 1} (${overpayment.type}): -${overpaymentAmount}, kapitał: ${currentCapital}`);
 
                 if (overpayment.effect === "Zmniejsz ratę") {
                     const remainingMonths = iloscRat - month;
                     rata = rodzajRat === "rowne"
                         ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
                         : (currentCapital / remainingMonths) + (currentCapital * monthlyRate);
+                    console.log(`Miesiąc ${month}, nowa rata po nadpłacie: ${rata}`);
                 }
             }
         });
@@ -523,6 +535,7 @@ function updateOverpaymentLimit(input, range, group) {
     }
 
     remainingCapital = currentCapital;
+    console.log(`Grupa ${currentIndex}, pozostały kapitał po wszystkich nadpłatach: ${remainingCapital}`);
 
     let maxAllowed;
 
@@ -545,8 +558,10 @@ function updateOverpaymentLimit(input, range, group) {
     let minPeriodStart = 2;
     if (currentIndex > 0) {
         const previousGroup = groups[currentIndex - 1];
-        const previousPeriodStart = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 2;
-        minPeriodStart = previousPeriodStart + 1;
+        if (previousGroup && previousGroup.parentElement) {
+            const previousPeriodStart = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 2;
+            minPeriodStart = previousPeriodStart + 1;
+        }
     }
 
     periodStartInput.min = minPeriodStart;
@@ -562,7 +577,10 @@ function updateOverpaymentLimit(input, range, group) {
 
     if (remainingCapital <= 0) {
         for (let i = groups.length - 1; i > currentIndex; i--) {
-            groups[i].remove();
+            const groupToRemove = groups[i];
+            if (groupToRemove && groupToRemove.parentElement) {
+                groupToRemove.remove();
+            }
         }
         updateNadplataKredytuRemoveButtons();
     }
@@ -577,8 +595,13 @@ function updateAllOverpaymentLimits() {
     let lastRemainingCapital = null;
 
     groups.forEach((g, index) => {
+        if (!g || !g.parentElement) {
+            console.log(`Grupa ${index} nie istnieje w DOM, pomijam`);
+            return;
+        }
+
         const rateInput = g.querySelector(".variable-rate");
-        const rateRange = g.querySelector(".variable-rate-range"); // Znajdujemy range dla każdej grupy
+        const rateRange = g.querySelector(".variable-rate-range");
         if (rateInput && rateRange) {
             const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
             const periodStartInput = g.querySelector(".variable-cykl-start");
@@ -595,6 +618,7 @@ function updateAllOverpaymentLimits() {
             let previousOverpayments = [];
             for (let i = 0; i < index; i++) {
                 const prevGroup = groups[i];
+                if (!prevGroup || !prevGroup.parentElement) continue;
                 const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
                 const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 2;
                 const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
@@ -615,14 +639,17 @@ function updateAllOverpaymentLimits() {
                 ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat))
                 : (currentCapital / iloscRat) + (currentCapital * monthlyRate);
 
+            console.log(`[updateAllOverpaymentLimits] Grupa ${index}, początkowy kapitał: ${currentCapital}`);
+
             for (let month = 1; month <= periodStart - 1; month++) {
                 const odsetki = currentCapital * monthlyRate;
                 let kapital = rata - odsetki;
                 if (kapital > currentCapital) kapital = currentCapital;
 
                 currentCapital -= kapital;
+                console.log(`[updateAllOverpaymentLimits] Miesiąc ${month}, kapitał po spłacie raty: ${currentCapital}`);
 
-                previousOverpayments.forEach(overpayment => {
+                previousOverpayments.forEach((overpayment, idx) => {
                     let applyOverpayment = false;
                     if (overpayment.type === "Jednorazowa" && overpayment.start === month) {
                         applyOverpayment = true;
@@ -637,12 +664,14 @@ function updateAllOverpaymentLimits() {
                         let overpaymentAmount = overpayment.amount;
                         if (overpaymentAmount > currentCapital) overpaymentAmount = currentCapital;
                         currentCapital -= overpaymentAmount;
+                        console.log(`[updateAllOverpaymentLimits] Miesiąc ${month}, nadpłata ${idx + 1} (${overpayment.type}): -${overpaymentAmount}, kapitał: ${currentCapital}`);
 
                         if (overpayment.effect === "Zmniejsz ratę") {
                             const remainingMonths = iloscRat - month;
                             rata = rodzajRat === "rowne"
                                 ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
                                 : (currentCapital / remainingMonths) + (currentCapital * monthlyRate);
+                            console.log(`[updateAllOverpaymentLimits] Miesiąc ${month}, nowa rata po nadpłacie: ${rata}`);
                         }
                     }
                 });
@@ -651,6 +680,7 @@ function updateAllOverpaymentLimits() {
             }
 
             remainingCapital = currentCapital;
+            console.log(`[updateAllOverpaymentLimits] Grupa ${index}, pozostały kapitał po wszystkich nadpłatach: ${remainingCapital}`);
 
             let maxAllowed;
 
@@ -807,14 +837,18 @@ function initializeNadplataKredytuGroup(group) {
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
 
+                // Aktualizuj tylko grupy, które nadal istnieją w DOM
                 const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
                 const currentIndex = Array.from(groups).indexOf(group);
-                for (let i = currentIndex + 1; i < groups.length; i++) {
-                    const nextGroup = groups[i];
-                    const nextRateInput = nextGroup.querySelector(".variable-rate");
-                    const nextRateRange = nextGroup.querySelector(".variable-rate-range");
-                    if (nextRateInput && nextRateRange) {
-                        updateOverpaymentLimit(nextRateInput, nextRateRange, nextGroup);
+                if (currentIndex !== -1) { // Upewnij się, że grupa nadal istnieje
+                    for (let i = currentIndex + 1; i < groups.length; i++) {
+                        const nextGroup = groups[i];
+                        if (!nextGroup || !nextGroup.parentElement) continue; // Pomijaj grupy, które nie istnieją
+                        const nextRateInput = nextGroup.querySelector(".variable-rate");
+                        const nextRateRange = nextGroup.querySelector(".variable-rate-range");
+                        if (nextRateInput && nextRateRange) {
+                            updateOverpaymentLimit(nextRateInput, nextRateRange, nextGroup);
+                        }
                     }
                 }
                 updateAllOverpaymentLimits();
@@ -868,14 +902,18 @@ function initializeNadplataKredytuGroup(group) {
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
 
+                // Aktualizuj tylko grupy, które nadal istnieją w DOM
                 const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
                 const currentIndex = Array.from(groups).indexOf(group);
-                for (let i = currentIndex + 1; i < groups.length; i++) {
-                    const nextGroup = groups[i];
-                    const nextRateInput = nextGroup.querySelector(".variable-rate");
-                    const nextRateRange = nextGroup.querySelector(".variable-rate-range");
-                    if (nextRateInput && nextRateRange) {
-                        updateOverpaymentLimit(nextRateInput, nextRateRange, nextGroup);
+                if (currentIndex !== -1) {
+                    for (let i = currentIndex + 1; i < groups.length; i++) {
+                        const nextGroup = groups[i];
+                        if (!nextGroup || !nextGroup.parentElement) continue;
+                        const nextRateInput = nextGroup.querySelector(".variable-rate");
+                        const nextRateRange = nextGroup.querySelector(".variable-rate-range");
+                        if (nextRateInput && nextRateRange) {
+                            updateOverpaymentLimit(nextRateInput, nextRateRange, nextGroup);
+                        }
                     }
                 }
                 updateAllOverpaymentLimits();
@@ -889,14 +927,18 @@ function initializeNadplataKredytuGroup(group) {
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
 
+                // Aktualizuj tylko grupy, które nadal istnieją w DOM
                 const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
                 const currentIndex = Array.from(groups).indexOf(group);
-                for (let i = currentIndex + 1; i < groups.length; i++) {
-                    const nextGroup = groups[i];
-                    const nextRateInput = nextGroup.querySelector(".variable-rate");
-                    const nextRateRange = nextGroup.querySelector(".variable-rate-range");
-                    if (nextRateInput && nextRateRange) {
-                        updateOverpaymentLimit(nextRateInput, nextRateRange, nextGroup);
+                if (currentIndex !== -1) {
+                    for (let i = currentIndex + 1; i < groups.length; i++) {
+                        const nextGroup = groups[i];
+                        if (!nextGroup || !nextGroup.parentElement) continue;
+                        const nextRateInput = nextGroup.querySelector(".variable-rate");
+                        const nextRateRange = nextGroup.querySelector(".variable-rate-range");
+                        if (nextRateInput && nextRateRange) {
+                            updateOverpaymentLimit(nextRateInput, nextRateRange, nextGroup);
+                        }
                     }
                 }
                 updateAllOverpaymentLimits();
