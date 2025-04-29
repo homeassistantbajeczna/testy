@@ -507,17 +507,43 @@ function initializeNadplataKredytuGroup(group) {
         const periodStart = parseInt(periodStartInput?.value) || 1;
         const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
-        let maxAllowed = calculateMaxOverpayment(
-            parseFloat(elements.kwota?.value) || 500000,
-            parseFloat(elements.oprocentowanie?.value) || 7,
-            parseInt(elements.iloscRat?.value) || 360,
-            elements.rodzajRat?.value || "rowne",
-            state.variableRates,
-            state.overpaymentRates,
-            group
-        );
+        let maxAllowed;
 
-        // Ustawienie maksymalnej wartości dla każdego typu nadpłaty
+        if (type === "Jednorazowa") {
+            // Dla nadpłaty jednorazowej maksymalna kwota to pozostały kapitał w miesiącu zdefiniowanym w polu "W"
+            maxAllowed = calculateRemainingCapital(
+                parseFloat(elements.kwota?.value) || 500000,
+                parseFloat(elements.oprocentowanie?.value) || 7,
+                parseInt(elements.iloscRat?.value) || 360,
+                elements.rodzajRat?.value || "rowne",
+                state.variableRates,
+                state.overpaymentRates.filter((_, idx) => {
+                    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+                    const currentIndex = Array.from(groups).indexOf(group);
+                    return idx < currentIndex;
+                }),
+                periodStart - 1
+            );
+        } else {
+            // Dla nadpłaty cyklicznej (Miesięczna, Kwartalna, Roczna) ustawiamy mniejszy limit na pojedynczą nadpłatę
+            // np. maksymalnie 10% kwoty kredytu na jedną ratę, aby uniknąć natychmiastowej spłacalności
+            const kwotaKredytu = parseFloat(elements.kwota?.value) || 500000;
+            maxAllowed = Math.min(kwotaKredytu * 0.1, calculateRemainingCapital(
+                parseFloat(elements.kwota?.value) || 500000,
+                parseFloat(elements.oprocentowanie?.value) || 7,
+                parseInt(elements.iloscRat?.value) || 360,
+                elements.rodzajRat?.value || "rowne",
+                state.variableRates,
+                state.overpaymentRates.filter((_, idx) => {
+                    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+                    const currentIndex = Array.from(groups).indexOf(group);
+                    return idx < currentIndex;
+                }),
+                periodStart - 1
+            ));
+        }
+
+        // Ustawienie maksymalnej wartości dla pola "Kwota nadpłaty"
         input.max = maxAllowed;
         range.max = maxAllowed;
 
@@ -546,7 +572,7 @@ function initializeNadplataKredytuGroup(group) {
             periodStartRange.value = minPeriodStart;
         }
 
-        // Ustawiamy maksymalny okres startu na podstawie całkowitej liczby rat, a nie maxEndPeriod
+        // Maksymalny okres startu ustawiamy na podstawie liczby rat, niezależnie od kwoty nadpłaty
         const maxPeriodStart = iloscRat - 1;
         periodStartInput.max = maxPeriodStart;
         periodStartRange.max = maxPeriodStart;
