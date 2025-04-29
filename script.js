@@ -496,10 +496,10 @@ function initializeNadplataKredytuGroup(group) {
         const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
         let maxAllowed = calculateMaxOverpayment(
-            kwota,
-            oprocentowanie,
-            iloscRat,
-            rodzajRat,
+            parseFloat(elements.kwota?.value) || 500000,
+            parseFloat(elements.oprocentowanie?.value) || 7,
+            parseInt(elements.iloscRat?.value) || 360,
+            elements.rodzajRat?.value || "rowne",
             state.variableRates,
             state.overpaymentRates,
             group
@@ -531,10 +531,10 @@ function initializeNadplataKredytuGroup(group) {
         }
 
         const maxEndPeriod = calculateMaxEndPeriod(
-            kwota,
-            oprocentowanie,
-            iloscRat,
-            rodzajRat,
+            parseFloat(elements.kwota?.value) || 500000,
+            parseFloat(elements.oprocentowanie?.value) || 7,
+            parseInt(elements.iloscRat?.value) || 360,
+            elements.rodzajRat?.value || "rowne",
             state.variableRates,
             state.overpaymentRates,
             group
@@ -555,10 +555,10 @@ function initializeNadplataKredytuGroup(group) {
         const currentIndex = Array.from(groups).indexOf(group);
         let totalOverpayment = 0;
         let remainingCapital = calculateRemainingCapital(
-            kwota,
-            oprocentowanie,
-            iloscRat,
-            rodzajRat,
+            parseFloat(elements.kwota?.value) || 500000,
+            parseFloat(elements.oprocentowanie?.value) || 7,
+            parseInt(elements.iloscRat?.value) || 360,
+            elements.rodzajRat?.value || "rowne",
             state.variableRates,
             state.overpaymentRates.filter((_, idx) => idx < currentIndex),
             periodStart - 1
@@ -596,7 +596,6 @@ function initializeNadplataKredytuGroup(group) {
             elements.addNadplataKredytuBtn.style.display = "block";
         }
 
-        // Dynamiczne dostosowanie pola OD na podstawie możliwego okresu spłaty
         if (type === "Miesięczna") {
             const maxPossibleStart = maxEndPeriod - 1;
             periodStartInput.max = maxPossibleStart;
@@ -643,19 +642,30 @@ function initializeNadplataKredytuGroup(group) {
         } else if (input.classList.contains("variable-rate")) {
             syncInputWithRange(input, range);
 
-            input.addEventListener("input", () => {
+            input.addEventListener("input", (e) => {
                 let value = parseFloat(input.value) || 0;
-                value = Math.max(100, Math.min(value, 5000000));
+                let maxAllowed = parseFloat(input.max) || 5000000;
+                value = Math.max(100, Math.min(value, maxAllowed));
                 input.value = value.toFixed(2);
                 range.value = value;
                 updateOverpaymentLimit(input, range, group);
                 updateRatesArray("nadplata");
             });
 
+            input.addEventListener("keydown", (e) => {
+                let value = parseFloat(input.value) || 0;
+                let maxAllowed = parseFloat(input.max) || 5000000;
+                let newValue = parseFloat(input.value + (e.key >= "0" && e.key <= "9" ? e.key : "")) || value;
+                if (newValue > maxAllowed && !(e.key === "Backspace" || e.key === "Delete" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+                    e.preventDefault();
+                }
+            });
+
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value) || 0;
-                value = Math.max(100, Math.min(value, 5000000));
+                value = Math.max(100, Math.min(value, parseFloat(range.max)));
                 input.value = value.toFixed(2);
+                range.value = value;
                 updateOverpaymentLimit(input, range, group);
                 updateRatesArray("nadplata");
             });
@@ -730,6 +740,8 @@ function updateNadplataKredytuRemoveButtons() {
         });
     }
 }
+
+
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
@@ -826,6 +838,8 @@ function updateVariableOprocentowanieRemoveButtons() {
         });
     }
 }
+
+
 
 // F U N K C J E    O B L I C Z E N I A    K R E D Y T U
 
@@ -974,6 +988,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
                 updateOverpaymentLimit(rateInput, rateRange, group);
+                let value = parseFloat(rateInput.value) || 0;
+                let maxAllowed = parseFloat(rateInput.max) || 5000000;
+                if (value > maxAllowed) {
+                    rateInput.value = maxAllowed.toFixed(2);
+                    rateRange.value = maxAllowed;
+                }
             }
         });
     };
@@ -1012,7 +1032,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAllOverpaymentLimits();
     });
 });
-
 
 // F U N K C J E    W Y N I K I    I    W Y K R E S Y
 
