@@ -864,7 +864,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-
 // F U N K C J E    O B L I C Z E N I A    K R E D Y T U
 
 function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, nadplata, activeOverpayment, rodzajRat) {
