@@ -915,6 +915,12 @@ function resetNadplataKredytuSection() {
     state.overpaymentRates = [];
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
+
+    // Usuń remove-btn-wrapper, jeśli istnieje
+    const existingRemoveBtnWrapper = elements.nadplataKredytuWrapper.querySelector(".remove-btn-wrapper");
+    if (existingRemoveBtnWrapper) {
+        existingRemoveBtnWrapper.remove();
+    }
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -927,7 +933,7 @@ function updateNadplataKredytuRemoveButtons() {
     let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
 
     // Jeśli nie ma żadnego remove-btn-wrapper, utwórz nowy
-    if (!existingRemoveBtnWrapper) {
+    if (!existingRemoveBtnWrapper && groups.length > 0) {
         existingRemoveBtnWrapper = document.createElement("div");
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
         existingRemoveBtnWrapper.style.display = "flex";
@@ -956,7 +962,6 @@ function updateNadplataKredytuRemoveButtons() {
         removeBtn.addEventListener("click", () => {
             console.log("Kliknięto 'Usuń'");
             const groups = wrapper.querySelectorAll(".variable-input-group");
-            const lastGroup = groups[groups.length - 1];
             const currentIndex = groups.length - 1;
 
             if (currentIndex === 0) {
@@ -965,18 +970,33 @@ function updateNadplataKredytuRemoveButtons() {
                 elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
             } else {
+                // Znajdź ostatnią grupę i remove-btn-wrapper
+                const lastGroup = groups[currentIndex];
+                const removeBtnWrapper = lastGroup.querySelector(".remove-btn-wrapper");
+
+                // Przenieś remove-btn-wrapper do wrapper (tymczasowo)
+                if (removeBtnWrapper) {
+                    wrapper.appendChild(removeBtnWrapper);
+                    console.log("Przeniesiono remove-btn-wrapper do wrapper przed usunięciem grupy");
+                }
+
+                // Usuń ostatnią grupę
                 lastGroup.remove();
+                console.log("Usunięto ostatnią grupę");
+
+                // Zaktualizuj dane
                 updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
-                setTimeout(() => {
-                    updateNadplataKredytuRemoveButtons();
-                    // Upewniamy się, że sekcja jest widoczna
-                    const inputsSection = elements.nadplataKredytuInputs;
-                    if (inputsSection) {
-                        inputsSection.style.maxHeight = "1000px";
-                        inputsSection.style.overflow = "visible";
-                    }
-                }, 100);
+
+                // Wywołaj aktualizację przycisków, aby przenieść remove-btn-wrapper do nowej ostatniej grupy
+                updateNadplataKredytuRemoveButtons();
+
+                // Upewnij się, że sekcja jest widoczna
+                const inputsSection = elements.nadplataKredytuInputs;
+                if (inputsSection) {
+                    inputsSection.style.maxHeight = "1000px";
+                    inputsSection.style.overflow = "visible";
+                }
             }
         });
 
@@ -987,20 +1007,21 @@ function updateNadplataKredytuRemoveButtons() {
             initializeNadplataKredytuGroup(newGroup);
             updateRatesArray("nadplata");
             updateAllOverpaymentLimits();
-            setTimeout(() => {
-                updateNadplataKredytuRemoveButtons();
-                // Upewniamy się, że sekcja jest widoczna
-                const inputsSection = elements.nadplataKredytuInputs;
-                if (inputsSection) {
-                    inputsSection.style.maxHeight = "1000px";
-                    inputsSection.style.overflow = "visible";
-                }
-            }, 100);
+
+            // Wywołaj aktualizację przycisków
+            updateNadplataKredytuRemoveButtons();
+
+            // Upewnij się, że sekcja jest widoczna
+            const inputsSection = elements.nadplataKredytuInputs;
+            if (inputsSection) {
+                inputsSection.style.maxHeight = "1000px";
+                inputsSection.style.overflow = "visible";
+            }
         });
     }
 
     // Usuń istniejący remove-btn-wrapper z jego obecnej lokalizacji
-    if (existingRemoveBtnWrapper.parentElement) {
+    if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
         existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
     }
 
@@ -1025,20 +1046,123 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         elements.nadplataKredytuWrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
-        setTimeout(() => {
-            updateNadplataKredytuRemoveButtons();
-            // Upewniamy się, że sekcja jest widoczna
-            const inputsSection = elements.nadplataKredytuInputs;
-            if (inputsSection) {
-                inputsSection.style.maxHeight = "1000px";
-                inputsSection.style.overflow = "visible";
-            }
-        }, 100);
+        updateNadplataKredytuRemoveButtons();
+
+        // Upewnij się, że sekcja jest widoczna
+        const inputsSection = elements.nadplataKredytuInputs;
+        if (inputsSection) {
+            inputsSection.style.maxHeight = "1000px";
+            inputsSection.style.overflow = "visible";
+        }
     } else {
         console.log("Checkbox odznaczony - reset sekcji Nadpłata Kredytu");
         resetNadplataKredytuSection();
     }
 });
+
+
+
+
+
+
+// F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
+
+function createVariableOprocentowanieGroup() {
+    const group = document.createElement("div");
+    group.classList.add("variable-input-group");
+    group.setAttribute("data-type", "oprocentowanie");
+    group.innerHTML = `
+        <div class="fields-wrapper">
+            <div class="form-group box-period">
+                <label class="form-label">Od</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-cykl" min="2" max="420" step="1" value="2">
+                    <span class="input-group-text unit-miesiaca">miesiąca</span>
+                </div>
+                <input type="range" class="form-range range-slider variable-cykl-range" min="2" max="420" step="1" value="2">
+            </div>
+            <div class="form-group box-rate">
+                <label class="form-label">Oprocentowanie</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
+                    <span class="input-group-text">%</span>
+                </div>
+                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.1" value="7">
+            </div>
+        </div>
+    `;
+    return group;
+}
+
+function initializeVariableOprocentowanieGroup(group) {
+    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
+
+    const inputs = group.querySelectorAll(".form-control");
+    const ranges = group.querySelectorAll(".form-range");
+
+    inputs.forEach((input, index) => {
+        const range = ranges[index];
+        if (input.classList.contains("variable-cykl")) {
+            input.max = iloscRat;
+            range.max = iloscRat;
+            syncInputWithRange(input, range);
+        } else if (input.classList.contains("variable-rate")) {
+            syncInputWithRange(input, range);
+        }
+
+        input.addEventListener("input", () => {
+            syncInputWithRange(input, range);
+            updateRatesArray("oprocentowanie");
+        });
+
+        range.addEventListener("input", () => {
+            input.value = range.value;
+            updateRatesArray("oprocentowanie");
+        });
+    });
+}
+
+function resetVariableOprocentowanieSection() {
+    elements.variableOprocentowanieWrapper.innerHTML = "";
+    state.variableRates = [];
+}
+
+function updateVariableOprocentowanieRemoveButtons() {
+    const wrapper = elements.variableOprocentowanieWrapper;
+    const groups = wrapper.querySelectorAll(".variable-input-group");
+    const existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
+
+    if (existingRemoveBtnWrapper) {
+        existingRemoveBtnWrapper.remove();
+    }
+
+    if (groups.length > 0) {
+        const lastGroup = groups[groups.length - 1];
+        const removeBtnWrapper = document.createElement("div");
+        removeBtnWrapper.classList.add("remove-btn-wrapper");
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.classList.add("btn-reset");
+        removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
+        removeBtn.textContent = "Usuń";
+        removeBtnWrapper.appendChild(removeBtn);
+        lastGroup.appendChild(removeBtnWrapper);
+
+        removeBtn.addEventListener("click", () => {
+            lastGroup.remove();
+            updateRatesArray("oprocentowanie");
+            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+                elements.zmienneOprocentowanieBtn.checked = false;
+                elements.variableOprocentowanieInputs.classList.remove("active");
+                resetVariableOprocentowanieSection();
+            }
+            updateVariableOprocentowanieRemoveButtons();
+        });
+    }
+}
+
+
+
 
 
 
