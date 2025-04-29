@@ -901,6 +901,8 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     updateOverpaymentLimit(rateInput, rateRange, group);
+    // Dodajemy wywołanie, aby przycisk "Usuń" pojawił się od razu po dodaniu wiersza
+    updateNadplataKredytuRemoveButtons();
 }
 
 function resetNadplataKredytuSection() {
