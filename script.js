@@ -361,8 +361,6 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 // F U N K C J E    N A D P Ł A T A     K R E D Y T U
 
-// F U N K C J E    N A D P Ł A T A     K R E D Y T U
-
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -615,14 +613,12 @@ function initializeNadplataKredytuGroup(group) {
         periodStartRange.max = maxPeriodStart;
 
         if (remainingCapital <= 0) {
-            const addButton = elements.nadplataKredytuWrapper.querySelector(".add-overpayment-btn");
-            if (addButton) addButton.style.display = "none";
+            elements.addNadplataKredytuBtn.style.display = "none";
             for (let i = groups.length - 1; i > currentIndex; i--) {
                 groups[i].remove();
             }
         } else {
-            const addButton = elements.nadplataKredytuWrapper.querySelector(".add-overpayment-btn");
-            if (addButton) addButton.style.display = "inline-block";
+            elements.addNadplataKredytuBtn.style.display = "block";
         }
 
         updateRatesArray("nadplata");
@@ -896,60 +892,8 @@ function resetNadplataKredytuSection() {
     state.overpaymentRates = [];
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
-    addNewNadplataButtons(); // Dodajemy nowy przycisk po zresetowaniu sekcji
-}
-
-function addNewNadplataButtons() {
-    const wrapper = elements.nadplataKredytuWrapper;
-
-    // Usuwamy istniejący przycisk, jeśli istnieje
-    const existingButtonWrapper = wrapper.querySelector(".nadplata-buttons-wrapper");
-    if (existingButtonWrapper) {
-        existingButtonWrapper.remove();
-    }
-
-    // Usuwamy stary przycisk "DODAJ KOLEJNĄ ZMIANĘ", jeśli istnieje w DOM-ie
-    const oldAddButton = wrapper.querySelector("#addNadplataKredytuBtn");
-    if (oldAddButton) {
-        oldAddButton.remove();
-    }
-
-    // Tworzymy nowy wrapper dla przycisku
-    const buttonWrapper = document.createElement("div");
-    buttonWrapper.classList.add("nadplata-buttons-wrapper");
-    buttonWrapper.style.marginTop = "10px";
-    buttonWrapper.style.display = "flex";
-    buttonWrapper.style.gap = "10px";
-
-    // Przycisk "Dodaj kolejną nadpłatę"
-    const addButton = document.createElement("button");
-    addButton.type = "button";
-    addButton.classList.add("add-overpayment-btn");
-    addButton.textContent = "DODAJ KOLEJNĄ NADPŁATĘ";
-    addButton.style.padding = "5px 10px";
-    addButton.style.backgroundColor = "#28a745";
-    addButton.style.color = "#fff";
-    addButton.style.border = "none";
-    addButton.style.borderRadius = "4px";
-    addButton.style.cursor = "pointer";
-    addButton.style.fontSize = "14px";
-    addButton.style.lineHeight = "1.5";
-    addButton.style.display = "inline-block";
-    addButton.style.textTransform = "uppercase";
-    addButton.style.fontWeight = "bold";
-
-    // Dodajemy przycisk do wrappera
-    buttonWrapper.appendChild(addButton);
-    wrapper.appendChild(buttonWrapper);
-
-    // Logika dla przycisku "Dodaj kolejną nadpłatę"
-    addButton.addEventListener("click", () => {
-        const newGroup = createNadplataKredytuGroup();
-        wrapper.insertBefore(newGroup, buttonWrapper);
-        initializeNadplataKredytuGroup(newGroup);
-        updateRatesArray("nadplata");
-        updateAllOverpaymentLimits();
-    });
+    elements.addNadplataKredytuBtn.style.display = "block";
+    elements.nadplataKredytuWrapper.appendChild(elements.addNadplataKredytuBtn);
 }
 
 // Inicjalizacja sekcji "Nadpłata kredytu"
@@ -958,15 +902,24 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
     elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
 
     if (isChecked) {
-        elements.nadplataKredytuWrapper.innerHTML = ""; // Czyścimy wrapper
+        elements.nadplataKredytuWrapper.innerHTML = "";
         const newGroup = createNadplataKredytuGroup();
         elements.nadplataKredytuWrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
-        addNewNadplataButtons(); // Dodajemy nowy przycisk
+        elements.nadplataKredytuWrapper.appendChild(elements.addNadplataKredytuBtn);
     } else {
         resetNadplataKredytuSection();
     }
+});
+
+// Obsługa przycisku "Dodaj kolejną zmianę"
+elements.addNadplataKredytuBtn?.addEventListener("click", () => {
+    const newGroup = createNadplataKredytuGroup();
+    elements.nadplataKredytuWrapper.insertBefore(newGroup, elements.addNadplataKredytuBtn);
+    initializeNadplataKredytuGroup(newGroup);
+    updateRatesArray("nadplata");
+    updateAllOverpaymentLimits();
 });
 
 
