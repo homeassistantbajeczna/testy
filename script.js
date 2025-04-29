@@ -689,7 +689,7 @@ function initializeNadplataKredytuGroup(group) {
                             if (overpaymentAmount > currentCapital) overpaymentAmount = currentCapital;
                             currentCapital -= overpaymentAmount;
 
-                            if (overpayment.effect === "ZmniejsANT ratę") {
+                            if (overpayment.effect === "Zmniejsz ratę") {
                                 const remainingMonths = iloscRat - month;
                                 rata = rodzajRat === "rowne"
                                     ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
@@ -713,7 +713,7 @@ function initializeNadplataKredytuGroup(group) {
                 }
 
                 rateInput.max = maxAllowed;
-                range.max = maxAllowed;
+                rateRange.max = maxAllowed;
 
                 let value = parseFloat(rateInput.value) || 0;
                 if (value > maxAllowed) {
@@ -896,6 +896,7 @@ function resetNadplataKredytuSection() {
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
     elements.addNadplataKredytuBtn.style.display = "block";
+    elements.nadplataKredytuWrapper.appendChild(elements.addNadplataKredytuBtn);
     updateNadplataKredytuRemoveButtons();
 }
 
@@ -912,13 +913,13 @@ function updateNadplataKredytuRemoveButtons() {
         const lastGroup = groups[groups.length - 1];
         const removeBtnWrapper = document.createElement("div");
         removeBtnWrapper.classList.add("remove-btn-wrapper");
-        removeBtnWrapper.style.display = "block"; // Upewniamy się, że przycisk jest widoczny
+        removeBtnWrapper.style.display = "block"; // Upewniamy się, że wrapper jest widoczny
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.classList.add("btn-reset");
         removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
         removeBtn.textContent = "Usuń";
-        removeBtn.style.display = "inline-block"; // Upewniamy się, że przycisk jest widoczny
+        removeBtn.style.display = "inline-block !important"; // Nadpisz styl CSS
         removeBtnWrapper.appendChild(removeBtn);
         lastGroup.appendChild(removeBtnWrapper);
 
@@ -960,7 +961,7 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         elements.nadplataKredytuWrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
-        updateNadplataKredytuRemoveButtons(); // Dodajemy wywołanie, aby upewnić się, że przycisk "Usuń" się pojawi
+        updateNadplataKredytuRemoveButtons();
     } else {
         resetNadplataKredytuSection();
     }
@@ -974,7 +975,6 @@ elements.addNadplataKredytuBtn?.addEventListener("click", () => {
     updateRatesArray("nadplata");
     updateNadplataKredytuRemoveButtons();
 });
-
 
 
 
