@@ -857,6 +857,15 @@ document.addEventListener("DOMContentLoaded", () => {
         updateKwotaInfo();
         updateAllOverpaymentLimits();
     });
+
+    // Dodajemy obsługę przycisku "DODAJ KOLEJNĄ NADPŁATĘ", która była w oryginalnym kodzie
+    elements.addNadplataKredytuBtn?.addEventListener("click", () => {
+        const newGroup = createNadplataKredytuGroup();
+        elements.nadplataKredytuWrapper.appendChild(newGroup);
+        initializeNadplataKredytuGroup(newGroup);
+        updateNadplataKredytuRemoveButtons();
+        updateRatesArray("nadplata");
+    });
 });
 
 
