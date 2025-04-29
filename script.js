@@ -884,6 +884,9 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     updateOverpaymentLimit(rateInput, rateRange, group);
+
+    // Po zainicjalizowaniu grupy, upewniamy się, że przyciski są dodane
+    updateNadplataKredytuRemoveButtons();
 }
 
 function resetNadplataKredytuSection() {
@@ -894,21 +897,31 @@ function resetNadplataKredytuSection() {
 }
 
 function updateNadplataKredytuRemoveButtons() {
+    console.log("Wywołano updateNadplataKredytuRemoveButtons");
     const wrapper = elements.nadplataKredytuWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
+    console.log("Liczba grup nadpłaty:", groups.length);
 
     // Usuń wszystkie istniejące przyciski w wrapperach
-    groups.forEach(group => {
+    groups.forEach((group, index) => {
         const buttonWrapper = group.querySelector(".button-wrapper");
         if (buttonWrapper) {
             buttonWrapper.innerHTML = ""; // Wyczyść wrapper przycisków
+            console.log(`Wyczyszczono button-wrapper dla grupy ${index + 1}`);
+        } else {
+            console.log(`Brak button-wrapper w grupie ${index + 1}`);
         }
     });
 
-    // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną zmianę" do ostatniej grupy
+    // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną nadpłatę" do ostatniej grupy
     groups.forEach((group, index) => {
         const buttonWrapper = group.querySelector(".button-wrapper");
-        if (!buttonWrapper) return;
+        if (!buttonWrapper) {
+            console.error(`Brak button-wrapper w grupie ${index + 1}`);
+            return;
+        }
+
+        console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
 
         // Dodaj przycisk "Usuń" do każdej grupy
         const removeBtn = document.createElement("button");
@@ -917,8 +930,10 @@ function updateNadplataKredytuRemoveButtons() {
         removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
         removeBtn.textContent = "Usuń";
         buttonWrapper.appendChild(removeBtn);
+        console.log(`Dodano przycisk "Usuń" do grupy ${index + 1}`);
 
         removeBtn.addEventListener("click", () => {
+            console.log(`Kliknięto "Usuń" w grupie ${index + 1}`);
             group.remove();
             updateRatesArray("nadplata");
             updateAllOverpaymentLimits();
@@ -930,7 +945,7 @@ function updateNadplataKredytuRemoveButtons() {
             updateNadplataKredytuRemoveButtons();
         });
 
-        // Dodaj przycisk "Dodaj kolejną zmianę" tylko do ostatniej grupy
+        // Dodaj przycisk "Dodaj kolejną nadpłatę" tylko do ostatniej grupy
         if (index === groups.length - 1) {
             const addBtn = document.createElement("button");
             addBtn.type = "button";
@@ -938,8 +953,10 @@ function updateNadplataKredytuRemoveButtons() {
             addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
             addBtn.textContent = "Dodaj kolejną nadpłatę";
             buttonWrapper.appendChild(addBtn);
+            console.log(`Dodano przycisk "Dodaj kolejną nadpłatę" do grupy ${index + 1}`);
 
             addBtn.addEventListener("click", () => {
+                console.log("Kliknięto 'Dodaj kolejną nadpłatę'");
                 const newGroup = createNadplataKredytuGroup();
                 wrapper.appendChild(newGroup);
                 initializeNadplataKredytuGroup(newGroup);
@@ -953,10 +970,12 @@ function updateNadplataKredytuRemoveButtons() {
 
 // Inicjalizacja sekcji "Nadpłata kredytu"
 elements.nadplataKredytuBtn?.addEventListener("change", () => {
+    console.log("Zmiana stanu checkboxa Nadpłata Kredytu");
     const isChecked = elements.nadplataKredytuBtn.checked;
     elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
 
     if (isChecked) {
+        console.log("Checkbox zaznaczony - inicjalizacja sekcji Nadpłata Kredytu");
         elements.nadplataKredytuWrapper.innerHTML = "";
         const newGroup = createNadplataKredytuGroup();
         elements.nadplataKredytuWrapper.appendChild(newGroup);
@@ -964,6 +983,7 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         updateRatesArray("nadplata");
         updateNadplataKredytuRemoveButtons();
     } else {
+        console.log("Checkbox odznaczony - reset sekcji Nadpłata Kredytu");
         resetNadplataKredytuSection();
     }
 });
