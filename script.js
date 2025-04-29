@@ -839,6 +839,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAllOverpaymentLimits();
     });
 
+    // Dodajemy zdarzenie dla przycisku "Dodaj nadpłatę"
     elements.addNadplataKredytuBtn?.addEventListener("click", () => {
         const newGroup = createNadplataKredytuGroup();
         elements.nadplataKredytuWrapper.appendChild(newGroup);
@@ -847,8 +848,8 @@ document.addEventListener("DOMContentLoaded", () => {
         updateRatesArray("nadplata");
     });
 
-    // Dodajemy podstawowe zdarzenie dla nadplataKredytuBtn
-    elements.nadplataKredytuBtn?.addEventListener("click", () => {
+    // Dodajemy zdarzenie dla przycisku "NADPŁATA KREDYTU"
+    elements.nadplataKredytuBtn?.addEventListener("change", () => {
         if (elements.nadplataKredytuBtn.checked) {
             elements.nadplataKredytuInputs.classList.add("active");
             const newGroup = createNadplataKredytuGroup();
