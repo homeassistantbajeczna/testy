@@ -622,7 +622,6 @@ function initializeNadplataKredytuGroup(group) {
         }
 
         updateRatesArray("nadplata");
-        updateNadplataKredytuRemoveButtons();
     };
 
     const updateAllOverpaymentLimits = () => {
@@ -713,7 +712,7 @@ function initializeNadplataKredytuGroup(group) {
                 }
 
                 rateInput.max = maxAllowed;
-                rateRange.max = maxAllowed;
+                range.max = maxAllowed;
 
                 let value = parseFloat(rateInput.value) || 0;
                 if (value > maxAllowed) {
@@ -723,7 +722,6 @@ function initializeNadplataKredytuGroup(group) {
             }
         });
         updateRatesArray("nadplata");
-        updateNadplataKredytuRemoveButtons();
     };
 
     if (!elements.kwota.dataset.listenerAdded) {
@@ -887,7 +885,6 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     updateOverpaymentLimit(rateInput, rateRange, group);
-    updateNadplataKredytuRemoveButtons();
 }
 
 function resetNadplataKredytuSection() {
@@ -897,7 +894,6 @@ function resetNadplataKredytuSection() {
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
     elements.addNadplataKredytuBtn.style.display = "block";
     elements.nadplataKredytuWrapper.appendChild(elements.addNadplataKredytuBtn);
-    updateNadplataKredytuRemoveButtons();
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -913,13 +909,22 @@ function updateNadplataKredytuRemoveButtons() {
         const lastGroup = groups[groups.length - 1];
         const removeBtnWrapper = document.createElement("div");
         removeBtnWrapper.classList.add("remove-btn-wrapper");
-        removeBtnWrapper.style.display = "block"; // Upewniamy się, że wrapper jest widoczny
+        removeBtnWrapper.style.display = "block";
+        removeBtnWrapper.style.marginTop = "10px";
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
-        removeBtn.classList.add("btn-reset");
+        removeBtn.classList.add("btn-remove-nadplata");
         removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
         removeBtn.textContent = "Usuń";
-        removeBtn.style.display = "inline-block !important"; // Nadpisz styl CSS
+        removeBtn.style.display = "inline-block";
+        removeBtn.style.visibility = "visible";
+        removeBtn.style.opacity = "1";
+        removeBtn.style.padding = "5px 10px";
+        removeBtn.style.backgroundColor = "#ff4d4d";
+        removeBtn.style.color = "#fff";
+        removeBtn.style.border = "none";
+        removeBtn.style.borderRadius = "4px";
+        removeBtn.style.cursor = "pointer";
         removeBtnWrapper.appendChild(removeBtn);
         lastGroup.appendChild(removeBtnWrapper);
 
@@ -939,8 +944,8 @@ function updateNadplataKredytuRemoveButtons() {
                         updateOverpaymentLimit(rateInput, rateRange, g);
                     }
                 });
-                updateNadplataKredytuRemoveButtons();
             }
+            updateNadplataKredytuRemoveButtons();
         });
     }
 
@@ -957,10 +962,17 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
     elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
 
     if (isChecked) {
+        // Najpierw czyścimy wrapper, aby uniknąć duplikatów
+        elements.nadplataKredytuWrapper.innerHTML = "";
         const newGroup = createNadplataKredytuGroup();
         elements.nadplataKredytuWrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
+        // Upewniamy się, że przycisk "Dodaj kolejną zmianę" jest na dole
+        if (elements.addNadplataKredytuBtn.parentNode) {
+            elements.addNadplataKredytuBtn.parentNode.removeChild(elements.addNadplataKredytuBtn);
+        }
+        elements.nadplataKredytuWrapper.appendChild(elements.addNadplataKredytuBtn);
         updateNadplataKredytuRemoveButtons();
     } else {
         resetNadplataKredytuSection();
@@ -975,7 +987,6 @@ elements.addNadplataKredytuBtn?.addEventListener("click", () => {
     updateRatesArray("nadplata");
     updateNadplataKredytuRemoveButtons();
 });
-
 
 
 
