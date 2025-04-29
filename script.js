@@ -158,7 +158,6 @@ function updateKwotaInfo() {
 
 
 
-Nadal nie działa ten przycisk więc proponuję powrócić do tego kodu i wdrożyć poprawki:
 // F U N K C J E    P O M O C N I C Z E
 
 function calculateRemainingCapital(kwota, oprocentowanie, iloscRat, rodzajRat, variableRates, overpaymentRates, targetMonth) {
