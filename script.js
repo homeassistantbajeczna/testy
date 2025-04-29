@@ -388,7 +388,7 @@ function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
     group.setAttribute("data-type", "nadplata");
-    group.style.marginBottom = "10px"; // Zmniejszenie przestrzeni pod grupą
+    group.style.marginBottom = "10px";
     group.innerHTML = `
         <div class="fields-wrapper">
             <div class="form-row">
@@ -446,7 +446,6 @@ function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue) {
     return box;
 }
 
-// Funkcja updateOverpaymentLimit przeniesiona na poziom globalny
 function updateOverpaymentLimit(input, range, group) {
     const typeSelect = group.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
@@ -570,18 +569,16 @@ function updateOverpaymentLimit(input, range, group) {
 
     updateRatesArray("nadplata");
 
-    // Zwróć remainingCapital, aby można było użyć go do ukrycia przycisku "Dodaj"
     return remainingCapital;
 }
 
-// Funkcja updateAllOverpaymentLimits przeniesiona na poziom globalny
 function updateAllOverpaymentLimits() {
     const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
     let lastRemainingCapital = null;
 
     groups.forEach((g, index) => {
         const rateInput = g.querySelector(".variable-rate");
-        const rateRange = g.querySelector(".variable-rate-range");
+        const rateRange = g.querySelector(".variable-rate-range"); // Znajdujemy range dla każdej grupy
         if (rateInput && rateRange) {
             const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
             const periodStartInput = g.querySelector(".variable-cykl-start");
@@ -665,17 +662,17 @@ function updateAllOverpaymentLimits() {
             }
 
             rateInput.max = maxAllowed;
-            range.max = maxAllowed;
+            rateRange.max = maxAllowed;
 
             let value = parseFloat(rateInput.value) || 0;
             if (value > maxAllowed) {
                 rateInput.value = maxAllowed.toFixed(2);
-                range.value = maxAllowed;
+                rateRange.value = maxAllowed;
             }
 
-            // Zapisz remainingCapital dla ostatniej grupy
             if (index === groups.length - 1) {
                 lastRemainingCapital = remainingCapital;
+                console.log("Remaining capital dla ostatniej grupy:", lastRemainingCapital);
             }
         }
     });
@@ -932,7 +929,6 @@ function resetNadplataKredytuSection() {
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
 
-    // Usuń remove-btn-wrapper, jeśli istnieje
     const existingRemoveBtnWrapper = elements.nadplataKredytuWrapper.querySelector(".remove-btn-wrapper");
     if (existingRemoveBtnWrapper) {
         existingRemoveBtnWrapper.remove();
@@ -945,10 +941,8 @@ function updateNadplataKredytuRemoveButtons() {
     const groups = wrapper.querySelectorAll(".variable-input-group");
     console.log("Liczba grup nadpłaty:", groups.length);
 
-    // Znajdź istniejący remove-btn-wrapper
     let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
 
-    // Jeśli nie ma żadnego remove-btn-wrapper, utwórz nowy
     if (!existingRemoveBtnWrapper && groups.length > 0) {
         existingRemoveBtnWrapper = document.createElement("div");
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
@@ -956,9 +950,8 @@ function updateNadplataKredytuRemoveButtons() {
         existingRemoveBtnWrapper.style.flexDirection = "column";
         existingRemoveBtnWrapper.style.alignItems = "center";
         existingRemoveBtnWrapper.style.gap = "5px";
-        existingRemoveBtnWrapper.style.marginTop = "10px"; // Zmniejszenie przestrzeni nad przyciskami
+        existingRemoveBtnWrapper.style.marginTop = "10px";
 
-        // Przycisk "Usuń"
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
@@ -966,7 +959,6 @@ function updateNadplataKredytuRemoveButtons() {
         removeBtn.textContent = "Usuń";
         existingRemoveBtnWrapper.appendChild(removeBtn);
 
-        // Przycisk "Dodaj kolejną nadpłatę"
         const addBtn = document.createElement("button");
         addBtn.type = "button";
         addBtn.classList.add("btn", "btn-functional");
@@ -975,7 +967,6 @@ function updateNadplataKredytuRemoveButtons() {
         addBtn.style.alignSelf = "flex-end";
         existingRemoveBtnWrapper.appendChild(addBtn);
 
-        // Dodaj zdarzenia dla przycisków
         removeBtn.addEventListener("click", () => {
             console.log("Kliknięto 'Usuń'");
             const groups = wrapper.querySelectorAll(".variable-input-group");
@@ -987,28 +978,21 @@ function updateNadplataKredytuRemoveButtons() {
                 elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
             } else {
-                // Znajdź ostatnią grupę i remove-btn-wrapper
                 const lastGroup = groups[currentIndex];
                 const removeBtnWrapper = lastGroup.querySelector(".remove-btn-wrapper");
 
-                // Przenieś remove-btn-wrapper do wrapper (tymczasowo)
                 if (removeBtnWrapper) {
                     wrapper.appendChild(removeBtnWrapper);
                     console.log("Przeniesiono remove-btn-wrapper do wrapper przed usunięciem grupy");
                 }
 
-                // Usuń ostatnią grupę
                 lastGroup.remove();
                 console.log("Usunięto ostatnią grupę");
 
-                // Zaktualizuj dane
                 updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
-
-                // Wywołaj aktualizację przycisków
                 updateNadplataKredytuRemoveButtons();
 
-                // Upewnij się, że sekcja jest widoczna
                 const inputsSection = elements.nadplataKredytuInputs;
                 if (inputsSection) {
                     inputsSection.style.maxHeight = "1000px";
@@ -1024,11 +1008,8 @@ function updateNadplataKredytuRemoveButtons() {
             initializeNadplataKredytuGroup(newGroup);
             updateRatesArray("nadplata");
             updateAllOverpaymentLimits();
-
-            // Wywołaj aktualizację przycisków
             updateNadplataKredytuRemoveButtons();
 
-            // Upewnij się, że sekcja jest widoczna
             const inputsSection = elements.nadplataKredytuInputs;
             if (inputsSection) {
                 inputsSection.style.maxHeight = "1000px";
@@ -1037,20 +1018,18 @@ function updateNadplataKredytuRemoveButtons() {
         });
     }
 
-    // Usuń istniejący remove-btn-wrapper z jego obecnej lokalizacji
     if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
         existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
     }
 
-    // Dodaj remove-btn-wrapper do ostatniej grupy, jeśli istnieją grupy
     if (groups.length > 0) {
         const lastGroup = groups[groups.length - 1];
         lastGroup.appendChild(existingRemoveBtnWrapper);
         console.log(`Przeniesiono remove-btn-wrapper do grupy ${groups.length}`);
 
-        // Sprawdź, czy osiągnięto limit nadpłaty i ukryj przycisk "Dodaj", jeśli tak
         const remainingCapital = updateAllOverpaymentLimits();
         const addBtn = existingRemoveBtnWrapper.querySelector(".btn-functional");
+        console.log("Remaining capital przed ukryciem przycisku:", remainingCapital);
         if (remainingCapital !== null && remainingCapital <= 0) {
             addBtn.style.display = "none";
             console.log("Ukryto przycisk 'Dodaj kolejną nadpłatę', ponieważ osiągnięto limit nadpłaty");
@@ -1061,7 +1040,6 @@ function updateNadplataKredytuRemoveButtons() {
     }
 }
 
-// Inicjalizacja sekcji "Nadpłata kredytu"
 elements.nadplataKredytuBtn?.addEventListener("change", () => {
     console.log("Zmiana stanu checkboxa Nadpłata Kredytu");
     const isChecked = elements.nadplataKredytuBtn.checked;
@@ -1076,7 +1054,6 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         updateRatesArray("nadplata");
         updateNadplataKredytuRemoveButtons();
 
-        // Upewnij się, że sekcja jest widoczna
         const inputsSection = elements.nadplataKredytuInputs;
         if (inputsSection) {
             inputsSection.style.maxHeight = "1000px";
