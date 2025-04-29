@@ -599,20 +599,20 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = g.querySelector(".variable-rate");
             const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
+                // Aktualizujemy limit i wartość "Kwota nadpłaty"
                 updateOverpaymentLimit(rateInput, rateRange, g);
             }
         });
+        updateRatesArray("nadplata");
     };
 
     if (!elements.kwota.dataset.listenerAdded) {
         elements.kwota?.addEventListener("input", () => {
             updateAllOverpaymentLimits();
-            updateRatesArray("nadplata");
         });
 
         elements.kwota?.addEventListener("change", () => {
             updateAllOverpaymentLimits();
-            updateRatesArray("nadplata");
         });
 
         elements.kwota.dataset.listenerAdded = "true";
@@ -789,7 +789,6 @@ function updateNadplataKredytuRemoveButtons() {
         });
     }
 }
-
 
 
 
