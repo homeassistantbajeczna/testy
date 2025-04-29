@@ -158,7 +158,7 @@ function updateKwotaInfo() {
 
 
 
-Ale po co mam dodawać HTML i CSS, jak kod wcześniej działał zaraz Ci go udostępnię:
+
 
 // F U N K C J E    P O M O C N I C Z E
 
