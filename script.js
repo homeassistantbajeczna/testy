@@ -359,7 +359,6 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 // F U N K C J E    N A D P Ł A T A    K R E D Y T U
 
-// Dodajemy definicję updateRatesArray
 function updateRatesArray(type) {
     if (type === "nadplata") {
         state.overpaymentRates = [];
@@ -381,7 +380,6 @@ function updateRatesArray(type) {
             state.overpaymentRates.push(overpayment);
         });
     }
-    // Możemy dodać obsługę innych typów, np. "zmienne-oprocentowanie", jeśli funkcja jest używana w innych sekcjach
 }
 
 function createNadplataKredytuGroup() {
@@ -932,78 +930,10 @@ function updateNadplataKredytuRemoveButtons() {
         }
     });
 
-    // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną nadpłatę" do ostatniej grupy
-    groups.forEach((group, index) => {
-        const removeBtnWrapper = document.createElement("div");
-        removeBtnWrapper.classList.add("remove-btn-wrapper");
-        group.appendChild(removeBtnWrapper);
+    // Dodaj przyciski tylko do ostatniej grupy
+    groups.forEach((group, index
 
-        console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
 
-        // Dodaj przycisk "Usuń" do każdej grupy
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
-        removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
-        removeBtn.textContent = "Usuń";
-        removeBtnWrapper.appendChild(removeBtn);
-        console.log(`Dodano przycisk "Usuń" do grupy ${index + 1}`);
-
-        removeBtn.addEventListener("click", () => {
-            console.log(`Kliknięto "Usuń" w grupie ${index + 1}`);
-            group.remove();
-            updateRatesArray("nadplata");
-            updateAllOverpaymentLimits();
-            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
-                elements.nadplataKredytuBtn.checked = false;
-                elements.nadplataKredytuInputs.classList.remove("active");
-                resetNadplataKredytuSection();
-            }
-            updateNadplataKredytuRemoveButtons();
-        });
-
-        // Dodaj przycisk "Dodaj kolejną nadpłatę" tylko do ostatniej grupy
-        if (index === groups.length - 1) {
-            const addBtn = document.createElement("button");
-            addBtn.type = "button";
-            addBtn.classList.add("btn", "btn-functional");
-            addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
-            addBtn.textContent = "Dodaj kolejną nadpłatę";
-            removeBtnWrapper.appendChild(addBtn);
-            console.log(`Dodano przycisk "Dodaj kolejną nadpłatę" do grupy ${index + 1}`);
-
-            addBtn.addEventListener("click", () => {
-                console.log("Kliknięto 'Dodaj kolejną nadpłatę'");
-                const newGroup = createNadplataKredytuGroup();
-                wrapper.appendChild(newGroup);
-                initializeNadplataKredytuGroup(newGroup);
-                updateRatesArray("nadplata");
-                updateAllOverpaymentLimits();
-                updateNadplataKredytuRemoveButtons();
-            });
-        }
-    });
-}
-
-// Inicjalizacja sekcji "Nadpłata kredytu"
-elements.nadplataKredytuBtn?.addEventListener("change", () => {
-    console.log("Zmiana stanu checkboxa Nadpłata Kredytu");
-    const isChecked = elements.nadplataKredytuBtn.checked;
-    elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
-
-    if (isChecked) {
-        console.log("Checkbox zaznaczony - inicjalizacja sekcji Nadpłata Kredytu");
-        elements.nadplataKredytuWrapper.innerHTML = "";
-        const newGroup = createNadplataKredytuGroup();
-        elements.nadplataKredytuWrapper.appendChild(newGroup);
-        initializeNadplataKredytuGroup(newGroup);
-        updateRatesArray("nadplata");
-        updateNadplataKredytuRemoveButtons();
-    } else {
-        console.log("Checkbox odznaczony - reset sekcji Nadpłata Kredytu");
-        resetNadplataKredytuSection();
-    }
-});
 
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
