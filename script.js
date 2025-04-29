@@ -510,7 +510,6 @@ function initializeNadplataKredytuGroup(group) {
         let maxAllowed;
 
         if (type === "Jednorazowa") {
-            // Dla nadpłaty jednorazowej maksymalna kwota to pozostały kapitał w miesiącu zdefiniowanym w polu "W"
             maxAllowed = calculateRemainingCapital(
                 parseFloat(elements.kwota?.value) || 500000,
                 parseFloat(elements.oprocentowanie?.value) || 7,
@@ -525,7 +524,6 @@ function initializeNadplataKredytuGroup(group) {
                 periodStart - 1
             );
         } else {
-            // Dla nadpłaty cyklicznej (Miesięczna, Kwartalna, Roczna) ustawiamy mniejszy limit na pojedynczą nadpłatę
             const kwotaKredytu = parseFloat(elements.kwota?.value) || 500000;
             maxAllowed = Math.min(kwotaKredytu * 0.1, calculateRemainingCapital(
                 parseFloat(elements.kwota?.value) || 500000,
@@ -542,7 +540,6 @@ function initializeNadplataKredytuGroup(group) {
             ));
         }
 
-        // Ustawienie maksymalnej wartości dla pola "Kwota nadpłaty"
         input.max = maxAllowed;
         range.max = maxAllowed;
 
@@ -556,7 +553,6 @@ function initializeNadplataKredytuGroup(group) {
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
         const currentIndex = Array.from(groups).indexOf(group);
 
-        // Ustaw minimalny miesiąc dla boxa "W" w zależności od poprzednich nadpłat
         let minPeriodStart = 1;
         if (currentIndex > 0) {
             const previousGroup = groups[currentIndex - 1];
@@ -571,7 +567,6 @@ function initializeNadplataKredytuGroup(group) {
             periodStartRange.value = minPeriodStart;
         }
 
-        // Maksymalny okres startu ustawiamy na podstawie liczby rat
         const maxPeriodStart = iloscRat - 1;
         periodStartInput.max = maxPeriodStart;
         periodStartRange.max = maxPeriodStart;
@@ -615,14 +610,19 @@ function initializeNadplataKredytuGroup(group) {
         });
     };
 
-    // Nasłuchiwanie zmian w polu "Kwota kredytu"
-    elements.kwota?.addEventListener("input", () => {
-        updateAllOverpaymentLimits();
-    });
+    if (!elements.kwota.dataset.listenerAdded) {
+        elements.kwota?.addEventListener("input", () => {
+            updateAllOverpaymentLimits();
+            updateRatesArray("nadplata");
+        });
 
-    elements.kwota?.addEventListener("change", () => {
-        updateAllOverpaymentLimits();
-    });
+        elements.kwota?.addEventListener("change", () => {
+            updateAllOverpaymentLimits();
+            updateRatesArray("nadplata");
+        });
+
+        elements.kwota.dataset.listenerAdded = "true";
+    }
 
     inputs.forEach((input, index) => {
         const range = ranges[index];
@@ -638,10 +638,14 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 updateOverpaymentLimit(rateInput, rateRange, group);
-                // Dynamicznie ustawiamy wartość "Kwota nadpłaty" na maksymalną możliwą
-                let maxAllowed = parseFloat(rateInput.max) || 5000000;
-                rateInput.value = maxAllowed.toFixed(2);
-                rateRange.value = maxAllowed;
+                // Jeśli suwak "Kwota nadpłaty" był na maksimum, ustawiamy na nowe maksimum
+                let currentValue = parseFloat(rateInput.value) || 0;
+                let previousMax = parseFloat(rateInput.max) || 5000000;
+                let newMax = parseFloat(rateInput.max) || 5000000;
+                if (Math.abs(currentValue - previousMax) < 0.01) { // Sprawdzamy, czy był na maksimum
+                    rateInput.value = newMax.toFixed(2);
+                    rateRange.value = newMax;
+                }
                 updateAllOverpaymentLimits();
             });
 
@@ -652,10 +656,14 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 updateOverpaymentLimit(rateInput, rateRange, group);
-                // Dynamicznie ustawiamy wartość "Kwota nadpłaty" na maksymalną możliwą
-                let maxAllowed = parseFloat(rateInput.max) || 5000000;
-                rateInput.value = maxAllowed.toFixed(2);
-                rateRange.value = maxAllowed;
+                // Dynamicznie aktualizujemy "Kwota nadpłaty", jeśli była na maksimum
+                let currentValue = parseFloat(rateInput.value) || 0;
+                let previousMax = parseFloat(rateInput.max) || 5000000;
+                let newMax = parseFloat(rateInput.max) || 5000000;
+                if (Math.abs(currentValue - previousMax) < 0.01) { // Sprawdzamy, czy był na maksimum
+                    rateInput.value = newMax.toFixed(2);
+                    rateRange.value = newMax;
+                }
                 updateAllOverpaymentLimits();
             });
         } else if (input.classList.contains("variable-rate")) {
