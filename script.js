@@ -359,6 +359,31 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 // F U N K C J E    N A D P Ł A T A    K R E D Y T U
 
+// Dodajemy definicję updateRatesArray
+function updateRatesArray(type) {
+    if (type === "nadplata") {
+        state.overpaymentRates = [];
+        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+        groups.forEach(group => {
+            const typeSelect = group.querySelector(".nadplata-type-select");
+            const effectSelect = group.querySelector(".nadplata-effect-select");
+            const rateInput = group.querySelector(".variable-rate");
+            const periodStartInput = group.querySelector(".variable-cykl-start");
+            const periodEndInput = group.querySelector(".variable-cykl-end");
+
+            const overpayment = {
+                type: typeSelect?.value || "Jednorazowa",
+                effect: effectSelect?.value || "Skróć okres",
+                amount: parseFloat(rateInput?.value) || 0,
+                start: parseInt(periodStartInput?.value) || 2,
+                end: periodEndInput ? parseInt(periodEndInput?.value) || 2 : null
+            };
+            state.overpaymentRates.push(overpayment);
+        });
+    }
+    // Możemy dodać obsługę innych typów, np. "zmienne-oprocentowanie", jeśli funkcja jest używana w innych sekcjach
+}
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -898,53 +923,32 @@ function updateNadplataKredytuRemoveButtons() {
     const groups = wrapper.querySelectorAll(".variable-input-group");
     console.log("Liczba grup nadpłaty:", groups.length);
 
-    // Usuń wszystkie istniejące button-wrappery
+    // Usuń wszystkie istniejące remove-btn-wrappery
     groups.forEach((group, index) => {
-        const existingButtonWrapper = group.querySelector(".button-wrapper");
-        if (existingButtonWrapper) {
-            existingButtonWrapper.remove();
-            console.log(`Usunięto istniejący button-wrapper dla grupy ${index + 1}`);
+        const existingRemoveBtnWrapper = group.querySelector(".remove-btn-wrapper");
+        if (existingRemoveBtnWrapper) {
+            existingRemoveBtnWrapper.remove();
+            console.log(`Usunięto istniejący remove-btn-wrapper dla grupy ${index + 1}`);
         }
     });
 
-    // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną nadpłatę" do ostatniej grupy
+    // Dodaj przyciski tylko do ostatniej grupy
     groups.forEach((group, index) => {
-        const buttonWrapper = document.createElement("div");
-        buttonWrapper.classList.add("button-wrapper");
-        group.appendChild(buttonWrapper);
-
-        console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
-
-        // Dodaj przycisk "Usuń" do każdej grupy
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
-        removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
-        removeBtn.textContent = "Usuń";
-        buttonWrapper.appendChild(removeBtn);
-        console.log(`Dodano przycisk "Usuń" do grupy ${index + 1}`);
-
-        removeBtn.addEventListener("click", () => {
-            console.log(`Kliknięto "Usuń" w grupie ${index + 1}`);
-            group.remove();
-            updateRatesArray("nadplata");
-            updateAllOverpaymentLimits();
-            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
-                elements.nadplataKredytuBtn.checked = false;
-                elements.nadplataKredytuInputs.classList.remove("active");
-                resetNadplataKredytuSection();
-            }
-            updateNadplataKredytuRemoveButtons();
-        });
-
-        // Dodaj przycisk "Dodaj kolejną nadpłatę" tylko do ostatniej grupy
+        // Tworzymy .remove-btn-wrapper tylko dla ostatniej grupy
         if (index === groups.length - 1) {
+            const removeBtnWrapper = document.createElement("div");
+            removeBtnWrapper.classList.add("remove-btn-wrapper");
+            group.appendChild(removeBtnWrapper);
+
+            console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
+
+            // Dodaj przycisk "Dodaj kolejną nadpłatę" (pierwzy w kolejności DOM)
             const addBtn = document.createElement("button");
             addBtn.type = "button";
             addBtn.classList.add("btn", "btn-functional");
             addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
             addBtn.textContent = "Dodaj kolejną nadpłatę";
-            buttonWrapper.appendChild(addBtn);
+            removeBtnWrapper.appendChild(addBtn);
             console.log(`Dodano przycisk "Dodaj kolejną nadpłatę" do grupy ${index + 1}`);
 
             addBtn.addEventListener("click", () => {
@@ -954,6 +958,28 @@ function updateNadplataKredytuRemoveButtons() {
                 initializeNadplataKredytuGroup(newGroup);
                 updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
+                updateNadplataKredytuRemoveButtons();
+            });
+
+            // Dodaj przycisk "Usuń" (drugi w kolejności DOM, więc będzie nad "Dodaj")
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
+            removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
+            removeBtn.textContent = "Usuń";
+            removeBtnWrapper.appendChild(removeBtn);
+            console.log(`Dodano przycisk "Usuń" do grupy ${index + 1}`);
+
+            removeBtn.addEventListener("click", () => {
+                console.log(`Kliknięto "Usuń" w grupie ${index + 1}`);
+                group.remove();
+                updateRatesArray("nadplata");
+                updateAllOverpaymentLimits();
+                if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+                    elements.nadplataKredytuBtn.checked = false;
+                    elements.nadplataKredytuInputs.classList.remove("active");
+                    resetNadplataKredytuSection();
+                }
                 updateNadplataKredytuRemoveButtons();
             });
         }
@@ -979,106 +1005,6 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         resetNadplataKredytuSection();
     }
 });
-
-
-
-
-// F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
-
-function createVariableOprocentowanieGroup() {
-    const group = document.createElement("div");
-    group.classList.add("variable-input-group");
-    group.setAttribute("data-type", "oprocentowanie");
-    group.innerHTML = `
-        <div class="fields-wrapper">
-            <div class="form-group box-period">
-                <label class="form-label">Od</label>
-                <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="2" max="420" step="1" value="2">
-                    <span class="input-group-text unit-miesiaca">miesiąca</span>
-                </div>
-                <input type="range" class="form-range range-slider variable-cykl-range" min="2" max="420" step="1" value="2">
-            </div>
-            <div class="form-group box-rate">
-                <label class="form-label">Oprocentowanie</label>
-                <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
-                    <span class="input-group-text">%</span>
-                </div>
-                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.1" value="7">
-            </div>
-        </div>
-    `;
-    return group;
-}
-
-function initializeVariableOprocentowanieGroup(group) {
-    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
-
-    const inputs = group.querySelectorAll(".form-control");
-    const ranges = group.querySelectorAll(".form-range");
-
-    inputs.forEach((input, index) => {
-        const range = ranges[index];
-        if (input.classList.contains("variable-cykl")) {
-            input.max = iloscRat;
-            range.max = iloscRat;
-            syncInputWithRange(input, range);
-        } else if (input.classList.contains("variable-rate")) {
-            syncInputWithRange(input, range);
-        }
-
-        input.addEventListener("input", () => {
-            syncInputWithRange(input, range);
-            updateRatesArray("oprocentowanie");
-        });
-
-        range.addEventListener("input", () => {
-            input.value = range.value;
-            updateRatesArray("oprocentowanie");
-        });
-    });
-}
-
-function resetVariableOprocentowanieSection() {
-    elements.variableOprocentowanieWrapper.innerHTML = "";
-    state.variableRates = [];
-}
-
-function updateVariableOprocentowanieRemoveButtons() {
-    const wrapper = elements.variableOprocentowanieWrapper;
-    const groups = wrapper.querySelectorAll(".variable-input-group");
-    const existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
-
-    if (existingRemoveBtnWrapper) {
-        existingRemoveBtnWrapper.remove();
-    }
-
-    if (groups.length > 0) {
-        const lastGroup = groups[groups.length - 1];
-        const removeBtnWrapper = document.createElement("div");
-        removeBtnWrapper.classList.add("remove-btn-wrapper");
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.classList.add("btn-reset");
-        removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
-        removeBtn.textContent = "Usuń";
-        removeBtnWrapper.appendChild(removeBtn);
-        lastGroup.appendChild(removeBtnWrapper);
-
-        removeBtn.addEventListener("click", () => {
-            lastGroup.remove();
-            updateRatesArray("oprocentowanie");
-            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
-                elements.zmienneOprocentowanieBtn.checked = false;
-                elements.variableOprocentowanieInputs.classList.remove("active");
-                resetVariableOprocentowanieSection();
-            }
-            updateVariableOprocentowanieRemoveButtons();
-        });
-    }
-}
-
 
 
 
