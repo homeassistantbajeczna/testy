@@ -883,12 +883,6 @@ function initializeNadplataKredytuGroup(group) {
     updateOverpaymentLimit(rateInput, rateRange, group);
 
     updateNadplataKredytuRemoveButtons();
-
-    // Aktualizuj max-height po inicjalizacji grupy
-    setTimeout(() => {
-        const updatedHeight = elements.nadplataKredytuInputs.scrollHeight;
-        elements.nadplataKredytuInputs.style.maxHeight = `${updatedHeight}px`;
-    }, 0);
 }
 
 function resetNadplataKredytuSection() {
@@ -896,7 +890,6 @@ function resetNadplataKredytuSection() {
     state.overpaymentRates = [];
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
-    elements.nadplataKredytuInputs.style.maxHeight = "0";
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -905,20 +898,20 @@ function updateNadplataKredytuRemoveButtons() {
     const groups = wrapper.querySelectorAll(".variable-input-group");
     console.log("Liczba grup nadpłaty:", groups.length);
 
-    // Usuń wszystkie istniejące button-wrappery
+    // Usuń wszystkie istniejące remove-btn-wrappery
     groups.forEach((group, index) => {
-        const existingButtonWrapper = group.querySelector(".button-wrapper");
-        if (existingButtonWrapper) {
-            existingButtonWrapper.remove();
-            console.log(`Usunięto istniejący button-wrapper dla grupy ${index + 1}`);
+        const existingRemoveBtnWrapper = group.querySelector(".remove-btn-wrapper");
+        if (existingRemoveBtnWrapper) {
+            existingRemoveBtnWrapper.remove();
+            console.log(`Usunięto istniejący remove-btn-wrapper dla grupy ${index + 1}`);
         }
     });
 
     // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną nadpłatę" do ostatniej grupy
     groups.forEach((group, index) => {
-        const buttonWrapper = document.createElement("div");
-        buttonWrapper.classList.add("button-wrapper");
-        group.appendChild(buttonWrapper);
+        const removeBtnWrapper = document.createElement("div");
+        removeBtnWrapper.classList.add("remove-btn-wrapper");
+        group.appendChild(removeBtnWrapper);
 
         console.log(`Dodawanie przycisków dla grupy ${index + 1}`);
 
@@ -928,7 +921,7 @@ function updateNadplataKredytuRemoveButtons() {
         removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
         removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
         removeBtn.textContent = "Usuń";
-        buttonWrapper.appendChild(removeBtn);
+        removeBtnWrapper.appendChild(removeBtn);
         console.log(`Dodano przycisk "Usuń" do grupy ${index + 1}`);
 
         removeBtn.addEventListener("click", () => {
@@ -940,10 +933,6 @@ function updateNadplataKredytuRemoveButtons() {
                 elements.nadplataKredytuBtn.checked = false;
                 elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
-            } else {
-                // Aktualizuj max-height po usunięciu grupy
-                const updatedHeight = elements.nadplataKredytuInputs.scrollHeight;
-                elements.nadplataKredytuInputs.style.maxHeight = `${updatedHeight}px`;
             }
             updateNadplataKredytuRemoveButtons();
         });
@@ -955,7 +944,7 @@ function updateNadplataKredytuRemoveButtons() {
             addBtn.classList.add("btn", "btn-functional");
             addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
             addBtn.textContent = "Dodaj kolejną nadpłatę";
-            buttonWrapper.appendChild(addBtn);
+            removeBtnWrapper.appendChild(addBtn);
             console.log(`Dodano przycisk "Dodaj kolejną nadpłatę" do grupy ${index + 1}`);
 
             addBtn.addEventListener("click", () => {
@@ -969,12 +958,6 @@ function updateNadplataKredytuRemoveButtons() {
             });
         }
     });
-
-    // Aktualizuj max-height po dodaniu/usunięciu przycisków
-    setTimeout(() => {
-        const updatedHeight = elements.nadplataKredytuInputs.scrollHeight;
-        elements.nadplataKredytuInputs.style.maxHeight = `${updatedHeight}px`;
-    }, 0);
 }
 
 // Inicjalizacja sekcji "Nadpłata kredytu"
@@ -982,14 +965,6 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
     console.log("Zmiana stanu checkboxa Nadpłata Kredytu");
     const isChecked = elements.nadplataKredytuBtn.checked;
     elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
-
-    // Dynamiczne ustawienie max-height
-    if (isChecked) {
-        const contentHeight = elements.nadplataKredytuInputs.scrollHeight;
-        elements.nadplataKredytuInputs.style.maxHeight = `${contentHeight}px`;
-    } else {
-        elements.nadplataKredytuInputs.style.maxHeight = "0";
-    }
 
     if (isChecked) {
         console.log("Checkbox zaznaczony - inicjalizacja sekcji Nadpłata Kredytu");
