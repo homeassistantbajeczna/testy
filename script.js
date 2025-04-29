@@ -920,7 +920,7 @@ function updateNadplataKredytuRemoveButtons() {
     const existingRemoveBtnWrappers = wrapper.querySelectorAll(".remove-btn-wrapper");
     existingRemoveBtnWrappers.forEach(btnWrapper => btnWrapper.remove());
 
-    // Dodajemy przycisk "Usuń" pod ostatnim wierszem nadpłaty
+    // Dodajemy przycisk "Usuń" tylko pod ostatnim wierszem nadpłaty
     if (groups.length > 0) {
         const lastGroup = groups[groups.length - 1];
         const removeBtnWrapper = document.createElement("div");
@@ -942,7 +942,7 @@ function updateNadplataKredytuRemoveButtons() {
                 elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
             } else {
-                elements.addNadplataKredytuBtn.style.display = "block";
+                // Aktualizujemy limity dla pozostałych grup
                 remainingGroups.forEach(g => {
                     const rateInput = g.querySelector(".variable-rate");
                     const rateRange = g.querySelector(".variable-rate-range");
@@ -950,11 +950,18 @@ function updateNadplataKredytuRemoveButtons() {
                         updateOverpaymentLimit(rateInput, rateRange, g);
                     }
                 });
+                // Ponownie aktualizujemy przyciski "Usuń" i "Dodaj kolejną zmianę"
+                updateNadplataKredytuRemoveButtons();
             }
-            updateNadplataKredytuRemoveButtons();
         });
     }
 }
+
+
+
+
+
+
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
