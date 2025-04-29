@@ -574,9 +574,15 @@ function initializeNadplataKredytuGroup(group) {
             parseInt(elements.iloscRat?.value) || 360,
             elements.rodzajRat?.value || "rowne",
             state.variableRates,
-            state.overpaymentRates.filter((_, idx) => idx < currentIndex),
+            state.overpaymentRates,
             periodStart - 1
         );
+
+        // Uwzględnij bieżącą nadpłatę w obliczeniach
+        if (type === "Jednorazowa") {
+            const currentValue = parseFloat(input.value) || 0;
+            remainingCapital -= currentValue;
+        }
 
         if (remainingCapital <= 0) {
             for (let i = groups.length - 1; i > currentIndex; i--) {
@@ -642,10 +648,24 @@ function initializeNadplataKredytuGroup(group) {
             });
 
             input.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === "Tab") return;
+
                 let value = parseFloat(input.value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
-                let newValue = parseFloat(input.value + (e.key >= "0" && e.key <= "9" ? e.key : "")) || value;
-                if (newValue > maxAllowed && !(e.key === "Backspace" || e.key === "Delete" || e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+                let newValueStr = input.value;
+                if (e.key >= "0" && e.key <= "9") {
+                    newValueStr += e.key;
+                } else if (e.key === "Backspace") {
+                    newValueStr = newValueStr.slice(0, -1);
+                } else if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "Delete") {
+                    return;
+                } else {
+                    e.preventDefault();
+                    return;
+                }
+
+                let newValue = parseFloat(newValueStr) || 0;
+                if (newValue > maxAllowed) {
                     e.preventDefault();
                 }
             });
@@ -712,13 +732,13 @@ function updateNadplataKredytuRemoveButtons() {
         removeBtn.addEventListener("click", () => {
             lastGroup.remove();
             updateRatesArray("nadplata");
-            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+            const remainingGroups = wrapper.querySelectorAll(".variable-input-group");
+            if (remainingGroups.length === 0) {
                 elements.nadplataKredytuBtn.checked = false;
                 elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
             } else {
                 elements.addNadplataKredytuBtn.style.display = "block";
-                const remainingGroups = wrapper.querySelectorAll(".variable-input-group");
                 remainingGroups.forEach(g => {
                     const rateInput = g.querySelector(".variable-rate");
                     const rateRange = g.querySelector(".variable-rate-range");
@@ -726,8 +746,8 @@ function updateNadplataKredytuRemoveButtons() {
                         updateOverpaymentLimit(rateInput, rateRange, g);
                     }
                 });
+                updateNadplataKredytuRemoveButtons(); // Wywołaj ponownie, aby dodać przycisk do nowego ostatniego wiersza
             }
-            updateNadplataKredytuRemoveButtons();
         });
     }
 }
