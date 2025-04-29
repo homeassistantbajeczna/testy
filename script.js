@@ -906,7 +906,7 @@ function updateNadplataKredytuRemoveButtons() {
         // Przycisk "Usuń" dla każdej grupy
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
-        removeBtn.classList.add("btn-reset");
+        removeBtn.classList.add("btn", "btn-functional");
         removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
         removeBtn.textContent = "Usuń";
         removeBtnWrapper.appendChild(removeBtn);
@@ -915,7 +915,7 @@ function updateNadplataKredytuRemoveButtons() {
         if (index === groups.length - 1) {
             const addBtn = document.createElement("button");
             addBtn.type = "button";
-            addBtn.classList.add("btn-add");
+            addBtn.classList.add("btn", "btn-functional");
             addBtn.setAttribute("aria-label", "Dodaj kolejną zmianę");
             addBtn.textContent = "Dodaj kolejną zmianę";
             removeBtnWrapper.appendChild(addBtn);
