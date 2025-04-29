@@ -357,6 +357,7 @@ function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, varia
 
 
 
+// F U N K C J E    N A D P Ł A T A    K R E D Y T U
 
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
@@ -882,6 +883,12 @@ function initializeNadplataKredytuGroup(group) {
     updateOverpaymentLimit(rateInput, rateRange, group);
 
     updateNadplataKredytuRemoveButtons();
+
+    // Aktualizuj max-height po inicjalizacji grupy
+    setTimeout(() => {
+        const updatedHeight = elements.nadplataKredytuInputs.scrollHeight;
+        elements.nadplataKredytuInputs.style.maxHeight = `${updatedHeight}px`;
+    }, 0);
 }
 
 function resetNadplataKredytuSection() {
@@ -889,6 +896,7 @@ function resetNadplataKredytuSection() {
     state.overpaymentRates = [];
     elements.nadplataKredytuBtn.disabled = false;
     elements.nadplataKredytuBtn.parentElement.classList.remove("disabled");
+    elements.nadplataKredytuInputs.style.maxHeight = "0";
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -932,6 +940,10 @@ function updateNadplataKredytuRemoveButtons() {
                 elements.nadplataKredytuBtn.checked = false;
                 elements.nadplataKredytuInputs.classList.remove("active");
                 resetNadplataKredytuSection();
+            } else {
+                // Aktualizuj max-height po usunięciu grupy
+                const updatedHeight = elements.nadplataKredytuInputs.scrollHeight;
+                elements.nadplataKredytuInputs.style.maxHeight = `${updatedHeight}px`;
             }
             updateNadplataKredytuRemoveButtons();
         });
@@ -957,6 +969,12 @@ function updateNadplataKredytuRemoveButtons() {
             });
         }
     });
+
+    // Aktualizuj max-height po dodaniu/usunięciu przycisków
+    setTimeout(() => {
+        const updatedHeight = elements.nadplataKredytuInputs.scrollHeight;
+        elements.nadplataKredytuInputs.style.maxHeight = `${updatedHeight}px`;
+    }, 0);
 }
 
 // Inicjalizacja sekcji "Nadpłata kredytu"
@@ -964,6 +982,14 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
     console.log("Zmiana stanu checkboxa Nadpłata Kredytu");
     const isChecked = elements.nadplataKredytuBtn.checked;
     elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
+
+    // Dynamiczne ustawienie max-height
+    if (isChecked) {
+        const contentHeight = elements.nadplataKredytuInputs.scrollHeight;
+        elements.nadplataKredytuInputs.style.maxHeight = `${contentHeight}px`;
+    } else {
+        elements.nadplataKredytuInputs.style.maxHeight = "0";
+    }
 
     if (isChecked) {
         console.log("Checkbox zaznaczony - inicjalizacja sekcji Nadpłata Kredytu");
@@ -978,7 +1004,6 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         resetNadplataKredytuSection();
     }
 });
-
 
 
 
