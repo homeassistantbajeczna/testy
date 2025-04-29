@@ -404,12 +404,7 @@ function createNadplataKredytuGroup() {
                 </div>
             </div>
         </div>
-        <div class="remove-first-btn-wrapper">
-            <button type="button" class="btn btn-danger btn-sm remove-first-btn" style="display: none;">Usuń</button>
-        </div>
-        <div class="remove-btn-wrapper">
-            <button type="button" class="btn btn-danger btn-sm remove-btn" style="display: none;">Usuń</button>
-        </div>
+        <div class="button-wrapper"></div>
     `;
     return group;
 }
@@ -889,25 +884,6 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     updateOverpaymentLimit(rateInput, rateRange, group);
-
-    // Inicjalizacja listenerów dla przycisków "Usuń"
-    const removeFirstBtn = group.querySelector(".remove-first-btn");
-    const removeBtn = group.querySelector(".remove-btn");
-
-    const removeHandler = () => {
-        group.remove();
-        updateRatesArray("nadplata");
-        updateAllOverpaymentLimits();
-        if (elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group").length === 0) {
-            elements.nadplataKredytuBtn.checked = false;
-            elements.nadplataKredytuInputs.classList.remove("active");
-            resetNadplataKredytuSection();
-        }
-        updateNadplataKredytuRemoveButtons();
-    };
-
-    removeFirstBtn?.addEventListener("click", removeHandler);
-    removeBtn?.addEventListener("click", removeHandler);
 }
 
 function resetNadplataKredytuSection() {
@@ -921,54 +897,56 @@ function updateNadplataKredytuRemoveButtons() {
     const wrapper = elements.nadplataKredytuWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
 
-    // Ukryj wszystkie przyciski "Usuń" i "Dodaj kolejną zmianę"
+    // Usuń wszystkie istniejące przyciski w wrapperach
     groups.forEach(group => {
-        const removeFirstBtn = group.querySelector(".remove-first-btn");
-        const removeBtn = group.querySelector(".remove-btn");
-        if (removeFirstBtn) removeFirstBtn.style.display = "none";
-        if (removeBtn) removeBtn.style.display = "none";
-
-        // Usuń istniejący przycisk "Dodaj kolejną zmianę", jeśli istnieje
-        const existingAddBtn = group.querySelector(".btn.btn-functional");
-        if (existingAddBtn) existingAddBtn.remove();
+        const buttonWrapper = group.querySelector(".button-wrapper");
+        if (buttonWrapper) {
+            buttonWrapper.innerHTML = ""; // Wyczyść wrapper przycisków
+        }
     });
 
+    // Dodaj przyciski "Usuń" do każdej grupy i "Dodaj kolejną zmianę" do ostatniej grupy
     groups.forEach((group, index) => {
-        // Pokaż odpowiedni przycisk "Usuń" w zależności od indeksu grupy
-        if (index === 0) {
-            const removeFirstBtn = group.querySelector(".remove-first-btn");
-            if (removeFirstBtn) {
-                removeFirstBtn.style.display = "inline-block";
-                removeFirstBtn.classList.add("btn-reset");
+        const buttonWrapper = group.querySelector(".button-wrapper");
+        if (!buttonWrapper) return;
+
+        // Dodaj przycisk "Usuń" do każdej grupy
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
+        removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
+        removeBtn.textContent = "Usuń";
+        buttonWrapper.appendChild(removeBtn);
+
+        removeBtn.addEventListener("click", () => {
+            group.remove();
+            updateRatesArray("nadplata");
+            updateAllOverpaymentLimits();
+            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
+                elements.nadplataKredytuBtn.checked = false;
+                elements.nadplataKredytuInputs.classList.remove("active");
+                resetNadplataKredytuSection();
             }
-        } else {
-            const removeBtn = group.querySelector(".remove-btn");
-            if (removeBtn) {
-                removeBtn.style.display = "inline-block";
-                removeBtn.classList.add("btn-reset");
-            }
-        }
+            updateNadplataKredytuRemoveButtons();
+        });
 
         // Dodaj przycisk "Dodaj kolejną zmianę" tylko do ostatniej grupy
         if (index === groups.length - 1) {
-            const removeBtnWrapper = group.querySelector(".remove-btn-wrapper");
-            if (removeBtnWrapper) {
-                const addBtn = document.createElement("button");
-                addBtn.type = "button";
-                addBtn.classList.add("btn", "btn-functional");
-                addBtn.setAttribute("aria-label", "Dodaj kolejną zmianę");
-                addBtn.textContent = "Dodaj kolejną zmianę";
-                removeBtnWrapper.insertBefore(addBtn, removeBtnWrapper.firstChild);
+            const addBtn = document.createElement("button");
+            addBtn.type = "button";
+            addBtn.classList.add("btn", "btn-functional");
+            addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
+            addBtn.textContent = "Dodaj kolejną nadpłatę";
+            buttonWrapper.appendChild(addBtn);
 
-                addBtn.addEventListener("click", () => {
-                    const newGroup = createNadplataKredytuGroup();
-                    wrapper.appendChild(newGroup);
-                    initializeNadplataKredytuGroup(newGroup);
-                    updateRatesArray("nadplata");
-                    updateAllOverpaymentLimits();
-                    updateNadplataKredytuRemoveButtons();
-                });
-            }
+            addBtn.addEventListener("click", () => {
+                const newGroup = createNadplataKredytuGroup();
+                wrapper.appendChild(newGroup);
+                initializeNadplataKredytuGroup(newGroup);
+                updateRatesArray("nadplata");
+                updateAllOverpaymentLimits();
+                updateNadplataKredytuRemoveButtons();
+            });
         }
     });
 }
