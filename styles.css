@@ -376,6 +376,24 @@ body {
     flex: none;
 }
 
+#nadplataKredytuInputs {
+    display: none;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+#nadplataKredytuInputs.active {
+    display: block;
+}
+
+#nadplataKredytuWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
 /* I N P U T Y   I   S E L E C T Y */
 .input-group {
     width: 150px;
