@@ -723,6 +723,7 @@ function updateAllOverpaymentLimits() {
     console.log("Ilość rat:", elements.iloscRat?.value);
     console.log("Rodzaj rat:", elements.rodzajRat?.value);
 
+    // Określamy ostatni miesiąc, do którego powinniśmy symulować nadpłaty
     let lastOverpaymentMonth = 1;
     const overpayments = [];
     groups.forEach((g, index) => {
@@ -763,6 +764,7 @@ function updateAllOverpaymentLimits() {
             startValue: periodStartValue
         });
 
+        // Aktualizujemy ostatni miesiąc nadpłaty
         if (type === "Jednorazowa" || type === "Miesięczna") {
             if (periodStart > lastOverpaymentMonth) {
                 lastOverpaymentMonth = periodStart;
@@ -793,7 +795,8 @@ function updateAllOverpaymentLimits() {
     console.log(`[updateAllOverpaymentLimits] Początkowy kapitał: ${currentCapital}, rata: ${rata}`);
     console.log(`Obliczam remainingCapital do miesiąca: ${lastOverpaymentMonth}`);
 
-    for (let month = 1; month <= iloscRat; month++) {
+    // Symulujemy tylko do ostatniego miesiąca nadpłaty
+    for (let month = 1; month <= lastOverpaymentMonth; month++) {
         const odsetki = currentCapital * monthlyRate;
         let kapital = rata - odsetki;
         if (kapital < 0) kapital = 0;
@@ -864,6 +867,7 @@ function updateAllOverpaymentLimits() {
         console.log(`[updateAllOverpaymentLimits] Ostatni miesiąc z kapitałem: ${lastMonthWithCapital}`);
     }
 
+    // Reszta kodu (aktualizacja limitów dla każdej grupy) pozostaje bez zmian
     groups.forEach((g, index) => {
         if (!g || !g.parentElement) return;
 
@@ -903,8 +907,8 @@ function updateAllOverpaymentLimits() {
                 } else if (prevType === "Roczna") {
                     prevPeriodStartValue = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
                     prevPeriodStart = (prevPeriodStartValue - 1) * 12 + 1;
-                    const prevPeriodEndValue = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStartValue : prevPeriodStartValue;
-                    prevPeriodEnd = prevPeriodEndValue * 12;
+                    const prevails = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStartValue : prevPeriodStartValue;
+                    prevPeriodEnd = prevails * 12;
                 } else {
                     prevPeriodStartValue = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
                     prevPeriodStart = prevPeriodStartValue;
@@ -996,7 +1000,7 @@ function updateAllOverpaymentLimits() {
             let value = parseFloat(rateInput.value) || 0;
             if (value > maxAllowed) {
                 rateInput.value = maxAllowed.toFixed(2);
-                range.value = maxAllowed;
+                rateRange.value = maxAllowed;
             }
         }
     });
