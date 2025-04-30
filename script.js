@@ -735,7 +735,7 @@ function updateAllOverpaymentLimits() {
     let lastMonthWithCapital = null;
 
     console.log("Wartości wejściowe:");
-    console.log", elements.kwota?.value);
+    console.log("Kwota:", elements.kwota?.value);
     console.log("Oprocentowanie:", elements.oprocentowanie?.value);
     console.log("Ilość rat:", elements.iloscRat?.value);
     console.log("Rodzaj rat:", elements.rodzajRat?.value);
