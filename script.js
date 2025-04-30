@@ -432,16 +432,16 @@ function createNadplataKredytuGroup() {
     return group;
 }
 
-function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue) {
+function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue) {
     const box = document.createElement("div");
     box.classList.add("form-group", "box-period", "box-period-end");
     box.innerHTML = `
         <label class="form-label">DO</label>
         <div class="input-group">
-            <input type="number" class="form-control variable-cykl variable-cykl-end" min="${minValue}" max="${maxValue}" step="1" value="${defaultValue}">
+            <input type="number" class="form-control variable-cykl variable-cykl-end" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
             <span class="input-group-text unit-miesiacu">miesiąca</span>
         </div>
-        <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-end-range" min="${minValue}" max="${maxValue}" step="1" value="${defaultValue}">
+        <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-end-range" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
     `;
     return box;
 }
@@ -832,17 +832,25 @@ function updateNadplataPeriodLimits() {
         }
 
         if (type !== "Jednorazowa" && periodEndInput && periodEndRange) {
-            periodEndInput.min = periodStartInput?.value || 2;
-            periodEndRange.min = periodStartInput?.value || 2;
+            const stepValue = type === "Miesięczna" ? 1 : type === "Kwartalna" ? 3 : 12;
+            const minValue = parseInt(periodStartInput?.value) || 2;
+            periodEndInput.min = minValue;
+            periodEndRange.min = minValue;
             periodEndInput.max = iloscRat;
             periodEndRange.max = iloscRat;
+            periodEndInput.step = stepValue;
+            periodEndRange.step = stepValue;
 
             let periodEndValue = parseInt(periodEndInput.value) || iloscRat - 1;
-            if (periodEndValue < periodStartInput?.value) {
-                periodEndValue = periodStartInput?.value;
+            if (periodEndValue < minValue) {
+                periodEndValue = minValue;
             } else if (periodEndValue > iloscRat) {
                 periodEndValue = iloscRat;
             }
+            // Zaokrąglamy wartość do najbliższego kroku
+            const periodsElapsed = Math.round((periodEndValue - minValue) / stepValue);
+            periodEndValue = minValue + (periodsElapsed * stepValue);
+            if (periodEndValue > iloscRat) periodEndValue = iloscRat;
             periodEndInput.value = periodEndValue;
             periodEndRange.value = periodEndValue;
         }
@@ -889,8 +897,24 @@ function initializeNadplataKredytuGroup(group) {
                 const periodStartValue = parseInt(periodStartInput?.value) || 2;
                 const minValue = periodStartValue;
                 const maxValue = iloscRat;
-                const defaultValue = periodStartValue; // Domyślna wartość "DO" równa "OD"
-                const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue);
+                let defaultValue;
+                let stepValue;
+
+                if (type === "Miesięczna") {
+                    defaultValue = periodStartValue; // "DO" = "OD"
+                    stepValue = 1;
+                } else if (type === "Kwartalna") {
+                    defaultValue = periodStartValue + 2; // "DO" = "OD" + 2 (pierwszy kwartał)
+                    stepValue = 3;
+                } else { // "Roczna"
+                    defaultValue = periodStartValue + 11; // "DO" = "OD" + 11 (pierwszy rok)
+                    stepValue = 12;
+                }
+
+                // Upewniamy się, że domyślna wartość nie przekracza maxValue
+                if (defaultValue > maxValue) defaultValue = maxValue;
+
+                const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue);
                 formRow?.appendChild(endBox);
 
                 const endInput = endBox.querySelector(".variable-cykl-end");
@@ -927,13 +951,23 @@ function initializeNadplataKredytuGroup(group) {
         const endRange = group.querySelector(".variable-cykl-end-range");
         if (endInput && endRange) {
             const minValue = parseInt(periodStartInput?.value) || 2;
+            const stepValue = type === "Miesięczna" ? 1 : type === "Kwartalna" ? 3 : 12;
             endInput.min = minValue;
             endRange.min = minValue;
             endInput.max = maxEndPeriod;
             endRange.max = maxEndPeriod;
-            if (parseInt(endInput.value) < minValue) endInput.value = minValue;
-            if (parseInt(endInput.value) > maxEndPeriod) endInput.value = maxEndPeriod;
-            endRange.value = endInput.value;
+            endInput.step = stepValue;
+            endRange.step = stepValue;
+
+            let endValue = parseInt(endInput.value) || minValue;
+            if (endValue < minValue) endValue = minValue;
+            if (endValue > maxEndPeriod) endValue = maxEndPeriod;
+            // Zaokrąglamy wartość do najbliższego kroku
+            const periodsElapsed = Math.round((endValue - minValue) / stepValue);
+            endValue = minValue + (periodsElapsed * stepValue);
+            if (endValue > maxEndPeriod) endValue = maxEndPeriod;
+            endInput.value = endValue;
+            endRange.value = endValue;
         }
     };
 
