@@ -1017,14 +1017,15 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
                     let lastMonth;
                     if (previousType === "Kwartalna") {
                         lastMonth = previousPeriodEndValue * 3;
-                        minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                     } else if (previousType === "Roczna") {
                         lastMonth = previousPeriodEndValue * 12;
-                        minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                     } else if (previousType === "Miesięczna" || previousType === "Jednorazowa") {
                         lastMonth = previousPeriodEndValue;
-                        minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                     }
+
+                    // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
+                    const nextQuarterStartMonth = lastMonth + 1;
+                    minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
                 }
             }
         } else if (type === "Roczna") {
@@ -1044,14 +1045,15 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
                     let lastMonth;
                     if (previousType === "Roczna") {
                         lastMonth = previousPeriodEndValue * 12;
-                        minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                     } else if (previousType === "Kwartalna") {
                         lastMonth = previousPeriodEndValue * 3;
-                        minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                     } else if (previousType === "Miesięczna" || previousType === "Jednorazowa") {
                         lastMonth = previousPeriodEndValue;
-                        minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                     }
+
+                    // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
+                    const nextYearStartMonth = lastMonth + 1;
+                    minPeriodStart = Math.ceil(nextYearStartMonth / 12);
                 }
             }
         } else {
@@ -1196,25 +1198,25 @@ function initializeNadplataKredytuGroup(group) {
                     if (type === "Kwartalna") {
                         if (previousType === "Kwartalna") {
                             lastMonth = previousPeriodEndValue * 3;
-                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         } else if (previousType === "Roczna") {
                             lastMonth = previousPeriodEndValue * 12;
-                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         } else {
                             lastMonth = previousPeriodEndValue;
-                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         }
+                        // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
+                        const nextQuarterStartMonth = lastMonth + 1;
+                        minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
                     } else if (type === "Roczna") {
                         if (previousType === "Roczna") {
                             lastMonth = previousPeriodEndValue * 12;
-                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         } else if (previousType === "Kwartalna") {
                             lastMonth = previousPeriodEndValue * 3;
-                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         } else {
                             lastMonth = previousPeriodEndValue;
-                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         }
+                        // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
+                        const nextYearStartMonth = lastMonth + 1;
+                        minPeriodStart = Math.ceil(nextYearStartMonth / 12);
                     } else {
                         if (previousType === "Kwartalna") {
                             lastMonth = previousPeriodEndValue * 3;
@@ -1390,25 +1392,27 @@ function initializeNadplataKredytuGroup(group) {
                     if (type === "Kwartalna") {
                         if (previousType === "Kwartalna") {
                             lastMonth = previousPeriodEndValue * 3;
-                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         } else if (previousType === "Roczna") {
                             lastMonth = previousPeriodEndValue * 12;
-                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         } else {
                             lastMonth = previousPeriodEndValue;
-                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         }
+                        // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
+                        const nextQuarterStartMonth = lastMonth + 1;
+                        minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
+                        defaultPeriodStart = minPeriodStart;
                     } else if (type === "Roczna") {
                         if (previousType === "Roczna") {
                             lastMonth = previousPeriodEndValue * 12;
-                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         } else if (previousType === "Kwartalna") {
                             lastMonth = previousPeriodEndValue * 3;
-                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         } else {
                             lastMonth = previousPeriodEndValue;
-                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         }
+                        // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
+                        const nextYearStartMonth = lastMonth + 1;
+                        minPeriodStart = Math.ceil(nextYearStartMonth / 12);
+                        defaultPeriodStart = minPeriodStart;
                     } else {
                         if (previousType === "Kwartalna") {
                             lastMonth = previousPeriodEndValue * 3;
@@ -1420,8 +1424,8 @@ function initializeNadplataKredytuGroup(group) {
                             lastMonth = previousPeriodEndValue;
                             minPeriodStart = lastMonth + 1;
                         }
+                        defaultPeriodStart = minPeriodStart;
                     }
-                    defaultPeriodStart = minPeriodStart;
                 }
             }
 
