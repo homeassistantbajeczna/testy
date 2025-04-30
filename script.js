@@ -1202,7 +1202,33 @@ function initializeNadplataKredytuGroup(group) {
             periodStartInput.value = periodStartValue;
             periodStartRange.value = periodStartValue;
 
-            if (!existingEndBox) {
+            if (existingEndBox) {
+                const endUnit = existingEndBox.querySelector(".unit-period");
+                if (endUnit) {
+                    endUnit.textContent = type === "Miesięczna" ? "miesiąca" : type === "Kwartalna" ? "kwartału" : type === "Roczna" ? "roku" : "miesiąca";
+                }
+
+                const endInput = existingEndBox.querySelector(".variable-cykl-end");
+                const endRange = existingEndBox.querySelector(".variable-cykl-end-range");
+                if (endInput && endRange) {
+                    minValue = periodStartValue;
+                    maxValue = type === "Kwartalna" ? Math.ceil(iloscRat / 3) : type === "Roczna" ? Math.ceil(iloscRat / 12) : iloscRat;
+                    stepValue = 1;
+
+                    endInput.min = minValue;
+                    endRange.min = minValue;
+                    endInput.max = maxValue;
+                    endRange.max = maxValue;
+                    endInput.step = stepValue;
+                    endRange.step = stepValue;
+
+                    let endValue = parseInt(endInput.value) || minValue;
+                    if (endValue < minValue) endValue = minValue;
+                    if (endValue > maxValue) endValue = maxValue;
+                    endInput.value = endValue;
+                    endRange.value = endValue;
+                }
+            } else {
                 minValue = periodStartValue;
                 defaultValue = minValue;
 
@@ -1636,11 +1662,12 @@ function updateNadplataKredytuRemoveButtons() {
         const { remainingCapital } = updateAllOverpaymentLimits();
         console.log("Remaining capital przed ukryciem przycisku:", remainingCapital);
 
+        // Poprawiona logika widoczności przycisku
         if (remainingCapital <= 0) {
             addBtn.style.display = "none";
             console.log("Ukryto przycisk 'Dodaj kolejną nadpłatę', ponieważ osiągnięto limit nadpłaty");
         } else {
-            addBtn.style.display = "block";
+            addBtn.style.display = "block"; // Upewniamy się, że przycisk jest widoczny
             console.log("Przycisk 'Dodaj kolejną nadpłatę' jest widoczny");
         }
     }
