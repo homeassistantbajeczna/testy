@@ -382,6 +382,10 @@ function updateRatesArray(type) {
 
 
 
+
+
+
+
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
 function createNadplataKredytuGroup() {
@@ -646,79 +650,6 @@ function updateOverpaymentLimit(input, range, group) {
     if (value > maxAllowed) {
         input.value = maxAllowed.toFixed(2);
         range.value = maxAllowed;
-    }
-
-    let minPeriodStart;
-    if (type === "Kwartalna") {
-        minPeriodStart = 1;
-        if (currentIndex > 0) {
-            const previousGroup = groups[currentIndex - 1];
-            if (previousGroup && previousGroup.parentElement) {
-                const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                if (previousType === "Kwartalna") {
-                    minPeriodStart = previousPeriodStartValue + 1;
-                } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                    const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 3 + 1;
-                    minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
-                } else {
-                    const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 12 + 1;
-                    minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
-                }
-            }
-        }
-    } else if (type === "Roczna") {
-        minPeriodStart = 1;
-        if (currentIndex > 0) {
-            const previousGroup = groups[currentIndex - 1];
-            if (previousGroup && previousGroup.parentElement) {
-                const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                if (previousType === "Roczna") {
-                    minPeriodStart = previousPeriodStartValue + 1;
-                } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                    const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 12 + 1;
-                    minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
-                } else {
-                    const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 3 + 1;
-                    minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
-                }
-            }
-        }
-    } else {
-        minPeriodStart = 1;
-        if (currentIndex > 0) {
-            const previousGroup = groups[currentIndex - 1];
-            if (previousGroup && previousGroup.parentElement) {
-                const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                let previousPeriodStartMonth;
-                if (previousType === "Kwartalna") {
-                    const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    previousPeriodStartMonth = (previousPeriodStartValue - 1) * 3 + 1;
-                } else if (previousType === "Roczna") {
-                    const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    previousPeriodStartMonth = (previousPeriodStartValue - 1) * 12 + 1;
-                } else {
-                    previousPeriodStartMonth = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                }
-                minPeriodStart = previousPeriodStartMonth + 1;
-            }
-        }
-    }
-
-    periodStartInput.min = minPeriodStart;
-    periodStartRange.min = minPeriodStart;
-
-    const maxPeriodStart = type === "Kwartalna" ? Math.ceil(iloscRat / 3) : type === "Roczna" ? Math.ceil(iloscRat / 12) : iloscRat;
-    periodStartInput.max = maxPeriodStart;
-    periodStartRange.max = maxPeriodStart;
-
-    if (parseInt(periodStartInput.value) < minPeriodStart) {
-        periodStartInput.value = minPeriodStart;
-        periodStartRange.value = minPeriodStart;
-    } else if (parseInt(periodStartInput.value) > maxPeriodStart) {
-        periodStartInput.value = maxPeriodStart;
-        periodStartRange.value = maxPeriodStart;
     }
 
     if (remainingCapital <= 0) {
@@ -1078,14 +1009,21 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
                 if (previousGroup && previousGroup.parentElement) {
                     const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
                     const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                    let previousPeriodEndValue = previousPeriodStartValue;
+                    if (previousType !== "Jednorazowa") {
+                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
+                    }
+
+                    let lastMonth;
                     if (previousType === "Kwartalna") {
-                        minPeriodStart = previousPeriodStartValue + 1;
-                    } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                        const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 3 + 1;
-                        minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
-                    } else {
-                        const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 12 + 1;
-                        minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
+                        lastMonth = previousPeriodEndValue * 3;
+                        minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
+                    } else if (previousType === "Roczna") {
+                        lastMonth = previousPeriodEndValue * 12;
+                        minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
+                    } else if (previousType === "Miesięczna" || previousType === "Jednorazowa") {
+                        lastMonth = previousPeriodEndValue;
+                        minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                     }
                 }
             }
@@ -1098,14 +1036,21 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
                 if (previousGroup && previousGroup.parentElement) {
                     const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
                     const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                    let previousPeriodEndValue = previousPeriodStartValue;
+                    if (previousType !== "Jednorazowa") {
+                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
+                    }
+
+                    let lastMonth;
                     if (previousType === "Roczna") {
-                        minPeriodStart = previousPeriodStartValue + 1;
-                    } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                        const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 12 + 1;
-                        minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
-                    } else {
-                        const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 3 + 1;
-                        minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
+                        lastMonth = previousPeriodEndValue * 12;
+                        minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
+                    } else if (previousType === "Kwartalna") {
+                        lastMonth = previousPeriodEndValue * 3;
+                        minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
+                    } else if (previousType === "Miesięczna" || previousType === "Jednorazowa") {
+                        lastMonth = previousPeriodEndValue;
+                        minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                     }
                 }
             }
@@ -1117,17 +1062,19 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
                 const previousGroup = groups[index - 1];
                 if (previousGroup && previousGroup.parentElement) {
                     const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                    let previousPeriodStartMonth;
-                    if (previousType === "Kwartalna") {
-                        const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                        previousPeriodStartMonth = (previousPeriodStartValue - 1) * 3 + 1;
-                    } else if (previousType === "Roczna") {
-                        const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                        previousPeriodStartMonth = (previousPeriodStartValue - 1) * 12 + 1;
-                    } else {
-                        previousPeriodStartMonth = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                    const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                    let previousPeriodEndValue = previousPeriodStartValue;
+                    if (previousType !== "Jednorazowa") {
+                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
                     }
-                    minPeriodStart = previousPeriodStartMonth + 1;
+
+                    if (previousType === "Kwartalna") {
+                        minPeriodStart = (previousPeriodEndValue * 3) + 1;
+                    } else if (previousType === "Roczna") {
+                        minPeriodStart = (previousPeriodEndValue * 12) + 1;
+                    } else {
+                        minPeriodStart = previousPeriodEndValue + 1;
+                    }
                 }
             }
         }
@@ -1177,7 +1124,7 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
 
     updateAllOverpaymentLimits();
     updateNadplataKredytuRemoveButtons();
-}, 100);
+}, 150);
 
 function initializeNadplataKredytuGroup(group) {
     const kwota = parseFloat(elements.kwota?.value) || 500000;
@@ -1240,25 +1187,44 @@ function initializeNadplataKredytuGroup(group) {
                 if (previousGroup && previousGroup.parentElement) {
                     const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
                     const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                    let previousPeriodEndValue = previousPeriodStartValue;
+                    if (previousType !== "Jednorazowa") {
+                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
+                    }
+
+                    let lastMonth;
                     if (type === "Kwartalna") {
                         if (previousType === "Kwartalna") {
-                            minPeriodStart = previousPeriodStartValue + 1;
-                        } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                            const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 3 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
+                            lastMonth = previousPeriodEndValue * 3;
+                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
+                        } else if (previousType === "Roczna") {
+                            lastMonth = previousPeriodEndValue * 12;
+                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         } else {
-                            const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 12 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
+                            lastMonth = previousPeriodEndValue;
+                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         }
                     } else if (type === "Roczna") {
                         if (previousType === "Roczna") {
-                            minPeriodStart = previousPeriodStartValue + 1;
-                        } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                            const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 12 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
+                            lastMonth = previousPeriodEndValue * 12;
+                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
+                        } else if (previousType === "Kwartalna") {
+                            lastMonth = previousPeriodEndValue * 3;
+                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         } else {
-                            const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 3 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
+                            lastMonth = previousPeriodEndValue;
+                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
+                        }
+                    } else {
+                        if (previousType === "Kwartalna") {
+                            lastMonth = previousPeriodEndValue * 3;
+                            minPeriodStart = lastMonth + 1;
+                        } else if (previousType === "Roczna") {
+                            lastMonth = previousPeriodEndValue * 12;
+                            minPeriodStart = lastMonth + 1;
+                        } else {
+                            lastMonth = previousPeriodEndValue;
+                            minPeriodStart = lastMonth + 1;
                         }
                     }
                 }
@@ -1303,7 +1269,7 @@ function initializeNadplataKredytuGroup(group) {
                     endInput.value = endValue;
                     endRange.value = endValue;
                 }
-            } else {
+            } else if (type !== "Jednorazowa") {
                 minValue = periodStartValue;
                 defaultValue = minValue;
 
@@ -1324,15 +1290,23 @@ function initializeNadplataKredytuGroup(group) {
                     updateAllOverpaymentLimits();
                     updateNadplataKredytuRemoveButtons();
                     debouncedUpdateNadplataPeriodLimits();
-                }, 100);
+                }, 150);
 
                 endInput?.addEventListener("input", () => {
-                    syncInputWithRange(endInput, endRange);
+                    let value = parseInt(endInput.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxValue) value = maxValue;
+                    endInput.value = value;
+                    endRange.value = value;
                     debouncedUpdate();
                 });
 
                 endRange?.addEventListener("input", () => {
-                    endInput.value = endRange.value;
+                    let value = parseInt(endRange.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxValue) value = maxValue;
+                    endInput.value = value;
+                    endRange.value = value;
                     debouncedUpdate();
                 });
             }
@@ -1401,57 +1375,53 @@ function initializeNadplataKredytuGroup(group) {
             }
 
             let minPeriodStart = 1;
+            let defaultPeriodStart = 1;
             if (currentIndex > 0) {
                 const previousGroup = groups[currentIndex - 1];
                 if (previousGroup && previousGroup.parentElement) {
                     const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
                     const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                    let previousPeriodEndValue = previousPeriodStartValue;
+                    if (previousType !== "Jednorazowa") {
+                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
+                    }
+
+                    let lastMonth;
                     if (type === "Kwartalna") {
                         if (previousType === "Kwartalna") {
-                            minPeriodStart = previousPeriodStartValue + 1;
-                        } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                            const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 3 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
+                            lastMonth = previousPeriodEndValue * 3;
+                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
+                        } else if (previousType === "Roczna") {
+                            lastMonth = previousPeriodEndValue * 12;
+                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         } else {
-                            const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 12 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 3);
+                            lastMonth = previousPeriodEndValue;
+                            minPeriodStart = Math.ceil(lastMonth / 3) + (lastMonth % 3 === 0 ? 0 : 1);
                         }
                     } else if (type === "Roczna") {
                         if (previousType === "Roczna") {
-                            minPeriodStart = previousPeriodStartValue + 1;
-                        } else if (previousType === "Jednorazowa" || previousType === "Miesięczna") {
-                            const previousPeriodStartMonth = previousType === "Jednorazowa" || previousType === "Miesięczna" ? parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1 : (previousPeriodStartValue - 1) * 12 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
+                            lastMonth = previousPeriodEndValue * 12;
+                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
+                        } else if (previousType === "Kwartalna") {
+                            lastMonth = previousPeriodEndValue * 3;
+                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         } else {
-                            const previousPeriodStartMonth = (previousPeriodStartValue - 1) * 3 + 1;
-                            minPeriodStart = Math.ceil(previousPeriodStartMonth / 12);
+                            lastMonth = previousPeriodEndValue;
+                            minPeriodStart = Math.ceil(lastMonth / 12) + (lastMonth % 12 === 0 ? 0 : 1);
                         }
                     } else {
-                        let previousPeriodStartMonth;
                         if (previousType === "Kwartalna") {
-                            const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                            previousPeriodStartMonth = (previousPeriodStartValue - 1) * 3 + 1;
+                            lastMonth = previousPeriodEndValue * 3;
+                            minPeriodStart = lastMonth + 1;
                         } else if (previousType === "Roczna") {
-                            const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                            previousPeriodStartMonth = (previousPeriodStartValue - 1) * 12 + 1;
+                            lastMonth = previousPeriodEndValue * 12;
+                            minPeriodStart = lastMonth + 1;
                         } else {
-                            previousPeriodStartMonth = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                            lastMonth = previousPeriodEndValue;
+                            minPeriodStart = lastMonth + 1;
                         }
-                        minPeriodStart = previousPeriodStartMonth + 1;
                     }
-                }
-            }
-
-            let defaultPeriodStart = minPeriodStart;
-            if (type === "Jednorazowa" && currentIndex > 0) {
-                const firstGroup = groups[0];
-                if (firstGroup && firstGroup.parentElement) {
-                    const firstType = firstGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                    if (firstType !== "Jednorazowa") {
-                        const firstEndPeriod = parseInt(firstGroup.querySelector(".variable-cykl-end")?.value) || 1;
-                        defaultPeriodStart = firstEndPeriod + 1;
-                        if (defaultPeriodStart > maxPeriod) defaultPeriodStart = maxPeriod;
-                    }
+                    defaultPeriodStart = minPeriodStart;
                 }
             }
 
@@ -1472,16 +1442,24 @@ function initializeNadplataKredytuGroup(group) {
                 updateAllOverpaymentLimits();
                 updateNadplataKredytuRemoveButtons();
                 debouncedUpdateNadplataPeriodLimits();
-            }, 100);
+            }, 150);
 
             input.addEventListener("input", () => {
-                syncInputWithRange(input, range);
+                let value = parseInt(input.value) || minPeriodStart;
+                if (value < minPeriodStart) value = minPeriodStart;
+                if (value > maxPeriod) value = maxPeriod;
+                input.value = value;
+                range.value = value;
                 updatePeriodBox();
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
-                input.value = range.value;
+                let value = parseInt(range.value) || minPeriodStart;
+                if (value < minPeriodStart) value = minPeriodStart;
+                if (value > maxPeriod) value = maxPeriod;
+                input.value = value;
+                range.value = value;
                 updatePeriodBox();
                 debouncedUpdate();
             });
