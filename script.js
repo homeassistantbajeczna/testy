@@ -643,6 +643,7 @@ function updateAllOverpaymentLimits() {
     for (let month = 1; month <= iloscRat; month++) {
         const odsetki = currentCapital * monthlyRate;
         let kapital = rata - odsetki;
+        if (kapital < 0) kapital = 0; // Zabezpieczenie przed ujemnym kapitałem
         if (kapital > currentCapital) kapital = currentCapital;
 
         currentCapital -= kapital;
@@ -660,18 +661,21 @@ function updateAllOverpaymentLimits() {
                 }
             }
 
-            if (applyOverpayment) {
+            if (applyOverpayment && currentCapital > 0) { // Zastosuj nadpłaty tylko jeśli kapitał jest dodatni
                 let overpaymentAmount = overpayment.amount;
                 if (overpaymentAmount > currentCapital) overpaymentAmount = currentCapital;
                 currentCapital -= overpaymentAmount;
                 console.log(`[updateAllOverpaymentLimits] Miesiąc ${month}, nadpłata ${idx + 1} (${overpayment.type}): -${overpaymentAmount}, kapitał: ${currentCapital}`);
 
-                if (overpayment.effect === "Zmniejsz ratę") {
+                if (overpayment.effect === "Zmniejsz ratę" && currentCapital > 0) {
                     const remainingMonths = iloscRat - month;
-                    rata = rodzajRat === "rowne"
-                        ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
-                        : (currentCapital / remainingMonths) + (currentCapital * monthlyRate);
-                    console.log(`[updateAllOverpaymentLimits] Miesiąc ${month}, nowa rata po nadpłacie: ${rata}`);
+                    if (remainingMonths > 0) { // Upewnij się, że remainingMonths > 0
+                        rata = rodzajRat === "rowne"
+                            ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                            : (currentCapital / remainingMonths) + (currentCapital * monthlyRate);
+                        if (isNaN(rata) || rata < 0) rata = 0; // Zabezpieczenie przed NaN lub ujemną ratą
+                        console.log(`[updateAllOverpaymentLimits] Miesiąc ${month}, nowa rata po nadpłacie: ${rata}`);
+                    }
                 }
             }
         });
@@ -723,6 +727,7 @@ function updateAllOverpaymentLimits() {
             for (let month = 1; month <= periodStart - 1; month++) {
                 const odsetki = tempCapital * monthlyRate;
                 let kapital = tempRata - odsetki;
+                if (kapital < 0) kapital = 0;
                 if (kapital > tempCapital) kapital = tempCapital;
 
                 tempCapital -= kapital;
@@ -738,16 +743,19 @@ function updateAllOverpaymentLimits() {
                         }
                     }
 
-                    if (applyOverpayment) {
+                    if (applyOverpayment && tempCapital > 0) {
                         let overpaymentAmount = overpayment.amount;
                         if (overpaymentAmount > tempCapital) overpaymentAmount = tempCapital;
                         tempCapital -= overpaymentAmount;
 
-                        if (overpayment.effect === "Zmniejsz ratę") {
+                        if (overpayment.effect === "Zmniejsz ratę" && tempCapital > 0) {
                             const remainingMonths = iloscRat - month;
-                            tempRata = rodzajRat === "rowne"
-                                ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
-                                : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                            if (remainingMonths > 0) {
+                                tempRata = rodzajRat === "rowne"
+                                    ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                                    : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                                if (isNaN(tempRata) || tempRata < 0) tempRata = 0;
+                            }
                         }
                     }
                 });
@@ -769,7 +777,7 @@ function updateAllOverpaymentLimits() {
             let value = parseFloat(rateInput.value) || 0;
             if (value > maxAllowed) {
                 rateInput.value = maxAllowed.toFixed(2);
-                rateRange.value = maxAllowed;
+                range.value = maxAllowed;
             }
         }
     });
@@ -1062,7 +1070,13 @@ function updateNadplataKredytuRemoveButtons() {
 
     let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
 
-    if (!existingRemoveBtnWrapper && groups.length > 0) {
+    // Usuń istniejący wrapper, jeśli istnieje
+    if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
+        existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
+    }
+
+    // Jeśli są grupy, stwórz nowy wrapper z przyciskami
+    if (groups.length > 0) {
         existingRemoveBtnWrapper = document.createElement("div");
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
         existingRemoveBtnWrapper.style.display = "flex";
@@ -1086,6 +1100,10 @@ function updateNadplataKredytuRemoveButtons() {
         addBtn.style.alignSelf = "flex-end";
         existingRemoveBtnWrapper.appendChild(addBtn);
 
+        const lastGroup = groups[groups.length - 1];
+        lastGroup.appendChild(existingRemoveBtnWrapper);
+        console.log(`Przeniesiono remove-btn-wrapper do grupy ${groups.length}`);
+
         removeBtn.addEventListener("click", () => {
             console.log("Kliknięto 'Usuń'");
             const groups = wrapper.querySelectorAll(".variable-input-group");
@@ -1098,13 +1116,6 @@ function updateNadplataKredytuRemoveButtons() {
                 resetNadplataKredytuSection();
             } else {
                 const lastGroup = groups[currentIndex];
-                const removeBtnWrapper = lastGroup.querySelector(".remove-btn-wrapper");
-
-                if (removeBtnWrapper) {
-                    wrapper.appendChild(removeBtnWrapper);
-                    console.log("Przeniesiono remove-btn-wrapper do wrapper przed usunięciem grupy");
-                }
-
                 lastGroup.remove();
                 console.log("Usunięto ostatnią grupę");
 
@@ -1135,28 +1146,17 @@ function updateNadplataKredytuRemoveButtons() {
                 inputsSection.style.overflow = "visible";
             }
         });
-    }
 
-    if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
-        existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
-    }
-
-    if (groups.length > 0) {
-        const lastGroup = groups[groups.length - 1];
-        lastGroup.appendChild(existingRemoveBtnWrapper);
-        console.log(`Przeniesiono remove-btn-wrapper do grupy ${groups.length}`);
-
+        // Oblicz remainingCapital i zdecyduj o widoczności przycisku "Dodaj kolejną nadpłatę"
         const remainingCapital = updateAllOverpaymentLimits();
-        const addBtn = existingRemoveBtnWrapper.querySelector(".btn-functional");
         console.log("Remaining capital przed ukryciem przycisku:", remainingCapital);
 
-        // Dodatkowe zabezpieczenie: jeśli remainingCapital jest null lub undefined, pokaż przycisk
-        if (remainingCapital === null || remainingCapital === undefined || remainingCapital > 0) {
-            addBtn.style.display = "block";
-            console.log("Przycisk 'Dodaj kolejną nadpłatę' jest widoczny");
-        } else {
+        if (remainingCapital <= 0) {
             addBtn.style.display = "none";
             console.log("Ukryto przycisk 'Dodaj kolejną nadpłatę', ponieważ osiągnięto limit nadpłaty");
+        } else {
+            addBtn.style.display = "block";
+            console.log("Przycisk 'Dodaj kolejną nadpłatę' jest widoczny");
         }
     }
 }
@@ -1185,7 +1185,6 @@ elements.nadplataKredytuBtn?.addEventListener("change", () => {
         resetNadplataKredytuSection();
     }
 });
-
 
 
 
