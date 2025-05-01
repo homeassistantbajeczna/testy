@@ -614,7 +614,7 @@ function updateOverpaymentLimit(input, range, group) {
     }
 
     updateRatesArray("nadplata");
-    updateAllOverpaymentLimits(); // Dodajemy, aby upewnić się, że granice suwaków są aktualne
+    updateAllOverpaymentLimits(); // Aktualizujemy granice suwaków
 
     return remainingCapital;
 }
@@ -925,7 +925,6 @@ function initializeNadplataKredytuGroup(group) {
                         if (rateInput && rateRange) {
                             updateOverpaymentLimit(rateInput, rateRange, group);
                             updateRatesArray("nadplata");
-                            debouncedUpdateNadplataPeriodLimits();
                         }
                     }, 150);
 
@@ -959,12 +958,12 @@ function initializeNadplataKredytuGroup(group) {
         const range = ranges[index];
         if (input.classList.contains("variable-cykl-start")) {
             const debouncedUpdate = debounce(() => {
+                updateAllOverpaymentLimits();
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
                     updateOverpaymentLimit(rateInput, rateRange, group);
                     updateRatesArray("nadplata");
-                    debouncedUpdateNadplataPeriodLimits();
                 }
             }, 150);
 
@@ -1123,7 +1122,6 @@ function initializeNadplataKredytuGroup(group) {
             if (rateInput && rateRange) {
                 updateOverpaymentLimit(rateInput, rateRange, group);
                 updateRatesArray("nadplata");
-                debouncedUpdateNadplataPeriodLimits();
             }
         });
     }
