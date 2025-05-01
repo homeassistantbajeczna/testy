@@ -490,14 +490,9 @@ function syncInputWithRange(input, range) {
 
     const min = parseFloat(range.min);
     const max = parseFloat(range.max);
-    if (value < min) {
-        value = min;
-        input.value = input.classList.contains("variable-cykl") ? min : min.toFixed(2);
-    } else if (value > max) {
-        value = max;
-        input.value = input.classList.contains("variable-cykl") ? max : max.toFixed(2);
-    }
-
+    if (value < min) value = min;
+    if (value > max) value = max;
+    input.value = input.classList.contains("variable-cykl") ? value : value.toFixed(2);
     range.value = value;
 }
 
@@ -717,7 +712,7 @@ function updateAllOverpaymentLimits() {
         maxPeriodLimit = Math.min(maxPeriodLimit, lastOverpaymentMonth + monthsToPayOff);
     }
 
-    groups.forEach((g, index) => {
+    groups.forEach((g) => {
         if (!g || !g.parentElement) return;
 
         const periodStartInput = g.querySelector(".variable-cykl-start");
@@ -725,49 +720,20 @@ function updateAllOverpaymentLimits() {
         const periodEndInput = g.querySelector(".variable-cykl-end");
         const periodEndRange = g.querySelector(".variable-cykl-end-range");
 
-        let minPeriodStart = 1;
-        if (index > 0) {
-            const previousGroup = groups[index - 1];
-            if (previousGroup && previousGroup.parentElement) {
-                const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                let previousPeriodEndValue = previousPeriodStartValue;
-                if (previousType !== "Jednorazowa") {
-                    previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
-                }
-                minPeriodStart = previousPeriodEndValue + 1;
-            }
-        }
-
         if (periodStartInput && periodStartRange) {
-            periodStartInput.min = minPeriodStart;
-            periodStartRange.min = minPeriodStart;
             periodStartInput.max = maxPeriodLimit;
             periodStartRange.max = maxPeriodLimit;
-
-            let periodStartValue = parseInt(periodStartInput.value) || minPeriodStart;
-            if (periodStartValue < minPeriodStart) periodStartValue = minPeriodStart;
-            if (periodStartValue > maxPeriodLimit) periodStartValue = maxPeriodLimit;
-            periodStartInput.value = periodStartValue;
-            periodStartRange.value = periodStartValue;
             syncInputWithRange(periodStartInput, periodStartRange);
         }
 
         if (periodEndInput && periodEndRange) {
             const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
             if (type !== "Jednorazowa") {
-                const periodStartValue = parseInt(periodStartInput?.value) || minPeriodStart;
-                const minPeriodEnd = periodStartValue;
-                periodEndInput.min = minPeriodEnd;
-                periodEndRange.min = minPeriodEnd;
+                const periodStartValue = parseInt(periodStartInput?.value) || 1;
                 periodEndInput.max = maxPeriodLimit;
                 periodEndRange.max = maxPeriodLimit;
-
-                let periodEndValue = parseInt(periodEndInput.value) || minPeriodEnd;
-                if (periodEndValue < minPeriodEnd) periodEndValue = minPeriodEnd;
-                if (periodEndValue > maxPeriodLimit) periodEndValue = maxPeriodLimit;
-                periodEndInput.value = periodEndValue;
-                periodEndRange.value = periodEndValue;
+                periodEndInput.min = periodStartValue;
+                periodEndRange.min = periodStartValue;
                 syncInputWithRange(periodEndInput, periodEndRange);
             }
         }
@@ -1032,12 +998,12 @@ function initializeNadplataKredytuGroup(group) {
             });
 
             range.addEventListener("input", (e) => {
-                let value = parseInt(range.value) || minPeriodStart;
+                let value = parseInt(range.value);
                 if (value < minPeriodStart) value = minPeriodStart;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 range.value = value;
-                // Unikamy nadmiernego wywoływania sync podczas przesuwania
+                // Aktualizacja tylko przy zakończeniu przesuwania
                 if (e.type === "change") {
                     syncInputWithRange(input, range);
                 }
@@ -1260,24 +1226,6 @@ const debouncedUpdateNadplataKredytuRemoveButtons = debounce(() => {
         }
     }
 }, 150);
-
-if (elements.nadplataKredytuBtn) {
-    elements.nadplataKredytuBtn.addEventListener("change", () => {
-        const isChecked = elements.nadplataKredytuBtn.checked;
-        elements.nadplataKredytuInputs?.classList.toggle("active", isChecked);
-
-        if (isChecked) {
-            elements.nadplataKredytuWrapper.innerHTML = "";
-            const newGroup = createNadplataKredytuGroup();
-            elements.nadplataKredytuWrapper.appendChild(newGroup);
-            initializeNadplataKredytuGroup(newGroup);
-            updateRatesArray("nadplata");
-            debouncedUpdateNadplataKredytuRemoveButtons();
-        } else {
-            resetNadplataKredytuSection();
-        }
-    });
-}
 
 
 
