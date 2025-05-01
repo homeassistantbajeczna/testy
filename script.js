@@ -1412,22 +1412,37 @@ function updateNadplataKredytuRemoveButtons() {
     existingRemoveBtnWrapper = document.createElement("div");
     existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
     existingRemoveBtnWrapper.style.display = "flex";
+    existingRemoveBtnWrapper.style.alignItems = "center";
+    existingRemoveBtnWrapper.style.justifyContent = "flex-start";
     existingRemoveBtnWrapper.style.gap = "10px";
-    existingRemoveBtnWrapper.style.marginTop = "10px";
+    existingRemoveBtnWrapper.style.marginTop = "15px";
+    existingRemoveBtnWrapper.style.flexWrap = "wrap";
+
+    const removeButtonsWrapper = document.createElement("div");
+    removeButtonsWrapper.style.display = "flex";
+    removeButtonsWrapper.style.gap = "10px";
+    removeButtonsWrapper.style.alignItems = "center";
 
     groups.forEach((group, index) => {
         const removeBtn = document.createElement("button");
         removeBtn.classList.add("btn", "btn-danger", "remove-variable-btn");
         removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
         removeBtn.title = "Usuń nadpłatę";
+        removeBtn.style.width = "40px";
+        removeBtn.style.height = "40px";
+        removeBtn.style.display = "flex";
+        removeBtn.style.alignItems = "center";
+        removeBtn.style.justifyContent = "center";
         removeBtn.addEventListener("click", () => {
             group.remove();
             updateAllOverpaymentLimits();
             updateNadplataKredytuRemoveButtons();
             debouncedUpdateNadplataPeriodLimits();
         });
-        existingRemoveBtnWrapper.appendChild(removeBtn);
+        removeButtonsWrapper.appendChild(removeBtn);
     });
+
+    existingRemoveBtnWrapper.appendChild(removeButtonsWrapper);
 
     const shouldShowAddButton = (remainingCapital > 0 || futureCapital > 0);
     console.log(`Czy pokazać przycisk 'Dodaj kolejną nadpłatę'? ${shouldShowAddButton}`);
@@ -1436,7 +1451,11 @@ function updateNadplataKredytuRemoveButtons() {
         const addAnotherBtn = document.createElement("button");
         addAnotherBtn.classList.add("btn", "btn-primary", "add-another-variable-btn");
         addAnotherBtn.innerHTML = '<i class="fas fa-plus"></i> Dodaj kolejną nadpłatę';
-        addAnotherBtn.style.marginLeft = "10px";
+        addAnotherBtn.style.height = "40px";
+        addAnotherBtn.style.display = "flex";
+        addAnotherBtn.style.alignItems = "center";
+        addAnotherBtn.style.justifyContent = "center";
+        addAnotherBtn.style.padding = "0 15px";
 
         addAnotherBtn.addEventListener("click", () => {
             const newGroup = createNadplataKredytuGroup(true);
