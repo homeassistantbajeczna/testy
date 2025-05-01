@@ -971,7 +971,7 @@ function updateAllOverpaymentLimits() {
             let value = parseFloat(rateInput.value) || 0;
             if (value > maxAllowed) {
                 rateInput.value = maxAllowed.toFixed(2);
-                rateRange.value = maxAllowed;
+                range.value = maxAllowed;
             }
         }
     });
@@ -1023,9 +1023,10 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
                         lastMonth = previousPeriodEndValue;
                     }
 
-                    // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
-                    const nextQuarterStartMonth = lastMonth + 1;
-                    minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
+                    // Oblicz bieżący kwartał na podstawie ostatniego miesiąca
+                    const currentQuarter = Math.floor((lastMonth - 1) / 3) + 1;
+                    // Ustaw minimalny kwartał na kolejny kwartał po bieżącym
+                    minPeriodStart = currentQuarter + 1;
                 }
             }
         } else if (type === "Roczna") {
@@ -1051,9 +1052,10 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
                         lastMonth = previousPeriodEndValue;
                     }
 
-                    // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
-                    const nextYearStartMonth = lastMonth + 1;
-                    minPeriodStart = Math.ceil(nextYearStartMonth / 12);
+                    // Oblicz bieżący rok na podstawie ostatniego miesiąca
+                    const currentYear = Math.floor((lastMonth - 1) / 12) + 1;
+                    // Ustaw minimalny rok na kolejny rok po bieżącym
+                    minPeriodStart = currentYear + 1;
                 }
             }
         } else {
@@ -1203,9 +1205,10 @@ function initializeNadplataKredytuGroup(group) {
                         } else {
                             lastMonth = previousPeriodEndValue;
                         }
-                        // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
-                        const nextQuarterStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
+                        // Oblicz bieżący kwartał na podstawie ostatniego miesiąca
+                        const currentQuarter = Math.floor((lastMonth - 1) / 3) + 1;
+                        // Ustaw minimalny kwartał na kolejny kwartał po bieżącym
+                        minPeriodStart = currentQuarter + 1;
                     } else if (type === "Roczna") {
                         if (previousType === "Roczna") {
                             lastMonth = previousPeriodEndValue * 12;
@@ -1214,9 +1217,10 @@ function initializeNadplataKredytuGroup(group) {
                         } else {
                             lastMonth = previousPeriodEndValue;
                         }
-                        // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
-                        const nextYearStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextYearStartMonth / 12);
+                        // Oblicz bieżący rok na podstawie ostatniego miesiąca
+                        const currentYear = Math.floor((lastMonth - 1) / 12) + 1;
+                        // Ustaw minimalny rok na kolejny rok po bieżącym
+                        minPeriodStart = currentYear + 1;
                     } else {
                         if (previousType === "Kwartalna") {
                             lastMonth = previousPeriodEndValue * 3;
@@ -1397,9 +1401,10 @@ function initializeNadplataKredytuGroup(group) {
                         } else {
                             lastMonth = previousPeriodEndValue;
                         }
-                        // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
-                        const nextQuarterStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
+                        // Oblicz bieżący kwartał na podstawie ostatniego miesiąca
+                        const currentQuarter = Math.floor((lastMonth - 1) / 3) + 1;
+                        // Ustaw minimalny kwartał na kolejny kwartał po bieżącym
+                        minPeriodStart = currentQuarter + 1;
                         defaultPeriodStart = minPeriodStart;
                     } else if (type === "Roczna") {
                         if (previousType === "Roczna") {
@@ -1409,9 +1414,10 @@ function initializeNadplataKredytuGroup(group) {
                         } else {
                             lastMonth = previousPeriodEndValue;
                         }
-                        // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
-                        const nextYearStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextYearStartMonth / 12);
+                        // Oblicz bieżący rok na podstawie ostatniego miesiąca
+                        const currentYear = Math.floor((lastMonth - 1) / 12) + 1;
+                        // Ustaw minimalny rok na kolejny rok po bieżącym
+                        minPeriodStart = currentYear + 1;
                         defaultPeriodStart = minPeriodStart;
                     } else {
                         if (previousType === "Kwartalna") {
