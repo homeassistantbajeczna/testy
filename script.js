@@ -463,11 +463,17 @@ function debounce(func, wait) {
     };
 }
 
-// Dodajemy funkcję synchronizacji inputu i suwaka
+// Poprawiona funkcja synchronizacji inputu i suwaka
 function syncInputWithRange(input, range) {
     if (!input || !range) return;
-    input.value = parseFloat(range.value).toFixed(2);
-    range.value = parseFloat(input.value);
+    // Sprawdzamy, czy pole dotyczy "variable-cykl" (liczby całkowite) czy "variable-rate" (liczby dziesiętne)
+    if (input.classList.contains("variable-cykl")) {
+        input.value = parseInt(range.value);
+        range.value = parseInt(input.value);
+    } else {
+        input.value = parseFloat(range.value).toFixed(2);
+        range.value = parseFloat(input.value);
+    }
 }
 
 function updateOverpaymentLimit(input, range, group) {
@@ -812,7 +818,7 @@ function updateAllOverpaymentLimits() {
     console.log("Remaining capital dla ostatniej grupy:", lastRemainingCapital);
 
     updateRatesArray("nadplata");
-    return { remainingCapital: lastRemainingCapital !== null ? lastRemainingCapital : remaining выдCapital, lastMonthWithCapital };
+    return { remainingCapital: lastRemainingCapital !== null ? lastRemainingCapital : remainingCapital, lastMonthWithCapital };
 }
 
 const debouncedUpdateNadplataPeriodLimits = debounce(() => {
@@ -976,6 +982,7 @@ function initializeNadplataKredytuGroup(group) {
             if (periodStartValue > maxValue) periodStartValue = maxValue;
             periodStartInput.value = periodStartValue;
             periodStartRange.value = periodStartValue;
+            syncInputWithRange(periodStartInput, periodStartRange);
 
             if (existingEndBox) {
                 const endUnit = existingEndBox.querySelector(".unit-period");
@@ -1003,7 +1010,6 @@ function initializeNadplataKredytuGroup(group) {
                     endInput.value = endValue;
                     endRange.value = endValue;
 
-                    // Synchronizacja suwaka i inputu dla "DO"
                     syncInputWithRange(endInput, endRange);
                 }
             } else if (type !== "Jednorazowa") {
@@ -1019,7 +1025,6 @@ function initializeNadplataKredytuGroup(group) {
                 const endInput = endBox.querySelector(".variable-cykl-end");
                 const endRange = endBox.querySelector(".variable-cykl-end-range");
 
-                // Synchronizacja suwaka i inputu dla nowo utworzonego pola "DO"
                 syncInputWithRange(endInput, endRange);
 
                 const debouncedUpdate = debounce(() => {
