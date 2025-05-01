@@ -52,11 +52,10 @@ const state = {
     overpaymentRates: [],
     zoomLevel: 1,
     isDarkMode: false,
-    isUpdating: false, // Flaga kontrolna do zapobiegania pętlom
+    isUpdating: false,
 };
 
 let creditChart = null;
-
 
 
 
@@ -188,7 +187,7 @@ function calculateRemainingCapital(kwota, oprocentowanie, iloscRat, rodzajRat, v
     let remainingCapital = kwota;
     const monthlyInterestRate = oprocentowanie / 100 / 12;
     let activeVariableRates = [...variableRates].sort((a, b) => a.period - b.period);
-    let activeOverpaymentRates = [...overpaymentRates].sort((a, b) => a.periodStart - b.periodStart);
+    let activeOverpaymentRates = [...overpaymentRates].sort((a, b) => a.start - b.start);
 
     for (let i = 1; i <= targetMonth; i++) {
         let currentInterestRate = monthlyInterestRate;
@@ -400,6 +399,7 @@ function updateRatesArray(type) {
 
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -551,7 +551,6 @@ function updateOverpaymentLimit(input, range, group) {
         ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat))
         : (currentCapital / iloscRat) + (currentCapital * monthlyRate);
 
-    // Ograniczamy pętlę tylko do niezbędnych miesięcy
     for (let month = 1; month <= periodStart - 1; month++) {
         const odsetki = currentCapital * monthlyRate;
         let kapital = rata - odsetki;
@@ -619,7 +618,6 @@ function updateOverpaymentLimit(input, range, group) {
                 groupToRemove.remove();
             }
         }
-        updateNadplataKredytuRemoveButtons();
     }
 
     updateRatesArray("nadplata");
@@ -673,7 +671,6 @@ function updateAllOverpaymentLimits() {
         ? (currentCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -iloscRat))
         : (currentCapital / iloscRat) + (currentCapital * monthlyRate);
 
-    // Ograniczamy pętlę
     for (let month = 1; month <= lastOverpaymentMonth; month++) {
         const odsetki = currentCapital * monthlyRate;
         let kapital = rata - odsetki;
@@ -814,6 +811,7 @@ function updateAllOverpaymentLimits() {
 
     updateRatesArray("nadplata");
     state.isUpdating = false;
+    debouncedUpdateNadplataKredytuRemoveButtons();
     return { remainingCapital: lastRemainingCapital !== null ? lastRemainingCapital : remainingCapital, lastMonthWithCapital };
 }
 
@@ -901,7 +899,7 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
         }
     });
 
-    updateNadplataKredytuRemoveButtons();
+    debouncedUpdateNadplataKredytuRemoveButtons();
 }, 150);
 
 function initializeNadplataKredytuGroup(group) {
@@ -989,7 +987,7 @@ function initializeNadplataKredytuGroup(group) {
                 periodStartInput.step = stepValue;
                 periodStartRange.step = stepValue;
 
-                let periodStartValue = parseInt(periodStartInput?.	Если) || minPeriodStart;
+                let periodStartValue = parseInt(periodStartInput?.value) || minPeriodStart;
                 if (periodStartValue < minPeriodStart) periodStartValue = minPeriodStart;
                 if (periodStartValue > maxValue) periodStartValue = maxValue;
                 periodStartInput.value = periodStartValue;
@@ -1104,12 +1102,10 @@ function initializeNadplataKredytuGroup(group) {
     if (elements.kwota && !elements.kwota.dataset.listenerAdded) {
         elements.kwota.addEventListener("input", () => {
             updateAllOverpaymentLimits();
-            updateNadplataKredytuRemoveButtons();
         });
 
         elements.kwota.addEventListener("change", () => {
             updateAllOverpaymentLimits();
-            updateNadplataKredytuRemoveButtons();
         });
 
         elements.kwota.dataset.listenerAdded = "true";
@@ -1191,6 +1187,11 @@ function initializeNadplataKredytuGroup(group) {
         } else if (input.classList.contains("variable-rate")) {
             syncInputWithRange(input, range);
 
+            const debouncedUpdate = debounce(() => {
+                updateOverpaymentLimit(input, range, group);
+                debouncedUpdateNadplataKredytuRemoveButtons();
+            }, 150);
+
             input.addEventListener("input", (e) => {
                 let value = parseFloat(input.value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
@@ -1198,8 +1199,7 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value.toFixed(2);
                 range.value = value;
                 syncInputWithRange(input, range);
-                updateOverpaymentLimit(input, range, group);
-                updateNadplataKredytuRemoveButtons();
+                debouncedUpdate();
             });
 
             input.addEventListener("keydown", (e) => {
@@ -1250,8 +1250,7 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value.toFixed(2);
                 range.value = value;
                 syncInputWithRange(input, range);
-                updateOverpaymentLimit(input, range, group);
-                updateNadplataKredytuRemoveButtons();
+                debouncedUpdate();
             });
 
             range.addEventListener("change", () => {
@@ -1261,8 +1260,7 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value.toFixed(2);
                 range.value = value;
                 syncInputWithRange(input, range);
-                updateOverpaymentLimit(input, range, group);
-                updateNadplataKredytuRemoveButtons();
+                debouncedUpdate();
             });
         }
     });
@@ -1284,7 +1282,6 @@ function initializeNadplataKredytuGroup(group) {
         effectSelect.addEventListener("change", () => {
             updateRatesArray("nadplata");
             updateAllOverpaymentLimits();
-            updateNadplataKredytuRemoveButtons();
         });
     }
 
@@ -1295,7 +1292,7 @@ function initializeNadplataKredytuGroup(group) {
         updateOverpaymentLimit(rateInput, rateRange, group);
     }
 
-    updateNadplataKredytuRemoveButtons();
+    debouncedUpdateNadplataKredytuRemoveButtons();
 }
 
 function resetNadplataKredytuSection() {
@@ -1312,17 +1309,22 @@ function resetNadplataKredytuSection() {
     }
 }
 
-function updateNadplataKredytuRemoveButtons() {
+const debouncedUpdateNadplataKredytuRemoveButtons = debounce(() => {
     const wrapper = elements.nadplataKredytuWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
 
     let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
 
-    if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
-        existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
+    // Jeśli nie ma grup, usuwamy wrapper i kończymy
+    if (groups.length === 0) {
+        if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
+            existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
+        }
+        return;
     }
 
-    if (groups.length > 0) {
+    // Jeśli wrapper nie istnieje, tworzymy nowy
+    if (!existingRemoveBtnWrapper) {
         existingRemoveBtnWrapper = document.createElement("div");
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
         existingRemoveBtnWrapper.style.display = "flex";
@@ -1346,9 +1348,11 @@ function updateNadplataKredytuRemoveButtons() {
         addBtn.style.alignSelf = "flex-end";
         existingRemoveBtnWrapper.appendChild(addBtn);
 
+        // Dodajemy wrapper do ostatniej grupy
         const lastGroup = groups[groups.length - 1];
         lastGroup.appendChild(existingRemoveBtnWrapper);
 
+        // Dodajemy event listenery
         removeBtn.addEventListener("click", () => {
             const groups = wrapper.querySelectorAll(".variable-input-group");
             const currentIndex = groups.length - 1;
@@ -1364,7 +1368,6 @@ function updateNadplataKredytuRemoveButtons() {
                 lastGroup.remove();
                 updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
-                updateNadplataKredytuRemoveButtons();
             }
         });
 
@@ -1374,18 +1377,28 @@ function updateNadplataKredytuRemoveButtons() {
             initializeNadplataKredytuGroup(newGroup);
             updateRatesArray("nadplata");
             updateAllOverpaymentLimits();
-            updateNadplataKredytuRemoveButtons();
         });
+    } else {
+        // Jeśli wrapper istnieje, upewniamy się, że jest w ostatniej grupie
+        const lastGroup = groups[groups.length - 1];
+        const currentParent = existingRemoveBtnWrapper.parentElement;
+        if (currentParent !== lastGroup) {
+            lastGroup.appendChild(existingRemoveBtnWrapper);
+        }
+    }
 
-        const { remainingCapital } = updateAllOverpaymentLimits();
+    // Aktualizujemy widoczność przycisku "Dodaj kolejną nadpłatę"
+    const addBtn = existingRemoveBtnWrapper.querySelector(".btn-functional");
+    const { remainingCapital } = updateAllOverpaymentLimits();
 
+    if (addBtn) {
         if (remainingCapital <= 0) {
             addBtn.style.display = "none";
         } else {
             addBtn.style.display = "block";
         }
     }
-}
+}, 150);
 
 if (elements.nadplataKredytuBtn) {
     elements.nadplataKredytuBtn.addEventListener("change", () => {
@@ -1398,7 +1411,7 @@ if (elements.nadplataKredytuBtn) {
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
             updateRatesArray("nadplata");
-            updateNadplataKredytuRemoveButtons();
+            debouncedUpdateNadplataKredytuRemoveButtons();
         } else {
             resetNadplataKredytuSection();
         }
