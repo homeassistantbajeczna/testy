@@ -388,6 +388,8 @@ function updateRatesArray(type) {
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
+// F U N K C J A     N A D P Ł A T A     K R E D Y T U
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -398,7 +400,7 @@ function createNadplataKredytuGroup() {
     let hasNonJednorazowa = false;
     groups.forEach(g => {
         const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-        if (type === "Miesięczna" || type === "Kwartalna" || type === "Roczna") {
+        if (type === "Miesięczna") {
             hasNonJednorazowa = true;
         }
     });
@@ -406,8 +408,6 @@ function createNadplataKredytuGroup() {
     let typeOptions = `
         <option value="Jednorazowa">Jednorazowa</option>
         <option value="Miesięczna">Miesięczna</option>
-        <option value="Kwartalna">Kwartalna</option>
-        <option value="Roczna">Roczna</option>
     `;
     if (hasNonJednorazowa) {
         typeOptions = `<option value="Jednorazowa">Jednorazowa</option>`;
@@ -454,7 +454,7 @@ function createNadplataKredytuGroup() {
 }
 
 function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type) {
-    const unitText = type === "Miesięczna" ? "miesiąca" : type === "Kwartalna" ? "kwartału" : type === "Roczna" ? "roku" : "miesiąca";
+    const unitText = type === "Miesięczna" ? "miesiąca" : "miesiąca";
     const box = document.createElement("div");
     box.classList.add("form-group", "box-period", "box-period-end");
     box.innerHTML = `
@@ -493,22 +493,8 @@ function updateOverpaymentLimit(input, range, group) {
     const periodEndInput = group.querySelector(".variable-cykl-end");
     
     const iloscRat = parseInt(elements.iloscRat?.value) || 360;
-    let periodStart, periodEnd;
-
-    if (type === "Kwartalna") {
-        const periodStartValue = parseInt(periodStartInput?.value) || 1;
-        periodStart = (periodStartValue - 1) * 3 + 1;
-        const periodEndValue = periodEndInput ? parseInt(periodEndInput?.value) || periodStartValue : periodStartValue;
-        periodEnd = periodEndValue * 3;
-    } else if (type === "Roczna") {
-        const periodStartValue = parseInt(periodStartInput?.value) || 1;
-        periodStart = (periodStartValue - 1) * 12 + 1;
-        const periodEndValue = periodEndInput ? parseInt(periodEndInput?.value) || periodStartValue : periodStartValue;
-        periodEnd = periodEndValue * 12;
-    } else {
-        periodStart = parseInt(periodStartInput?.value) || 1;
-        periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
-    }
+    const periodStart = parseInt(periodStartInput?.value) || 1;
+    const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
     const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
     const currentIndex = Array.from(groups).indexOf(group);
@@ -523,23 +509,8 @@ function updateOverpaymentLimit(input, range, group) {
         const prevGroup = groups[i];
         if (!prevGroup || !prevGroup.parentElement) continue;
         const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-        let prevPeriodStart, prevPeriodEnd;
-
-        if (prevType === "Kwartalna") {
-            const prevPeriodStartValue = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
-            prevPeriodStart = (prevPeriodStartValue - 1) * 3 + 1;
-            const prevPeriodEndValue = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStartValue : prevPeriodStartValue;
-            prevPeriodEnd = prevPeriodEndValue * 3;
-        } else if (prevType === "Roczna") {
-            const prevPeriodStartValue = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
-            prevPeriodStart = (prevPeriodStartValue - 1) * 12 + 1;
-            const prevPeriodEndValue = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStartValue : prevPeriodStartValue;
-            prevPeriodEnd = prevPeriodEndValue * 12;
-        } else {
-            prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
-            prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
-        }
-
+        const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
+        const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
         const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
         const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
 
@@ -576,26 +547,6 @@ function updateOverpaymentLimit(input, range, group) {
                 if (month >= overpayment.start && month <= overpayment.end) {
                     applyOverpayment = true;
                 }
-            } else if (overpayment.type === "Kwartalna") {
-                const quarterStartMonth = overpayment.start;
-                const quarterEndMonth = overpayment.end;
-                if (month >= quarterStartMonth && month <= quarterEndMonth) {
-                    const quarterNumber = Math.floor((month - 1) / 3) + 1;
-                    const expectedQuarterStartMonth = (quarterNumber - 1) * 3 + 1;
-                    if (month === expectedQuarterStartMonth && quarterNumber >= overpayment.startValue) {
-                        applyOverpayment = true;
-                    }
-                }
-            } else if (overpayment.type === "Roczna") {
-                const yearStartMonth = overpayment.start;
-                const yearEndMonth = overpayment.end;
-                if (month >= yearStartMonth && month <= yearEndMonth) {
-                    const yearNumber = Math.floor((month - 1) / 12) + 1;
-                    const expectedYearStartMonth = (yearNumber - 1) * 12 + 1;
-                    if (month === expectedYearStartMonth && yearNumber >= overpayment.startValue) {
-                        applyOverpayment = true;
-                    }
-                }
             }
 
             if (applyOverpayment) {
@@ -626,14 +577,6 @@ function updateOverpaymentLimit(input, range, group) {
         let numberOfOverpayments = 0;
         if (type === "Miesięczna") {
             numberOfOverpayments = periodEnd - periodStart + 1;
-        } else if (type === "Kwartalna") {
-            const startQuarter = Math.floor((periodStart - 1) / 3) + 1;
-            const endQuarter = Math.floor((periodEnd - 1) / 3) + 1;
-            numberOfOverpayments = endQuarter - startQuarter + 1;
-        } else if (type === "Roczna") {
-            const startYear = Math.floor((periodStart - 1) / 12) + 1;
-            const endYear = Math.floor((periodEnd - 1) / 12) + 1;
-            numberOfOverpayments = endYear - startYear + 1;
         }
 
         if (numberOfOverpayments > 0) {
@@ -687,25 +630,9 @@ function updateAllOverpaymentLimits() {
         }
 
         const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-        let periodStart, periodEnd, periodStartValue;
-
-        const iloscRat = parseInt(elements.iloscRat?.value) || 360;
-        if (type === "Kwartalna") {
-            periodStartValue = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
-            periodStart = (periodStartValue - 1) * 3 + 1;
-            const periodEndValue = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStartValue : periodStartValue;
-            periodEnd = periodEndValue * 3;
-        } else if (type === "Roczna") {
-            periodStartValue = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
-            periodStart = (periodStartValue - 1) * 12 + 1;
-            const periodEndValue = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStartValue : periodStartValue;
-            periodEnd = periodEndValue * 12;
-        } else {
-            periodStartValue = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
-            periodStart = periodStartValue;
-            periodEnd = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStart : periodStart;
-        }
-
+        const periodStartValue = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
+        const periodStart = periodStartValue;
+        const periodEnd = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStart : periodStart;
         const amount = parseFloat(g.querySelector(".variable-rate")?.value) || 0;
         const effect = g.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
 
@@ -718,17 +645,11 @@ function updateAllOverpaymentLimits() {
             startValue: periodStartValue
         });
 
-        if (type === "Jednorazowa" || type === "Miesięczna") {
-            if (periodStart > lastOverpaymentMonth) {
-                lastOverpaymentMonth = periodStart;
-            }
-            if (periodEnd > lastOverpaymentMonth) {
-                lastOverpaymentMonth = periodEnd;
-            }
-        } else {
-            if (periodEnd > lastOverpaymentMonth) {
-                lastOverpaymentMonth = periodEnd;
-            }
+        if (periodStart > lastOverpaymentMonth) {
+            lastOverpaymentMonth = periodStart;
+        }
+        if (periodEnd > lastOverpaymentMonth) {
+            lastOverpaymentMonth = periodEnd;
         }
 
         console.log(`Grupa ${index}: typ=${type}, start=${periodStart}, end=${periodEnd}, amount=${amount}, effect=${effect}`);
@@ -764,26 +685,6 @@ function updateAllOverpaymentLimits() {
             } else if (overpayment.type === "Miesięczna") {
                 if (month >= overpayment.start && month <= overpayment.end) {
                     applyOverpayment = true;
-                }
-            } else if (overpayment.type === "Kwartalna") {
-                const quarterStartMonth = overpayment.start;
-                const quarterEndMonth = overpayment.end;
-                if (month >= quarterStartMonth && month <= quarterEndMonth) {
-                    const quarterNumber = Math.floor((month - 1) / 3) + 1;
-                    const expectedQuarterStartMonth = (quarterNumber - 1) * 3 + 1;
-                    if (month === expectedQuarterStartMonth && quarterNumber >= overpayment.startValue) {
-                        applyOverpayment = true;
-                    }
-                }
-            } else if (overpayment.type === "Roczna") {
-                const yearStartMonth = overpayment.start;
-                const yearEndMonth = overpayment.end;
-                if (month >= yearStartMonth && month <= yearEndMonth) {
-                    const yearNumber = Math.floor((month - 1) / 12) + 1;
-                    const expectedYearStartMonth = (yearNumber - 1) * 12 + 1;
-                    if (month === expectedYearStartMonth && yearNumber >= overpayment.startValue) {
-                        applyOverpayment = true;
-                    }
                 }
             }
 
@@ -826,22 +727,8 @@ function updateAllOverpaymentLimits() {
         const rateRange = g.querySelector(".variable-rate-range");
         if (rateInput && rateRange) {
             const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-            let periodStart, periodEnd;
-
-            if (type === "Kwartalna") {
-                const periodStartValue = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
-                periodStart = (periodStartValue - 1) * 3 + 1;
-                const periodEndValue = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStartValue : periodStartValue;
-                periodEnd = periodEndValue * 3;
-            } else if (type === "Roczna") {
-                const periodStartValue = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
-                periodStart = (periodStartValue - 1) * 12 + 1;
-                const periodEndValue = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStartValue : periodStartValue;
-                periodEnd = periodEndValue * 12;
-            } else {
-                periodStart = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
-                periodEnd = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStart : periodStart;
-            }
+            const periodStart = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
+            const periodEnd = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStart : periodStart;
 
             let tempCapital = parseFloat(elements.kwota?.value) || 500000;
             let tempRata = rodzajRat === "rowne"
@@ -853,24 +740,8 @@ function updateAllOverpaymentLimits() {
                 const prevGroup = groups[i];
                 if (!prevGroup || !prevGroup.parentElement) continue;
                 const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                let prevPeriodStart, prevPeriodEnd, prevPeriodStartValue;
-
-                if (prevType === "Kwartalna") {
-                    prevPeriodStartValue = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    prevPeriodStart = (prevPeriodStartValue - 1) * 3 + 1;
-                    const prevPeriodEndValue = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStartValue : prevPeriodStartValue;
-                    prevPeriodEnd = prevPeriodEndValue * 3;
-                } else if (prevType === "Roczna") {
-                    prevPeriodStartValue = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    prevPeriodStart = (prevPeriodStartValue - 1) * 12 + 1;
-                    const prevails = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStartValue : prevPeriodStartValue;
-                    prevPeriodEnd = prevails * 12;
-                } else {
-                    prevPeriodStartValue = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    prevPeriodStart = prevPeriodStartValue;
-                    prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
-                }
-
+                const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
                 const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
                 const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
 
@@ -880,7 +751,7 @@ function updateAllOverpaymentLimits() {
                     end: prevPeriodEnd,
                     amount: prevAmount,
                     effect: prevEffect,
-                    startValue: prevPeriodStartValue
+                    startValue: parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1
                 });
             }
 
@@ -899,26 +770,6 @@ function updateAllOverpaymentLimits() {
                     } else if (overpayment.type === "Miesięczna") {
                         if (month >= overpayment.start && month <= overpayment.end) {
                             applyOverpayment = true;
-                        }
-                    } else if (overpayment.type === "Kwartalna") {
-                        const quarterStartMonth = overpayment.start;
-                        const quarterEndMonth = overpayment.end;
-                        if (month >= quarterStartMonth && month <= quarterEndMonth) {
-                            const quarterNumber = Math.floor((month - 1) / 3) + 1;
-                            const expectedQuarterStartMonth = (quarterNumber - 1) * 3 + 1;
-                            if (month === expectedQuarterStartMonth && quarterNumber >= overpayment.startValue) {
-                                applyOverpayment = true;
-                            }
-                        }
-                    } else if (overpayment.type === "Roczna") {
-                        const yearStartMonth = overpayment.start;
-                        const yearEndMonth = overpayment.end;
-                        if (month >= yearStartMonth && month <= yearEndMonth) {
-                            const yearNumber = Math.floor((month - 1) / 12) + 1;
-                            const expectedYearStartMonth = (yearNumber - 1) * 12 + 1;
-                            if (month === expectedYearStartMonth && yearNumber >= overpayment.startValue) {
-                                applyOverpayment = true;
-                            }
                         }
                     }
 
@@ -948,14 +799,6 @@ function updateAllOverpaymentLimits() {
                 let numberOfOverpayments = 0;
                 if (type === "Miesięczna") {
                     numberOfOverpayments = periodEnd - periodStart + 1;
-                } else if (type === "Kwartalna") {
-                    const startQuarter = Math.floor((periodStart - 1) / 3) + 1;
-                    const endQuarter = Math.floor((periodEnd - 1) / 3) + 1;
-                    numberOfOverpayments = endQuarter - startQuarter + 1;
-                } else if (type === "Roczna") {
-                    const startYear = Math.floor((periodStart - 1) / 12) + 1;
-                    const endYear = Math.floor((periodEnd - 1) / 12) + 1;
-                    numberOfOverpayments = endYear - startYear + 1;
                 }
 
                 if (numberOfOverpayments > 0) {
@@ -1000,84 +843,20 @@ const debouncedUpdateNadplataPeriodLimits = debounce(() => {
 
         let minPeriodStart, maxPeriodStart;
 
-        if (type === "Kwartalna") {
-            maxPeriodStart = Math.ceil(iloscRat / 3);
-            maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(Math.ceil(lastMonthWithCapital / 3), maxPeriodStart) : maxPeriodStart;
-            minPeriodStart = 1;
-            if (index > 0) {
-                const previousGroup = groups[index - 1];
-                if (previousGroup && previousGroup.parentElement) {
-                    const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                    const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    let previousPeriodEndValue = previousPeriodStartValue;
-                    if (previousType !== "Jednorazowa") {
-                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
-                    }
-
-                    let lastMonth;
-                    if (previousType === "Kwartalna") {
-                        lastMonth = previousPeriodEndValue * 3;
-                    } else if (previousType === "Roczna") {
-                        lastMonth = previousPeriodEndValue * 12;
-                    } else if (previousType === "Miesięczna" || previousType === "Jednorazowa") {
-                        lastMonth = previousPeriodEndValue;
-                    }
-
-                    // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
-                    const nextQuarterStartMonth = lastMonth + 1;
-                    minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
+        maxPeriodStart = iloscRat;
+        maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
+        minPeriodStart = 1;
+        if (index > 0) {
+            const previousGroup = groups[index - 1];
+            if (previousGroup && previousGroup.parentElement) {
+                const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
+                const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                let previousPeriodEndValue = previousPeriodStartValue;
+                if (previousType !== "Jednorazowa") {
+                    previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
                 }
-            }
-        } else if (type === "Roczna") {
-            maxPeriodStart = Math.ceil(iloscRat / 12);
-            maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(Math.ceil(lastMonthWithCapital / 12), maxPeriodStart) : maxPeriodStart;
-            minPeriodStart = 1;
-            if (index > 0) {
-                const previousGroup = groups[index - 1];
-                if (previousGroup && previousGroup.parentElement) {
-                    const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                    const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    let previousPeriodEndValue = previousPeriodStartValue;
-                    if (previousType !== "Jednorazowa") {
-                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
-                    }
 
-                    let lastMonth;
-                    if (previousType === "Roczna") {
-                        lastMonth = previousPeriodEndValue * 12;
-                    } else if (previousType === "Kwartalna") {
-                        lastMonth = previousPeriodEndValue * 3;
-                    } else if (previousType === "Miesięczna" || previousType === "Jednorazowa") {
-                        lastMonth = previousPeriodEndValue;
-                    }
-
-                    // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
-                    const nextYearStartMonth = lastMonth + 1;
-                    minPeriodStart = Math.ceil(nextYearStartMonth / 12);
-                }
-            }
-        } else {
-            maxPeriodStart = iloscRat;
-            maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
-            minPeriodStart = 1;
-            if (index > 0) {
-                const previousGroup = groups[index - 1];
-                if (previousGroup && previousGroup.parentElement) {
-                    const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                    const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    let previousPeriodEndValue = previousPeriodStartValue;
-                    if (previousType !== "Jednorazowa") {
-                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
-                    }
-
-                    if (previousType === "Kwartalna") {
-                        minPeriodStart = (previousPeriodEndValue * 3) + 1;
-                    } else if (previousType === "Roczna") {
-                        minPeriodStart = (previousPeriodEndValue * 12) + 1;
-                    } else {
-                        minPeriodStart = previousPeriodEndValue + 1;
-                    }
-                }
+                minPeriodStart = previousPeriodEndValue + 1;
             }
         }
 
@@ -1173,14 +952,6 @@ function initializeNadplataKredytuGroup(group) {
                 if (periodUnit) periodUnit.textContent = "miesiąca";
                 maxValue = iloscRat;
                 stepValue = 1;
-            } else if (type === "Kwartalna") {
-                if (periodUnit) periodUnit.textContent = "kwartału";
-                maxValue = Math.ceil(iloscRat / 3);
-                stepValue = 1;
-            } else {
-                if (periodUnit) periodUnit.textContent = "roku";
-                maxValue = Math.ceil(iloscRat / 12);
-                stepValue = 1;
             }
 
             let minPeriodStart = 1;
@@ -1194,41 +965,8 @@ function initializeNadplataKredytuGroup(group) {
                         previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
                     }
 
-                    let lastMonth;
-                    if (type === "Kwartalna") {
-                        if (previousType === "Kwartalna") {
-                            lastMonth = previousPeriodEndValue * 3;
-                        } else if (previousType === "Roczna") {
-                            lastMonth = previousPeriodEndValue * 12;
-                        } else {
-                            lastMonth = previousPeriodEndValue;
-                        }
-                        // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
-                        const nextQuarterStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
-                    } else if (type === "Roczna") {
-                        if (previousType === "Roczna") {
-                            lastMonth = previousPeriodEndValue * 12;
-                        } else if (previousType === "Kwartalna") {
-                            lastMonth = previousPeriodEndValue * 3;
-                        } else {
-                            lastMonth = previousPeriodEndValue;
-                        }
-                        // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
-                        const nextYearStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextYearStartMonth / 12);
-                    } else {
-                        if (previousType === "Kwartalna") {
-                            lastMonth = previousPeriodEndValue * 3;
-                            minPeriodStart = lastMonth + 1;
-                        } else if (previousType === "Roczna") {
-                            lastMonth = previousPeriodEndValue * 12;
-                            minPeriodStart = lastMonth + 1;
-                        } else {
-                            lastMonth = previousPeriodEndValue;
-                            minPeriodStart = lastMonth + 1;
-                        }
-                    }
+                    let lastMonth = previousPeriodEndValue;
+                    minPeriodStart = lastMonth + 1;
                 }
             }
 
@@ -1248,14 +986,14 @@ function initializeNadplataKredytuGroup(group) {
             if (existingEndBox) {
                 const endUnit = existingEndBox.querySelector(".unit-period");
                 if (endUnit) {
-                    endUnit.textContent = type === "Miesięczna" ? "miesiąca" : type === "Kwartalna" ? "kwartału" : type === "Roczna" ? "roku" : "miesiąca";
+                    endUnit.textContent = type === "Miesięczna" ? "miesiąca" : "miesiąca";
                 }
 
                 const endInput = existingEndBox.querySelector(".variable-cykl-end");
                 const endRange = existingEndBox.querySelector(".variable-cykl-end-range");
                 if (endInput && endRange) {
                     minValue = periodStartValue;
-                    maxValue = type === "Kwartalna" ? Math.ceil(iloscRat / 3) : type === "Roczna" ? Math.ceil(iloscRat / 12) : iloscRat;
+                    maxValue = iloscRat;
                     stepValue = 1;
 
                     endInput.min = minValue;
@@ -1314,7 +1052,7 @@ function initializeNadplataKredytuGroup(group) {
             }
         }
 
-        const maxEndPeriod = type === "Kwartalna" ? Math.ceil(iloscRat / 3) : type === "Roczna" ? Math.ceil(iloscRat / 12) : iloscRat;
+        const maxEndPeriod = iloscRat;
         const endInput = group.querySelector(".variable-cykl-end");
         const endRange = group.querySelector(".variable-cykl-end-range");
         if (endInput && endRange) {
@@ -1368,13 +1106,7 @@ function initializeNadplataKredytuGroup(group) {
         if (input.classList.contains("variable-cykl-start")) {
             let maxPeriod;
             const type = typeSelect?.value || "Jednorazowa";
-            if (type === "Kwartalna") {
-                maxPeriod = Math.ceil(iloscRat / 3);
-            } else if (type === "Roczna") {
-                maxPeriod = Math.ceil(iloscRat / 12);
-            } else {
-                maxPeriod = iloscRat;
-            }
+            maxPeriod = iloscRat;
 
             let minPeriodStart = 1;
             let defaultPeriodStart = 1;
@@ -1388,44 +1120,9 @@ function initializeNadplataKredytuGroup(group) {
                         previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
                     }
 
-                    let lastMonth;
-                    if (type === "Kwartalna") {
-                        if (previousType === "Kwartalna") {
-                            lastMonth = previousPeriodEndValue * 3;
-                        } else if (previousType === "Roczna") {
-                            lastMonth = previousPeriodEndValue * 12;
-                        } else {
-                            lastMonth = previousPeriodEndValue;
-                        }
-                        // Oblicz minimalny kwartał, uwzględniając, że nowy kwartał zaczyna się po zakończeniu poprzedniego okresu
-                        const nextQuarterStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextQuarterStartMonth / 3);
-                        defaultPeriodStart = minPeriodStart;
-                    } else if (type === "Roczna") {
-                        if (previousType === "Roczna") {
-                            lastMonth = previousPeriodEndValue * 12;
-                        } else if (previousType === "Kwartalna") {
-                            lastMonth = previousPeriodEndValue * 3;
-                        } else {
-                            lastMonth = previousPeriodEndValue;
-                        }
-                        // Oblicz minimalny rok, uwzględniając, że nowy rok zaczyna się po zakończeniu poprzedniego okresu
-                        const nextYearStartMonth = lastMonth + 1;
-                        minPeriodStart = Math.ceil(nextYearStartMonth / 12);
-                        defaultPeriodStart = minPeriodStart;
-                    } else {
-                        if (previousType === "Kwartalna") {
-                            lastMonth = previousPeriodEndValue * 3;
-                            minPeriodStart = lastMonth + 1;
-                        } else if (previousType === "Roczna") {
-                            lastMonth = previousPeriodEndValue * 12;
-                            minPeriodStart = lastMonth + 1;
-                        } else {
-                            lastMonth = previousPeriodEndValue;
-                            minPeriodStart = lastMonth + 1;
-                        }
-                        defaultPeriodStart = minPeriodStart;
-                    }
+                    let lastMonth = previousPeriodEndValue;
+                    minPeriodStart = lastMonth + 1;
+                    defaultPeriodStart = minPeriodStart;
                 }
             }
 
