@@ -388,30 +388,16 @@ function updateRatesArray(type) {
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
-// F U N K C J A     N A D P Ł A T A     K R E D Y T U
-
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
     group.setAttribute("data-type", "nadplata");
     group.style.marginBottom = "10px";
 
-    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-    let hasNonJednorazowa = false;
-    groups.forEach(g => {
-        const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-        if (type === "Miesięczna") {
-            hasNonJednorazowa = true;
-        }
-    });
-
     let typeOptions = `
         <option value="Jednorazowa">Jednorazowa</option>
         <option value="Miesięczna">Miesięczna</option>
     `;
-    if (hasNonJednorazowa) {
-        typeOptions = `<option value="Jednorazowa">Jednorazowa</option>`;
-    }
 
     group.innerHTML = `
         <div class="fields-wrapper">
