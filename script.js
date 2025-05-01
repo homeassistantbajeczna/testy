@@ -484,21 +484,27 @@ function syncInputWithRange(input, range) {
     let value;
     if (input.classList.contains("variable-cykl")) {
         value = parseInt(input.value);
-        range.value = value;
     } else {
         value = parseFloat(input.value);
-        range.value = value;
         input.value = value.toFixed(2);
     }
 
     const min = parseFloat(range.min);
     const max = parseFloat(range.max);
     if (value < min) {
-        range.value = min;
+        value = min;
         input.value = input.classList.contains("variable-cykl") ? min : min.toFixed(2);
     } else if (value > max) {
-        range.value = max;
+        value = max;
         input.value = input.classList.contains("variable-cykl") ? max : max.toFixed(2);
+    }
+
+    // Ustawiamy wartość suwaka i wymuszamy odświeżenie
+    range.value = value;
+    // Wymuszenie odświeżenia pozycji suwaka przez chwilową zmianę wartości
+    if (value === min) {
+        range.value = min + 1; // Chwilowa zmiana, aby wymusić odświeżenie
+        range.value = min; // Powrót do prawidłowej wartości
     }
 
     range.dispatchEvent(new Event('input'));
@@ -1417,7 +1423,6 @@ if (elements.nadplataKredytuBtn) {
         }
     });
 }
-
 
 
 
