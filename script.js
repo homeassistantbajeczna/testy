@@ -478,38 +478,6 @@ function debounce(func, wait) {
     };
 }
 
-function syncInputWithRange(input, range) {
-    if (!input || !range) return;
-
-    let value;
-    if (input.classList.contains("variable-cykl")) {
-        value = parseInt(input.value);
-    } else {
-        value = parseFloat(input.value);
-        input.value = value.toFixed(2);
-    }
-
-    const min = parseFloat(range.min);
-    const max = parseFloat(range.max);
-    if (value < min) {
-        value = min;
-        input.value = input.classList.contains("variable-cykl") ? min : min.toFixed(2);
-    } else if (value > max) {
-        value = max;
-        input.value = input.classList.contains("variable-cykl") ? max : max.toFixed(2);
-    }
-
-    // Ustawiamy wartość suwaka i wymuszamy odświeżenie
-    range.value = value;
-    // Wymuszenie odświeżenia pozycji suwaka przez chwilową zmianę wartości
-    if (value === min) {
-        range.value = min + 1; // Chwilowa zmiana, aby wymusić odświeżenie
-        range.value = min; // Powrót do prawidłowej wartości
-    }
-
-    range.dispatchEvent(new Event('input'));
-}
-
 function updateOverpaymentLimit(input, range, group) {
     if (!group || !group.parentElement || state.isUpdating) {
         console.log("Group jest undefined, nie istnieje w DOM lub aktualizacja w toku, pomijam updateOverpaymentLimit");
@@ -1159,11 +1127,20 @@ function initializeNadplataKredytuGroup(group) {
             range.value = value;
             syncInputWithRange(input, range);
 
+            const validateAndSync = () => {
+                let value = parseInt(range.value) || minPeriodStart;
+                if (value < minPeriodStart) value = minPeriodStart;
+                if (value > maxPeriodLimit) value = maxPeriodLimit;
+                input.value = value;
+                range.value = value;
+                syncInputWithRange(input, range);
+            };
+
             const debouncedUpdate = debounce(() => {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, rateRange, group);
+                    updateOverpaymentLimit(rateInput, range, group);
                     updateRatesArray("nadplata");
                     debouncedUpdateNadplataPeriodLimits();
                 }
@@ -1181,15 +1158,12 @@ function initializeNadplataKredytuGroup(group) {
             });
 
             range.addEventListener("input", () => {
-                let value = parseInt(range.value) || minPeriodStart;
-                if (value < minPeriodStart) value = minPeriodStart;
-                if (value > maxPeriodLimit) value = maxPeriodLimit;
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
+                validateAndSync();
                 updatePeriodBox();
                 debouncedUpdate();
             });
+
+            range.addEventListener("change", validateAndSync);
         } else if (input.classList.contains("variable-rate")) {
             syncInputWithRange(input, range);
 
