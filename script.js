@@ -1777,7 +1777,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
             elements.kwota.step = 0.01;
-            elements.kwota.value = 500000;
+            elements.kwota.value = 500000; // Ustawiamy wartość początkową jako liczbę całkowitą
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
@@ -1785,6 +1785,19 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwotaRange.step = 0.01;
             elements.kwotaRange.value = 500000;
         }
+
+        elements.kwota?.addEventListener("input", (e) => {
+            // Pozwalamy na wpisywanie, akceptując cyfry, kropkę i przecinek
+            let value = e.target.value.replace(/[^0-9.,]/g, "");
+            // Zamieniamy przecinek na kropkę
+            value = value.replace(",", ".");
+            // Upewniamy się, że jest tylko jedna kropka
+            const parts = value.split(".");
+            if (parts.length > 2) {
+                value = parts[0] + "." + parts.slice(1).join("");
+            }
+            e.target.value = value;
+        });
 
         elements.kwota?.addEventListener("blur", () => {
             let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
@@ -1819,7 +1832,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360;
+            elements.iloscRat.value = 360; // Ustawiamy wartość całkowitą
+            elements.iloscRat.type = "number"; // Ustawiamy typ na number, aby uniknąć formatowania dziesiętnego
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1835,7 +1849,7 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value;
+            elements.iloscRat.value = value; // Ustawiamy wartość bez miejsc po przecinku
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
