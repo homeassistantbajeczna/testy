@@ -957,7 +957,7 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, range, group);
+                    updateOverpaymentLimit(rateInput, rateRange, group);
                     updateRatesArray("nadplata");
                 }
             }, 150);
@@ -972,7 +972,7 @@ function initializeNadplataKredytuGroup(group) {
                 debouncedUpdate();
             });
 
-            input.addEventListener("input", () => {
+            input.addEventListener("input", (e) => {
                 let value = parseInt(input.value) || minPeriodStart;
                 if (value < minPeriodStart) value = minPeriodStart;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
@@ -1022,7 +1022,33 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                     return;
                 }
-                if (e.key === "." && input.value.includes(".")) {
+
+                let currentValue = input.value;
+                let cursorPosition = input.selectionStart;
+                let newValueStr = currentValue;
+
+                if (e.key === "Backspace") {
+                    newValueStr = currentValue.slice(0, cursorPosition - 1) + currentValue.slice(cursorPosition);
+                } else if (e.key === "Delete") {
+                    newValueStr = currentValue.slice(0, cursorPosition) + currentValue.slice(cursorPosition + 1);
+                } else if (e.key >= "0" && e.key <= "9") {
+                    newValueStr = currentValue.slice(0, cursorPosition) + e.key + currentValue.slice(cursorPosition);
+                } else if (e.key === ".") {
+                    if (currentValue.includes(".") || cursorPosition === 0) {
+                        e.preventDefault();
+                        return;
+                    }
+                    newValueStr = currentValue.slice(0, cursorPosition) + e.key + currentValue.slice(cursorPosition);
+                } else if (e.key === "-") {
+                    e.preventDefault();
+                    return;
+                } else {
+                    e.preventDefault();
+                    return;
+                }
+
+                let parts = newValueStr.split(".");
+                if (parts[1] && parts[1].length > 2) {
                     e.preventDefault();
                     return;
                 }
@@ -1079,7 +1105,7 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                 });
 
-                input.addEventListener("input", () => {
+                input.addEventListener("input", (e) => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
                     let value = parseInt(input.value) || minValue;
                     if (value < minValue) value = minValue;
