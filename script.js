@@ -961,6 +961,11 @@ function initializeNadplataKredytuGroup(group) {
                 }
             }, 300);
 
+            input.addEventListener("input", (e) => {
+                let value = e.target.value.replace(/[^0-9]/g, "");
+                e.target.value = value;
+            });
+
             input.addEventListener("blur", () => {
                 let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minPeriodStart;
                 if (value < minPeriodStart) value = minPeriodStart;
@@ -971,14 +976,27 @@ function initializeNadplataKredytuGroup(group) {
             });
 
             range.addEventListener("input", () => {
-                input.value = parseInt(range.value);
+                let value = parseInt(range.value);
+                input.value = value;
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
             const debouncedUpdate = debounce(() => {
                 updateOverpaymentLimit(input, range, group);
                 debouncedUpdateNadplataKredytuRemoveButtons();
+                updateRatesArray("nadplata");
             }, 300);
+
+            input.addEventListener("input", (e) => {
+                let value = e.target.value.replace(/[^0-9,]/g, "");
+                value = value.replace(",", ".");
+                const parts = value.split(".");
+                if (parts.length > 2) {
+                    value = parts[0] + "." + parts.slice(1).join("");
+                }
+                value = value.replace(".", ",");
+                e.target.value = value;
+            });
 
             input.addEventListener("blur", () => {
                 let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
@@ -991,7 +1009,6 @@ function initializeNadplataKredytuGroup(group) {
                 } else if (parsedValue > maxAllowed) {
                     parsedValue = maxAllowed;
                 }
-                // Formatowanie z przecinkiem dla polskiej lokalizacji
                 input.value = parsedValue.toFixed(2).replace(".", ",");
                 range.value = parsedValue;
                 debouncedUpdate();
@@ -1018,6 +1035,11 @@ function initializeNadplataKredytuGroup(group) {
                         updateRatesArray("nadplata");
                     }
                 }, 300);
+
+                input.addEventListener("input", (e) => {
+                    let value = e.target.value.replace(/[^0-9]/g, "");
+                    e.target.value = value;
+                });
 
                 input.addEventListener("blur", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
@@ -1257,6 +1279,11 @@ function initializeVariableOprocentowanieGroup(group) {
                 updateRatesArray("oprocentowanie");
             }, 300);
 
+            input.addEventListener("input", (e) => {
+                let value = e.target.value.replace(/[^0-9]/g, "");
+                e.target.value = value;
+            });
+
             input.addEventListener("blur", () => {
                 let value = parseInt(input.value.replace(/[^0-9]/g, "")) || 2;
                 if (value < 2) value = 2;
@@ -1267,13 +1294,25 @@ function initializeVariableOprocentowanieGroup(group) {
             });
 
             range.addEventListener("input", () => {
-                input.value = parseInt(range.value);
+                let value = parseInt(range.value);
+                input.value = value;
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
             const debouncedUpdate = debounce(() => {
                 updateRatesArray("oprocentowanie");
             }, 300);
+
+            input.addEventListener("input", (e) => {
+                let value = e.target.value.replace(/[^0-9,]/g, "");
+                value = value.replace(",", ".");
+                const parts = value.split(".");
+                if (parts.length > 2) {
+                    value = parts[0] + "." + parts.slice(1).join("");
+                }
+                value = value.replace(".", ",");
+                e.target.value = value;
+            });
 
             input.addEventListener("blur", () => {
                 let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
@@ -1799,7 +1838,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
             elements.kwota.step = 0.01;
-            elements.kwota.value = "500000,00"; // Ustawiamy wartość z przecinkiem dla polskiej lokalizacji
+            elements.kwota.value = "500000,00";
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
@@ -1853,11 +1892,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Inicjalizacja boxa Ilość Rat
         if (elements.iloscRat) {
-            elements.iloscRat.type = "number";
+            elements.iloscRat.type = "text"; // Zmieniamy na text, aby uniknąć automatycznego formatowania
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360; // Ustawiamy wartość całkowitą
+            elements.iloscRat.value = "360"; // Ustawiamy jako string, aby uniknąć formatowania
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1878,7 +1917,7 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value; // Ustawiamy wartość bez miejsc po przecinku
+            elements.iloscRat.value = String(value); // Ustawiamy jako string, aby uniknąć formatowania
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -1901,7 +1940,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value;
+            elements.iloscRat.value = String(value);
             updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
