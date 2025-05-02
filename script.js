@@ -957,10 +957,20 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, rateRange, group);
+                    updateOverpaymentLimit(rateInput, range, group);
                     updateRatesArray("nadplata");
                 }
             }, 150);
+
+            input.addEventListener("change", () => {
+                let value = parseInt(input.value) || minPeriodStart;
+                if (value < minPeriodStart) value = minPeriodStart;
+                if (value > maxPeriodLimit) value = maxPeriodLimit;
+                input.value = value;
+                range.value = value;
+                syncInputWithRange(input, range);
+                debouncedUpdate();
+            });
 
             input.addEventListener("input", () => {
                 let value = parseInt(input.value) || minPeriodStart;
@@ -993,7 +1003,6 @@ function initializeNadplataKredytuGroup(group) {
                 let value = parseFloat(input.value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
                 value = Math.max(100, Math.min(value, maxAllowed));
-                // Ograniczenie do 2 miejsc po przecinku
                 value = parseFloat(value.toFixed(2));
                 input.value = value.toFixed(2);
                 range.value = value;
@@ -1006,7 +1015,6 @@ function initializeNadplataKredytuGroup(group) {
                     let value = parseFloat(input.value) || 0;
                     let maxAllowed = parseFloat(input.max) || 5000000;
                     value = Math.max(100, Math.min(value, maxAllowed));
-                    // Ograniczenie do 2 miejsc po przecinku
                     value = parseFloat(value.toFixed(2));
                     input.value = value.toFixed(2);
                     range.value = value;
@@ -1014,43 +1022,9 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                     return;
                 }
-
-                let currentValue = input.value;
-                let cursorPosition = input.selectionStart;
-                let newValueStr = currentValue;
-
-                if (
-                    (e.key >= "0" && e.key <= "9") ||
-                    e.key === "." ||
-                    e.key === "Backspace" ||
-                    e.key === "Delete" ||
-                    e.key === "ArrowLeft" ||
-                    e.key === "ArrowRight"
-                ) {
-                    if (e.key === "Backspace") {
-                        newValueStr = currentValue.slice(0, cursorPosition - 1) + currentValue.slice(cursorPosition);
-                    } else if (e.key === "Delete") {
-                        newValueStr = currentValue.slice(0, cursorPosition) + currentValue.slice(cursorPosition + 1);
-                    } else if (e.key >= "0" && e.key <= "9") {
-                        newValueStr = currentValue.slice(0, cursorPosition) + e.key + currentValue.slice(cursorPosition);
-                    } else if (e.key === ".") {
-                        if (currentValue.includes(".")) {
-                            e.preventDefault();
-                            return;
-                        }
-                        newValueStr = currentValue.slice(0, cursorPosition) + e.key + currentValue.slice(cursorPosition);
-                    }
-
-                    // Sprawdzamy, czy po kropce są więcej niż 2 cyfry
-                    if (newValueStr.includes(".")) {
-                        const decimalPart = newValueStr.split(".")[1];
-                        if (decimalPart && decimalPart.length > 2) {
-                            e.preventDefault();
-                            return;
-                        }
-                    }
-                } else {
+                if (e.key === "." && input.value.includes(".")) {
                     e.preventDefault();
+                    return;
                 }
             });
 
@@ -1058,7 +1032,6 @@ function initializeNadplataKredytuGroup(group) {
                 let value = parseFloat(range.value) || 0;
                 let maxAllowed = parseFloat(range.max) || 5000000;
                 value = Math.max(100, Math.min(value, maxAllowed));
-                // Ograniczenie do 2 miejsc po przecinku
                 value = parseFloat(value.toFixed(2));
                 input.value = value.toFixed(2);
                 range.value = value;
@@ -1070,7 +1043,6 @@ function initializeNadplataKredytuGroup(group) {
                 let value = parseFloat(range.value) || 0;
                 let maxAllowed = parseFloat(range.max) || 5000000;
                 value = Math.max(100, Math.min(value, maxAllowed));
-                // Ograniczenie do 2 miejsc po przecinku
                 value = parseFloat(value.toFixed(2));
                 input.value = value.toFixed(2);
                 range.value = value;
@@ -1097,6 +1069,17 @@ function initializeNadplataKredytuGroup(group) {
                 }, 150);
 
                 input.addEventListener("change", () => {
+                    let minValue = parseInt(periodStartInput?.value) || 1;
+                    let value = parseInt(input.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                input.addEventListener("input", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
                     let value = parseInt(input.value) || minValue;
                     if (value < minValue) value = minValue;
