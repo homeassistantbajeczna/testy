@@ -778,6 +778,7 @@ function updateAllOverpaymentLimits() {
     return { remainingCapital: lastRemainingCapital !== null ? lastRemainingCapital : remainingCapital, lastMonthWithCapital: maxPeriodLimit };
 }
 
+// F U N K C J A     N A D P Ł A T A     K R E D Y T U
 function initializeNadplataKredytuGroup(group) {
     const kwota = parseFloat(elements.kwota?.value) || 500000;
     const iloscRat = parseInt(elements.iloscRat?.value) || 360;
@@ -956,23 +957,13 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, rateRange, group);
+                    updateOverpaymentLimit(rateInput, range, group);
                     updateRatesArray("nadplata");
                 }
             }, 150);
 
-            input.addEventListener("keydown", (event) => {
-                if (event.key === "," || event.key === ".") {
-                    event.preventDefault();
-                }
-            });
-
             input.addEventListener("input", () => {
-                let value = parseInt(input.value);
-                if (value.toString().includes(".") || value.toString().includes(",")) {
-                    value = Math.floor(value);
-                    input.value = value;
-                }
+                let value = parseInt(input.value) || minPeriodStart;
                 if (isNaN(value) || value < minPeriodStart) {
                     value = minPeriodStart;
                 } else if (value > maxPeriodLimit) {
@@ -993,31 +984,11 @@ function initializeNadplataKredytuGroup(group) {
                 debouncedUpdateNadplataKredytuRemoveButtons();
             }, 150);
 
-            input.addEventListener("keydown", (event) => {
-                const allowedKeys = [
-                    "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                    "ArrowUp", "ArrowDown", "Home", "End", ".", ","
-                ];
-                if (
-                    !allowedKeys.includes(event.key) &&
-                    !/^[0-9]$/.test(event.key)
-                ) {
-                    event.preventDefault();
-                }
-            });
-
             input.addEventListener("input", () => {
                 let value = input.value;
                 if (value.includes(",")) {
                     value = value.replace(",", ".");
                     input.value = value;
-                }
-                if (value.includes(".")) {
-                    const parts = value.split(".");
-                    if (parts[1].length > 2) {
-                        value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                        input.value = value;
-                    }
                 }
                 let parsedValue = parseFloat(value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
@@ -1050,24 +1021,14 @@ function initializeNadplataKredytuGroup(group) {
                     const rateInput = group.querySelector(".variable-rate");
                     const rateRange = group.querySelector(".variable-rate-range");
                     if (rateInput && rateRange) {
-                        updateOverpaymentLimit(rateInput, rateRange, group);
+                        updateOverpaymentLimit(rateInput, range, group);
                         updateRatesArray("nadplata");
                     }
                 }, 150);
 
-                input.addEventListener("keydown", (event) => {
-                    if (event.key === "," || event.key === ".") {
-                        event.preventDefault();
-                    }
-                });
-
                 input.addEventListener("input", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(input.value);
-                    if (value.toString().includes(".") || value.toString().includes(",")) {
-                        value = Math.floor(value);
-                        input.value = value;
-                    }
+                    let value = parseInt(input.value) || minValue;
                     if (isNaN(value) || value < minValue) {
                         value = minValue;
                     } else if (value > maxPeriodLimit) {
@@ -1100,7 +1061,7 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = group.querySelector(".variable-rate");
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, rateRange, group);
+                updateOverpaymentLimit(rateInput, range, group);
                 updateRatesArray("nadplata");
             }
         });
@@ -1117,7 +1078,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rateRange, group);
+        updateOverpaymentLimit(rateInput, range, group);
     }
 
     debouncedUpdateNadplataKredytuRemoveButtons();
@@ -1305,18 +1266,8 @@ function initializeVariableOprocentowanieGroup(group) {
             input.value = value;
             range.value = value;
 
-            input.addEventListener("keydown", (event) => {
-                if (event.key === "," || event.key === ".") {
-                    event.preventDefault();
-                }
-            });
-
             input.addEventListener("input", () => {
-                let value = parseInt(input.value);
-                if (value.toString().includes(".") || value.toString().includes(",")) {
-                    value = Math.floor(value);
-                    input.value = value;
-                }
+                let value = parseInt(input.value) || 2;
                 if (isNaN(value) || value < 2) {
                     value = 2;
                 } else if (value > iloscRat) {
@@ -1332,31 +1283,11 @@ function initializeVariableOprocentowanieGroup(group) {
                 updateRatesArray("oprocentowanie");
             });
         } else if (input.classList.contains("variable-rate")) {
-            input.addEventListener("keydown", (event) => {
-                const allowedKeys = [
-                    "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                    "ArrowUp", "ArrowDown", "Home", "End", ".", ","
-                ];
-                if (
-                    !allowedKeys.includes(event.key) &&
-                    !/^[0-9]$/.test(event.key)
-                ) {
-                    event.preventDefault();
-                }
-            });
-
             input.addEventListener("input", () => {
                 let value = input.value;
                 if (value.includes(",")) {
                     value = value.replace(",", ".");
                     input.value = value;
-                }
-                if (value.includes(".")) {
-                    const parts = value.split(".");
-                    if (parts[1].length > 2) {
-                        value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                        input.value = value;
-                    }
                 }
                 let parsedValue = parseFloat(value) || 0;
                 let maxAllowed = parseFloat(input.max) || 25;
@@ -1858,41 +1789,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elements.kwota) {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
-            elements.kwota.step = 100;
-            elements.kwota.value = 500000; // Domyślna wartość
+            elements.kwota.step = 0.01;
+            elements.kwota.value = 500000;
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
             elements.kwotaRange.max = 5000000;
-            elements.kwotaRange.step = 100;
-            elements.kwotaRange.value = 500000; // Domyślna wartość
+            elements.kwotaRange.step = 0.01;
+            elements.kwotaRange.value = 500000;
         }
-
-        elements.kwota?.addEventListener("keydown", (event) => {
-            const allowedKeys = [
-                "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                "ArrowUp", "ArrowDown", "Home", "End", ".", ","
-            ];
-            if (
-                !allowedKeys.includes(event.key) &&
-                !/^[0-9]$/.test(event.key)
-            ) {
-                event.preventDefault();
-            }
-        });
 
         elements.kwota?.addEventListener("input", () => {
             let value = elements.kwota.value;
             if (value.includes(",")) {
                 value = value.replace(",", ".");
                 elements.kwota.value = value;
-            }
-            if (value.includes(".")) {
-                const parts = value.split(".");
-                if (parts[1].length > 2) {
-                    value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                    elements.kwota.value = value;
-                }
             }
             let parsedValue = parseFloat(value) || 0;
             if (parsedValue < 50000) parsedValue = 50000;
@@ -1925,27 +1836,17 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 1;
-            elements.iloscRat.value = 360; // Domyślna wartość
+            elements.iloscRat.value = 360;
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
             elements.iloscRatRange.step = 1;
-            elements.iloscRatRange.value = 360; // Domyślna wartość
+            elements.iloscRatRange.value = 360;
         }
 
-        elements.iloscRat?.addEventListener("keydown", (event) => {
-            if (event.key === "," || event.key === ".") {
-                event.preventDefault();
-            }
-        });
-
         elements.iloscRat?.addEventListener("input", () => {
-            let value = parseInt(elements.iloscRat.value);
-            if (value.toString().includes(".") || value.toString().includes(",")) {
-                value = Math.floor(value);
-                elements.iloscRat.value = value;
-            }
+            let value = parseInt(elements.iloscRat.value) || 12;
             if (isNaN(value) || value < 12) {
                 value = 12;
             } else if (value > 420) {
@@ -2008,31 +1909,11 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanieRange.value = 7;
         }
 
-        elements.oprocentowanie?.addEventListener("keydown", (event) => {
-            const allowedKeys = [
-                "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                "ArrowUp", "ArrowDown", "Home", "End", ".", ","
-            ];
-            if (
-                !allowedKeys.includes(event.key) &&
-                !/^[0-9]$/.test(event.key)
-            ) {
-                event.preventDefault();
-            }
-        });
-
         elements.oprocentowanie?.addEventListener("input", () => {
             let value = elements.oprocentowanie.value;
             if (value.includes(",")) {
                 value = value.replace(",", ".");
                 elements.oprocentowanie.value = value;
-            }
-            if (value.includes(".")) {
-                const parts = value.split(".");
-                if (parts[1].length > 2) {
-                    value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                    elements.oprocentowanie.value = value;
-                }
             }
             let parsedValue = parseFloat(value) || 0;
             if (parsedValue < 0.1) parsedValue = 0.1;
@@ -2060,31 +1941,11 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.prowizjaRange.value = 2;
         }
 
-        elements.prowizja?.addEventListener("keydown", (event) => {
-            const allowedKeys = [
-                "Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight",
-                "ArrowUp", "ArrowDown", "Home", "End", ".", ","
-            ];
-            if (
-                !allowedKeys.includes(event.key) &&
-                !/^[0-9]$/.test(event.key)
-            ) {
-                event.preventDefault();
-            }
-        });
-
         elements.prowizja?.addEventListener("input", () => {
             let value = elements.prowizja.value;
             if (value.includes(",")) {
                 value = value.replace(",", ".");
                 elements.prowizja.value = value;
-            }
-            if (value.includes(".")) {
-                const parts = value.split(".");
-                if (parts[1].length > 2) {
-                    value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                    elements.prowizja.value = value;
-                }
             }
             let parsedValue = parseFloat(value) || 0;
             let maxAllowed = parseFloat(elements.prowizja.max) || 25;
