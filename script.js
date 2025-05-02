@@ -2088,17 +2088,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const newGroup = createNadplataKredytuGroup();
                 elements.nadplataKredytuWrapper.appendChild(newGroup);
                 initializeNadplataKredytuGroup(newGroup);
-                updateNadplataKredytuRemoveButtons();
+                debouncedUpdateNadplataKredytuRemoveButtons();
             } else {
                 resetNadplataKredytuSection();
             }
         });
-
+        
         elements.addNadplataKredytuBtn?.addEventListener("click", () => {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
-            updateNadplataKredytuRemoveButtons();
+            debouncedUpdateNadplataKredytuRemoveButtons();
         });
 
         // Inicjalizacja sekcji Zmienne Oprocentowanie
