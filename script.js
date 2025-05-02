@@ -399,7 +399,6 @@ function updateRatesArray(type) {
 
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
-// F U N K C J A     N A D P Ł A T A     K R E D Y T U
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -993,7 +992,6 @@ function initializeNadplataKredytuGroup(group) {
             syncInputWithRange(input, range);
 
             const debouncedUpdate = debounce(() => {
-                updateAllOverpaymentLimits();
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
@@ -1009,7 +1007,6 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
-                updatePeriodBox();
                 debouncedUpdate();
             });
 
@@ -1020,7 +1017,6 @@ function initializeNadplataKredytuGroup(group) {
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
-                updatePeriodBox();
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
