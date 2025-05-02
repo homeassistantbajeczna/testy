@@ -999,6 +999,29 @@ function initializeNadplataKredytuGroup(group) {
                 debouncedUpdateNadplataKredytuRemoveButtons();
             }, 150);
 
+            input.addEventListener("input", (e) => {
+                let value = input.value;
+                if (value.includes(",")) {
+                    value = value.replace(",", ".");
+                    input.value = value;
+                }
+                if (value.includes(".")) {
+                    const parts = value.split(".");
+                    if (parts[1].length > 2) {
+                        value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                        input.value = value;
+                    }
+                }
+                let parsedValue = parseFloat(input.value) || 0;
+                let maxAllowed = parseFloat(input.max) || 5000000;
+                parsedValue = Math.max(100, Math.min(parsedValue, maxAllowed));
+                parsedValue = parseFloat(parsedValue.toFixed(2));
+                input.value = parsedValue.toFixed(2);
+                range.value = parsedValue;
+                syncInputWithRange(input, range);
+                debouncedUpdate();
+            });
+
             input.addEventListener("change", () => {
                 let value = parseFloat(input.value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
@@ -1008,50 +1031,6 @@ function initializeNadplataKredytuGroup(group) {
                 range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
-            });
-
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" || e.key === "Tab") {
-                    let value = parseFloat(input.value) || 0;
-                    let maxAllowed = parseFloat(input.max) || 5000000;
-                    value = Math.max(100, Math.min(value, maxAllowed));
-                    value = parseFloat(value.toFixed(2));
-                    input.value = value.toFixed(2);
-                    range.value = value;
-                    syncInputWithRange(input, range);
-                    debouncedUpdate();
-                    return;
-                }
-
-                let currentValue = input.value;
-                let cursorPosition = input.selectionStart;
-                let newValueStr = currentValue;
-
-                if (e.key === "Backspace") {
-                    newValueStr = currentValue.slice(0, cursorPosition - 1) + currentValue.slice(cursorPosition);
-                } else if (e.key === "Delete") {
-                    newValueStr = currentValue.slice(0, cursorPosition) + currentValue.slice(cursorPosition + 1);
-                } else if (e.key >= "0" && e.key <= "9") {
-                    newValueStr = currentValue.slice(0, cursorPosition) + e.key + currentValue.slice(cursorPosition);
-                } else if (e.key === ".") {
-                    if (currentValue.includes(".") || cursorPosition === 0) {
-                        e.preventDefault();
-                        return;
-                    }
-                    newValueStr = currentValue.slice(0, cursorPosition) + e.key + currentValue.slice(cursorPosition);
-                } else if (e.key === "-") {
-                    e.preventDefault();
-                    return;
-                } else {
-                    e.preventDefault();
-                    return;
-                }
-
-                let parts = newValueStr.split(".");
-                if (parts[1] && parts[1].length > 2) {
-                    e.preventDefault();
-                    return;
-                }
             });
 
             range.addEventListener("input", () => {
@@ -1094,17 +1073,6 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 150);
 
-                input.addEventListener("change", () => {
-                    let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(input.value) || minValue;
-                    if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
-                    input.value = value;
-                    range.value = value;
-                    syncInputWithRange(input, range);
-                    debouncedUpdate();
-                });
-
                 input.addEventListener("input", (e) => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
                     let value = parseInt(input.value) || minValue;
@@ -1116,7 +1084,29 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                 });
 
+                input.addEventListener("change", () => {
+                    let minValue = parseInt(periodStartInput?.value) || 1;
+                    let value = parseInt(input.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
                 range.addEventListener("input", () => {
+                    let minValue = parseInt(periodStartInput?.value) || 1;
+                    let value = parseInt(range.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                range.addEventListener("change", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
                     let value = parseInt(range.value) || minValue;
                     if (value < minValue) value = minValue;
