@@ -951,7 +951,6 @@ function initializeNadplataKredytuGroup(group) {
             let value = Math.max(minPeriodStart, Math.min(defaultPeriodStart, maxPeriodLimit));
             input.value = value;
             range.value = value;
-            syncInputWithRange(input, range);
 
             const debouncedUpdate = debounce(() => {
                 const rateInput = group.querySelector(".variable-rate");
@@ -962,96 +961,52 @@ function initializeNadplataKredytuGroup(group) {
                 }
             }, 150);
 
-            input.addEventListener("change", () => {
-                let value = parseInt(input.value) || minPeriodStart;
-                if (value < minPeriodStart) value = minPeriodStart;
-                if (value > maxPeriodLimit) value = maxPeriodLimit;
+            input.addEventListener("input", () => {
+                let value = parseInt(input.value);
+                if (isNaN(value) || value < minPeriodStart) {
+                    value = minPeriodStart;
+                } else if (value > maxPeriodLimit) {
+                    value = maxPeriodLimit;
+                }
                 input.value = value;
                 range.value = value;
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
-
-            input.addEventListener("input", (e) => {
-                let value = parseInt(input.value) || minPeriodStart;
-                if (value < minPeriodStart) value = minPeriodStart;
-                if (value > maxPeriodLimit) value = maxPeriodLimit;
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
-                let value = parseInt(range.value) || minPeriodStart;
-                if (value < minPeriodStart) value = minPeriodStart;
-                if (value > maxPeriodLimit) value = maxPeriodLimit;
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
+                input.value = range.value;
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
-            syncInputWithRange(input, range);
-
             const debouncedUpdate = debounce(() => {
                 updateOverpaymentLimit(input, range, group);
                 debouncedUpdateNadplataKredytuRemoveButtons();
             }, 150);
 
-            input.addEventListener("input", (e) => {
+            input.addEventListener("input", () => {
                 let value = input.value;
                 if (value.includes(",")) {
                     value = value.replace(",", ".");
                     input.value = value;
                 }
-                if (value.includes(".")) {
-                    const parts = value.split(".");
-                    if (parts[1].length > 2) {
-                        value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                        input.value = value;
-                    }
-                }
-                let parsedValue = parseFloat(input.value) || 0;
+                let parsedValue = parseFloat(value);
                 let maxAllowed = parseFloat(input.max) || 5000000;
-                parsedValue = Math.max(100, Math.min(parsedValue, maxAllowed));
-                parsedValue = parseFloat(parsedValue.toFixed(2));
+                let minAllowed = parseFloat(input.min) || 100;
+
+                if (isNaN(parsedValue) || parsedValue < minAllowed) {
+                    parsedValue = minAllowed;
+                } else if (parsedValue > maxAllowed) {
+                    parsedValue = maxAllowed;
+                }
+
                 input.value = parsedValue.toFixed(2);
                 range.value = parsedValue;
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
-
-            input.addEventListener("change", () => {
-                let value = parseFloat(input.value) || 0;
-                let maxAllowed = parseFloat(input.max) || 5000000;
-                value = Math.max(100, Math.min(value, maxAllowed));
-                value = parseFloat(value.toFixed(2));
-                input.value = value.toFixed(2);
-                range.value = value;
-                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
-                let value = parseFloat(range.value) || 0;
-                let maxAllowed = parseFloat(range.max) || 5000000;
-                value = Math.max(100, Math.min(value, maxAllowed));
-                value = parseFloat(value.toFixed(2));
+                let value = parseFloat(range.value);
                 input.value = value.toFixed(2);
-                range.value = value;
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
-
-            range.addEventListener("change", () => {
-                let value = parseFloat(range.value) || 0;
-                let maxAllowed = parseFloat(range.max) || 5000000;
-                value = Math.max(100, Math.min(value, maxAllowed));
-                value = parseFloat(value.toFixed(2));
-                input.value = value.toFixed(2);
-                range.value = value;
-                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-cykl-end")) {
@@ -1062,8 +1017,6 @@ function initializeNadplataKredytuGroup(group) {
             let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
 
             if (input && range) {
-                syncInputWithRange(input, range);
-
                 const debouncedUpdate = debounce(() => {
                     const rateInput = group.querySelector(".variable-rate");
                     const rateRange = group.querySelector(".variable-rate-range");
@@ -1073,47 +1026,29 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 150);
 
-                input.addEventListener("input", (e) => {
+                input.addEventListener("input", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(input.value) || minValue;
-                    if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    let value = parseInt(input.value);
+                    if (isNaN(value) || value < minValue) {
+                        value = minValue;
+                    } else if (value > maxPeriodLimit) {
+                        value = maxPeriodLimit;
+                    }
                     input.value = value;
                     range.value = value;
-                    syncInputWithRange(input, range);
-                    debouncedUpdate();
-                });
-
-                input.addEventListener("change", () => {
-                    let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(input.value) || minValue;
-                    if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
-                    input.value = value;
-                    range.value = value;
-                    syncInputWithRange(input, range);
                     debouncedUpdate();
                 });
 
                 range.addEventListener("input", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(range.value) || minValue;
-                    if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    let value = parseInt(range.value);
+                    if (value < minValue) {
+                        value = minValue;
+                    } else if (value > maxPeriodLimit) {
+                        value = maxPeriodLimit;
+                    }
                     input.value = value;
                     range.value = value;
-                    syncInputWithRange(input, range);
-                    debouncedUpdate();
-                });
-
-                range.addEventListener("change", () => {
-                    let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(range.value) || minValue;
-                    if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
-                    input.value = value;
-                    range.value = value;
-                    syncInputWithRange(input, range);
                     debouncedUpdate();
                 });
             }
@@ -1143,7 +1078,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rateRange, group);
+        updateOverpaymentLimit(rateInput, rangeRate, group);
     }
 
     debouncedUpdateNadplataKredytuRemoveButtons();
