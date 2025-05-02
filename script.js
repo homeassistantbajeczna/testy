@@ -778,7 +778,6 @@ function updateAllOverpaymentLimits() {
     return { remainingCapital: lastRemainingCapital !== null ? lastRemainingCapital : remainingCapital, lastMonthWithCapital: maxPeriodLimit };
 }
 
-// F U N K C J A     N A D P Ł A T A     K R E D Y T U
 function initializeNadplataKredytuGroup(group) {
     const kwota = parseFloat(elements.kwota?.value) || 500000;
     const iloscRat = parseInt(elements.iloscRat?.value) || 360;
@@ -957,7 +956,7 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, range, group);
+                    updateOverpaymentLimit(rateInput, rateRange, group);
                     updateRatesArray("nadplata");
                 }
             }, 150);
@@ -985,12 +984,8 @@ function initializeNadplataKredytuGroup(group) {
             }, 150);
 
             input.addEventListener("input", () => {
-                let value = input.value;
-                if (value.includes(",")) {
-                    value = value.replace(",", ".");
-                    input.value = value;
-                }
-                let parsedValue = parseFloat(value) || 0;
+                let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                let parsedValue = parseFloat(value);
                 let maxAllowed = parseFloat(input.max) || 5000000;
                 let minAllowed = parseFloat(input.min) || 100;
 
@@ -1021,7 +1016,7 @@ function initializeNadplataKredytuGroup(group) {
                     const rateInput = group.querySelector(".variable-rate");
                     const rateRange = group.querySelector(".variable-rate-range");
                     if (rateInput && rateRange) {
-                        updateOverpaymentLimit(rateInput, range, group);
+                        updateOverpaymentLimit(rateInput, rateRange, group);
                         updateRatesArray("nadplata");
                     }
                 }, 150);
@@ -1061,7 +1056,7 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = group.querySelector(".variable-rate");
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, range, group);
+                updateOverpaymentLimit(rateInput, rateRange, group);
                 updateRatesArray("nadplata");
             }
         });
@@ -1078,7 +1073,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, range, group);
+        updateOverpaymentLimit(rateInput, rateRange, group);
     }
 
     debouncedUpdateNadplataKredytuRemoveButtons();
@@ -1284,12 +1279,8 @@ function initializeVariableOprocentowanieGroup(group) {
             });
         } else if (input.classList.contains("variable-rate")) {
             input.addEventListener("input", () => {
-                let value = input.value;
-                if (value.includes(",")) {
-                    value = value.replace(",", ".");
-                    input.value = value;
-                }
-                let parsedValue = parseFloat(value) || 0;
+                let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                let parsedValue = parseFloat(value);
                 let maxAllowed = parseFloat(input.max) || 25;
                 let minAllowed = parseFloat(input.min) || 0.1;
 
@@ -1800,13 +1791,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         elements.kwota?.addEventListener("input", () => {
-            let value = elements.kwota.value;
-            if (value.includes(",")) {
-                value = value.replace(",", ".");
-                elements.kwota.value = value;
-            }
-            let parsedValue = parseFloat(value) || 0;
-            if (parsedValue < 50000) parsedValue = 50000;
+            let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
+            let parsedValue = parseFloat(value);
+            if (isNaN(parsedValue) || parsedValue < 50000) parsedValue = 50000;
             if (parsedValue > 5000000) parsedValue = 5000000;
             elements.kwota.value = parsedValue.toFixed(2);
             elements.kwotaRange.value = parsedValue;
@@ -1814,7 +1801,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
                     const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range);
+                    updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
                 });
             }
         });
@@ -1826,7 +1813,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
                     const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range);
+                    updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
                 });
             }
         });
@@ -1835,18 +1822,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elements.iloscRat) {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
-            elements.iloscRat.step = 1;
+            elements.iloscRat.step = 12;
             elements.iloscRat.value = 360;
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
-            elements.iloscRatRange.step = 1;
+            elements.iloscRatRange.step = 12;
             elements.iloscRatRange.value = 360;
         }
 
         elements.iloscRat?.addEventListener("input", () => {
-            let value = parseInt(elements.iloscRat.value) || 12;
+            let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
             if (isNaN(value) || value < 12) {
                 value = 12;
             } else if (value > 420) {
@@ -1910,13 +1897,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         elements.oprocentowanie?.addEventListener("input", () => {
-            let value = elements.oprocentowanie.value;
-            if (value.includes(",")) {
-                value = value.replace(",", ".");
-                elements.oprocentowanie.value = value;
-            }
-            let parsedValue = parseFloat(value) || 0;
-            if (parsedValue < 0.1) parsedValue = 0.1;
+            let value = elements.oprocentowanie.value.replace(",", ".").replace(/[^0-9.]/g, "");
+            let parsedValue = parseFloat(value);
+            if (isNaN(parsedValue) || parsedValue < 0.1) parsedValue = 0.1;
             if (parsedValue > 25) parsedValue = 25;
             elements.oprocentowanie.value = parsedValue.toFixed(2);
             elements.oprocentowanieRange.value = parsedValue;
@@ -1942,15 +1925,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         elements.prowizja?.addEventListener("input", () => {
-            let value = elements.prowizja.value;
-            if (value.includes(",")) {
-                value = value.replace(",", ".");
-                elements.prowizja.value = value;
-            }
-            let parsedValue = parseFloat(value) || 0;
+            let value = elements.prowizja.value.replace(",", ".").replace(/[^0-9.]/g, "");
+            let parsedValue = parseFloat(value);
             let maxAllowed = parseFloat(elements.prowizja.max) || 25;
             let minAllowed = parseFloat(elements.prowizja.min) || 0;
-            if (parsedValue < minAllowed) parsedValue = minAllowed;
+            if (isNaN(parsedValue) || parsedValue < minAllowed) parsedValue = minAllowed;
             if (parsedValue > maxAllowed) parsedValue = maxAllowed;
             elements.prowizja.value = parsedValue.toFixed(2);
             elements.prowizjaRange.value = parsedValue;
