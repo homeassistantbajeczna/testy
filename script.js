@@ -989,16 +989,17 @@ function initializeNadplataKredytuGroup(group) {
                     value = value.replace(",", ".");
                     input.value = value;
                 }
-                let parsedValue = parseFloat(value);
+                let parsedValue = parseFloat(value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
                 let minAllowed = parseFloat(input.min) || 100;
 
-                if (isNaN(parsedValue) || parsedValue < minAllowed) {
+                if (isNaN(parsedValue)) {
+                    parsedValue = minAllowed;
+                } else if (parsedValue < minAllowed) {
                     parsedValue = minAllowed;
                 } else if (parsedValue > maxAllowed) {
                     parsedValue = maxAllowed;
                 }
-
                 input.value = parsedValue.toFixed(2);
                 range.value = parsedValue;
                 debouncedUpdate();
@@ -1078,7 +1079,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rangeRate, group);
+        updateOverpaymentLimit(rateInput, rateRange, group);
     }
 
     debouncedUpdateNadplataKredytuRemoveButtons();
