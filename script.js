@@ -74,11 +74,11 @@ let creditChart = null;
 function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
     try {
         let value;
-        if (input.id === "iloscRat" || parseFloat(input.step) === 12) {
-            // Dla ilości rat używamy wartości całkowitej i zapewniamy, że nie ma części dziesiętnej
+        if (input.id === "iloscRat" || input.classList.contains("variable-cykl") || parseFloat(input.step) === 12) {
+            // Dla ilości rat i pól cykli używamy wartości całkowitej
             value = parseInt(input.value.replace(/[^0-9]/g, "")) || parseInt(range.value);
             value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
-            input.value = value.toString(); // Ustawiamy jako string, aby uniknąć formatowania dziesiętnego
+            input.value = value.toString(); // Ustawiamy jako string bez miejsc po przecinku
         } else {
             // Dla kwoty i innych pól dziesiętnych
             value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || parseFloat(range.value);
