@@ -42,7 +42,7 @@ const elements = {
 const state = {
     lastFormData: {
         kwota: 500000,
-        iloscRat: 360,
+        iloscRat: 420,
         oprocentowanie: 7,
         rodzajRat: "rowne",
         prowizja: 2,
@@ -1960,26 +1960,33 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360; // Ustawiamy wartość całkowitą
-            elements.iloscRat.type = "number"; // Ustawiamy typ na number, aby uniknąć formatowania dziesiętnego
+            elements.iloscRat.value = 420; // Nowa wartość domyślna
+            elements.iloscRat.type = "text"; // Zmiana na text, aby uniknąć formatowania regionalnego
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
             elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 360;
+            elements.iloscRatRange.value = 420; // Nowa wartość domyślna
         }
+
+        // Dodajemy walidację przy wpisywaniu, aby akceptować tylko cyfry
+        elements.iloscRat?.addEventListener("input", (e) => {
+            let value = e.target.value;
+            const cursorPos = e.target.selectionStart;
+            value = value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
+            e.target.value = value;
+            e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
+        });
 
         elements.iloscRat?.addEventListener("blur", () => {
             let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
-            if (value < 12) value = 12;
-            if (value > 420) value = 420;
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value; // Ustawiamy wartość bez miejsc po przecinku
+            elements.iloscRat.value = value.toString(); // Zawsze liczba całkowita
             elements.iloscRatRange.value = value;
-            updateLata();
+            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                     input.max = value - 1;
@@ -2000,8 +2007,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value;
-            updateLata();
+            elements.iloscRat.value = value.toString(); // Zawsze liczba całkowita
+            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                     input.max = value - 1;
@@ -2019,6 +2026,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
         });
+
+        // Jawne wywołanie synchronizacji po inicjalizacji
+        if (elements.iloscRat && elements.iloscRatRange) {
+            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata, true);
+        }
 
         // Inicjalizacja boxa Oprocentowanie
         if (elements.oprocentowanie) {
@@ -2140,7 +2152,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.obliczBtn?.addEventListener("click", () => {
             state.lastFormData = {
                 kwota: parseFloat(elements.kwota?.value) || 500000,
-                iloscRat: parseInt(elements.iloscRat?.value) || 360,
+                iloscRat: parseInt(elements.iloscRat?.value) || 420, // Ustawiamy domyślną wartość na 420
                 oprocentowanie: parseFloat(elements.oprocentowanie?.value) || 7,
                 rodzajRat: elements.rodzajRat?.value || "rowne",
                 prowizja: parseFloat(elements.prowizja?.value) || 2,
