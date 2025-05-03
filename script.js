@@ -1491,7 +1491,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.kwota.min = 50000;
         elements.kwota.max = 5000000;
         elements.kwota.step = 0.01;
-        elements.kwota.value = "500000,00"; // Wartość początkowa z przecinkiem
+        elements.kwota.value = "500000.00"; // Wartość początkowa z kropką
     }
     if (elements.kwotaRange) {
         elements.kwotaRange.min = 50000;
@@ -1500,46 +1500,56 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.kwotaRange.value = 500000;
     }
 
+    function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
+        try {
+            let value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 0;
+            if (isNaN(value)) value = parseFloat(range.value) || 0;
+            value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
+            input.value = value.toFixed(2);
+            range.value = value;
+            if (!skipOnChange && onChange) {
+                onChange(value);
+            }
+        } catch (error) {
+            console.error("Błąd podczas synchronizacji wejścia z suwakiem:", error);
+        }
+    }
+
     elements.kwota?.addEventListener("input", (e) => {
-        let value = e.target.value.replace(/[^0-9,]/g, "");
-        // Zezwalaj na tylko jeden przecinek
-        value = value.replace(/,+/g, ",");
-        const parts = value.split(",");
+        let value = e.target.value.replace(/[^0-9,.]/g, "");
+        value = value.replace(",", ".");
+        const parts = value.split(".");
         if (parts.length > 2) {
-            value = parts[0] + "," + parts.slice(1).join("");
+            value = parts[0] + "." + parts.slice(1).join("");
         } else if (parts.length === 2 && parts[1].length > 2) {
-            value = parts[0] + "," + parts[1].substring(0, 2);
+            value = parts[0] + "." + parts[1].substring(0, 2);
         }
         e.target.value = value;
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        updateAllOverpaymentLimits();
     });
 
     elements.kwota?.addEventListener("blur", () => {
-        let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
-        let parsedValue = parseFloat(value) || 50000;
-        parsedValue = validateKwota(parsedValue);
-        elements.kwota.value = parsedValue.toFixed(2).replace(".", ",");
-        elements.kwotaRange.value = parsedValue;
-        updateKwotaInfo();
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
         updateAllOverpaymentLimits();
     });
 
     elements.kwotaRange?.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toFixed(2).replace(".", ",");
-        updateKwotaInfo();
+        elements.kwota.value = value.toFixed(2);
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
         updateAllOverpaymentLimits();
     });
 
     elements.kwotaRange?.addEventListener("change", () => {
         let value = parseFloat(elements.kwotaRange.value);
         let validatedValue = validateKwota(value);
-        elements.kwota.value = validatedValue.toFixed(2).replace(".", ",");
+        elements.kwota.value = validatedValue.toFixed(2);
         elements.kwotaRange.value = validatedValue;
-        updateKwotaInfo();
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
         updateAllOverpaymentLimits();
     });
 });
-
 
 
 // F U N K C J E    W Y N I K I    I    W Y K R E S Y
