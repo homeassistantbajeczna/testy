@@ -480,18 +480,17 @@ function debounce(func, wait) {
 function syncInputWithRange(input, range) {
     if (!input || !range) return;
 
-    let value;
-    if (input.classList.contains("variable-cykl")) {
-        value = parseInt(input.value) || parseInt(range.value);
-    } else {
-        value = parseFloat(input.value) || parseFloat(range.value);
-        input.value = value.toFixed(2);
-    }
+    let value = input.classList.contains("variable-cykl")
+        ? parseInt(input.value) || parseInt(range.value)
+        : parseFloat(input.value) || parseFloat(range.value);
 
     const min = parseFloat(range.min);
     const max = parseFloat(range.max);
+
+    if (isNaN(value)) value = min;
     if (value < min) value = min;
     if (value > max) value = max;
+
     input.value = input.classList.contains("variable-cykl") ? value : value.toFixed(2);
     range.value = value;
 }
@@ -932,17 +931,10 @@ function initializeNadplataKredytuGroup(group) {
                     }, 150);
 
                     endInput.addEventListener("input", () => {
-                        const { lastMonthWithCapital } = updateAllOverpaymentLimits();
-                        let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
                         let minValue = parseInt(periodStartInput?.value) || 1;
-
                         let value = parseInt(endInput.value) || minValue;
                         if (value < minValue) value = minValue;
                         if (value > maxPeriodLimit) value = maxPeriodLimit;
-                        endInput.min = minValue;
-                        endRange.min = minValue;
-                        endInput.max = maxPeriodLimit;
-                        endRange.max = maxPeriodLimit;
                         endInput.value = value;
                         endRange.value = value;
                         syncInputWithRange(endInput, endRange);
@@ -950,17 +942,10 @@ function initializeNadplataKredytuGroup(group) {
                     });
 
                     endRange.addEventListener("input", () => {
-                        const { lastMonthWithCapital } = updateAllOverpaymentLimits();
-                        let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
                         let minValue = parseInt(periodStartInput?.value) || 1;
-
                         let value = parseInt(endRange.value) || minValue;
                         if (value < minValue) value = minValue;
                         if (value > maxPeriodLimit) value = maxPeriodLimit;
-                        endInput.min = minValue;
-                        endRange.min = minValue;
-                        endInput.max = maxPeriodLimit;
-                        endRange.max = maxPeriodLimit;
                         endInput.value = value;
                         endRange.value = value;
                         syncInputWithRange(endInput, endRange);
@@ -1007,7 +992,6 @@ function initializeNadplataKredytuGroup(group) {
             syncInputWithRange(input, range);
 
             const debouncedUpdate = debounce(() => {
-                updateAllOverpaymentLimits();
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
@@ -1017,30 +1001,22 @@ function initializeNadplataKredytuGroup(group) {
             }, 150);
 
             input.addEventListener("input", () => {
-                const { lastMonthWithCapital } = updateAllOverpaymentLimits();
-                let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
-
                 let value = parseInt(input.value) || minPeriodStart;
                 if (value < minPeriodStart) value = minPeriodStart;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
-                updatePeriodBox();
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
-                const { lastMonthWithCapital } = updateAllOverpaymentLimits();
-                let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
-
                 let value = parseInt(range.value) || minPeriodStart;
                 if (value < minPeriodStart) value = minPeriodStart;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
-                updatePeriodBox();
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
@@ -1130,7 +1106,7 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = group.querySelector(".variable-rate");
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, range, group);
+                updateOverpaymentLimit(rateInput, rateRange, group);
                 updateRatesArray("nadplata");
             }
         });
@@ -2112,17 +2088,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 const newGroup = createNadplataKredytuGroup();
                 elements.nadplataKredytuWrapper.appendChild(newGroup);
                 initializeNadplataKredytuGroup(newGroup);
-                updateNadplataKredytuRemoveButtons();
+                debouncedUpdateNadplataKredytuRemoveButtons();
             } else {
                 resetNadplataKredytuSection();
             }
         });
-
+        
         elements.addNadplataKredytuBtn?.addEventListener("click", () => {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
-            updateNadplataKredytuRemoveButtons();
+            debouncedUpdateNadplataKredytuRemoveButtons();
         });
 
         // Inicjalizacja sekcji Zmienne Oprocentowanie
