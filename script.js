@@ -778,7 +778,6 @@ function updateAllOverpaymentLimits() {
     return { remainingCapital: lastRemainingCapital !== null ? lastRemainingCapital : remainingCapital, lastMonthWithCapital: maxPeriodLimit };
 }
 
-// F U N K C J A     N A D P Ł A T A     K R E D Y T U
 function initializeNadplataKredytuGroup(group) {
     const kwota = parseFloat(elements.kwota?.value) || 500000;
     const iloscRat = parseInt(elements.iloscRat?.value) || 360;
@@ -1775,11 +1774,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
         // Inicjalizacja boxa Kwota Kredytu
         if (elements.kwota) {
-            elements.kwota.type = "text"; // Ustawiamy typ na text, aby mieć pełną kontrolę nad wpisywaniem
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
-            elements.kwota.step = 0.01; // Zmniejszamy step na 0.01
-            elements.kwota.value = "500000.00"; // Ustawiamy wartość początkową jako string, aby uniknąć automatycznego formatowania
+            elements.kwota.step = 0.01;
+            elements.kwota.value = 500000; // Ustawiamy wartość początkową jako liczbę całkowitą
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
@@ -1789,7 +1787,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         elements.kwota?.addEventListener("input", (e) => {
-            // Pozwalamy na wpisywanie cyfr, kropki i przecinka
+            // Pozwalamy na wpisywanie, akceptując cyfry, kropkę i przecinek
             let value = e.target.value.replace(/[^0-9.,]/g, "");
             // Zamieniamy przecinek na kropkę
             value = value.replace(",", ".");
@@ -1831,11 +1829,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Inicjalizacja boxa Ilość Rat
         if (elements.iloscRat) {
-            elements.iloscRat.type = "number";
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360; // Ustawiamy wartość całkowitą jako number
+            elements.iloscRat.value = 360; // Ustawiamy wartość całkowitą
+            elements.iloscRat.type = "number"; // Ustawiamy typ na number, aby uniknąć formatowania dziesiętnego
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1843,12 +1841,6 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRatRange.step = 12;
             elements.iloscRatRange.value = 360;
         }
-
-        // Dodajemy zdarzenie input, aby kontrolować formatowanie
-        elements.iloscRat?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/[^0-9]/g, "");
-            e.target.value = value;
-        });
 
         elements.iloscRat?.addEventListener("blur", () => {
             let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
