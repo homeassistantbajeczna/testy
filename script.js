@@ -1584,8 +1584,10 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.iloscRat.min = 12;
         elements.iloscRat.max = 420;
         elements.iloscRat.step = 12;
-        elements.iloscRat.value = "360"; // Wartość początkowa jako liczba całkowita
-        elements.iloscRat.type = "number"; // Utrzymujemy type="number"
+        elements.iloscRat.value = "360"; // Wartość początkowa jako string, aby uniknąć formatowania
+        if (elements.iloscRat.type === "number") {
+            elements.iloscRat.type = "text"; // Zmiana typu na text, aby uniknąć formatowania przez przeglądarkę
+        }
     }
     if (elements.iloscRatRange) {
         elements.iloscRatRange.min = 12;
@@ -1593,6 +1595,15 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.iloscRatRange.step = 12;
         elements.iloscRatRange.value = 360;
     }
+
+    // Dodajemy walidację przy wpisywaniu, aby akceptować tylko cyfry
+    elements.iloscRat?.addEventListener("input", (e) => {
+        let value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        value = value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
+        e.target.value = value;
+        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
+    });
 
     // Jawne wywołanie synchronizacji po inicjalizacji
     if (elements.iloscRat && elements.iloscRatRange) {
@@ -1647,7 +1658,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-
 
 
 
