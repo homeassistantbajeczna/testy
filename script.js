@@ -42,7 +42,7 @@ const elements = {
 const state = {
     lastFormData: {
         kwota: 500000,
-        iloscRat: 420,
+        iloscRat: 360,
         oprocentowanie: 7,
         rodzajRat: "rowne",
         prowizja: 2,
@@ -1957,14 +1957,14 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360; // Powrót do domyślnej wartości 360
-            elements.iloscRat.type = "number"; // Powrót do typu number
+            elements.iloscRat.value = 360; // Domyślna wartość 360
+            elements.iloscRat.type = "number"; // Typ number
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
             elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 360; // Powrót do domyślnej wartości 360
+            elements.iloscRatRange.value = 360; // Domyślna wartość 360
         }
 
         elements.iloscRat?.addEventListener("input", (e) => {
@@ -2145,7 +2145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.obliczBtn?.addEventListener("click", () => {
             state.lastFormData = {
                 kwota: parseFloat(elements.kwota?.value) || 500000,
-                iloscRat: parseInt(elements.iloscRat?.value) || 360, // Powrót do domyślnej wartości 360
+                iloscRat: parseInt(elements.iloscRat?.value) || 360, // Domyślna wartość 360
                 oprocentowanie: parseFloat(elements.oprocentowanie?.value) || 7,
                 rodzajRat: elements.rodzajRat?.value || "rowne",
                 prowizja: parseFloat(elements.prowizja?.value) || 2,
