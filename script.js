@@ -1501,28 +1501,25 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
 // Aktualizacja limitów przy zmianie kwoty kredytu
 document.addEventListener("DOMContentLoaded", () => {
-    if (elements.kwota) {
-        elements.kwota.min = 50000;
-        elements.kwota.max = 5000000;
-        elements.kwota.step = 0.01;
-        elements.kwota.value = "500000.00"; // Wartość początkowa z kropką
-        if (elements.kwota.type === "number") {
-            elements.kwota.type = "text"; // Zmiana typu na text, aby lepiej obsługiwać kropkę i przecinek
-        }
+    if (elements.iloscRat) {
+        elements.iloscRat.min = 12;
+        elements.iloscRat.max = 420;
+        elements.iloscRat.step = 12;
+        elements.iloscRat.value = "360"; // Wartość początkowa jako liczba całkowita
+        elements.iloscRat.type = "number"; // Utrzymujemy type="number" dla spójności
     }
-    if (elements.kwotaRange) {
-        elements.kwotaRange.min = 50000;
-        elements.kwotaRange.max = 5000000;
-        elements.kwotaRange.step = 0.01;
-        elements.kwotaRange.value = 500000;
+    if (elements.iloscRatRange) {
+        elements.iloscRatRange.min = 12;
+        elements.iloscRatRange.max = 420;
+        elements.iloscRatRange.step = 12;
+        elements.iloscRatRange.value = 360;
     }
 
     function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
         try {
-            let value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 0;
-            if (isNaN(value)) value = parseFloat(range.value) || 0;
-            value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
-            input.value = value.toFixed(2);
+            let value = parseInt(input.value.replace(/[^0-9]/g, "")) || parseInt(range.value); // Używamy parseInt dla całkowitych wartości
+            value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
+            input.value = value; // Ustawiamy wartość bez miejsc po przecinku
             range.value = value;
             if (!skipOnChange && onChange) {
                 onChange(value);
@@ -1532,71 +1529,54 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    elements.kwota?.addEventListener("input", (e) => {
-        let value = e.target.value;
-        const cursorPos = e.target.selectionStart; // Zachowaj pozycję kursora
-        // Pozwól na cyfry i jedną kropkę/przecinek
-        value = value.replace(/[^0-9.,]/g, ""); // Usuń wszystko poza cyframi, kropką i przecinkiem
-        value = value.replace(/,/, "."); // Zamień przecinek na kropkę
-        const dotCount = (value.match(/\./g) || []).length;
-        if (dotCount > 1) {
-            const parts = value.split(".");
-            value = parts[0] + "." + parts.slice(1).join("");
-        }
-        const parts = value.split(".");
-        if (parts.length === 2 && parts[1].length > 2) {
-            value = parts[0] + "." + parts[1].substring(0, 2);
-        }
-        e.target.value = value;
-        // Przywróć pozycję kursora
-        let newCursorPos = cursorPos;
-        if (value.length < e.target.value.length) {
-            newCursorPos = cursorPos - 1;
-        }
-        e.target.selectionStart = e.target.selectionEnd = newCursorPos;
-    });
-
-    elements.kwota?.addEventListener("blur", () => {
-        let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
-        let parsedValue = parseFloat(value) || 50000;
-        parsedValue = Math.max(50000, Math.min(5000000, parsedValue));
-        elements.kwota.value = parsedValue.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+    elements.iloscRat?.addEventListener("blur", () => {
+        let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
+        value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
+        if (value < 12) value = 12;
+        if (value > 420) value = 420;
+        elements.iloscRat.value = value; // Ustawiamy wartość jako liczbę całkowitą
+        elements.iloscRatRange.value = value;
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
         if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value - 1;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value - 1;
+                }
+            });
+        }
+        if (elements.variableOprocentowanieWrapper) {
+            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value;
+                }
             });
         }
     });
 
-    elements.kwotaRange?.addEventListener("input", () => {
-        let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+    elements.iloscRatRange?.addEventListener("input", () => {
+        let value = parseInt(elements.iloscRatRange.value);
+        elements.iloscRat.value = value;
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
         if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value - 1;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value - 1;
+                }
             });
         }
-    });
-
-    elements.kwotaRange?.addEventListener("change", () => {
-        let value = parseFloat(elements.kwotaRange.value);
-        let validatedValue = Math.max(50000, Math.min(5000000, value));
-        elements.kwota.value = validatedValue.toFixed(2);
-        elements.kwotaRange.value = validatedValue;
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+        if (elements.variableOprocentowanieWrapper) {
+            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value;
+                }
             });
         }
     });
 });
-
 
 
 
