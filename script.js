@@ -1517,11 +1517,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     elements.kwota?.addEventListener("input", (e) => {
         let value = e.target.value;
-        // Zachowaj pozycję kursora
-        const cursorPos = e.target.selectionStart;
-        // Pozwól na cyfry, jedną kropkę i jeden przecinek
-        value = value.replace(/[^0-9.]/g, "").replace(/\.+/g, ".").replace(/,+/g, ",");
-        const parts = value.split(/[.,]/);
+        const cursorPos = e.target.selectionStart; // Zachowaj pozycję kursora
+        // Filtruj tylko cyfry, kropkę i przecinek
+        value = value.replace(/[^0-9.,]/g, "");
+        // Zamień przecinek na kropkę i ogranicz do jednej kropki
+        value = value.replace(/,/, ".").replace(/\.+/g, ".");
+        const parts = value.split(".");
         if (parts.length > 2) {
             value = parts[0] + "." + parts.slice(1).join("");
         } else if (parts.length === 2 && parts[1].length > 2) {
@@ -1529,7 +1530,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         e.target.value = value;
         // Przywróć pozycję kursora
-        e.target.selectionStart = e.target.selectionEnd = cursorPos;
+        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
     });
 
     elements.kwota?.addEventListener("blur", () => {
@@ -1538,14 +1539,24 @@ document.addEventListener("DOMContentLoaded", () => {
         parsedValue = Math.max(50000, Math.min(5000000, parsedValue));
         elements.kwota.value = parsedValue.toFixed(2);
         syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
     });
 
     elements.kwotaRange?.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
         elements.kwota.value = value.toFixed(2);
         syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
     });
 
     elements.kwotaRange?.addEventListener("change", () => {
@@ -1554,9 +1565,26 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.kwota.value = validatedValue.toFixed(2);
         elements.kwotaRange.value = validatedValue;
         syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // F U N K C J E    W Y N I K I    I    W Y K R E S Y
