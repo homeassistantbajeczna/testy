@@ -914,44 +914,6 @@ function initializeNadplataKredytuGroup(group) {
 
                 const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type);
                 formRow?.appendChild(endBox);
-
-                const endInput = endBox.querySelector(".variable-cykl-end");
-                const endRange = endBox.querySelector(".variable-cykl-end-range");
-
-                if (endInput && endRange) {
-                    syncInputWithRange(endInput, endRange);
-
-                    const debouncedUpdate = debounce(() => {
-                        const rateInput = group.querySelector(".variable-rate");
-                        const rateRange = group.querySelector(".variable-rate-range");
-                        if (rateInput && rateRange) {
-                            updateOverpaymentLimit(rateInput, rateRange, group);
-                            updateRatesArray("nadplata");
-                        }
-                    }, 150);
-
-                    endInput.addEventListener("input", () => {
-                        let minValue = parseInt(periodStartInput?.value) || 1;
-                        let value = parseInt(endInput.value) || minValue;
-                        if (value < minValue) value = minValue;
-                        if (value > maxPeriodLimit) value = maxPeriodLimit;
-                        endInput.value = value;
-                        endRange.value = value;
-                        syncInputWithRange(endInput, endRange);
-                        debouncedUpdate();
-                    });
-
-                    endRange.addEventListener("input", () => {
-                        let minValue = parseInt(periodStartInput?.value) || 1;
-                        let value = parseInt(endRange.value) || minValue;
-                        if (value < minValue) value = minValue;
-                        if (value > maxPeriodLimit) value = maxPeriodLimit;
-                        endInput.value = value;
-                        endRange.value = value;
-                        syncInputWithRange(endInput, endRange);
-                        debouncedUpdate();
-                    });
-                }
             }
         }
 
@@ -1000,7 +962,17 @@ function initializeNadplataKredytuGroup(group) {
                 }
             }, 150);
 
-            input.addEventListener("input", () => {
+            input.addEventListener("change", () => {
+                let value = parseInt(input.value) || minPeriodStart;
+                if (value < minPeriodStart) value = minPeriodStart;
+                if (value > maxPeriodLimit) value = maxPeriodLimit;
+                input.value = value;
+                range.value = value;
+                syncInputWithRange(input, range);
+                debouncedUpdate();
+            });
+
+            input.addEventListener("input", (e) => {
                 let value = parseInt(input.value) || minPeriodStart;
                 if (value < minPeriodStart) value = minPeriodStart;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
@@ -1028,60 +1000,44 @@ function initializeNadplataKredytuGroup(group) {
             }, 150);
 
             input.addEventListener("input", (e) => {
+                let value = input.value;
+                if (value.includes(",")) {
+                    value = value.replace(",", ".");
+                    input.value = value;
+                }
+                if (value.includes(".")) {
+                    const parts = value.split(".");
+                    if (parts[1].length > 2) {
+                        value = `${parts[0]}.${parts[1].substring(0, 2)}`;
+                        input.value = value;
+                    }
+                }
+                let parsedValue = parseFloat(input.value) || 0;
+                let maxAllowed = parseFloat(input.max) || 5000000;
+                parsedValue = Math.max(100, Math.min(parsedValue, maxAllowed));
+                parsedValue = parseFloat(parsedValue.toFixed(2));
+                input.value = parsedValue.toFixed(2);
+                range.value = parsedValue;
+                syncInputWithRange(input, range);
+                debouncedUpdate();
+            });
+
+            input.addEventListener("change", () => {
                 let value = parseFloat(input.value) || 0;
                 let maxAllowed = parseFloat(input.max) || 5000000;
                 value = Math.max(100, Math.min(value, maxAllowed));
+                value = parseFloat(value.toFixed(2));
                 input.value = value.toFixed(2);
                 range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
 
-            input.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" || e.key === "Tab") return;
-
-                let maxAllowed = parseFloat(input.max) || 5000000;
-                let currentValue = input.value;
-
-                if (
-                    (e.key >= "0" && e.key <= "9") ||
-                    e.key === "." ||
-                    e.key === "Backspace" ||
-                    e.key === "Delete" ||
-                    e.key === "ArrowLeft" ||
-                    e.key === "ArrowRight"
-                ) {
-                    let newValueStr = currentValue;
-                    if (e.key === "Backspace") {
-                        newValueStr = newValueStr.slice(0, -1);
-                    } else if (e.key === "Delete") {
-                        return;
-                    } else if (e.key >= "0" && e.key <= "9") {
-                        newValueStr += e.key;
-                    } else if (e.key === ".") {
-                        if (newValueStr.includes(".")) {
-                            e.preventDefault();
-                            return;
-                        }
-                        newValueStr += e.key;
-                    }
-
-                    let newValue = parseFloat(newValueStr) || 0;
-                    if (newValue > maxAllowed) {
-                        e.preventDefault();
-                        input.value = maxAllowed.toFixed(2);
-                        range.value = maxAllowed;
-                        syncInputWithRange(input, range);
-                    }
-                } else {
-                    e.preventDefault();
-                }
-            });
-
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value) || 0;
                 let maxAllowed = parseFloat(range.max) || 5000000;
                 value = Math.max(100, Math.min(value, maxAllowed));
+                value = parseFloat(value.toFixed(2));
                 input.value = value.toFixed(2);
                 range.value = value;
                 syncInputWithRange(input, range);
@@ -1092,11 +1048,75 @@ function initializeNadplataKredytuGroup(group) {
                 let value = parseFloat(range.value) || 0;
                 let maxAllowed = parseFloat(range.max) || 5000000;
                 value = Math.max(100, Math.min(value, maxAllowed));
+                value = parseFloat(value.toFixed(2));
                 input.value = value.toFixed(2);
                 range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
+        } else if (input.classList.contains("variable-cykl-end")) {
+            const range = group.querySelector(".variable-cykl-end-range");
+            const periodStartInput = group.querySelector(".variable-cykl-start");
+
+            const { lastMonthWithCapital } = updateAllOverpaymentLimits();
+            let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
+
+            if (input && range) {
+                syncInputWithRange(input, range);
+
+                const debouncedUpdate = debounce(() => {
+                    const rateInput = group.querySelector(".variable-rate");
+                    const rateRange = group.querySelector(".variable-rate-range");
+                    if (rateInput && rateRange) {
+                        updateOverpaymentLimit(rateInput, rateRange, group);
+                        updateRatesArray("nadplata");
+                    }
+                }, 150);
+
+                input.addEventListener("input", (e) => {
+                    let minValue = parseInt(periodStartInput?.value) || 1;
+                    let value = parseInt(input.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                input.addEventListener("change", () => {
+                    let minValue = parseInt(periodStartInput?.value) || 1;
+                    let value = parseInt(input.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                range.addEventListener("input", () => {
+                    let minValue = parseInt(periodStartInput?.value) || 1;
+                    let value = parseInt(range.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                range.addEventListener("change", () => {
+                    let minValue = parseInt(periodStartInput?.value) || 1;
+                    let value = parseInt(range.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+            }
         }
     });
 
@@ -1238,13 +1258,19 @@ if (elements.nadplataKredytuBtn) {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
-            updateRatesArray("nadplata");
             debouncedUpdateNadplataKredytuRemoveButtons();
         } else {
             resetNadplataKredytuSection();
         }
     });
 }
+
+elements.addNadplataKredytuBtn?.addEventListener("click", () => {
+    const newGroup = createNadplataKredytuGroup();
+    elements.nadplataKredytuWrapper.appendChild(newGroup);
+    initializeNadplataKredytuGroup(newGroup);
+    debouncedUpdateNadplataKredytuRemoveButtons();
+});
 
 
 
@@ -1354,9 +1380,6 @@ function updateVariableOprocentowanieRemoveButtons() {
         });
     }
 }
-
-
-
 
 
 
