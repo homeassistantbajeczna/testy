@@ -1905,7 +1905,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
             elements.kwota.step = 0.01;
-            elements.kwota.value = 500000; // Ustawiamy wartość początkową jako liczbę całkowitą
+            elements.kwota.value = 500000;
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
@@ -1915,11 +1915,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         elements.kwota?.addEventListener("input", (e) => {
-            // Pozwalamy na wpisywanie, akceptując cyfry, kropkę i przecinek
             let value = e.target.value.replace(/[^0-9.,]/g, "");
-            // Zamieniamy przecinek na kropkę
             value = value.replace(",", ".");
-            // Upewniamy się, że jest tylko jedna kropka
             const parts = value.split(".");
             if (parts.length > 2) {
                 value = parts[0] + "." + parts.slice(1).join("");
@@ -1960,23 +1957,19 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 420; // Nowa wartość domyślna
-            elements.iloscRat.type = "text"; // Zmiana na text, aby uniknąć formatowania regionalnego
+            elements.iloscRat.value = 360; // Powrót do domyślnej wartości 360
+            elements.iloscRat.type = "number"; // Powrót do typu number
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
             elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 420; // Nowa wartość domyślna
+            elements.iloscRatRange.value = 360; // Powrót do domyślnej wartości 360
         }
 
-        // Dodajemy walidację przy wpisywaniu, aby akceptować tylko cyfry
         elements.iloscRat?.addEventListener("input", (e) => {
-            let value = e.target.value;
-            const cursorPos = e.target.selectionStart;
-            value = value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
+            let value = e.target.value.replace(/[^0-9]/g, "");
             e.target.value = value;
-            e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
         });
 
         elements.iloscRat?.addEventListener("blur", () => {
@@ -1984,9 +1977,9 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value.toString(); // Zawsze liczba całkowita
+            elements.iloscRat.value = value; // Ustawiamy wartość jako liczba całkowita
             elements.iloscRatRange.value = value;
-            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+            updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                     input.max = value - 1;
@@ -2007,8 +2000,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value.toString(); // Zawsze liczba całkowita
-            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+            elements.iloscRat.value = value; // Ustawiamy wartość jako liczba całkowita
+            updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
                     input.max = value - 1;
@@ -2152,7 +2145,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.obliczBtn?.addEventListener("click", () => {
             state.lastFormData = {
                 kwota: parseFloat(elements.kwota?.value) || 500000,
-                iloscRat: parseInt(elements.iloscRat?.value) || 420, // Ustawiamy domyślną wartość na 420
+                iloscRat: parseInt(elements.iloscRat?.value) || 360, // Powrót do domyślnej wartości 360
                 oprocentowanie: parseFloat(elements.oprocentowanie?.value) || 7,
                 rodzajRat: elements.rodzajRat?.value || "rowne",
                 prowizja: parseFloat(elements.prowizja?.value) || 2,
