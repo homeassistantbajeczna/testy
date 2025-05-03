@@ -1958,7 +1958,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
             elements.iloscRat.value = 360; // Domyślna wartość 360
-            elements.iloscRat.type = "number"; // Typ number
+            elements.iloscRat.type = "text"; // Zmiana na text, aby uniknąć formatowania regionalnego
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1968,8 +1968,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         elements.iloscRat?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/[^0-9]/g, "");
+            let value = e.target.value;
+            const cursorPos = e.target.selectionStart;
+            value = value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
             e.target.value = value;
+            e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
         });
 
         elements.iloscRat?.addEventListener("blur", () => {
@@ -1977,7 +1980,7 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value; // Ustawiamy wartość jako liczba całkowita
+            elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako liczba całkowita (string)
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -2000,7 +2003,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value; // Ustawiamy wartość jako liczba całkowita
+            elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako liczba całkowita (string)
             updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
