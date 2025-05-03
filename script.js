@@ -1485,52 +1485,54 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
 // Aktualizacja limitów przy zmianie kwoty kredytu
 document.addEventListener("DOMContentLoaded", () => {
-    const updateAllOverpaymentLimits = () => {
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach(group => {
-            const rateInput = group.querySelector(".variable-rate");
-            const rateRange = group.querySelector(".variable-rate-range");
-            if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, rateRange, group);
-                let value = parseFloat(rateInput.value) || 0;
-                let maxAllowed = parseFloat(rateInput.max) || 5000000;
-                if (value > maxAllowed) {
-                    rateInput.value = maxAllowed.toFixed(2);
-                    rateRange.value = maxAllowed;
-                }
-            }
-        });
-    };
+    if (elements.kwota) {
+        elements.kwota.min = 50000;
+        elements.kwota.max = 5000000;
+        elements.kwota.step = 0.01;
+        elements.kwota.value = 500000;
+    }
+    if (elements.kwotaRange) {
+        elements.kwotaRange.min = 50000;
+        elements.kwotaRange.max = 5000000;
+        elements.kwotaRange.step = 0.01;
+        elements.kwotaRange.value = 500000;
+    }
 
-    elements.kwota?.addEventListener("input", () => {
-        let value = elements.kwota.value;
-        if (value.includes(".")) {
-            const parts = value.split(".");
-            if (parts[1].length > 2) {
-                value = `${parts[0]}.${parts[1].substring(0, 2)}`;
-                elements.kwota.value = value;
-            }
+    elements.kwota?.addEventListener("input", (e) => {
+        let value = e.target.value.replace(/[^0-9.,]/g, "");
+        value = value.replace(",", ".");
+        const parts = value.split(".");
+        if (parts.length > 2) {
+            value = parts[0] + "." + parts.slice(1).join("");
+        } else if (parts.length === 2 && parts[1].length > 2) {
+            value = parts[0] + "." + parts[1].substring(0, 2);
         }
+        e.target.value = value;
         syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
         updateAllOverpaymentLimits();
     });
 
     elements.kwota?.addEventListener("blur", () => {
-        let validatedValue = validateKwota(elements.kwota.value);
-        elements.kwota.value = validatedValue.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
+        let parsedValue = parseFloat(value) || 50000;
+        parsedValue = validateKwota(parsedValue);
+        elements.kwota.value = parsedValue.toFixed(2).replace(".", ",");
+        elements.kwotaRange.value = parsedValue;
+        updateKwotaInfo();
         updateAllOverpaymentLimits();
     });
 
     elements.kwotaRange?.addEventListener("input", () => {
-        elements.kwota.value = parseFloat(elements.kwotaRange.value).toFixed(2);
+        let value = parseFloat(elements.kwotaRange.value);
+        elements.kwota.value = value.toFixed(2).replace(".", ",");
         updateKwotaInfo();
         updateAllOverpaymentLimits();
     });
 
     elements.kwotaRange?.addEventListener("change", () => {
-        let validatedValue = validateKwota(elements.kwotaRange.value);
-        elements.kwota.value = validatedValue.toFixed(2);
+        let value = parseFloat(elements.kwotaRange.value);
+        let validatedValue = validateKwota(value);
+        elements.kwota.value = validatedValue.toFixed(2).replace(".", ",");
         elements.kwotaRange.value = validatedValue;
         updateKwotaInfo();
         updateAllOverpaymentLimits();
