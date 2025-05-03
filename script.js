@@ -75,10 +75,10 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
     try {
         let value;
         if (input.id === "iloscRat" || parseFloat(input.step) === 12) {
-            // Dla ilości rat używamy wartości całkowitej
+            // Dla ilości rat używamy wartości całkowitej i zapewniamy, że nie ma części dziesiętnej
             value = parseInt(input.value.replace(/[^0-9]/g, "")) || parseInt(range.value);
             value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
-            input.value = value;
+            input.value = value.toString(); // Ustawiamy jako string, aby uniknąć formatowania dziesiętnego
         } else {
             // Dla kwoty i innych pól dziesiętnych
             value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || parseFloat(range.value);
@@ -1615,7 +1615,7 @@ document.addEventListener("DOMContentLoaded", () => {
         value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
         if (value < 12) value = 12;
         if (value > 420) value = 420;
-        elements.iloscRat.value = value; // Ustawiamy wartość jako liczbę całkowitą
+        elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako string
         elements.iloscRatRange.value = value;
         syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
         if (elements.nadplataKredytuWrapper) {
@@ -1638,7 +1638,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     elements.iloscRatRange?.addEventListener("input", () => {
         let value = parseInt(elements.iloscRatRange.value);
-        elements.iloscRat.value = value;
+        elements.iloscRat.value = value.toString();
         syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
         if (elements.nadplataKredytuWrapper) {
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
