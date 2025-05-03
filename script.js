@@ -1506,7 +1506,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.iloscRat.max = 420;
         elements.iloscRat.step = 12;
         elements.iloscRat.value = "360"; // Wartość początkowa jako liczba całkowita
-        elements.iloscRat.type = "number"; // Utrzymujemy type="number" dla spójności
+        elements.iloscRat.type = "number"; // Utrzymujemy type="number"
     }
     if (elements.iloscRatRange) {
         elements.iloscRatRange.min = 12;
@@ -1527,6 +1527,11 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.error("Błąd podczas synchronizacji wejścia z suwakiem:", error);
         }
+    }
+
+    // Jawne wywołanie synchronizacji po inicjalizacji
+    if (elements.iloscRat && elements.iloscRatRange) {
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata, true);
     }
 
     elements.iloscRat?.addEventListener("blur", () => {
