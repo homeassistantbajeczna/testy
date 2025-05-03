@@ -1579,21 +1579,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Inicjalizacja boxa ILOŚĆ RAT
+    // Inicjalizacja boxa Ilość Rat
     if (elements.iloscRat) {
         elements.iloscRat.min = 12;
         elements.iloscRat.max = 420;
         elements.iloscRat.step = 12;
-        elements.iloscRat.value = "360"; // Wartość początkowa jako string, aby uniknąć formatowania
-        if (elements.iloscRat.type === "number") {
-            elements.iloscRat.type = "text"; // Zmiana typu na text, aby uniknąć formatowania przez przeglądarkę
-        }
+        elements.iloscRat.value = 420; // Nowa wartość domyślna
+        elements.iloscRat.type = "number";
     }
     if (elements.iloscRatRange) {
         elements.iloscRatRange.min = 12;
         elements.iloscRatRange.max = 420;
         elements.iloscRatRange.step = 12;
-        elements.iloscRatRange.value = 360;
+        elements.iloscRatRange.value = 420; // Nowa wartość domyślna
     }
 
     // Dodajemy walidację przy wpisywaniu, aby akceptować tylko cyfry
