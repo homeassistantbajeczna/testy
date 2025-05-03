@@ -1517,19 +1517,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     elements.kwota?.addEventListener("input", (e) => {
         let value = e.target.value.replace(/[^0-9,.]/g, "");
-        value = value.replace(",", ".");
-        const parts = value.split(".");
-        if (parts.length > 2) {
-            value = parts[0] + "." + parts.slice(1).join("");
-        } else if (parts.length === 2 && parts[1].length > 2) {
-            value = parts[0] + "." + parts[1].substring(0, 2);
-        }
         e.target.value = value;
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
     });
 
     elements.kwota?.addEventListener("blur", () => {
+        let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
+        let parsedValue = parseFloat(value) || 50000;
+        parsedValue = Math.max(50000, Math.min(5000000, parsedValue));
+        elements.kwota.value = parsedValue.toFixed(2);
         syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
         updateAllOverpaymentLimits();
     });
@@ -1543,7 +1538,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     elements.kwotaRange?.addEventListener("change", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        let validatedValue = validateKwota(value);
+        let validatedValue = Math.max(50000, Math.min(5000000, value));
         elements.kwota.value = validatedValue.toFixed(2);
         elements.kwotaRange.value = validatedValue;
         syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
