@@ -73,8 +73,10 @@ let creditChart = null;
 
 function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
     try {
-        const parsedValue = parseFloat(input?.value) || 0;
+        // Parsowanie wartości z przecinkiem na format z kropką
+        const parsedValue = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 0;
         if (range) {
+            // Suwak przyjmuje wartości z kropką
             range.value = parsedValue;
         }
         if (!skipOnChange && onChange) {
@@ -1489,7 +1491,7 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.kwota.min = 50000;
         elements.kwota.max = 5000000;
         elements.kwota.step = 0.01;
-        elements.kwota.value = 500000;
+        elements.kwota.value = "500000,00"; // Wartość początkowa z przecinkiem
     }
     if (elements.kwotaRange) {
         elements.kwotaRange.min = 50000;
@@ -1499,17 +1501,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     elements.kwota?.addEventListener("input", (e) => {
-        let value = e.target.value.replace(/[^0-9.,]/g, "");
-        value = value.replace(",", ".");
-        const parts = value.split(".");
+        let value = e.target.value.replace(/[^0-9,]/g, "");
+        // Zezwalaj na tylko jeden przecinek
+        value = value.replace(/,+/g, ",");
+        const parts = value.split(",");
         if (parts.length > 2) {
-            value = parts[0] + "." + parts.slice(1).join("");
+            value = parts[0] + "," + parts.slice(1).join("");
         } else if (parts.length === 2 && parts[1].length > 2) {
-            value = parts[0] + "." + parts[1].substring(0, 2);
+            value = parts[0] + "," + parts[1].substring(0, 2);
         }
         e.target.value = value;
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        updateAllOverpaymentLimits();
     });
 
     elements.kwota?.addEventListener("blur", () => {
