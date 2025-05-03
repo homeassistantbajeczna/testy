@@ -1833,6 +1833,18 @@ function generatePDF(data) {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 // F U N K C J E    I N T E R F E J S U
 
 function showResults() {
@@ -1896,6 +1908,14 @@ function toggleDarkMode() {
     }
 }
 
+
+
+
+
+
+
+
+
 // I N I C J A L I Z A C J A    A P L I K A C J I
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1957,20 +1977,19 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360; // Domyślna wartość 360
-            elements.iloscRat.type = "text"; // Zmiana na text, aby uniknąć formatowania regionalnego
+            elements.iloscRat.value = "360"; // Ustawienie jako string bez miejsc po przecinku
+            elements.iloscRat.type = "number"; // Powrót do typu number dla natywnej walidacji
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
             elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 360; // Domyślna wartość 360
+            elements.iloscRatRange.value = 360;
         }
 
         elements.iloscRat?.addEventListener("input", (e) => {
-            let value = e.target.value;
+            let value = e.target.value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
             const cursorPos = e.target.selectionStart;
-            value = value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
             e.target.value = value;
             e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
         });
@@ -1980,7 +1999,7 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako liczba całkowita (string)
+            elements.iloscRat.value = value; // Ustawienie jako liczba całkowita
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -2003,7 +2022,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako liczba całkowita (string)
+            elements.iloscRat.value = value; // Ustawienie jako liczba całkowita
             updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
