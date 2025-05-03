@@ -949,7 +949,7 @@ function initializeNadplataKredytuGroup(group) {
             range.max = maxPeriodLimit;
 
             let value = Math.max(minPeriodStart, Math.min(defaultPeriodStart, maxPeriodLimit));
-            input.value = value;
+            input.value = String(value);
             range.value = value;
 
             const debouncedUpdate = debounce(() => {
@@ -970,14 +970,14 @@ function initializeNadplataKredytuGroup(group) {
                 let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minPeriodStart;
                 if (value < minPeriodStart) value = minPeriodStart;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
-                input.value = value;
+                input.value = String(value);
                 range.value = value;
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
                 let value = parseInt(range.value);
-                input.value = value;
+                input.value = String(value);
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
@@ -989,12 +989,6 @@ function initializeNadplataKredytuGroup(group) {
 
             input.addEventListener("input", (e) => {
                 let value = e.target.value.replace(/[^0-9,]/g, "");
-                value = value.replace(",", ".");
-                const parts = value.split(".");
-                if (parts.length > 2) {
-                    value = parts[0] + "." + parts.slice(1).join("");
-                }
-                value = value.replace(".", ",");
                 e.target.value = value;
             });
 
@@ -1010,7 +1004,7 @@ function initializeNadplataKredytuGroup(group) {
                     parsedValue = maxAllowed;
                 }
                 input.value = parsedValue.toFixed(2).replace(".", ",");
-                range.value = parsedValue;
+                range.value = parsedValue; // Suwak używa kropki jako separatora
                 debouncedUpdate();
             });
 
@@ -1046,7 +1040,7 @@ function initializeNadplataKredytuGroup(group) {
                     let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
-                    input.value = value;
+                    input.value = String(value);
                     range.value = value;
                     debouncedUpdate();
                 });
@@ -1056,7 +1050,7 @@ function initializeNadplataKredytuGroup(group) {
                     let value = parseInt(range.value);
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
-                    input.value = value;
+                    input.value = String(value);
                     range.value = value;
                     debouncedUpdate();
                 });
@@ -1272,7 +1266,7 @@ function initializeVariableOprocentowanieGroup(group) {
             let value = parseInt(input.value) || 2;
             if (value > iloscRat) value = iloscRat;
             if (value < 2) value = 2;
-            input.value = value;
+            input.value = String(value);
             range.value = value;
 
             const debouncedUpdate = debounce(() => {
@@ -1288,14 +1282,14 @@ function initializeVariableOprocentowanieGroup(group) {
                 let value = parseInt(input.value.replace(/[^0-9]/g, "")) || 2;
                 if (value < 2) value = 2;
                 if (value > iloscRat) value = iloscRat;
-                input.value = value;
+                input.value = String(value);
                 range.value = value;
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
                 let value = parseInt(range.value);
-                input.value = value;
+                input.value = String(value);
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
@@ -1305,12 +1299,6 @@ function initializeVariableOprocentowanieGroup(group) {
 
             input.addEventListener("input", (e) => {
                 let value = e.target.value.replace(/[^0-9,]/g, "");
-                value = value.replace(",", ".");
-                const parts = value.split(".");
-                if (parts.length > 2) {
-                    value = parts[0] + "." + parts.slice(1).join("");
-                }
-                value = value.replace(".", ",");
                 e.target.value = value;
             });
 
@@ -1326,7 +1314,7 @@ function initializeVariableOprocentowanieGroup(group) {
                     parsedValue = maxAllowed;
                 }
                 input.value = parsedValue.toFixed(2).replace(".", ",");
-                range.value = parsedValue;
+                range.value = parsedValue; // Suwak używa kropki
                 debouncedUpdate();
             });
 
@@ -1859,12 +1847,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.kwota?.addEventListener("input", (e) => {
             let value = e.target.value.replace(/[^0-9,]/g, "");
-            value = value.replace(",", ".");
-            const parts = value.split(".");
-            if (parts.length > 2) {
-                value = parts[0] + "." + parts.slice(1).join("");
-            }
-            value = value.replace(".", ",");
             e.target.value = value;
         });
 
@@ -1892,11 +1874,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Inicjalizacja boxa Ilość Rat
         if (elements.iloscRat) {
-            elements.iloscRat.type = "text"; // Zmieniamy na text, aby uniknąć automatycznego formatowania
+            elements.iloscRat.type = "text";
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = "360"; // Ustawiamy jako string, aby uniknąć formatowania
+            elements.iloscRat.value = "360";
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1914,10 +1896,10 @@ document.addEventListener("DOMContentLoaded", () => {
             let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
+            value = Math.round(value / 12) * 12;
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = String(value); // Ustawiamy jako string, aby uniknąć formatowania
+            elements.iloscRat.value = String(value);
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -1977,12 +1959,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.oprocentowanie?.addEventListener("input", (e) => {
             let value = e.target.value.replace(/[^0-9,]/g, "");
-            value = value.replace(",", ".");
-            const parts = value.split(".");
-            if (parts.length > 2) {
-                value = parts[0] + "." + parts.slice(1).join("");
-            }
-            value = value.replace(".", ",");
             e.target.value = value;
         });
 
@@ -2017,12 +1993,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         elements.prowizja?.addEventListener("input", (e) => {
             let value = e.target.value.replace(/[^0-9,]/g, "");
-            value = value.replace(",", ".");
-            const parts = value.split(".");
-            if (parts.length > 2) {
-                value = parts[0] + "." + parts.slice(1).join("");
-            }
-            value = value.replace(".", ",");
             e.target.value = value;
         });
 
