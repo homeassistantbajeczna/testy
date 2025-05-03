@@ -163,7 +163,7 @@ function updateKwotaInfo() {
     try {
         const kwota = parseFloat(elements.kwota?.value) || 0;
         if (elements.kwotaInfo) {
-            elements.kwotaInfo.textContent = `Kwota kredytu: ${kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+            elements.kwotaInfo.textContent = `Kwota kredytu: ${kwota.toFixed(2)} zł`;
         }
         updateProwizjaInfo();
     } catch (error) {
@@ -1516,8 +1516,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     elements.kwota?.addEventListener("input", (e) => {
-        let value = e.target.value.replace(/[^0-9,.]/g, "");
+        let value = e.target.value;
+        // Zachowaj pozycję kursora
+        const cursorPos = e.target.selectionStart;
+        // Pozwól na cyfry, jedną kropkę i jeden przecinek
+        value = value.replace(/[^0-9.]/g, "").replace(/\.+/g, ".").replace(/,+/g, ",");
+        const parts = value.split(/[.,]/);
+        if (parts.length > 2) {
+            value = parts[0] + "." + parts.slice(1).join("");
+        } else if (parts.length === 2 && parts[1].length > 2) {
+            value = parts[0] + "." + parts[1].substring(0, 2);
+        }
         e.target.value = value;
+        // Przywróć pozycję kursora
+        e.target.selectionStart = e.target.selectionEnd = cursorPos;
     });
 
     elements.kwota?.addEventListener("blur", () => {
