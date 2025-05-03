@@ -959,15 +959,12 @@ function initializeNadplataKredytuGroup(group) {
                     updateOverpaymentLimit(rateInput, rateRange, group);
                     updateRatesArray("nadplata");
                 }
-            }, 150);
+            }, 300);
 
-            input.addEventListener("input", () => {
-                let value = parseInt(input.value) || minPeriodStart;
-                if (isNaN(value) || value < minPeriodStart) {
-                    value = minPeriodStart;
-                } else if (value > maxPeriodLimit) {
-                    value = maxPeriodLimit;
-                }
+            input.addEventListener("blur", () => {
+                let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minPeriodStart;
+                if (value < minPeriodStart) value = minPeriodStart;
+                if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 range.value = value;
                 debouncedUpdate();
@@ -981,9 +978,9 @@ function initializeNadplataKredytuGroup(group) {
             const debouncedUpdate = debounce(() => {
                 updateOverpaymentLimit(input, range, group);
                 debouncedUpdateNadplataKredytuRemoveButtons();
-            }, 150);
+            }, 300);
 
-            input.addEventListener("input", () => {
+            input.addEventListener("blur", () => {
                 let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
                 let parsedValue = parseFloat(value);
                 let maxAllowed = parseFloat(input.max) || 5000000;
@@ -1019,16 +1016,13 @@ function initializeNadplataKredytuGroup(group) {
                         updateOverpaymentLimit(rateInput, rateRange, group);
                         updateRatesArray("nadplata");
                     }
-                }, 150);
+                }, 300);
 
-                input.addEventListener("input", () => {
+                input.addEventListener("blur", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(input.value) || minValue;
-                    if (isNaN(value) || value < minValue) {
-                        value = minValue;
-                    } else if (value > maxPeriodLimit) {
-                        value = maxPeriodLimit;
-                    }
+                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
                     input.value = value;
                     range.value = value;
                     debouncedUpdate();
@@ -1037,11 +1031,8 @@ function initializeNadplataKredytuGroup(group) {
                 range.addEventListener("input", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
                     let value = parseInt(range.value);
-                    if (value < minValue) {
-                        value = minValue;
-                    } else if (value > maxPeriodLimit) {
-                        value = maxPeriodLimit;
-                    }
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
                     input.value = value;
                     range.value = value;
                     debouncedUpdate();
@@ -1261,24 +1252,29 @@ function initializeVariableOprocentowanieGroup(group) {
             input.value = value;
             range.value = value;
 
-            input.addEventListener("input", () => {
-                let value = parseInt(input.value) || 2;
-                if (isNaN(value) || value < 2) {
-                    value = 2;
-                } else if (value > iloscRat) {
-                    value = iloscRat;
-                }
+            const debouncedUpdate = debounce(() => {
+                updateRatesArray("oprocentowanie");
+            }, 300);
+
+            input.addEventListener("blur", () => {
+                let value = parseInt(input.value.replace(/[^0-9]/g, "")) || 2;
+                if (value < 2) value = 2;
+                if (value > iloscRat) value = iloscRat;
                 input.value = value;
                 range.value = value;
-                updateRatesArray("oprocentowanie");
+                debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
                 input.value = parseInt(range.value);
-                updateRatesArray("oprocentowanie");
+                debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
-            input.addEventListener("input", () => {
+            const debouncedUpdate = debounce(() => {
+                updateRatesArray("oprocentowanie");
+            }, 300);
+
+            input.addEventListener("blur", () => {
                 let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
                 let parsedValue = parseFloat(value);
                 let maxAllowed = parseFloat(input.max) || 25;
@@ -1291,13 +1287,13 @@ function initializeVariableOprocentowanieGroup(group) {
                 }
                 input.value = parsedValue.toFixed(2);
                 range.value = parsedValue;
-                updateRatesArray("oprocentowanie");
+                debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value);
                 input.value = value.toFixed(2);
-                updateRatesArray("oprocentowanie");
+                debouncedUpdate();
             });
         }
     });
@@ -1781,7 +1777,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
             elements.kwota.step = 0.01;
-            elements.kwota.value = 500000;
+            elements.kwota.value = 500000; // Ustawiamy wartość początkową jako liczbę całkowitą
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
@@ -1790,7 +1786,20 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwotaRange.value = 500000;
         }
 
-        elements.kwota?.addEventListener("input", () => {
+        elements.kwota?.addEventListener("input", (e) => {
+            // Pozwalamy na wpisywanie, akceptując cyfry, kropkę i przecinek
+            let value = e.target.value.replace(/[^0-9.,]/g, "");
+            // Zamieniamy przecinek na kropkę
+            value = value.replace(",", ".");
+            // Upewniamy się, że jest tylko jedna kropka
+            const parts = value.split(".");
+            if (parts.length > 2) {
+                value = parts[0] + "." + parts.slice(1).join("");
+            }
+            e.target.value = value;
+        });
+
+        elements.kwota?.addEventListener("blur", () => {
             let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
             let parsedValue = parseFloat(value);
             if (isNaN(parsedValue) || parsedValue < 50000) parsedValue = 50000;
@@ -1823,7 +1832,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360;
+            elements.iloscRat.value = 360; // Ustawiamy wartość całkowitą
+            elements.iloscRat.type = "number"; // Ustawiamy typ na number, aby uniknąć formatowania dziesiętnego
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1832,14 +1842,14 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRatRange.value = 360;
         }
 
-        elements.iloscRat?.addEventListener("input", () => {
+        elements.iloscRat?.addEventListener("blur", () => {
             let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
-            if (isNaN(value) || value < 12) {
-                value = 12;
-            } else if (value > 420) {
-                value = 420;
-            }
-            elements.iloscRat.value = value;
+            if (value < 12) value = 12;
+            if (value > 420) value = 420;
+            value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
+            if (value < 12) value = 12;
+            if (value > 420) value = 420;
+            elements.iloscRat.value = value; // Ustawiamy wartość bez miejsc po przecinku
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -1896,7 +1906,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanieRange.value = 7;
         }
 
-        elements.oprocentowanie?.addEventListener("input", () => {
+        elements.oprocentowanie?.addEventListener("blur", () => {
             let value = elements.oprocentowanie.value.replace(",", ".").replace(/[^0-9.]/g, "");
             let parsedValue = parseFloat(value);
             if (isNaN(parsedValue) || parsedValue < 0.1) parsedValue = 0.1;
@@ -1924,7 +1934,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.prowizjaRange.value = 2;
         }
 
-        elements.prowizja?.addEventListener("input", () => {
+        elements.prowizja?.addEventListener("blur", () => {
             let value = elements.prowizja.value.replace(",", ".").replace(/[^0-9.]/g, "");
             let parsedValue = parseFloat(value);
             let maxAllowed = parseFloat(elements.prowizja.max) || 25;
