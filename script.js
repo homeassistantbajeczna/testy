@@ -159,11 +159,25 @@ function updateLata() {
     }
 }
 
+function formatNumberWithSpaces(number) {
+    const parts = number.toFixed(2).split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts[1];
+    let formattedInteger = "";
+    for (let i = 0; i < integerPart.length; i++) {
+        if (i > 0 && (integerPart.length - i) % 3 === 0) {
+            formattedInteger += " ";
+        }
+        formattedInteger += integerPart[i];
+    }
+    return `${formattedInteger}.${decimalPart}`;
+}
+
 function updateKwotaInfo() {
     try {
         const kwota = parseFloat(elements.kwota?.value) || 0;
         if (elements.kwotaInfo) {
-            elements.kwotaInfo.textContent = `Kwota kredytu: ${kwota.toFixed(2)} zł`;
+            elements.kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`;
         }
         updateProwizjaInfo();
     } catch (error) {
