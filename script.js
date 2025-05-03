@@ -118,7 +118,7 @@ function updateProwizjaInfo() {
         let prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
         if (isNaN(prowizjaKwota)) prowizjaKwota = 0;
         if (elements.prowizjaInfo) {
-            elements.prowizjaInfo.textContent = `Prowizja: ${prowizjaKwota.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} zł`;
+            elements.prowizjaInfo.textContent = `Prowizja: ${prowizjaKwota.toFixed(2)} zł`;
         }
 
         if (jednostka === "procent") {
@@ -1492,6 +1492,9 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.kwota.max = 5000000;
         elements.kwota.step = 0.01;
         elements.kwota.value = "500000.00"; // Wartość początkowa z kropką
+        if (elements.kwota.type === "number") {
+            elements.kwota.type = "text"; // Zmiana typu na text, aby lepiej obsługiwać kropkę i przecinek
+        }
     }
     if (elements.kwotaRange) {
         elements.kwotaRange.min = 50000;
@@ -1518,19 +1521,25 @@ document.addEventListener("DOMContentLoaded", () => {
     elements.kwota?.addEventListener("input", (e) => {
         let value = e.target.value;
         const cursorPos = e.target.selectionStart; // Zachowaj pozycję kursora
-        // Filtruj tylko cyfry, kropkę i przecinek
-        value = value.replace(/[^0-9.,]/g, "");
-        // Zamień przecinek na kropkę i ogranicz do jednej kropki
-        value = value.replace(/,/, ".").replace(/\.+/g, ".");
-        const parts = value.split(".");
-        if (parts.length > 2) {
+        // Pozwól na cyfry i jedną kropkę/przecinek
+        value = value.replace(/[^0-9.,]/g, ""); // Usuń wszystko poza cyframi, kropką i przecinkiem
+        value = value.replace(/,/, "."); // Zamień przecinek na kropkę
+        const dotCount = (value.match(/\./g) || []).length;
+        if (dotCount > 1) {
+            const parts = value.split(".");
             value = parts[0] + "." + parts.slice(1).join("");
-        } else if (parts.length === 2 && parts[1].length > 2) {
+        }
+        const parts = value.split(".");
+        if (parts.length === 2 && parts[1].length > 2) {
             value = parts[0] + "." + parts[1].substring(0, 2);
         }
         e.target.value = value;
         // Przywróć pozycję kursora
-        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
+        let newCursorPos = cursorPos;
+        if (value.length < e.target.value.length) {
+            newCursorPos = cursorPos - 1;
+        }
+        e.target.selectionStart = e.target.selectionEnd = newCursorPos;
     });
 
     elements.kwota?.addEventListener("blur", () => {
@@ -1573,7 +1582,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-
 
 
 
