@@ -73,14 +73,21 @@ let creditChart = null;
 
 function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
     try {
-        // Parsowanie wartości z przecinkiem na format z kropką
-        const parsedValue = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 0;
-        if (range) {
-            // Suwak przyjmuje wartości z kropką
-            range.value = parsedValue;
+        let value;
+        if (input.id === "iloscRat" || parseFloat(input.step) === 12) {
+            // Dla ilości rat używamy wartości całkowitej
+            value = parseInt(input.value.replace(/[^0-9]/g, "")) || parseInt(range.value);
+            value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
+            input.value = value;
+        } else {
+            // Dla kwoty i innych pól dziesiętnych
+            value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || parseFloat(range.value);
+            value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
+            input.value = value.toFixed(2);
         }
+        range.value = value;
         if (!skipOnChange && onChange) {
-            onChange(parsedValue);
+            onChange(value);
         }
     } catch (error) {
         console.error("Błąd podczas synchronizacji wejścia z suwakiem:", error);
@@ -1501,6 +1508,78 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
 // Aktualizacja limitów przy zmianie kwoty kredytu
 document.addEventListener("DOMContentLoaded", () => {
+    // Inicjalizacja boxa KWOTA KREDYTU
+    if (elements.kwota) {
+        elements.kwota.min = 50000;
+        elements.kwota.max = 5000000;
+        elements.kwota.step = 0.01;
+        elements.kwota.value = "500000.00"; // Wartość początkowa z kropką
+        if (elements.kwota.type === "number") {
+            elements.kwota.type = "text"; // Zmiana typu na text dla lepszej kontroli
+        }
+    }
+    if (elements.kwotaRange) {
+        elements.kwotaRange.min = 50000;
+        elements.kwotaRange.max = 5000000;
+        elements.kwotaRange.step = 0.01;
+        elements.kwotaRange.value = 500000;
+    }
+
+    elements.kwota?.addEventListener("input", (e) => {
+        let value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        value = value.replace(/[^0-9.,]/g, "").replace(/,/, ".").replace(/\.+/g, ".");
+        const parts = value.split(".");
+        if (parts.length > 2) {
+            value = parts[0] + "." + parts.slice(1).join("");
+        } else if (parts.length === 2 && parts[1].length > 2) {
+            value = parts[0] + "." + parts[1].substring(0, 2);
+        }
+        e.target.value = value;
+        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
+    });
+
+    elements.kwota?.addEventListener("blur", () => {
+        let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
+        let parsedValue = parseFloat(value) || 50000;
+        parsedValue = Math.max(50000, Math.min(5000000, parsedValue));
+        elements.kwota.value = parsedValue.toFixed(2);
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
+    });
+
+    elements.kwotaRange?.addEventListener("input", () => {
+        let value = parseFloat(elements.kwotaRange.value);
+        elements.kwota.value = value.toFixed(2);
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
+    });
+
+    elements.kwotaRange?.addEventListener("change", () => {
+        let value = parseFloat(elements.kwotaRange.value);
+        let validatedValue = Math.max(50000, Math.min(5000000, value));
+        elements.kwota.value = validatedValue.toFixed(2);
+        elements.kwotaRange.value = validatedValue;
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
+    });
+
+    // Inicjalizacja boxa ILOŚĆ RAT
     if (elements.iloscRat) {
         elements.iloscRat.min = 12;
         elements.iloscRat.max = 420;
@@ -1513,20 +1592,6 @@ document.addEventListener("DOMContentLoaded", () => {
         elements.iloscRatRange.max = 420;
         elements.iloscRatRange.step = 12;
         elements.iloscRatRange.value = 360;
-    }
-
-    function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
-        try {
-            let value = parseInt(input.value.replace(/[^0-9]/g, "")) || parseInt(range.value); // Używamy parseInt dla całkowitych wartości
-            value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
-            input.value = value; // Ustawiamy wartość bez miejsc po przecinku
-            range.value = value;
-            if (!skipOnChange && onChange) {
-                onChange(value);
-            }
-        } catch (error) {
-            console.error("Błąd podczas synchronizacji wejścia z suwakiem:", error);
-        }
     }
 
     // Jawne wywołanie synchronizacji po inicjalizacji
