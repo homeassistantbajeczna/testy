@@ -119,9 +119,9 @@ function validateIloscRat(value) {
 
 function updateProwizjaInfo() {
     try {
-        const prowizja = parseFloat(elements.prowizja?.value) || 0;
+        const prowizja = parseFloat(elements.prowizja?.value.replace(',', '.') || 0);
         const jednostka = elements.jednostkaProwizji?.value || "procent";
-        const kwota = parseFloat(elements.kwota?.value) || 0;
+        const kwota = parseFloat(elements.kwota?.value.replace(',', '.') || 0);
         let prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
         if (isNaN(prowizjaKwota)) prowizjaKwota = 0;
         if (elements.prowizjaInfo) {
@@ -133,7 +133,7 @@ function updateProwizjaInfo() {
                 elements.prowizjaRange.max = 25;
                 elements.prowizjaRange.min = 0;
                 elements.prowizjaRange.step = 0.01;
-                elements.prowizjaRange.value = prowizja;
+                elements.prowizjaRange.value = prowizja.toFixed(2);
                 elements.prowizja.max = 25;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 0.01;
@@ -143,7 +143,7 @@ function updateProwizjaInfo() {
                 elements.prowizjaRange.max = 1250000;
                 elements.prowizjaRange.min = 0;
                 elements.prowizjaRange.step = 1;
-                elements.prowizjaRange.value = prowizja;
+                elements.prowizjaRange.value = prowizja.toFixed(2);
                 elements.prowizja.max = 1250000;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 1;
