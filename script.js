@@ -1345,6 +1345,20 @@ function initializeVariableOprocentowanieGroup(group) {
 function resetVariableOprocentowanieSection() {
     elements.variableOprocentowanieWrapper.innerHTML = "";
     state.variableRates = [];
+    // Przywróć domyślne oprocentowanie po wyłączeniu zmiennego oprocentowania
+    const defaultOprocentowanie = 7; // Domyślna wartość oprocentowania
+    let oprocentowanieValue = parseFloat(elements.oprocentowanie.dataset.lastManualValue) || defaultOprocentowanie;
+    const minValue = parseFloat(elements.oprocentowanie.min) || 0;
+    const maxValue = parseFloat(elements.oprocentowanie.max) || Infinity;
+
+    if (oprocentowanieValue < minValue) oprocentowanieValue = minValue;
+    if (oprocentowanieValue > maxValue) oprocentowanieValue = maxValue;
+
+    elements.oprocentowanie.value = oprocentowanieValue.toFixed(2);
+    elements.oprocentowanieRange.value = oprocentowanieValue;
+    elements.oprocentowanie.disabled = false;
+    elements.oprocentowanieRange.disabled = false;
+    delete elements.oprocentowanie.dataset.lastManualValue;
 }
 
 function updateVariableOprocentowanieRemoveButtons() {
@@ -1377,6 +1391,45 @@ function updateVariableOprocentowanieRemoveButtons() {
                 resetVariableOprocentowanieSection();
             }
             updateVariableOprocentowanieRemoveButtons();
+        });
+    }
+}
+
+// Dodaj obsługę przełącznika Zmienne Oprocentowanie
+function initializeZmienneOprocentowanieToggle() {
+    if (elements.zmienneOprocentowanieBtn) {
+        elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+            if (elements.zmienneOprocentowanieBtn.checked) {
+                // Włącz zmienne oprocentowanie
+                elements.variableOprocentowanieInputs.classList.add("active");
+                const newGroup = createVariableOprocentowanieGroup();
+                elements.variableOprocentowanieWrapper.appendChild(newGroup);
+                initializeVariableOprocentowanieGroup(newGroup);
+                updateVariableOprocentowanieRemoveButtons();
+                updateRatesArray("oprocentowanie");
+                // Zablokuj główne pole oprocentowania
+                elements.oprocentowanie.disabled = true;
+                elements.oprocentowanieRange.disabled = true;
+            } else {
+                // Wyłącz zmienne oprocentowanie
+                elements.variableOprocentowanieInputs.classList.remove("active");
+                resetVariableOprocentowanieSection();
+                updateVariableOprocentowanieRemoveButtons();
+            }
+            updateKwotaInfo(); // Zaktualizuj informacje
+        });
+
+        // Zapisz ręcznie wprowadzoną wartość oprocentowania przed włączeniem zmiennego oprocentowania
+        elements.oprocentowanie.addEventListener("change", () => {
+            if (!elements.zmienneOprocentowanieBtn.checked) {
+                elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanie.value;
+            }
+        });
+
+        elements.oprocentowanieRange.addEventListener("change", () => {
+            if (!elements.zmienneOprocentowanieBtn.checked) {
+                elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanieRange.value;
+            }
         });
     }
 }
