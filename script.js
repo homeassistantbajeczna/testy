@@ -237,7 +237,7 @@ function initializeInputHandling() {
     elements.kwota.addEventListener("input", (e) => {
         let value = e.target.value;
 
-        // Zamień przecinek na kropkę, ale nie nadpisz wartości, jeśli nie jest to konieczne
+        // Zamień przecinek na kropkę
         if (value.includes(",")) {
             value = value.replace(",", ".");
             e.target.value = value;
@@ -247,6 +247,14 @@ function initializeInputHandling() {
         const dotCount = value.split(".").length - 1;
         if (dotCount > 1) {
             e.target.value = value.substring(0, value.lastIndexOf("."));
+            return;
+        }
+
+        // Ogranicz do dwóch miejsc po przecinku
+        const parts = value.split(".");
+        if (parts.length > 1 && parts[1].length > 2) {
+            parts[1] = parts[1].substring(0, 2);
+            e.target.value = parts.join(".");
         }
     });
 
@@ -263,14 +271,15 @@ function initializeInputHandling() {
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
 
-        elements.kwota.value = parsedValue.toString();
+        // Zachowaj wartość z maksymalnie dwoma miejscami po przecinku
+        elements.kwota.value = parsedValue.toFixed(2);
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
     });
 
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toString();
+        elements.kwota.value = value.toFixed(2); // Synchronizuj z dwoma miejscami po przecinku
         updateKwotaInfo();
     });
 
