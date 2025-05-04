@@ -1591,7 +1591,13 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
 
     if (rodzajRat === "rowne") {
         let q = 1 + currentOprocentowanie;
-        rataCalkowita = kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1);
+        // Sprawdź, czy q ** iloscRat nie powoduje nieskończoności
+        if (iloscRat > 0 && !isNaN(q)) {
+            rataCalkowita = kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1);
+            if (isNaN(rataCalkowita) || rataCalkowita <= 0) {
+                rataCalkowita = 0;
+            }
+        }
         rataKapitalowa = rataCalkowita - odsetki;
 
         if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę") {
@@ -1620,95 +1626,109 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
 }
 
 function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, variableRates = [], overpaymentRates = []) {
-    let pozostalyKapital = kwota;
-    let harmonogram = [];
-    let calkowiteOdsetki = 0;
-    let calkowiteNadplaty = 0;
-    let prowizjaKwota = prowizjaJednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
-    let pozostaleRaty = iloscRat;
-    let oprocentowanieMiesieczne = oprocentowanie / 100 / 12;
-    let activeVariableRates = [...variableRates].sort((a, b) => a.period - b.period);
-    let activeOverpaymentRates = [...overpaymentRates].sort((a, b) => a.start - b.start);
+    try {
+        let pozostalyKapital = kwota;
+        let harmonogram = [];
+        let calkowiteOdsetki = 0;
+        let calkowiteNadplaty = 0;
+        let prowizjaKwota = prowizjaJednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
+        let pozostaleRaty = iloscRat;
+        let oprocentowanieMiesieczne = oprocentowanie / 100 / 12;
 
-    for (let i = 1; i <= iloscRat; i++) {
-        let currentOprocentowanie = oprocentowanieMiesieczne;
-        let activeRate = activeVariableRates.find(rate => rate.period === i);
-        if (activeRate) {
-            currentOprocentowanie = activeRate.value / 100 / 12;
-        }
+        // Upewnij się, że variableRates i overpaymentRates są tablicami
+        let activeVariableRates = Array.isArray(variableRates) ? [...variableRates].sort((a, b) => a.period - b.period) : [];
+        let activeOverpaymentRates = Array.isArray(overpaymentRates) ? [...overpaymentRates].sort((a, b) => a.start - b.start) : [];
 
-        let nadplata = 0;
-        let activeOverpayment = activeOverpaymentRates.find(over => i >= over.start && (over.type === "Jednorazowa" ? i === over.start : i <= over.end));
-        if (activeOverpayment) {
-            if (activeOverpayment.type === "Jednorazowa" && i === activeOverpayment.start) {
-                nadplata = activeOverpayment.amount;
-            } else if (activeOverpayment.type === "Miesięczna") {
-                nadplata = activeOverpayment.amount;
+        // Walidacja danych wejściowych
+        if (isNaN(kwota) || kwota <= 0) throw new Error("Nieprawidłowa kwota kredytu");
+        if (isNaN(oprocentowanie) || oprocentowanie <= 0) throw new Error("Nieprawidłowe oprocentowanie");
+        if (isNaN(iloscRat) || iloscRat <= 0) throw new Error("Nieprawidłowa ilość rat");
+        if (!["rowne", "malejace"].includes(rodzajRat)) throw new Error("Nieprawidłowy rodzaj rat");
+
+        for (let i = 1; i <= iloscRat; i++) {
+            let currentOprocentowanie = oprocentowanieMiesieczne;
+            let activeRate = activeVariableRates.find(rate => rate.period === i);
+            if (activeRate && !isNaN(activeRate.value)) {
+                currentOprocentowanie = activeRate.value / 100 / 12;
             }
 
-            if (nadplata > 0 && activeOverpayment.effect === "Skróć okres") {
-                calkowiteNadplaty += nadplata;
-                pozostalyKapital -= nadplata;
-                if (pozostalyKapital <= 0) {
-                    pozostalyKapital = 0;
-                    pozostaleRaty = i;
-                    harmonogram.push({
-                        miesiac: i,
-                        rata: parseFloat((0).toFixed(2)),
-                        oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
-                        nadplata: parseFloat(nadplata.toFixed(2)),
-                        kapital: parseFloat((0).toFixed(2)),
-                        odsetki: parseFloat((0).toFixed(2)),
-                        kapitalDoSplaty: parseFloat((0).toFixed(2)),
-                    });
-                    break;
+            let nadplata = 0;
+            let activeOverpayment = activeOverpaymentRates.find(over => i >= over.start && (over.type === "Jednorazowa" ? i === over.start : i <= over.end));
+            if (activeOverpayment) {
+                if (activeOverpayment.type === "Jednorazowa" && i === activeOverpayment.start) {
+                    nadplata = activeOverpayment.amount;
+                } else if (activeOverpayment.type === "Miesięczna") {
+                    nadplata = activeOverpayment.amount;
+                }
+
+                if (nadplata > 0 && activeOverpayment.effect === "Skróć okres") {
+                    calkowiteNadplaty += nadplata;
+                    pozostalyKapital -= nadplata;
+                    if (pozostalyKapital <= 0) {
+                        pozostalyKapital = 0;
+                        pozostaleRaty = i;
+                        harmonogram.push({
+                            miesiac: i,
+                            rata: parseFloat((0).toFixed(2)),
+                            oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
+                            nadplata: parseFloat(nadplata.toFixed(2)),
+                            kapital: parseFloat((0).toFixed(2)),
+                            odsetki: parseFloat((0).toFixed(2)),
+                            kapitalDoSplaty: parseFloat((0).toFixed(2)),
+                        });
+                        break;
+                    }
                 }
             }
+
+            const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
+                kwota,
+                iloscRat,
+                pozostalyKapital,
+                currentOprocentowanie,
+                nadplata,
+                activeOverpayment,
+                rodzajRat
+            );
+
+            if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę" && nadplata > 0) {
+                calkowiteNadplaty += nadplata;
+            }
+
+            pozostalyKapital -= rataKapitalowa;
+            calkowiteOdsetki += odsetki;
+
+            harmonogram.push({
+                miesiac: i,
+                rata: parseFloat(rataCalkowita.toFixed(2)),
+                oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
+                nadplata: parseFloat(nadplata.toFixed(2)),
+                kapital: parseFloat(rataKapitalowa.toFixed(2)),
+                odsetki: parseFloat(odsetki.toFixed(2)),
+                kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
+            });
+
+            if (pozostalyKapital <= 0) {
+                pozostaleRaty = i;
+                break;
+            }
         }
 
-        const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
-            kwota,
-            iloscRat,
-            pozostalyKapital,
-            currentOprocentowanie,
-            nadplata,
-            activeOverpayment,
-            rodzajRat
-        );
+        let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota;
 
-        if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę" && nadplata > 0) {
-            calkowiteNadplaty += nadplata;
-        }
-
-        pozostalyKapital -= rataKapitalowa;
-        calkowiteOdsetki += odsetki;
-
-        harmonogram.push({
-            miesiac: i,
-            rata: parseFloat(rataCalkowita.toFixed(2)),
-            oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
-            nadplata: parseFloat(nadplata.toFixed(2)),
-            kapital: parseFloat(rataKapitalowa.toFixed(2)),
-            odsetki: parseFloat(odsetki.toFixed(2)),
-            kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
-        });
-
-        if (pozostalyKapital <= 0) {
-            pozostaleRaty = i;
-            break;
-        }
+        return {
+            harmonogram,
+            calkowityKoszt: parseFloat(calkowityKoszt.toFixed(2)),
+            calkowiteOdsetki: parseFloat(calkowiteOdsetki.toFixed(2)),
+            calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2)),
+            prowizja: parseFloat(prowizjaKwota.toFixed(2)),
+            pozostaleRaty,
+        };
+    } catch (error) {
+        console.error("Błąd podczas obliczania kredytu:", error.message);
+        alert(`Wystąpił błąd podczas obliczania kredytu: ${error.message}`);
+        return null;
     }
-
-    let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota;
-
-    return {
-        harmonogram,
-        calkowityKoszt: parseFloat(calkowityKoszt.toFixed(2)),
-        calkowiteOdsetki: parseFloat(calkowiteOdsetki.toFixed(2)),
-        calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2)),
-        prowizja: parseFloat(prowizjaKwota.toFixed(2)),
-        pozostaleRaty,
-    };
 }
 
 
@@ -1911,6 +1931,10 @@ function initializeButtons() {
         const prowizja = parseFloat(elements.prowizja.value) || 2;
         const prowizjaJednostka = elements.jednostkaProwizji.value || "procent";
 
+        // Upewnij się, że variableRates i overpaymentRates są tablicami
+        const variableRates = Array.isArray(state.variableRates) ? state.variableRates : [];
+        const overpaymentRates = Array.isArray(state.overpaymentRates) ? state.overpaymentRates : [];
+
         const data = calculateLoan(
             kwota,
             oprocentowanie,
@@ -1918,13 +1942,17 @@ function initializeButtons() {
             rodzajRat,
             prowizja,
             prowizjaJednostka,
-            state.variableRates,
-            state.overpaymentRates
+            variableRates,
+            overpaymentRates
         );
 
-        state.lastFormData = data;
-        elements.resultSection.classList.add("active");
-        updateResults(data);
+        if (data) {
+            state.lastFormData = data;
+            elements.formSection.style.display = "none";
+            elements.resultSection.style.display = "block";
+            elements.resultSection.classList.add("active");
+            updateResults(data);
+        }
     });
 
     elements.generatePdfBtn.addEventListener("click", () => {
@@ -1938,22 +1966,29 @@ function initializeButtons() {
     elements.zoomInBtn.addEventListener("click", () => {
         if (state.zoomLevel < 2) {
             state.zoomLevel += 0.1;
-            if (creditChart) updateChart(state.lastFormData);
+            if (state.lastFormData && creditChart) {
+                updateChart(state.lastFormData);
+            }
         }
     });
 
     elements.zoomOutBtn.addEventListener("click", () => {
         if (state.zoomLevel > 0.5) {
             state.zoomLevel -= 0.1;
-            if (creditChart) updateChart(state.lastFormData);
+            if (state.lastFormData && creditChart) {
+                updateChart(state.lastFormData);
+            }
         }
     });
 
     elements.toggleDarkModeBtn.addEventListener("click", () => {
         state.isDarkMode = !state.isDarkMode;
         document.body.classList.toggle("dark-mode", state.isDarkMode);
-        elements.toggleDarkModeBtn.textContent = state.isDarkMode ? "Tryb jasny" : "Tryb ciemny";
-        if (creditChart) updateChart(state.lastFormData);
+        // Zamiast zmieniać tekst, aktualizuj aria-label dla dostępności
+        elements.toggleDarkModeBtn.setAttribute("aria-label", state.isDarkMode ? "Przełącz na tryb jasny" : "Przełącz na tryb ciemny");
+        if (state.lastFormData && creditChart) {
+            updateChart(state.lastFormData);
+        }
     });
 }
 
