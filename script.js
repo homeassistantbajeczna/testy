@@ -180,16 +180,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Inicjalizacja boxa Ilość Rat
     if (elements.iloscRat) {
         elements.iloscRat.min = 12;
-        elements.iloscRat.max = 420;
+        elements.iloscRat.max = 480; // Zwiększono maksymalną wartość do 480 dla większej elastyczności
         elements.iloscRat.step = 12;
-        elements.iloscRat.value = 420; // Nowa wartość domyślna
+        elements.iloscRat.value = 360; // Ustawiamy wartość domyślną na 360
         elements.iloscRat.type = "number";
     }
     if (elements.iloscRatRange) {
         elements.iloscRatRange.min = 12;
-        elements.iloscRatRange.max = 420;
+        elements.iloscRatRange.max = 480; // Spójne z inputem
         elements.iloscRatRange.step = 12;
-        elements.iloscRatRange.value = 420; // Nowa wartość domyślna
+        elements.iloscRatRange.value = 360; // Spójna wartość domyślna
     }
 
     // Dodajemy walidację przy wpisywaniu, aby akceptować tylko cyfry
@@ -210,8 +210,8 @@ document.addEventListener("DOMContentLoaded", () => {
         let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
         value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
         if (value < 12) value = 12;
-        if (value > 420) value = 420;
-        elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako string
+        if (value > 480) value = 480; // Spójne z nowym limitem
+        elements.iloscRat.value = value.toString();
         elements.iloscRatRange.value = value;
         syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
         if (elements.nadplataKredytuWrapper) {
@@ -1998,21 +1998,19 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwotaRange.value = 500000;
         }
 
-        // Usunięto nadmiarowe event listenery, które już są w pierwszym bloku
-
         // Inicjalizacja boxa Ilość Rat
         if (elements.iloscRat) {
             elements.iloscRat.min = 12;
-            elements.iloscRat.max = 420;
+            elements.iloscRat.max = 480; // Zwiększono maksymalną wartość do 480 dla większej elastyczności
             elements.iloscRat.step = 12;
             elements.iloscRat.type = "text"; // Typ text dla pełnej kontroli nad formatowaniem
-            elements.iloscRat.value = "360"; // Ustawiamy wartość początkową bez części dziesiętnej
+            elements.iloscRat.value = "360"; // Ustawiamy wartość początkową na 360
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
-            elements.iloscRatRange.max = 420;
+            elements.iloscRatRange.max = 480; // Spójne z inputem
             elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 360;
+            elements.iloscRatRange.value = 360; // Spójna wartość domyślna
         }
 
         // Obsługa wpisywania wartości - tylko cyfry
@@ -2026,7 +2024,7 @@ document.addEventListener("DOMContentLoaded", () => {
             let value = parseInt(elements.iloscRat.value) || 12;
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
-            if (value > 420) value = 420;
+            if (value > 480) value = 480; // Spójne z nowym limitem
             elements.iloscRat.value = value.toString(); 
             elements.iloscRatRange.value = value;
             updateLata();
