@@ -146,13 +146,67 @@ function updateProwizjaInfo() {
                 elements.prowizja.max = 1250000;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 1;
-                elements.prowizja.value = prowizja.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
+                elements.prowizja.value = prowizja.toFixed(2).replace(".", ".");
             }
         }
     } catch (error) {
         console.error("Błąd podczas aktualizacji informacji o prowizji:", error);
     }
 }
+
+elements.prowizja?.addEventListener("input", (e) => {
+    let value = e.target.value.replace(/,/g, ".").replace(/[^0-9.]/g, "");
+    const parts = value.split(".");
+    if (parts.length > 2) {
+        value = parts[0] + "." + parts.slice(1).join("");
+    } else if (parts.length === 2 && parts[1].length > 2) {
+        value = parts[0] + "." + parts[1].substring(0, 2);
+    }
+    e.target.value = value;
+});
+
+elements.prowizja?.addEventListener("blur", () => {
+    let value = parseFloat(elements.prowizja.value) || 0;
+    const jednostka = elements.jednostkaProwizji?.value || "procent";
+    let maxAllowed = jednostka === "procent" ? 25 : 1250000;
+    let minAllowed = 0;
+    if (value < minAllowed) value = minAllowed;
+    if (value > maxAllowed) value = maxAllowed;
+    elements.prowizja.value = value.toFixed(2);
+    elements.prowizjaRange.value = value;
+    updateProwizjaInfo();
+});
+
+elements.prowizjaRange?.addEventListener("input", () => {
+    let value = parseFloat(elements.prowizjaRange.value);
+    elements.prowizja.value = value.toFixed(2);
+    updateProwizjaInfo();
+});
+
+elements.jednostkaProwizji?.addEventListener("change", () => {
+    const jednostka = elements.jednostkaProwizji.value;
+    const kwota = parseFloat(elements.kwota?.value) || 0;
+    let value = parseFloat(elements.prowizja.value) || 0;
+    if (jednostka === "zl") {
+        const defaultProwizjaZl = (2 / 100) * kwota;
+        value = defaultProwizjaZl;
+        elements.prowizja.max = 1250000;
+        elements.prowizjaRange.max = 1250000;
+        elements.prowizja.step = 1;
+        elements.prowizjaRange.step = 1;
+    } else {
+        value = 2;
+        elements.prowizja.max = 25;
+        elements.prowizjaRange.max = 25;
+        elements.prowizja.step = 0.01;
+        elements.prowizjaRange.step = 0.01;
+    }
+    if (value < 0) value = 0;
+    if (value > elements.prowizja.max) value = elements.prowizja.max;
+    elements.prowizja.value = value.toFixed(2);
+    elements.prowizjaRange.value = value;
+    updateProwizjaInfo();
+});
 
 function updateLata() {
     try {
@@ -1999,7 +2053,8 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value.toString(); // Ustawienie jako liczba całkowita
+            //elements.iloscRat.value = value.toString(); 
+            elements.iloscRat.value = value.toFixed(2); 
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
