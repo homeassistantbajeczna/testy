@@ -81,7 +81,7 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
         } else {
             value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || parseFloat(range.value);
             value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
-            input.value = value.toFixed(2).replace('.', '.'); // Zawsze kropka jako separator dziesiętny
+            input.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
         }
         range.value = value;
         if (!skipOnChange && onChange) {
@@ -135,7 +135,7 @@ function updateProwizjaInfo() {
                 elements.prowizja.max = 25;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 0.01;
-                elements.prowizja.value = prowizja.toFixed(2).replace('.', '.'); // Zawsze kropka jako separator dziesiętny
+                elements.prowizja.value = prowizja.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
             }
         } else {
             if (elements.prowizjaRange) {
@@ -146,7 +146,7 @@ function updateProwizjaInfo() {
                 elements.prowizja.max = 1250000;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 1;
-                elements.prowizja.value = prowizja.toFixed(2).replace('.', '.'); // Zawsze kropka jako separator dziesiętny
+                elements.prowizja.value = prowizja.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
             }
         }
     } catch (error) {
