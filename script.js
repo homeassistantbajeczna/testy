@@ -1742,191 +1742,98 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 // F U N K C J E    W Y N I K I    I    W Y K R E S Y
 
 function updateChart(data) {
+    if (!data || !data.harmonogram) {
+        console.error("Brak danych do wygenerowania wykresu:", data);
+        return;
+    }
+
     if (creditChart) {
         creditChart.destroy();
+        creditChart = null; // Upewnij się, że stary wykres jest usunięty
     }
 
     const ctx = document.getElementById("creditChart").getContext("2d");
-    creditChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: ["Koszty kredytu"],
-            datasets: [
-                {
-                    label: "Kapitał",
-                    data: [data.harmonogram.reduce((sum, row) => sum + row.kapital, 0)],
-                    backgroundColor: "#28a745",
-                    borderWidth: 0,
-                    barPercentage: 0.5,
+    if (!ctx) {
+        console.error("Nie można znaleźć kontekstu canvas dla creditChart");
+        return;
+    }
+
+    try {
+        const kapitalSum = data.harmonogram.reduce((sum, row) => sum + row.kapital, 0);
+        creditChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: ["Koszty kredytu"],
+                datasets: [
+                    {
+                        label: "Kapitał",
+                        data: [kapitalSum],
+                        backgroundColor: "#28a745",
+                        borderWidth: 0,
+                        barPercentage: 0.5,
+                    },
+                    {
+                        label: "Odsetki",
+                        data: [data.calkowiteOdsetki],
+                        backgroundColor: "#007bff",
+                        borderWidth: 0,
+                        barPercentage: 0.5,
+                    },
+                    {
+                        label: "Nadpłaty",
+                        data: [data.calkowiteNadplaty],
+                        backgroundColor: "#dc3545",
+                        borderWidth: 0,
+                        barPercentage: 0.5,
+                    },
+                    {
+                        label: "Prowizja",
+                        data: [data.prowizja],
+                        backgroundColor: "#6f42c1",
+                        borderWidth: 0,
+                        barPercentage: 0.5,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.dataset.label}: ${context.raw.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+                        },
+                    },
                 },
-                {
-                    label: "Odsetki",
-                    data: [data.calkowiteOdsetki],
-                    backgroundColor: "#007bff",
-                    borderWidth: 0,
-                    barPercentage: 0.5,
-                },
-                {
-                    label: "Nadpłaty",
-                    data: [data.calkowiteNadplaty],
-                    backgroundColor: "#dc3545",
-                    borderWidth: 0,
-                    barPercentage: 0.5,
-                },
-                {
-                    label: "Prowizja",
-                    data: [data.prowizja],
-                    backgroundColor: "#6f42c1",
-                    borderWidth: 0,
-                    barPercentage: 0.5,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => `${context.dataset.label}: ${context.raw.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+                scales: {
+                    x: { stacked: true, display: false },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => `${value.toLocaleString("pl-PL")} zł`,
+                            font: { size: 10 },
+                        },
                     },
                 },
             },
-            scales: {
-                x: { stacked: true, display: false },
-                y: {
-                    stacked: true,
-                    beginAtZero: true,
-                    ticks: {
-                        callback: (value) => `${value.toLocaleString("pl-PL")} zł`,
-                        font: { size: 10 },
-                    },
-                }
-            },
-        },
-    });
+        });
 
-    // Dostosuj rozmiar wykresu na podstawie poziomu zoomu
-    ctx.canvas.style.transform = `scale(${state.zoomLevel})`;
-    ctx.canvas.style.transformOrigin = "top left";
-    ctx.canvas.parentElement.style.width = `${500 * state.zoomLevel}px`;
-    ctx.canvas.parentElement.style.height = `${300 * state.zoomLevel}px`;
-    console.log("Zoom updated to:", state.zoomLevel); // Debug
-}
+        // Dostosuj rozmiar wykresu na podstawie poziomu zoomu
+        ctx.canvas.style.transform = `scale(${state.zoomLevel})`;
+        ctx.canvas.style.transformOrigin = "top left";
+        const parent = ctx.canvas.parentElement;
+        parent.style.width = `${500 * state.zoomLevel}px`;
+        parent.style.height = `${300 * state.zoomLevel}px`;
+        parent.style.overflow = "visible"; // Upewnij się, że skalowany wykres jest widoczny
 
-function updateResults(data) {
-    if (!data || !data.harmonogram) {
-        console.error("Brak danych do wyświetlenia wyników");
-        return;
+        console.log("Zoom updated to:", state.zoomLevel, "Chart rendered successfully");
+    } catch (error) {
+        console.error("Błąd podczas renderowania wykresu:", error);
+        creditChart = null;
     }
-
-    elements.valueKapital.textContent = data.harmonogram.reduce((sum, row) => sum + row.kapital, 0).toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.valueOdsetki.textContent = data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.valueNadplata.textContent = data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.valueProwizja.textContent = data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.okresPoNadplacie.textContent = `${data.pozostaleRaty} miesięcy`;
-    elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-
-    // Generowanie harmonogramu
-    elements.harmonogramTabela.innerHTML = `
-        <tr>
-            <th>Miesiąc</th>
-            <th>Rata</th>
-            <th>Oprocentowanie</th>
-            <th>Nadpłata</th>
-            <th>Kapitał</th>
-            <th>Odsetki</th>
-            <th>Kapitał do spłaty</th>
-        </tr>
-    `;
-    data.harmonogram.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${row.miesiac}</td>
-            <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-            <td>${row.oprocentowanie.toFixed(2)} %</td>
-            <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-            <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-            <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-            <td>${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-        `;
-        elements.harmonogramTabela.appendChild(tr);
-    });
-
-    updateChart(data);
-    console.log("Results updated:", data); // Debug
 }
-
-function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) {
-        console.error("Biblioteka jsPDF nie jest załadowana");
-        alert("Wystąpił problem z generowaniem PDF. Upewnij się, że biblioteka jsPDF jest poprawnie załadowana.");
-        return;
-    }
-
-    if (!state.lastFormData || !state.lastFormData.harmonogram) {
-        alert("Najpierw oblicz harmonogram, aby wygenerować PDF!");
-        return;
-    }
-
-    const doc = new jsPDF();
-    let y = 10;
-
-    doc.setFontSize(16);
-    doc.text("Harmonogram Spłat Kredytu", 10, y);
-    y += 10;
-
-    doc.setFontSize(12);
-    doc.text(`Data: ${new Date().toLocaleDateString("pl-PL")}`, 10, y);
-    y += 10;
-
-    const data = [
-        ["Miesiąc", "Rata", "Oprocentowanie", "Nadpłata", "Kapitał", "Odsetki", "Kapitał do spłaty"],
-        ...state.lastFormData.harmonogram.map(row => [
-            row.miesiac,
-            `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.oprocentowanie.toFixed(2)} %`,
-            `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`
-        ])
-    ];
-
-    doc.autoTable({
-        head: [data[0]],
-        body: data.slice(1),
-        startY: y,
-        theme: 'grid',
-        styles: { fontSize: 8 },
-        columnStyles: {
-            0: { cellWidth: 20 },
-            1: { cellWidth: 30 },
-            2: { cellWidth: 30 },
-            3: { cellWidth: 30 },
-            4: { cellWidth: 30 },
-            5: { cellWidth: 30 },
-            6: { cellWidth: 30 }
-        }
-    });
-
-    y = doc.autoTable.previous.finalY + 10;
-    doc.text(`Całkowity koszt: ${state.lastFormData.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Odsetki: ${state.lastFormData.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Nadpłaty: ${state.lastFormData.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Okres po nadpłacie: ${state.lastFormData.pozostaleRaty} miesięcy`, 10, y);
-
-    doc.save("harmonogram_spłat.pdf");
-    console.log("PDF generated"); // Debug
-}
-
 
 
 
@@ -1938,12 +1845,6 @@ function generatePDF() {
 
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
-
-function showForm() {
-    elements.formSection.style.display = "block";
-    elements.resultSection.style.display = "none";
-    elements.resultSection.classList.remove("active");
-}
 
 function initializeButtons() {
     elements.obliczBtn.addEventListener("click", () => {
@@ -1959,7 +1860,7 @@ function initializeButtons() {
 
         const data = calculateLoan(
             kwota,
-            oprocentowanie,
+           oprocentowanie,
             iloscRat,
             rodzajRat,
             prowizja,
@@ -1978,6 +1879,7 @@ function initializeButtons() {
         } else {
             elements.resultSection.style.display = "none";
             elements.formSection.style.display = "block";
+            alert("Nie udało się obliczyć kredytu. Sprawdź dane wejściowe.");
         }
     });
 
@@ -1992,9 +1894,11 @@ function initializeButtons() {
     elements.zoomInBtn.addEventListener("click", () => {
         if (state.zoomLevel < 2) {
             state.zoomLevel += 0.1;
+            console.log("Zoom in to:", state.zoomLevel, "lastFormData:", !!state.lastFormData, "creditChart:", !!creditChart); // Debug
             if (state.lastFormData && creditChart) {
                 updateChart(state.lastFormData);
-                console.log("Zoom in to:", state.zoomLevel); // Debug
+            } else {
+                console.warn("Zoom in nie wykonany - brak danych lub wykresu");
             }
         }
     });
@@ -2002,9 +1906,11 @@ function initializeButtons() {
     elements.zoomOutBtn.addEventListener("click", () => {
         if (state.zoomLevel > 0.5) {
             state.zoomLevel -= 0.1;
+            console.log("Zoom out to:", state.zoomLevel, "lastFormData:", !!state.lastFormData, "creditChart:", !!creditChart); // Debug
             if (state.lastFormData && creditChart) {
                 updateChart(state.lastFormData);
-                console.log("Zoom out to:", state.zoomLevel); // Debug
+            } else {
+                console.warn("Zoom out nie wykonany - brak danych lub wykresu");
             }
         }
     });
@@ -2019,7 +1925,6 @@ function initializeButtons() {
         }
     });
 }
-
 
 
 
@@ -2053,9 +1958,20 @@ function initializeApp() {
         state.lastFormData.prowizja,
         state.lastFormData.jednostkaProwizji
     );
-    state.lastFormData = defaultData;
-    elements.resultSection.classList.add("active");
-    updateResults(defaultData);
+    if (defaultData) {
+        state.lastFormData = defaultData;
+        elements.resultSection.classList.add("active");
+        updateResults(defaultData);
+    } else {
+        console.error("Nie udało się załadować domyślnych danych");
+        // Ustaw domyślne dane, jeśli calculateLoan zwróci null
+        state.lastFormData = {
+            harmonogram: [],
+            calkowityKoszt: 0,
+            calkowiteOdsetki: 0,
+            calkowiteNadplaty: 0,
+            prowizja: 0,
+            pozostaleRaty: 0,
+        };
+    }
 }
-
-document.addEventListener("DOMContentLoaded", initializeApp);
