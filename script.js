@@ -125,7 +125,7 @@ function updateProwizjaInfo() {
         let prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
         if (isNaN(prowizjaKwota)) prowizjaKwota = 0;
         if (elements.prowizjaInfo) {
-            elements.prowizjaInfo.textContent = `Prowizja: ${prowizjaKwota.toFixed(2)} zł`;
+            elements.prowizjaInfo.textContent = `Prowizja: ${formatNumberWithSpaces(prowizjaKwota)} zł`;
         }
 
         if (jednostka === "procent") {
