@@ -1367,23 +1367,37 @@ function resetVariableOprocentowanieSection() {
 function updateVariableOprocentowanieRemoveButtons() {
     const wrapper = elements.variableOprocentowanieWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
-    const existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
+    let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
 
     if (existingRemoveBtnWrapper) {
         existingRemoveBtnWrapper.remove();
     }
 
-    if (groups.length > 0) {
-        const lastGroup = groups[groups.length - 1];
-        const removeBtnWrapper = document.createElement("div");
-        removeBtnWrapper.classList.add("remove-btn-wrapper");
+    if (groups.length === 0) {
+        if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
+            existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
+        }
+        return;
+    }
+
+    if (!existingRemoveBtnWrapper) {
+        existingRemoveBtnWrapper = document.createElement("div");
+        existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
+        existingRemoveBtnWrapper.style.display = "flex";
+        existingRemoveBtnWrapper.style.flexDirection = "column";
+        existingRemoveBtnWrapper.style.alignItems = "center";
+        existingRemoveBtnWrapper.style.gap = "5px";
+        existingRemoveBtnWrapper.style.marginTop = "10px";
+
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
-        removeBtn.classList.add("btn-reset");
+        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
         removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
         removeBtn.textContent = "Usuń";
-        removeBtnWrapper.appendChild(removeBtn);
-        lastGroup.appendChild(removeBtnWrapper);
+        existingRemoveBtnWrapper.appendChild(removeBtn);
+
+        const lastGroup = groups[groups.length - 1];
+        lastGroup.appendChild(existingRemoveBtnWrapper);
 
         removeBtn.addEventListener("click", () => {
             lastGroup.remove();
@@ -1396,13 +1410,21 @@ function updateVariableOprocentowanieRemoveButtons() {
             updateVariableOprocentowanieRemoveButtons();
             toggleAddButtonVisibility();
         });
+    } else {
+        const lastGroup = groups[groups.length - 1];
+        const currentParent = existingRemoveBtnWrapper.parentElement;
+        if (currentParent !== lastGroup) {
+            lastGroup.appendChild(existingRemoveBtnWrapper);
+        }
     }
+
+    toggleAddButtonVisibility();
 }
 
 function toggleAddButtonVisibility() {
     const addButton = document.getElementById("addVariableOprocentowanieBtn");
     const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-    const maxPeriod = parseInt(elements.iloscRat?.value) || 420; // Używamy iloscRat jako maksymalną wartość
+    const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
 
     if (!addButton || groups.length === 0) {
         addButton.style.display = "none";
@@ -1456,6 +1478,9 @@ function initializeZmienneOprocentowanieToggle() {
 
         const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
         if (addVariableOprocentowanieBtn) {
+            // Upewnij się, że przycisk ma odpowiednie klasy
+            addVariableOprocentowanieBtn.classList.add("btn", "btn-functional");
+
             addVariableOprocentowanieBtn.addEventListener("click", () => {
                 const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
                 const lastGroup = groups[groups.length - 1];
@@ -1475,7 +1500,6 @@ function initializeZmienneOprocentowanieToggle() {
             });
         }
 
-        // Synchronizacja z iloscRat przy zmianie wartości
         elements.iloscRat.addEventListener("input", () => {
             toggleAddButtonVisibility();
             const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
