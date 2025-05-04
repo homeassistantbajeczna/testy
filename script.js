@@ -1977,38 +1977,29 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.type = "number"; // Typ number dla natywnej walidacji
-            elements.iloscRat.value = ""; // Początkowo ustawiamy pustą wartość, aby uniknąć formatowania przez przeglądarkę
+            elements.iloscRat.type = "text"; // Zmiana typu na text, aby kontrolować formatowanie
+            elements.iloscRat.value = "360.00"; // Ustawiamy wartość początkową z kropką
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
             elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 360; // Suwak ustawia wartość początkową
+            elements.iloscRatRange.value = 360;
         }
 
-        // Ustawiamy wartość początkową dynamicznie i od razu synchronizujemy
-        if (elements.iloscRat && elements.iloscRatRange) {
-            const initialValue = 360;
-            elements.iloscRat.value = initialValue.toString(); // Ustawiamy jako string
-            elements.iloscRatRange.value = initialValue; // Synchronizujemy suwak
-            // Wywołujemy zdarzenie input na suwaku, aby wymusić synchronizację
-            elements.iloscRatRange.dispatchEvent(new Event("input"));
-        }
-
-        // Obsługa wpisywania wartości - tylko cyfry, bez zakłócania kursora
+        // Obsługa wpisywania wartości - tylko cyfry, formatowanie z kropką
         elements.iloscRat?.addEventListener("input", (e) => {
             let value = e.target.value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
             e.target.value = value;
         });
 
-        // Obsługa blur - walidacja i zaokrąglanie do wielokrotności 12
+        // Obsługa blur - walidacja i formatowanie z kropką
         elements.iloscRat?.addEventListener("blur", () => {
             let value = parseInt(elements.iloscRat.value) || 12;
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value.toString(); // Ustawienie jako string, aby uniknąć formatowania dziesiętnego
+            elements.iloscRat.value = value.toFixed(2); // Formatowanie z kropką i dwoma zerami
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -2032,7 +2023,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Obsługa suwaka
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value.toString(); // Ustawienie jako string, aby uniknąć formatowania dziesiętnego
+            elements.iloscRat.value = value.toFixed(2); // Formatowanie z kropką i dwoma zerami
             updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
