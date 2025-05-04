@@ -274,14 +274,20 @@ function initializeInputHandling() {
         elements.kwota.value = parsedValue.toFixed(2);
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
-        syncProwizjaWithKwota(); // Aktualizuj prowizję po zmianie kwoty
+        // Aktualizuj prowizję tylko jeśli jednostka to "zl" i wartość prowizji jest domyślna
+        if (elements.jednostkaProwizji.value === "zl" && !elements.prowizja.dataset.manual) {
+            syncProwizjaWithKwota();
+        }
     });
 
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
         elements.kwota.value = value.toFixed(2);
         updateKwotaInfo();
-        syncProwizjaWithKwota(); // Aktualizuj prowizję po zmianie kwoty
+        // Aktualizuj prowizję tylko jeśli jednostka to "zl" i wartość prowizji jest domyślna
+        if (elements.jednostkaProwizji.value === "zl" && !elements.prowizja.dataset.manual) {
+            syncProwizjaWithKwota();
+        }
     });
 
     // Ilość Rat
@@ -387,12 +393,15 @@ function initializeInputHandling() {
             return;
         }
 
-        // Ogranicz do jednego miejsca po przecinku (zgodne z step="0.1")
+        // Ogranicz do dwóch miejsc po przecinku
         const parts = value.split(".");
-        if (parts.length > 1 && parts[1].length > 1) {
-            parts[1] = parts[1].substring(0, 1);
+        if (parts.length > 1 && parts[1].length > 2) {
+            parts[1] = parts[1].substring(0, 2);
             e.target.value = parts.join(".");
         }
+
+        // Oznacz, że wartość została wprowadzona ręcznie
+        elements.prowizja.dataset.manual = "true";
     });
 
     elements.prowizja.addEventListener("blur", () => {
@@ -404,27 +413,21 @@ function initializeInputHandling() {
 
         if (isNaN(parsedValue) || value === "") {
             parsedValue = minValue;
+            delete elements.prowizja.dataset.manual; // Resetuj flagę, jeśli wartość jest niepoprawna
         } else {
             if (parsedValue < minValue) parsedValue = minValue;
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
 
-        if (jednostka === "zl") {
-            // Ustaw prowizję na 2% kwoty, ale nie mniejszą niż minValue
-            const kwota = parseFloat(elements.kwota.value) || 0;
-            const defaultProwizja = (kwota * 0.02).toFixed(1);
-            parsedValue = Math.max(parseFloat(defaultProwizja), minValue);
-            if (parsedValue > maxValue) parsedValue = maxValue;
-        }
-
-        elements.prowizja.value = parsedValue.toFixed(1);
+        elements.prowizja.value = parsedValue.toFixed(2);
         elements.prowizjaRange.value = parsedValue;
         updateProwizjaInfo();
     });
 
     elements.prowizjaRange.addEventListener("input", () => {
         let value = parseFloat(elements.prowizjaRange.value);
-        elements.prowizja.value = value.toFixed(1);
+        elements.prowizja.value = value.toFixed(2);
+        elements.prowizja.dataset.manual = "true"; // Oznacz, że zmiana pochodzi z suwaka
         updateProwizjaInfo();
     });
 
@@ -442,17 +445,19 @@ function initializeInputHandling() {
         const minValue = parseFloat(elements.prowizja.min) || 0;
         const maxValue = parseFloat(elements.prowizja.max) || Infinity;
 
-        if (jednostka === "zl") {
-            const defaultProwizja = (kwota * 0.02).toFixed(1);
+        if (jednostka === "zl" && !elements.prowizja.dataset.manual) {
+            // Ustaw prowizję na 2% kwoty tylko jeśli wartość nie została wprowadzona ręcznie
+            const defaultProwizja = (kwota * 0.02).toFixed(2);
             prowizjaValue = Math.max(parseFloat(defaultProwizja), minValue);
             if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-            elements.prowizja.value = prowizjaValue.toFixed(1);
+            elements.prowizja.value = prowizjaValue.toFixed(2);
             elements.prowizjaRange.value = prowizjaValue;
+            delete elements.prowizja.dataset.manual; // Resetuj flagę po automatycznej zmianie
         } else {
             // Dla procentów zachowaj aktualną wartość lub ustaw domyślną (np. 2)
             if (isNaN(prowizjaValue) || prowizjaValue < minValue) prowizjaValue = 2;
             if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-            elements.prowizja.value = prowizjaValue.toFixed(1);
+            elements.prowizja.value = prowizjaValue.toFixed(2);
             elements.prowizjaRange.value = prowizjaValue;
         }
     }
