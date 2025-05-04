@@ -1766,6 +1766,8 @@ function toggleDarkMode() {
 
 
 
+// ... (pozostała część kodu bez zmian do sekcji INITIALIZACJA APLIKACJI)
+
 // I N I C J A L I Z A C J A       A P L I K A C J I
 function initialize() {
     updateKwotaInfo();
@@ -1774,6 +1776,9 @@ function initialize() {
 
     // Initialize input handling
     initializeInputHandling();
+
+    // Inicjalizacja przełącznika zmiennego oprocentowania
+    initializeZmienneOprocentowanieToggle();
 
     elements.obliczBtn.addEventListener("click", () => {
         state.lastFormData.kwota = parseFloat(elements.kwota.value) || 500000;
