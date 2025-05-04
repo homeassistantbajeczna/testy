@@ -75,15 +75,13 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
     try {
         let value;
         if (input.id === "iloscRat" || input.classList.contains("variable-cykl") || parseFloat(input.step) === 12) {
-            // Dla ilości rat i pól cykli używamy wartości całkowitej
             value = parseInt(input.value.replace(/[^0-9]/g, "")) || parseInt(range.value);
             value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
-            input.value = value.toString(); // Ustawiamy jako string bez miejsc po przecinku
+            input.value = value.toString();
         } else {
-            // Dla kwoty i innych pól dziesiętnych
             value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || parseFloat(range.value);
             value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
-            input.value = value.toFixed(2);
+            input.value = value.toFixed(2).replace('.', '.'); // Zawsze kropka jako separator dziesiętny
         }
         range.value = value;
         if (!skipOnChange && onChange) {
@@ -133,20 +131,22 @@ function updateProwizjaInfo() {
                 elements.prowizjaRange.max = 25;
                 elements.prowizjaRange.min = 0;
                 elements.prowizjaRange.step = 0.01;
-                elements.prowizjaRange.value = prowizja.toFixed(2);
+                elements.prowizjaRange.value = prowizja;
                 elements.prowizja.max = 25;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 0.01;
+                elements.prowizja.value = prowizja.toFixed(2).replace('.', '.'); // Zawsze kropka jako separator dziesiętny
             }
         } else {
             if (elements.prowizjaRange) {
                 elements.prowizjaRange.max = 1250000;
                 elements.prowizjaRange.min = 0;
                 elements.prowizjaRange.step = 1;
-                elements.prowizjaRange.value = prowizja.toFixed(2);
+                elements.prowizjaRange.value = prowizja;
                 elements.prowizja.max = 1250000;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 1;
+                elements.prowizja.value = prowizja.toFixed(2).replace('.', '.'); // Zawsze kropka jako separator dziesiętny
             }
         }
     } catch (error) {
