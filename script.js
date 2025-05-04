@@ -321,11 +321,51 @@ function initializeInputHandling() {
     });
 
     // Oprocentowanie
-    elements.oprocentowanie.addEventListener("input", () => {
-        syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange);
+    elements.oprocentowanie.addEventListener("input", (e) => {
+        let value = e.target.value;
+
+        // Zamień przecinek na kropkę
+        if (value.includes(",")) {
+            value = value.replace(",", ".");
+            e.target.value = value;
+        }
+
+        // Zapobiegnij wpisywaniu więcej niż jednej kropki
+        const dotCount = value.split(".").length - 1;
+        if (dotCount > 1) {
+            e.target.value = value.substring(0, value.lastIndexOf("."));
+            return;
+        }
+
+        // Ogranicz do dwóch miejsc po przecinku
+        const parts = value.split(".");
+        if (parts.length > 1 && parts[1].length > 2) {
+            parts[1] = parts[1].substring(0, 2);
+            e.target.value = parts.join(".");
+        }
     });
+
+    elements.oprocentowanie.addEventListener("blur", () => {
+        let value = elements.oprocentowanie.value;
+        let parsedValue = parseFloat(value) || 0;
+        let minValue = parseFloat(elements.oprocentowanie.min) || 0;
+        let maxValue = parseFloat(elements.oprocentowanie.max) || Infinity;
+
+        if (isNaN(parsedValue) || value === "") {
+            parsedValue = minValue;
+        } else {
+            if (parsedValue < minValue) parsedValue = minValue;
+            if (parsedValue > maxValue) parsedValue = maxValue;
+        }
+
+        elements.oprocentowanie.value = parsedValue.toFixed(2);
+        elements.oprocentowanieRange.value = parsedValue;
+    });
+
     elements.oprocentowanieRange.addEventListener("input", () => {
-        syncInputWithRange(elements.oprocentowanieRange, elements.oprocentowanie);
+        let value = parseFloat(elements.oprocentowanieRange.value);
+        elements.oprocentowanie.value = value.toFixed(2);
+        updateKwotaInfo(); // Zakładam, że nie ma dedykowanej funkcji dla oprocentowania, więc używam updateKwotaInfo
     });
 
     // Prowizja
