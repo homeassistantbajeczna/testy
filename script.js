@@ -235,15 +235,23 @@ function updateRatesArray(type) {
 function initializeInputHandling() {
     // Kwota Kredytu
     elements.kwota.addEventListener("input", () => {
-        let value = parseFloat(elements.kwota.value) || 0;
-        value = Math.max(parseFloat(elements.kwota.min) || 0, Math.min(parseFloat(elements.kwota.max) || Infinity, value));
-        elements.kwota.value = value;
-        elements.kwotaRange.value = value;
+        let value = elements.kwota.value.replace(/[^0-9.]/g, ""); // Usuń wszystko poza cyframi i kropką
+        let parsedValue = parseFloat(value);
+        let minValue = parseFloat(elements.kwota.min) || 0;
+        let maxValue = parseFloat(elements.kwota.max) || Infinity;
+
+        if (isNaN(parsedValue)) parsedValue = minValue;
+        if (parsedValue < minValue) parsedValue = minValue;
+        if (parsedValue > maxValue) parsedValue = maxValue;
+
+        elements.kwota.value = parsedValue; // Zachowaj dokładność wpisaną przez użytkownika
+        elements.kwotaRange.value = parsedValue; // Synchronizuj suwak
         updateKwotaInfo();
     });
+
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value;
+        elements.kwota.value = value; // Synchronizuj pole tekstowe z suwakiem
         updateKwotaInfo();
     });
 
