@@ -302,6 +302,9 @@ function initializeInputHandling() {
         if (isNaN(parsedValue) || value === "") {
             parsedValue = minValue;
         } else {
+            // Zaokrąglij do najbliższej wielokrotności 12
+            parsedValue = Math.round(parsedValue / 12) * 12;
+
             if (parsedValue < minValue) parsedValue = minValue;
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
