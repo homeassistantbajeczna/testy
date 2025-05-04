@@ -433,32 +433,38 @@ function initializeInputHandling() {
 
     // Jednostka Prowizji
     elements.jednostkaProwizji.addEventListener("change", () => {
-        syncProwizjaWithKwota();
+        syncProwizjaWithKwota(true); // Wymuś reset wartości przy zmianie jednostki
         updateProwizjaInfo();
     });
 
     // Funkcja do synchronizacji prowizji z kwotą
-    function syncProwizjaWithKwota() {
+    function syncProwizjaWithKwota(reset = false) {
         const jednostka = elements.jednostkaProwizji.value;
         const kwota = parseFloat(elements.kwota.value) || 0;
         let prowizjaValue = parseFloat(elements.prowizja.value) || 0;
         const minValue = parseFloat(elements.prowizja.min) || 0;
         const maxValue = parseFloat(elements.prowizja.max) || Infinity;
 
-        if (jednostka === "zl" && !elements.prowizja.dataset.manual) {
-            // Ustaw prowizję na 2% kwoty tylko jeśli wartość nie została wprowadzona ręcznie
+        if (reset) {
+            delete elements.prowizja.dataset.manual; // Wymuś reset flagi przy zmianie jednostki
+        }
+
+        if ((jednostka === "zl" && !elements.prowizja.dataset.manual) || reset) {
+            // Ustaw prowizję na 2% kwoty przy zmianie jednostki lub jeśli wartość jest domyślna
             const defaultProwizja = (kwota * 0.02).toFixed(2);
             prowizjaValue = Math.max(parseFloat(defaultProwizja), minValue);
             if (prowizjaValue > maxValue) prowizjaValue = maxValue;
             elements.prowizja.value = prowizjaValue.toFixed(2);
             elements.prowizjaRange.value = prowizjaValue;
             delete elements.prowizja.dataset.manual; // Resetuj flagę po automatycznej zmianie
-        } else {
-            // Dla procentów zachowaj aktualną wartość lub ustaw domyślną (np. 2)
-            if (isNaN(prowizjaValue) || prowizjaValue < minValue) prowizjaValue = 2;
+        } else if ((jednostka === "procent" && !elements.prowizja.dataset.manual) || reset) {
+            // Ustaw domyślną wartość 2% dla procentów przy zmianie jednostki
+            prowizjaValue = 2;
+            if (prowizjaValue < minValue) prowizjaValue = minValue;
             if (prowizjaValue > maxValue) prowizjaValue = maxValue;
             elements.prowizja.value = prowizjaValue.toFixed(2);
             elements.prowizjaRange.value = prowizjaValue;
+            delete elements.prowizja.dataset.manual; // Resetuj flagę po automatycznej zmianie
         }
     }
 }
