@@ -12,7 +12,6 @@ const elements = {
     oprocentowanie: document.getElementById("oprocentowanie"),
     oprocentowanieRange: document.getElementById("oprocentowanieRange"),
     rodzajRat: document.getElementById("rodzajRat"),
-    rodzajRatInfo: document.getElementById("rodzajRatInfo"),
     prowizja: document.getElementById("prowizja"),
     prowizjaRange: document.getElementById("prowizjaRange"),
     prowizjaInfo: document.getElementById("prowizjaInfo"),
@@ -20,11 +19,9 @@ const elements = {
     nadplataKredytuBtn: document.getElementById("nadplataKredytuBtn"),
     nadplataKredytuInputs: document.getElementById("nadplataKredytuInputs"),
     nadplataKredytuWrapper: document.getElementById("nadplataKredytuWrapper"),
-    addNadplataKredytuBtn: document.getElementById("addNadplataKredytuBtn"),
     zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
     variableOprocentowanieInputs: document.getElementById("variableOprocentowanieInputs"),
     variableOprocentowanieWrapper: document.getElementById("variableOprocentowanieWrapper"),
-    addVariableOprocentowanieBtn: document.getElementById("addVariableOprocentowanieBtn"),
     obliczBtn: document.getElementById("obliczBtn"),
     generatePdfBtn: document.getElementById("generatePdfBtn"),
     harmonogramTabela: document.getElementById("harmonogramTabela"),
@@ -71,62 +68,38 @@ let creditChart = null;
 
 // F U N K C J E    O G Ó L N E
 
-function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
-    try {
-        let value;
-        if (input.id === "iloscRat" || input.classList.contains("variable-cykl") || parseFloat(input.step) === 12) {
-            value = parseInt(input.value) || parseInt(range.value);
-            value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
-            input.value = value;
-        } else {
-            value = parseFloat(input.value) || parseFloat(range.value);
-            value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
-            input.value = value.toFixed(2);
-        }
-        range.value = value;
-        if (!skipOnChange && onChange) {
-            onChange(value);
-        }
-    } catch (error) {
-        console.error("Błąd podczas synchronizacji wejścia z suwakiem:", error);
+function syncInputWithRange(input, range, onChange = null) {
+    let value;
+    if (input.id === "iloscRat" || input.classList.contains("variable-cykl")) {
+        value = parseInt(input.value) || parseInt(range.value);
+        value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
+        input.value = value;
+    } else {
+        value = parseFloat(input.value) || parseFloat(range.value);
+        value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
+        input.value = value.toFixed(2);
     }
+    range.value = value;
+    if (onChange) onChange(value);
 }
 
 function updateKwotaInfo() {
-    try {
-        const kwota = parseFloat(elements.kwota?.value) || 0;
-        if (elements.kwotaInfo) {
-            elements.kwotaInfo.textContent = `Kwota kredytu: ${kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-        }
-        updateProwizjaInfo();
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji informacji o kwocie:", error);
-    }
+    const kwota = parseFloat(elements.kwota.value) || 0;
+    elements.kwotaInfo.textContent = `Kwota kredytu: ${kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+    updateProwizjaInfo();
 }
 
 function updateLata() {
-    try {
-        const iloscRat = parseInt(elements.iloscRat?.value) || 0;
-        if (elements.lata) {
-            elements.lata.textContent = `Okres spłaty: ${iloscRat / 12} lat (${iloscRat} miesięcy)`;
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji informacji o latach:", error);
-    }
+    const iloscRat = parseInt(elements.iloscRat.value) || 0;
+    elements.lata.textContent = `Okres spłaty: ${iloscRat / 12} lat (${iloscRat} miesięcy)`;
 }
 
 function updateProwizjaInfo() {
-    try {
-        const prowizja = parseFloat(elements.prowizja?.value) || 0;
-        const jednostka = elements.jednostkaProwizji?.value || "procent";
-        const kwota = parseFloat(elements.kwota?.value) || 0;
-        const prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
-        if (elements.prowizjaInfo) {
-            elements.prowizjaInfo.textContent = `Prowizja: ${prowizjaKwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji informacji o prowizji:", error);
-    }
+    const prowizja = parseFloat(elements.prowizja.value) || 0;
+    const jednostka = elements.jednostkaProwizji.value;
+    const kwota = parseFloat(elements.kwota.value) || 0;
+    const prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
+    elements.prowizjaInfo.textContent = `Prowizja: ${prowizjaKwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
 }
 
 
@@ -214,115 +187,6 @@ function calculateRemainingCapital(kwota, oprocentowanie, iloscRat, rodzajRat, v
     return parseFloat(remainingCapital.toFixed(2));
 }
 
-function calculateMaxOverpayment(kwota, oprocentowanie, iloscRat, rodzajRat, variableRates, overpaymentRates, currentGroup) {
-    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-    const currentIndex = Array.from(groups).indexOf(currentGroup);
-    const periodStart = parseInt(currentGroup.querySelector(".variable-cykl-start")?.value) || 1;
-
-    let remainingCapital = calculateRemainingCapital(
-        kwota,
-        oprocentowanie,
-        iloscRat,
-        rodzajRat,
-        variableRates,
-        overpaymentRates.filter((_, idx) => idx < currentIndex),
-        periodStart - 1
-    );
-
-    return Math.max(100, remainingCapital);
-}
-
-function calculateMaxEndPeriod(kwota, oprocentowanie, iloscRat, rodzajRat, variableRates, overpaymentRates, currentGroup) {
-    let remainingCapital = kwota;
-    const monthlyInterestRate = oprocentowanie / 100 / 12;
-    let activeVariableRates = [...variableRates].sort((a, b) => a.period - b.period);
-    let activeOverpaymentRates = [...overpaymentRates].sort((a, b) => a.start - b.start);
-    let maxEndPeriod = iloscRat - 1;
-
-    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-    const currentIndex = Array.from(groups).indexOf(currentGroup);
-    const type = currentGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-    const value = parseFloat(currentGroup.querySelector(".variable-rate")?.value) || 0;
-
-    for (let i = 1; i <= iloscRat; i++) {
-        let currentInterestRate = monthlyInterestRate;
-        let activeRate = activeVariableRates.find(rate => rate.period === i);
-        if (activeRate) {
-            currentInterestRate = activeRate.value / 100 / 12;
-        }
-
-        let nadplata = 0;
-        let activeOverpayment = activeOverpaymentRates.find(over => i >= over.start && (over.type === "Jednorazowa" ? i === over.start : i <= over.end));
-        if (activeOverpayment) {
-            if (activeOverpayment.type === "Jednorazowa" && i === activeOverpayment.start) {
-                nadplata = activeOverpayment.amount;
-            } else if (activeOverpayment.type === "Miesięczna") {
-                nadplata = activeOverpayment.amount;
-            }
-
-            if (activeOverpayment.effect === "Skróć okres" && nadplata > 0) {
-                remainingCapital -= nadplata;
-                if (remainingCapital <= 0) {
-                    maxEndPeriod = i;
-                    break;
-                }
-            }
-        }
-
-        if (currentIndex === Array.from(groups).indexOf(currentGroup) && i >= parseInt(currentGroup.querySelector(".variable-cykl-start")?.value)) {
-            if (type === "Jednorazowa" && i === parseInt(currentGroup.querySelector(".variable-cykl-start")?.value)) {
-                nadplata = value;
-            } else if (type === "Miesięczna") {
-                nadplata = value;
-            }
-
-            if (nadplata > 0) {
-                remainingCapital -= nadplata;
-                if (remainingCapital <= 0) {
-                    maxEndPeriod = i;
-                    break;
-                }
-            }
-        }
-
-        let odsetki = remainingCapital * currentInterestRate;
-        let rataKapitalowa = 0;
-
-        if (rodzajRat === "rowne") {
-            let q = 1 + currentInterestRate;
-            let rataCalkowita = kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1);
-            rataKapitalowa = rataCalkowita - odsetki;
-
-            if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę") {
-                rataKapitalowa += nadplata;
-            }
-
-            if (rataKapitalowa > remainingCapital) {
-                rataKapitalowa = remainingCapital;
-            }
-        } else {
-            rataKapitalowa = kwota / iloscRat;
-
-            if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę") {
-                rataKapitalowa += nadplata;
-            }
-
-            if (rataKapitalowa > remainingCapital) {
-                rataKapitalowa = remainingCapital;
-            }
-        }
-
-        remainingCapital -= rataKapitalowa;
-
-        if (remainingCapital <= 0) {
-            maxEndPeriod = i;
-            break;
-        }
-    }
-
-    return maxEndPeriod;
-}
-
 function updateRatesArray(type) {
     if (type === "nadplata") {
         state.overpaymentRates = [];
@@ -335,11 +199,11 @@ function updateRatesArray(type) {
             const periodEndInput = group.querySelector(".variable-cykl-end");
 
             const overpayment = {
-                type: typeSelect?.value || "Jednorazowa",
-                effect: effectSelect?.value || "Skróć okres",
-                amount: parseFloat(rateInput?.value) || 0,
-                start: parseInt(periodStartInput?.value) || 2,
-                end: periodEndInput ? parseInt(periodEndInput?.value) || 2 : null
+                type: typeSelect.value,
+                effect: effectSelect.value,
+                amount: parseFloat(rateInput.value) || 0,
+                start: parseInt(periodStartInput.value) || 2,
+                end: periodEndInput ? parseInt(periodEndInput.value) || 2 : null
             };
             state.overpaymentRates.push(overpayment);
         });
@@ -351,8 +215,8 @@ function updateRatesArray(type) {
             const rateInput = group.querySelector(".variable-rate");
 
             const variableRate = {
-                period: parseInt(periodInput?.value) || 2,
-                value: parseFloat(rateInput?.value) || 0
+                period: parseInt(periodInput.value) || 2,
+                value: parseFloat(rateInput.value) || 0
             };
             state.variableRates.push(variableRate);
         });
@@ -1188,7 +1052,7 @@ function createVariableOprocentowanieGroup() {
     group.innerHTML = `
         <div class="fields-wrapper">
             <div class="form-group box-period">
-                <label class="form-label">Od</label>
+                <label>Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="2" max="420" step="1" value="2">
                     <span class="input-group-text unit-miesiaca">miesiąca</span>
@@ -1196,7 +1060,7 @@ function createVariableOprocentowanieGroup() {
                 <input type="range" class="form-range range-slider variable-cykl-range" min="2" max="420" step="1" value="2">
             </div>
             <div class="form-group box-rate">
-                <label class="form-label">Oprocentowanie</label>
+                <label>Oprocentowanie</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
                     <span class="input-group-text">%</span>
@@ -1209,7 +1073,7 @@ function createVariableOprocentowanieGroup() {
 }
 
 function initializeVariableOprocentowanieGroup(group) {
-    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
+    const iloscRat = parseInt(elements.iloscRat.value) || 360;
 
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
@@ -1230,7 +1094,7 @@ function initializeVariableOprocentowanieGroup(group) {
             }, 300);
 
             input.addEventListener("blur", () => {
-                let value = parseInt(input.value.replace(/[^0-9]/g, "")) || 2;
+                let value = parseInt(input.value) || 2;
                 if (value < 2) value = 2;
                 if (value > iloscRat) value = iloscRat;
                 input.value = value;
@@ -1248,18 +1112,17 @@ function initializeVariableOprocentowanieGroup(group) {
             }, 300);
 
             input.addEventListener("blur", () => {
-                let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
-                let parsedValue = parseFloat(value);
+                let value = parseFloat(input.value);
                 let maxAllowed = parseFloat(input.max) || 25;
                 let minAllowed = parseFloat(input.min) || 0.1;
 
-                if (isNaN(parsedValue) || parsedValue < minAllowed) {
-                    parsedValue = minAllowed;
-                } else if (parsedValue > maxAllowed) {
-                    parsedValue = maxAllowed;
+                if (isNaN(value) || value < minAllowed) {
+                    value = minAllowed;
+                } else if (value > maxAllowed) {
+                    value = maxAllowed;
                 }
-                input.value = parsedValue.toFixed(2);
-                range.value = parsedValue;
+                input.value = value.toFixed(2);
+                range.value = value;
                 debouncedUpdate();
             });
 
@@ -1292,7 +1155,7 @@ function updateVariableOprocentowanieRemoveButtons() {
         removeBtnWrapper.classList.add("remove-btn-wrapper");
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
-        removeBtn.classList.add("btn-reset");
+        removeBtn.classList.add("btn", "btn-danger");
         removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
         removeBtn.textContent = "Usuń";
         removeBtnWrapper.appendChild(removeBtn);
@@ -1311,6 +1174,20 @@ function updateVariableOprocentowanieRemoveButtons() {
     }
 }
 
+elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+    const isChecked = elements.zmienneOprocentowanieBtn.checked;
+    elements.variableOprocentowanieInputs.classList.toggle("active", isChecked);
+
+    if (isChecked) {
+        elements.variableOprocentowanieWrapper.innerHTML = "";
+        const newGroup = createVariableOprocentowanieGroup();
+        elements.variableOprocentowanieWrapper.appendChild(newGroup);
+        initializeVariableOprocentowanieGroup(newGroup);
+        updateVariableOprocentowanieRemoveButtons();
+    } else {
+        resetVariableOprocentowanieSection();
+    }
+});
 
 
 
@@ -1357,102 +1234,96 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
 }
 
 function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, variableRates = [], overpaymentRates = []) {
-    try {
-        let pozostalyKapital = kwota;
-        let harmonogram = [];
-        let calkowiteOdsetki = 0;
-        let calkowiteNadplaty = 0;
-        let prowizjaKwota = prowizjaJednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
-        let pozostaleRaty = iloscRat;
-        let oprocentowanieMiesieczne = oprocentowanie / 100 / 12;
-        let activeVariableRates = [...variableRates].sort((a, b) => a.period - b.period);
-        let activeOverpaymentRates = [...overpaymentRates].sort((a, b) => a.start - b.start);
+    let pozostalyKapital = kwota;
+    let harmonogram = [];
+    let calkowiteOdsetki = 0;
+    let calkowiteNadplaty = 0;
+    let prowizjaKwota = prowizjaJednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
+    let pozostaleRaty = iloscRat;
+    let oprocentowanieMiesieczne = oprocentowanie / 100 / 12;
+    let activeVariableRates = [...variableRates].sort((a, b) => a.period - b.period);
+    let activeOverpaymentRates = [...overpaymentRates].sort((a, b) => a.start - b.start);
 
-        for (let i = 1; i <= iloscRat; i++) {
-            let currentOprocentowanie = oprocentowanieMiesieczne;
-            let activeRate = activeVariableRates.find(rate => rate.period === i);
-            if (activeRate) {
-                currentOprocentowanie = activeRate.value / 100 / 12;
+    for (let i = 1; i <= iloscRat; i++) {
+        let currentOprocentowanie = oprocentowanieMiesieczne;
+        let activeRate = activeVariableRates.find(rate => rate.period === i);
+        if (activeRate) {
+            currentOprocentowanie = activeRate.value / 100 / 12;
+        }
+
+        let nadplata = 0;
+        let activeOverpayment = activeOverpaymentRates.find(over => i >= over.start && (over.type === "Jednorazowa" ? i === over.start : i <= over.end));
+        if (activeOverpayment) {
+            if (activeOverpayment.type === "Jednorazowa" && i === activeOverpayment.start) {
+                nadplata = activeOverpayment.amount;
+            } else if (activeOverpayment.type === "Miesięczna") {
+                nadplata = activeOverpayment.amount;
             }
 
-            let nadplata = 0;
-            let activeOverpayment = activeOverpaymentRates.find(over => i >= over.start && (over.type === "Jednorazowa" ? i === over.start : i <= over.end));
-            if (activeOverpayment) {
-                if (activeOverpayment.type === "Jednorazowa" && i === activeOverpayment.start) {
-                    nadplata = activeOverpayment.amount;
-                } else if (activeOverpayment.type === "Miesięczna") {
-                    nadplata = activeOverpayment.amount;
-                }
-
-                if (nadplata > 0 && activeOverpayment.effect === "Skróć okres") {
-                    calkowiteNadplaty += nadplata;
-                    pozostalyKapital -= nadplata;
-                    if (pozostalyKapital <= 0) {
-                        pozostalyKapital = 0;
-                        pozostaleRaty = i;
-                        harmonogram.push({
-                            miesiac: i,
-                            rata: parseFloat((0).toFixed(2)),
-                            oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
-                            nadplata: parseFloat(nadplata.toFixed(2)),
-                            kapital: parseFloat((0).toFixed(2)),
-                            odsetki: parseFloat((0).toFixed(2)),
-                            kapitalDoSplaty: parseFloat((0).toFixed(2)),
-                        });
-                        break;
-                    }
-                }
-            }
-
-            const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
-                kwota,
-                iloscRat,
-                pozostalyKapital,
-                currentOprocentowanie,
-                nadplata,
-                activeOverpayment,
-                rodzajRat
-            );
-
-            if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę" && nadplata > 0) {
+            if (nadplata > 0 && activeOverpayment.effect === "Skróć okres") {
                 calkowiteNadplaty += nadplata;
-            }
-
-            pozostalyKapital -= rataKapitalowa;
-            calkowiteOdsetki += odsetki;
-
-            harmonogram.push({
-                miesiac: i,
-                rata: parseFloat(rataCalkowita.toFixed(2)),
-                oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
-                nadplata: parseFloat(nadplata.toFixed(2)),
-                kapital: parseFloat(rataKapitalowa.toFixed(2)),
-                odsetki: parseFloat(odsetki.toFixed(2)),
-                kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
-            });
-
-            if (pozostalyKapital <= 0) {
-                pozostaleRaty = i;
-                break;
+                pozostalyKapital -= nadplata;
+                if (pozostalyKapital <= 0) {
+                    pozostalyKapital = 0;
+                    pozostaleRaty = i;
+                    harmonogram.push({
+                        miesiac: i,
+                        rata: parseFloat((0).toFixed(2)),
+                        oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
+                        nadplata: parseFloat(nadplata.toFixed(2)),
+                        kapital: parseFloat((0).toFixed(2)),
+                        odsetki: parseFloat((0).toFixed(2)),
+                        kapitalDoSplaty: parseFloat((0).toFixed(2)),
+                    });
+                    break;
+                }
             }
         }
 
-        let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota;
+        const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
+            kwota,
+            iloscRat,
+            pozostalyKapital,
+            currentOprocentowanie,
+            nadplata,
+            activeOverpayment,
+            rodzajRat
+        );
 
-        return {
-            harmonogram,
-            calkowityKoszt: parseFloat(calkowityKoszt.toFixed(2)),
-            calkowiteOdsetki: parseFloat(calkowiteOdsetki.toFixed(2)),
-            calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2)),
-            prowizja: parseFloat(prowizjaKwota.toFixed(2)),
-            pozostaleRaty,
-        };
-    } catch (error) {
-        console.error("Błąd podczas obliczania kredytu:", error);
-        return null;
+        if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę" && nadplata > 0) {
+            calkowiteNadplaty += nadplata;
+        }
+
+        pozostalyKapital -= rataKapitalowa;
+        calkowiteOdsetki += odsetki;
+
+        harmonogram.push({
+            miesiac: i,
+            rata: parseFloat(rataCalkowita.toFixed(2)),
+            oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
+            nadplata: parseFloat(nadplata.toFixed(2)),
+            kapital: parseFloat(rataKapitalowa.toFixed(2)),
+            odsetki: parseFloat(odsetki.toFixed(2)),
+            kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
+        });
+
+        if (pozostalyKapital <= 0) {
+            pozostaleRaty = i;
+            break;
+        }
     }
-}
 
+    let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota;
+
+    return {
+        harmonogram,
+        calkowityKoszt: parseFloat(calkowityKoszt.toFixed(2)),
+        calkowiteOdsetki: parseFloat(calkowiteOdsetki.toFixed(2)),
+        calkowiteNadplaty: parseFloat(calkowiteNadplaty.toFixed(2)),
+        prowizja: parseFloat(prowizjaKwota.toFixed(2)),
+        pozostaleRaty,
+    };
+}
 
 
 
@@ -1466,167 +1337,135 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 // F U N K C J E    W Y N I K I    I    W Y K R E S Y
 
 function updateChart(data) {
-    try {
-        if (creditChart) {
-            creditChart.destroy();
-        }
-
-        const ctx = document.getElementById("creditChart")?.getContext("2d");
-        if (!ctx) return;
-
-        creditChart = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: ["Koszty kredytu"],
-                datasets: [
-                    {
-                        label: "Kapitał",
-                        data: [data.harmonogram.reduce((sum, row) => sum + row.kapital, 0)],
-                        backgroundColor: "#28a745",
-                        borderWidth: 0,
-                        barPercentage: 0.5,
-                    },
-                    {
-                        label: "Odsetki",
-                        data: [data.calkowiteOdsetki],
-                        backgroundColor: "#007bff",
-                        borderWidth: 0,
-                        barPercentage: 0.5,
-                    },
-                    {
-                        label: "Nadpłaty",
-                        data: [data.calkowiteNadplaty],
-                        backgroundColor: "#dc3545",
-                        borderWidth: 0,
-                        barPercentage: 0.5,
-                    },
-                    {
-                        label: "Prowizja",
-                        data: [data.prowizja],
-                        backgroundColor: "#6f42c1",
-                        borderWidth: 0,
-                        barPercentage: 0.5,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (context) => `${context.dataset.label}: ${context.raw.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-                        },
-                    },
-                },
-                scales: {
-                    x: { stacked: true, display: false },
-                    y: {
-                        stacked: true,
-                        beginAtZero: true,
-                        ticks: {
-                            callback: (value) => `${value.toLocaleString("pl-PL")} zł`,
-                            font: { size: 10 },
-                        },
-                    },
-                },
-            },
-        });
-
-        if (elements.valueKapital) {
-            elements.valueKapital.textContent = `${data.harmonogram.reduce((sum, row) => sum + row.kapital, 0).toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-        }
-        if (elements.valueOdsetki) {
-            elements.valueOdsetki.textContent = `${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-        }
-        if (elements.valueNadplata) {
-            elements.valueNadplata.textContent = `${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-        }
-        if (elements.valueProwizja) {
-            elements.valueProwizja.textContent = `${data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji wykresu:", error);
+    if (creditChart) {
+        creditChart.destroy();
     }
+
+    const ctx = document.getElementById("creditChart").getContext("2d");
+    creditChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Koszty kredytu"],
+            datasets: [
+                {
+                    label: "Kapitał",
+                    data: [data.harmonogram.reduce((sum, row) => sum + row.kapital, 0)],
+                    backgroundColor: "#28a745",
+                    borderWidth: 0,
+                    barPercentage: 0.5,
+                },
+                {
+                    label: "Odsetki",
+                    data: [data.calkowiteOdsetki],
+                    backgroundColor: "#007bff",
+                    borderWidth: 0,
+                    barPercentage: 0.5,
+                },
+                {
+                    label: "Nadpłaty",
+                    data: [data.calkowiteNadplaty],
+                    backgroundColor: "#dc3545",
+                    borderWidth: 0,
+                    barPercentage: 0.5,
+                },
+                {
+                    label: "Prowizja",
+                    data: [data.prowizja],
+                    backgroundColor: "#6f42c1",
+                    borderWidth: 0,
+                    barPercentage: 0.5,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `${context.dataset.label}: ${context.raw.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+                    },
+                },
+            },
+            scales: {
+                x: { stacked: true, display: false },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => `${value.toLocaleString("pl-PL")} zł`,
+                        font: { size: 10 },
+                    },
+                },
+            },
+        },
+    });
+
+    elements.valueKapital.textContent = `${data.harmonogram.reduce((sum, row) => sum + row.kapital, 0).toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+    elements.valueOdsetki.textContent = `${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+    elements.valueNadplata.textContent = `${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+    elements.valueProwizja.textContent = `${data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
 }
 
 function updateHarmonogram(data) {
-    try {
-        if (elements.harmonogramTabela) {
-            elements.harmonogramTabela.innerHTML = "";
-            data.harmonogram.forEach(row => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${row.miesiac}</td>
-                    <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %</td>
-                    <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                `;
-                elements.harmonogramTabela.appendChild(tr);
-            });
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji harmonogramu:", error);
-    }
+    elements.harmonogramTabela.innerHTML = "";
+    data.harmonogram.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${row.miesiac}</td>
+            <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %</td>
+            <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+        `;
+        elements.harmonogramTabela.appendChild(tr);
+    });
 }
 
 function updateSummary(data) {
-    try {
-        if (elements.okresPoNadplacie) {
-            elements.okresPoNadplacie.textContent = data.pozostaleRaty;
-        }
-        if (elements.koszt) {
-            elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 });
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji podsumowania:", error);
-    }
+    elements.okresPoNadplacie.textContent = data.pozostaleRaty;
+    elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 });
 }
 
 function generatePDF(data) {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFont("helvetica");
-        doc.setFontSize(12);
-        doc.text(APP_TITLE, 10, 10);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFont("helvetica");
+    doc.setFontSize(12);
+    doc.text(APP_TITLE, 10, 10);
 
-        doc.setFontSize(10);
-        doc.text(`Kwota kredytu: ${state.lastFormData.kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 20);
-        doc.text(`Ilość rat: ${state.lastFormData.iloscRat}`, 10, 30);
-        doc.text(`Oprocentowanie: ${state.lastFormData.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`, 10, 40);
-        doc.text(`Rodzaj rat: ${state.lastFormData.rodzajRat === "rowne" ? "Równe" : "Malejące"}`, 10, 50);
-        doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} ${state.lastFormData.jednostkaProwizji === "procent" ? "%" : "zł"}`, 10, 60);
-        doc.text(`Całkowity koszt: ${data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 70);
-        doc.text(`Całkowite odsetki: ${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 80);
-        doc.text(`Całkowite nadpłaty: ${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 90);
+    doc.setFontSize(10);
+    doc.text(`Kwota kredytu: ${state.lastFormData.kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 20);
+    doc.text(`Ilość rat: ${state.lastFormData.iloscRat}`, 10, 30);
+    doc.text(`Oprocentowanie: ${state.lastFormData.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`, 10, 40);
+    doc.text(`Rodzaj rat: ${state.lastFormData.rodzajRat === "rowne" ? "Równe" : "Malejące"}`, 10, 50);
+    doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} ${state.lastFormData.jednostkaProwizji === "procent" ? "%" : "zł"}`, 10, 60);
+    doc.text(`Całkowity koszt: ${data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 70);
+    doc.text(`Całkowite odsetki: ${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 80);
+    doc.text(`Całkowite nadpłaty: ${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 90);
 
-        const tableData = data.harmonogram.map(row => [
-            row.miesiac.toString(),
-            `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`,
-            `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-        ]);
+    const tableData = data.harmonogram.map(row => [
+        row.miesiac.toString(),
+        `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+        `${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`,
+        `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+        `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+        `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+        `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+    ]);
 
-        doc.autoTable({
-            head: [["Miesiąc", "Rata", "Oprocentowanie", "Nadpłata", "Kapitał", "Odsetki", "Kapitał do spłaty"]],
-            body: tableData,
-            startY: 100,
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [194, 178, 128] },
-        });
+    doc.autoTable({
+        head: [["Miesiąc", "Rata", "Oprocentowanie", "Nadpłata", "Kapitał", "Odsetki", "Kapitał do spłaty"]],
+        body: tableData,
+        startY: 100,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [194, 178, 128] },
+    });
 
-        doc.save("kalkulator_kredytu.pdf");
-    } catch (error) {
-        console.error("Błąd podczas generowania PDF:", error);
-    }
+    doc.save("kalkulator_kredytu.pdf");
 }
 
 
@@ -1644,61 +1483,133 @@ function generatePDF(data) {
 // F U N K C J E    I N T E R F E J S U
 
 function showResults() {
-    try {
-        if (elements.formSection) elements.formSection.style.display = "none";
-        if (elements.resultSection) elements.resultSection.style.display = "block";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error) {
-        console.error("Błąd podczas pokazywania wyników:", error);
-    }
+    elements.formSection.style.display = "none";
+    elements.resultSection.style.display = "block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function showForm() {
-    try {
-        if (elements.formSection) elements.formSection.style.display = "block";
-        if (elements.resultSection) elements.resultSection.style.display = "none";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error) {
-        console.error("Błąd podczas pokazywania formularza:", error);
-    }
+    elements.formSection.style.display = "block";
+    elements.resultSection.style.display = "none";
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function toggleHarmonogram(contentId) {
-    try {
-        const content = document.getElementById(contentId);
-        const header = content?.previousElementSibling?.querySelector(".btn-toggle");
-        if (content && header) {
-            const isHidden = content.style.display === "none";
-            content.style.display = isHidden ? "block" : "none";
-            header.textContent = `Harmonogram spłat ${isHidden ? "▼" : "▲"}`;
-        }
-    } catch (error) {
-        console.error("Błąd podczas przełączania harmonogramu:", error);
-    }
+    const content = document.getElementById(contentId);
+    const header = content.previousElementSibling.querySelector(".btn-toggle");
+    const isHidden = content.style.display === "none" || content.style.display === "";
+    content.style.display = isHidden ? "block" : "none";
+    header.textContent = `Harmonogram spłat ${isHidden ? "▼" : "▲"}`;
 }
 
 function updateZoom() {
-    try {
-        document.body.style.zoom = state.zoomLevel;
-        if (elements.zoomInBtn) {
-            elements.zoomInBtn.disabled = state.zoomLevel >= 2;
-        }
-        if (elements.zoomOutBtn) {
-            elements.zoomOutBtn.disabled = state.zoomLevel <= 0.5;
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji zoomu:", error);
-    }
+    document.body.style.zoom = state.zoomLevel;
+    elements.zoomInBtn.disabled = state.zoomLevel >= 2;
+    elements.zoomOutBtn.disabled = state.zoomLevel <= 0.5;
 }
 
 function toggleDarkMode() {
-    try {
-        state.isDarkMode = !state.isDarkMode;
-        document.body.classList.toggle("dark-mode", state.isDarkMode);
-        if (elements.toggleDarkModeBtn) {
-            elements.toggleDarkModeBtn.textContent = state.isDarkMode ? "☀️" : "🌙";
-        }
-    } catch (error) {
-        console.error("Błąd podczas przełączania trybu ciemnego:", error);
-    }
+    state.isDarkMode = !state.isDarkMode;
+    document.body.classList.toggle("dark-mode", state.isDarkMode);
+    elements.toggleDarkModeBtn.textContent = state.isDarkMode ? "☀️" : "🌙";
 }
+
+
+
+
+
+
+
+
+// I N I C J A L I Z A C J A       A P L I K A C J I
+function initialize() {
+    updateKwotaInfo();
+    updateLata();
+    updateProwizjaInfo();
+
+    elements.kwota.addEventListener("input", () => {
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+    });
+    elements.kwotaRange.addEventListener("input", () => {
+        syncInputWithRange(elements.kwotaRange, elements.kwota, updateKwotaInfo);
+    });
+
+    elements.iloscRat.addEventListener("input", () => {
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+    });
+    elements.iloscRatRange.addEventListener("input", () => {
+        syncInputWithRange(elements.iloscRatRange, elements.iloscRat, updateLata);
+    });
+
+    elements.oprocentowanie.addEventListener("input", () => {
+        syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange);
+    });
+    elements.oprocentowanieRange.addEventListener("input", () => {
+        syncInputWithRange(elements.oprocentowanieRange, elements.oprocentowanie);
+    });
+
+    elements.prowizja.addEventListener("input", () => {
+        syncInputWithRange(elements.prowizja, elements.prowizjaRange, updateProwizjaInfo);
+    });
+    elements.prowizjaRange.addEventListener("input", () => {
+        syncInputWithRange(elements.prowizjaRange, elements.prowizja, updateProwizjaInfo);
+    });
+    elements.jednostkaProwizji.addEventListener("change", updateProwizjaInfo);
+
+    elements.obliczBtn.addEventListener("click", () => {
+        state.lastFormData.kwota = parseFloat(elements.kwota.value) || 500000;
+        state.lastFormData.iloscRat = parseInt(elements.iloscRat.value) || 360;
+        state.lastFormData.oprocentowanie = parseFloat(elements.oprocentowanie.value) || 7;
+        state.lastFormData.rodzajRat = elements.rodzajRat.value;
+        state.lastFormData.prowizja = parseFloat(elements.prowizja.value) || 2;
+        state.lastFormData.jednostkaProwizji = elements.jednostkaProwizji.value;
+
+        const result = calculateLoan(
+            state.lastFormData.kwota,
+            state.lastFormData.oprocentowanie,
+            state.lastFormData.iloscRat,
+            state.lastFormData.rodzajRat,
+            state.lastFormData.prowizja,
+            state.lastFormData.jednostkaProwizji,
+            state.variableRates,
+            state.overpaymentRates
+        );
+
+        if (result) {
+            updateChart(result);
+            updateHarmonogram(result);
+            updateSummary(result);
+            showResults();
+        }
+    });
+
+    elements.generatePdfBtn.addEventListener("click", () => {
+        const result = calculateLoan(
+            state.lastFormData.kwota,
+            state.lastFormData.oprocentowanie,
+            state.lastFormData.iloscRat,
+            state.lastFormData.rodzajRat,
+            state.lastFormData.prowizja,
+            state.lastFormData.jednostkaProwizji,
+            state.variableRates,
+            state.overpaymentRates
+        );
+        if (result) {
+            generatePDF(result);
+        }
+    });
+
+    elements.zoomInBtn.addEventListener("click", () => {
+        state.zoomLevel += 0.1;
+        updateZoom();
+    });
+
+    elements.zoomOutBtn.addEventListener("click", () => {
+        state.zoomLevel -= 0.1;
+        updateZoom();
+    });
+
+    elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
+}
+
+initialize();
