@@ -365,15 +365,56 @@ function initializeInputHandling() {
     elements.oprocentowanieRange.addEventListener("input", () => {
         let value = parseFloat(elements.oprocentowanieRange.value);
         elements.oprocentowanie.value = value.toFixed(2);
-        updateKwotaInfo(); // Zakładam, że nie ma dedykowanej funkcji dla oprocentowania, więc używam updateKwotaInfo
+        updateKwotaInfo();
     });
 
     // Prowizja
-    elements.prowizja.addEventListener("input", () => {
-        syncInputWithRange(elements.prowizja, elements.prowizjaRange, updateProwizjaInfo);
+    elements.prowizja.addEventListener("input", (e) => {
+        let value = e.target.value;
+
+        // Zamień przecinek na kropkę
+        if (value.includes(",")) {
+            value = value.replace(",", ".");
+            e.target.value = value;
+        }
+
+        // Zapobiegnij wpisywaniu więcej niż jednej kropki
+        const dotCount = value.split(".").length - 1;
+        if (dotCount > 1) {
+            e.target.value = value.substring(0, value.lastIndexOf("."));
+            return;
+        }
+
+        // Ogranicz do dwóch miejsc po przecinku
+        const parts = value.split(".");
+        if (parts.length > 1 && parts[1].length > 2) {
+            parts[1] = parts[1].substring(0, 2);
+            e.target.value = parts.join(".");
+        }
     });
+
+    elements.prowizja.addEventListener("blur", () => {
+        let value = elements.prowizja.value;
+        let parsedValue = parseFloat(value) || 0;
+        let minValue = parseFloat(elements.prowizja.min) || 0;
+        let maxValue = parseFloat(elements.prowizja.max) || Infinity;
+
+        if (isNaN(parsedValue) || value === "") {
+            parsedValue = minValue;
+        } else {
+            if (parsedValue < minValue) parsedValue = minValue;
+            if (parsedValue > maxValue) parsedValue = maxValue;
+        }
+
+        elements.prowizja.value = parsedValue.toFixed(2);
+        elements.prowizjaRange.value = parsedValue;
+        updateProwizjaInfo();
+    });
+
     elements.prowizjaRange.addEventListener("input", () => {
-        syncInputWithRange(elements.prowizjaRange, elements.prowizja, updateProwizjaInfo);
+        let value = parseFloat(elements.prowizjaRange.value);
+        elements.prowizja.value = value.toFixed(2);
+        updateProwizjaInfo();
     });
 
     // Jednostka Prowizji
