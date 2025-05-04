@@ -64,11 +64,6 @@ let creditChart = null;
 
 
 
-
-
-
-
-
 // F U N K C J E    O G Ó L N E
 
 function syncInputWithRange(input, range, onChange = null, skipOnChange = false) {
@@ -135,7 +130,7 @@ function updateProwizjaInfo() {
                 elements.prowizja.max = 25;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 0.01;
-                elements.prowizja.value = prowizja.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny
+                elements.prowizja.value = prowizja.toFixed(2).replace(".", ".");
             }
         } else {
             if (elements.prowizjaRange) {
@@ -146,7 +141,7 @@ function updateProwizjaInfo() {
                 elements.prowizja.max = 1250000;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 1;
-                elements.prowizja.value = prowizja.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny
+                elements.prowizja.value = prowizja.toFixed(2).replace(".", ".");
             }
         }
     } catch (error) {
@@ -155,7 +150,7 @@ function updateProwizjaInfo() {
 }
 
 elements.prowizja?.addEventListener("input", (e) => {
-    let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, ""); // Akceptujemy kropkę i cyfry
+    let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
     const parts = value.split(".");
     if (parts.length > 2) {
         value = parts[0] + "." + parts.slice(1).join("");
@@ -173,14 +168,14 @@ elements.prowizja?.addEventListener("blur", () => {
     let minAllowed = 0;
     if (value < minAllowed) value = minAllowed;
     if (value > maxAllowed) value = maxAllowed;
-    elements.prowizja.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny
+    elements.prowizja.value = value.toFixed(2).replace(".", ".");
     elements.prowizjaRange.value = value;
     updateProwizjaInfo();
 });
 
 elements.prowizjaRange?.addEventListener("input", () => {
     let value = parseFloat(elements.prowizjaRange.value);
-    elements.prowizja.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny
+    elements.prowizja.value = value.toFixed(2).replace(".", ".");
     updateProwizjaInfo();
 });
 
@@ -204,7 +199,7 @@ elements.jednostkaProwizji?.addEventListener("change", () => {
     }
     if (value < 0) value = 0;
     if (value > elements.prowizja.max) value = elements.prowizja.max;
-    elements.prowizja.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny
+    elements.prowizja.value = value.toFixed(2).replace(".", ".");
     elements.prowizjaRange.value = value;
     updateProwizjaInfo();
 });
@@ -251,10 +246,7 @@ function updateKwotaInfo() {
 
 
 
-
-
-
-
+        
 
 
 
@@ -473,10 +465,8 @@ function updateRatesArray(type) {
 
 
 
-
-
-
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -553,24 +543,6 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
-}
-
-function syncInputWithRange(input, range) {
-    if (!input || !range) return;
-
-    let value = input.classList.contains("variable-cykl")
-        ? parseInt(input.value) || parseInt(range.value)
-        : parseFloat(input.value) || parseFloat(range.value);
-
-    const min = parseFloat(range.min);
-    const max = parseFloat(range.max);
-
-    if (isNaN(value)) value = min;
-    if (value < min) value = min;
-    if (value > max) value = max;
-
-    input.value = input.classList.contains("variable-cykl") ? value : value.toFixed(2);
-    range.value = value;
 }
 
 function updateOverpaymentLimit(input, range, group) {
@@ -676,7 +648,7 @@ function updateOverpaymentLimit(input, range, group) {
 
     let value = parseFloat(input.value) || 0;
     if (value > maxAllowed) {
-        input.value = maxAllowed.toFixed(2);
+        input.value = maxAllowed.toFixed(2).replace(".", ".");
         range.value = maxAllowed;
     }
 
@@ -1069,14 +1041,14 @@ function initializeNadplataKredytuGroup(group) {
                 } else if (parsedValue > maxAllowed) {
                     parsedValue = maxAllowed;
                 }
-                input.value = parsedValue.toFixed(2);
+                input.value = parsedValue.toFixed(2).replace(".", ".");
                 range.value = parsedValue;
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value);
-                input.value = value.toFixed(2);
+                input.value = value.toFixed(2).replace(".", ".");
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-cykl-end")) {
@@ -1091,7 +1063,7 @@ function initializeNadplataKredytuGroup(group) {
                     const rateInput = group.querySelector(".variable-rate");
                     const rateRange = group.querySelector(".variable-rate-range");
                     if (rateInput && rateRange) {
-                        updateOverpaymentLimit(rateInput, rateRange, group);
+                        updateOverpaymentLimit(rateInput, range, group);
                         updateRatesArray("nadplata");
                     }
                 }, 300);
@@ -1278,12 +1250,6 @@ elements.addNadplataKredytuBtn?.addEventListener("click", () => {
 
 
 
-
-
-
-
-
-
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
 function createVariableOprocentowanieGroup() {
@@ -1363,14 +1329,14 @@ function initializeVariableOprocentowanieGroup(group) {
                 } else if (parsedValue > maxAllowed) {
                     parsedValue = maxAllowed;
                 }
-                input.value = parsedValue.toFixed(2);
+                input.value = parsedValue.toFixed(2).replace(".", ".");
                 range.value = parsedValue;
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value);
-                input.value = value.toFixed(2);
+                input.value = value.toFixed(2).replace(".", ".");
                 debouncedUpdate();
             });
         }
@@ -1415,6 +1381,7 @@ function updateVariableOprocentowanieRemoveButtons() {
         });
     }
 }
+
 
 
 
@@ -1561,162 +1528,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
     }
 }
 
-// Aktualizacja limitów przy zmianie kwoty kredytu
-document.addEventListener("DOMContentLoaded", () => {
-    // Inicjalizacja boxa KWOTA KREDYTU
-    if (elements.kwota) {
-        elements.kwota.min = 50000;
-        elements.kwota.max = 5000000;
-        elements.kwota.step = 0.01;
-        elements.kwota.value = "500000.00"; // Wartość początkowa z kropką
-        if (elements.kwota.type === "number") {
-            elements.kwota.type = "text"; // Zmiana typu na text dla lepszej kontroli
-        }
-    }
-    if (elements.kwotaRange) {
-        elements.kwotaRange.min = 50000;
-        elements.kwotaRange.max = 5000000;
-        elements.kwotaRange.step = 0.01;
-        elements.kwotaRange.value = 500000;
-    }
-
-    elements.kwota?.addEventListener("input", (e) => {
-        let value = e.target.value;
-        const cursorPos = e.target.selectionStart;
-        value = value.replace(/[^0-9.,]/g, "").replace(/,/, ".").replace(/\.+/g, ".");
-        const parts = value.split(".");
-        if (parts.length > 2) {
-            value = parts[0] + "." + parts.slice(1).join("");
-        } else if (parts.length === 2 && parts[1].length > 2) {
-            value = parts[0] + "." + parts[1].substring(0, 2);
-        }
-        e.target.value = value;
-        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
-    });
-
-    elements.kwota?.addEventListener("blur", () => {
-        let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
-        let parsedValue = parseFloat(value) || 50000;
-        parsedValue = Math.max(50000, Math.min(5000000, parsedValue));
-        elements.kwota.value = parsedValue.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
-            });
-        }
-    });
-
-    elements.kwotaRange?.addEventListener("input", () => {
-        let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
-            });
-        }
-    });
-
-    elements.kwotaRange?.addEventListener("change", () => {
-        let value = parseFloat(elements.kwotaRange.value);
-        let validatedValue = Math.max(50000, Math.min(5000000, value));
-        elements.kwota.value = validatedValue.toFixed(2);
-        elements.kwotaRange.value = validatedValue;
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
-            });
-        }
-    });
-
-    // Inicjalizacja boxa Ilość Rat
-    if (elements.iloscRat) {
-        elements.iloscRat.min = 12;
-        elements.iloscRat.max = 420;
-        elements.iloscRat.step = 12;
-        elements.iloscRat.value = 420; // Nowa wartość domyślna
-        elements.iloscRat.type = "number";
-    }
-    if (elements.iloscRatRange) {
-        elements.iloscRatRange.min = 12;
-        elements.iloscRatRange.max = 420;
-        elements.iloscRatRange.step = 12;
-        elements.iloscRatRange.value = 420; // Nowa wartość domyślna
-    }
-
-    // Dodajemy walidację przy wpisywaniu, aby akceptować tylko cyfry
-    elements.iloscRat?.addEventListener("input", (e) => {
-        let value = e.target.value;
-        const cursorPos = e.target.selectionStart;
-        value = value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
-        e.target.value = value;
-        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
-    });
-
-    // Jawne wywołanie synchronizacji po inicjalizacji
-    if (elements.iloscRat && elements.iloscRatRange) {
-        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata, true);
-    }
-
-    elements.iloscRat?.addEventListener("blur", () => {
-        let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
-        value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
-        if (value < 12) value = 12;
-        if (value > 420) value = 420;
-        elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako string
-        elements.iloscRatRange.value = value;
-        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = value - 1;
-                if (input.nextElementSibling?.nextElementSibling) {
-                    input.nextElementSibling.nextElementSibling.max = value - 1;
-                }
-            });
-        }
-        if (elements.variableOprocentowanieWrapper) {
-            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = value;
-                if (input.nextElementSibling?.nextElementSibling) {
-                    input.nextElementSibling.nextElementSibling.max = value;
-                }
-            });
-        }
-    });
-
-    elements.iloscRatRange?.addEventListener("input", () => {
-        let value = parseInt(elements.iloscRatRange.value);
-        elements.iloscRat.value = value.toString();
-        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
-        if (elements.nadplataKredytuWrapper) {
-            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = value - 1;
-                if (input.nextElementSibling?.nextElementSibling) {
-                    input.nextElementSibling.nextElementSibling.max = value - 1;
-                }
-            });
-        }
-        if (elements.variableOprocentowanieWrapper) {
-            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                input.max = value;
-                if (input.nextElementSibling?.nextElementSibling) {
-                    input.nextElementSibling.nextElementSibling.max = value;
-                }
-            });
-        }
-    });
-});
-
-
-
-
-
-
 
 
 
@@ -1775,7 +1586,7 @@ function updateChart(data) {
                     legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: (context) => `${context.dataset.label}: ${context.raw.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+                            label: (context) => `${context.dataset.label}: ${context.raw.toFixed(2)} zł`,
                         },
                     },
                 },
@@ -1785,7 +1596,7 @@ function updateChart(data) {
                         stacked: true,
                         beginAtZero: true,
                         ticks: {
-                            callback: (value) => `${value.toLocaleString("pl-PL")} zł`,
+                            callback: (value) => `${value.toFixed(2)} zł`,
                             font: { size: 10 },
                         },
                     },
@@ -1794,16 +1605,16 @@ function updateChart(data) {
         });
 
         if (elements.valueKapital) {
-            elements.valueKapital.textContent = `${data.harmonogram.reduce((sum, row) => sum + row.kapital, 0).toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+            elements.valueKapital.textContent = `${data.harmonogram.reduce((sum, row) => sum + row.kapital, 0).toFixed(2)} zł`;
         }
         if (elements.valueOdsetki) {
-            elements.valueOdsetki.textContent = `${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+            elements.valueOdsetki.textContent = `${data.calkowiteOdsetki.toFixed(2)} zł`;
         }
         if (elements.valueNadplata) {
-            elements.valueNadplata.textContent = `${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+            elements.valueNadplata.textContent = `${data.calkowiteNadplaty.toFixed(2)} zł`;
         }
         if (elements.valueProwizja) {
-            elements.valueProwizja.textContent = `${data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+            elements.valueProwizja.textContent = `${data.prowizja.toFixed(2)} zł`;
         }
     } catch (error) {
         console.error("Błąd podczas aktualizacji wykresu:", error);
@@ -1818,12 +1629,12 @@ function updateHarmonogram(data) {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td>${row.miesiac}</td>
-                    <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %</td>
-                    <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                    <td>${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+                    <td>${row.rata.toFixed(2)} zł</td>
+                    <td>${row.oprocentowanie.toFixed(2)} %</td>
+                    <td>${row.nadplata.toFixed(2)} zł</td>
+                    <td>${row.kapital.toFixed(2)} zł</td>
+                    <td>${row.odsetki.toFixed(2)} zł</td>
+                    <td>${row.kapitalDoSplaty.toFixed(2)} zł</td>
                 `;
                 elements.harmonogramTabela.appendChild(tr);
             });
@@ -1839,7 +1650,7 @@ function updateSummary(data) {
             elements.okresPoNadplacie.textContent = data.pozostaleRaty;
         }
         if (elements.koszt) {
-            elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 });
+            elements.koszt.textContent = data.calkowityKoszt.toFixed(2);
         }
     } catch (error) {
         console.error("Błąd podczas aktualizacji podsumowania:", error);
@@ -1855,34 +1666,32 @@ function generatePDF(data) {
         doc.text(APP_TITLE, 10, 10);
 
         doc.setFontSize(10);
-        doc.text(`Kwota kredytu: ${state.lastFormData.kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 20);
+        doc.text(`Kwota kredytu: ${state.lastFormData.kwota.toFixed(2)} zł`, 10, 20);
         doc.text(`Ilość rat: ${state.lastFormData.iloscRat}`, 10, 30);
-        doc.text(`Oprocentowanie: ${state.lastFormData.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`, 10, 40);
+        doc.text(`Oprocentowanie: ${state.lastFormData.oprocentowanie.toFixed(2)} %`, 10, 40);
         doc.text(`Rodzaj rat: ${state.lastFormData.rodzajRat === "rowne" ? "Równe" : "Malejące"}`, 10, 50);
-        doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} ${state.lastFormData.jednostkaProwizji === "procent" ? "%" : "zł"}`, 10, 60);
-        doc.text(`Całkowity koszt: ${data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 70);
-        doc.text(`Całkowite odsetki: ${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 80);
-        doc.text(`Całkowite nadpłaty: ${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 90);
+        doc.text(`Prowizja: ${state.lastFormData.prowizja.toFixed(2)} ${state.lastFormData.jednostkaProwizji === "procent" ? "%" : "zł"}`, 10, 60);
+        doc.text(`Całkowity koszt: ${data.calkowityKoszt.toFixed(2)} zł`, 10, 70);
+        doc.text(`Całkowite odsetki: ${data.calkowiteOdsetki.toFixed(2)} zł`, 10, 80);
+        doc.text(`Całkowite nadpłaty: ${data.calkowiteNadplaty.toFixed(2)} zł`, 10, 90);
 
         const tableData = data.harmonogram.map(row => [
             row.miesiac.toString(),
-            `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`,
-            `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.rata.toFixed(2)} zł`,
+            `${row.oprocentowanie.toFixed(2)} %`,
+            `${row.nadplata.toFixed(2)} zł`,
+            `${row.kapital.toFixed(2)} zł`,
+            `${row.odsetki.toFixed(2)} zł`,
+            `${row.kapitalDoSplaty.toFixed(2)} zł`,
         ]);
 
         doc.autoTable({
+            startY: 100,
             head: [["Miesiąc", "Rata", "Oprocentowanie", "Nadpłata", "Kapitał", "Odsetki", "Kapitał do spłaty"]],
             body: tableData,
-            startY: 100,
-            styles: { fontSize: 8 },
-            headStyles: { fillColor: [194, 178, 128] },
         });
 
-        doc.save("kalkulator_kredytu.pdf");
+        doc.save("harmonogram_kredytu.pdf");
     } catch (error) {
         console.error("Błąd podczas generowania PDF:", error);
     }
@@ -1896,328 +1705,151 @@ function generatePDF(data) {
 
 
 
+// F U N K C J E    I N I C J A L I Z A C J A    A P L I K A C J I
 
+function initializeInputs() {
+    Object.keys(elements).forEach(key => {
+        const element = elements[key];
+        if (element && element.tagName === "INPUT" && element.type === "range") {
+            const input = elements[key.replace("Range", "")];
+            if (input) {
+                syncInputWithRange(input, element);
+                input.addEventListener("input", () => syncInputWithRange(input, element));
+                element.addEventListener("input", () => syncInputWithRange(input, element, null, true));
+            }
+        } else if (element && element.id === "kwota") {
+            element.addEventListener("blur", () => {
+                let value = validateKwota(element.value);
+                element.value = value.toFixed(2).replace(".", ".");
+                elements.kwotaRange.value = value;
+                updateKwotaInfo();
+            });
+            elements.kwotaRange.addEventListener("input", () => {
+                let value = validateKwota(elements.kwotaRange.value);
+                element.value = value.toFixed(2).replace(".", ".");
+                elements.kwotaRange.value = value;
+                updateKwotaInfo();
+            });
+        } else if (element && element.id === "iloscRat") {
+            element.addEventListener("blur", () => {
+                let value = validateIloscRat(element.value);
+                element.value = value;
+                elements.iloscRatRange.value = value;
+                updateLata();
+            });
+            elements.iloscRatRange.addEventListener("input", () => {
+                let value = validateIloscRat(elements.iloscRatRange.value);
+                element.value = value;
+                elements.iloscRatRange.value = value;
+                updateLata();
+            });
+        } else if (element && element.id === "oprocentowanie") {
+            element.addEventListener("blur", () => {
+                let value = parseFloat(element.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 7;
+                if (value < 0.1) value = 0.1;
+                if (value > 25) value = 25;
+                element.value = value.toFixed(2).replace(".", ".");
+                elements.oprocentowanieRange.value = value;
+            });
+            elements.oprocentowanieRange.addEventListener("input", () => {
+                let value = parseFloat(elements.oprocentowanieRange.value);
+                element.value = value.toFixed(2).replace(".", ".");
+                elements.oprocentowanieRange.value = value;
+            });
+        } else if (element && element.id === "rodzajRat") {
+            element.addEventListener("change", () => {
+                if (elements.rodzajRatInfo) {
+                    elements.rodzajRatInfo.textContent = `Rodzaj rat: ${element.value === "rowne" ? "Równe" : "Malejące"}`;
+                }
+            });
+        }
+    });
 
-
-
-// F U N K C J E    I N T E R F E J S U
-
-function showResults() {
-    try {
-        if (elements.formSection) elements.formSection.style.display = "none";
-        if (elements.resultSection) elements.resultSection.style.display = "block";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error) {
-        console.error("Błąd podczas pokazywania wyników:", error);
-    }
+    updateKwotaInfo();
+    updateLata();
+    updateProwizjaInfo();
 }
 
-function showForm() {
-    try {
-        if (elements.formSection) elements.formSection.style.display = "block";
-        if (elements.resultSection) elements.resultSection.style.display = "none";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    } catch (error) {
-        console.error("Błąd podczas pokazywania formularza:", error);
+function initializeApp() {
+    elements.kwota.value = state.lastFormData.kwota.toFixed(2).replace(".", ".");
+    elements.kwotaRange.value = state.lastFormData.kwota;
+    elements.iloscRat.value = state.lastFormData.iloscRat;
+    elements.iloscRatRange.value = state.lastFormData.iloscRat;
+    elements.oprocentowanie.value = state.lastFormData.oprocentowanie.toFixed(2).replace(".", ".");
+    elements.oprocentowanieRange.value = state.lastFormData.oprocentowanie;
+    elements.rodzajRat.value = state.lastFormData.rodzajRat;
+    elements.prowizja.value = state.lastFormData.prowizja.toFixed(2).replace(".", ".");
+    elements.prowizjaRange.value = state.lastFormData.prowizja;
+    elements.jednostkaProwizji.value = state.lastFormData.jednostkaProwizji;
+
+    if (elements.rodzajRatInfo) {
+        elements.rodzajRatInfo.textContent = `Rodzaj rat: ${state.lastFormData.rodzajRat === "rowne" ? "Równe" : "Malejące"}`;
     }
-}
 
-function toggleHarmonogram(contentId) {
-    try {
-        const content = document.getElementById(contentId);
-        const header = content?.previousElementSibling?.querySelector(".btn-toggle");
-        if (content && header) {
-            const isHidden = content.style.display === "none";
-            content.style.display = isHidden ? "block" : "none";
-            header.textContent = `Harmonogram spłat ${isHidden ? "▼" : "▲"}`;
+    initializeInputs();
+
+    elements.obliczBtn?.addEventListener("click", () => {
+        const kwota = validateKwota(elements.kwota.value);
+        const iloscRat = validateIloscRat(elements.iloscRat.value);
+        const oprocentowanie = parseFloat(elements.oprocentowanie.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 7;
+        const rodzajRat = elements.rodzajRat.value;
+        const prowizja = parseFloat(elements.prowizja.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 0;
+        const jednostkaProwizji = elements.jednostkaProwizji.value;
+
+        state.lastFormData = { kwota, iloscRat, oprocentowanie, rodzajRat, prowizja, jednostkaProwizji };
+
+        const result = calculateLoan(
+            kwota,
+            oprocentowanie,
+            iloscRat,
+            rodzajRat,
+            prowizja,
+            jednostkaProwizji,
+            state.variableRates,
+            state.overpaymentRates
+        );
+
+        if (result) {
+            updateChart(result);
+            updateHarmonogram(result);
+            updateSummary(result);
+            elements.resultSection?.classList.add("active");
         }
-    } catch (error) {
-        console.error("Błąd podczas przełączania harmonogramu:", error);
-    }
-}
+    });
 
-function updateZoom() {
-    try {
-        document.body.style.zoom = state.zoomLevel;
-        if (elements.zoomInBtn) {
-            elements.zoomInBtn.disabled = state.zoomLevel >= 2;
+    elements.generatePdfBtn?.addEventListener("click", () => {
+        const kwota = validateKwota(elements.kwota.value);
+        const iloscRat = validateIloscRat(elements.iloscRat.value);
+        const oprocentowanie = parseFloat(elements.oprocentowanie.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 7;
+        const rodzajRat = elements.rodzajRat.value;
+        const prowizja = parseFloat(elements.prowizja.value.replace(",", ".").replace(/[^0-9.]/g, "")) || 0;
+        const jednostkaProwizji = elements.jednostkaProwizji.value;
+
+        state.lastFormData = { kwota, iloscRat, oprocentowanie, rodzajRat, prowizja, jednostkaProwizji };
+
+        const result = calculateLoan(
+            kwota,
+            oprocentowanie,
+            iloscRat,
+            rodzajRat,
+            prowizja,
+            jednostkaProwizji,
+            state.variableRates,
+            state.overpaymentRates
+        );
+
+        if (result) {
+            generatePDF(result);
         }
-        if (elements.zoomOutBtn) {
-            elements.zoomOutBtn.disabled = state.zoomLevel <= 0.5;
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji zoomu:", error);
-    }
-}
+    });
 
-function toggleDarkMode() {
-    try {
-        state.isDarkMode = !state.isDarkMode;
-        document.body.classList.toggle("dark-mode", state.isDarkMode);
-        if (elements.toggleDarkModeBtn) {
-            elements.toggleDarkModeBtn.textContent = state.isDarkMode ? "☀️" : "🌙";
-        }
-        localStorage.setItem("darkMode", state.isDarkMode);
-    } catch (error) {
-        console.error("Błąd podczas przełączania trybu ciemnego:", error);
-    }
-}
-
-
-
-
-
-
-
-
-
-// I N I C J A L I Z A C J A    A P L I K A C J I
-
-document.addEventListener("DOMContentLoaded", () => {
-    try {
-        // Inicjalizacja boxa Kwota Kredytu
-        if (elements.kwota) {
-            elements.kwota.min = 50000;
-            elements.kwota.max = 5000000;
-            elements.kwota.step = 0.01;
-            elements.kwota.value = 500000;
-        }
-        if (elements.kwotaRange) {
-            elements.kwotaRange.min = 50000;
-            elements.kwotaRange.max = 5000000;
-            elements.kwotaRange.step = 0.01;
-            elements.kwotaRange.value = 500000;
-        }
-
-        elements.kwota?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/[^0-9.,]/g, "");
-            value = value.replace(",", ".");
-            const parts = value.split(".");
-            if (parts.length > 2) {
-                value = parts[0] + "." + parts.slice(1).join("");
-            }
-            e.target.value = value;
-        });
-
-        elements.kwota?.addEventListener("blur", () => {
-            let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
-            let parsedValue = parseFloat(value);
-            if (isNaN(parsedValue) || parsedValue < 50000) parsedValue = 50000;
-            if (parsedValue > 5000000) parsedValue = 5000000;
-            elements.kwota.value = parsedValue.toFixed(2);
-            elements.kwotaRange.value = parsedValue;
-            updateKwotaInfo();
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                    const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
-                });
-            }
-        });
-
-        elements.kwotaRange?.addEventListener("input", () => {
-            let value = parseFloat(elements.kwotaRange.value);
-            elements.kwota.value = value.toFixed(2);
-            updateKwotaInfo();
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
-                    const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
-                    updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
-                });
-            }
-        });
-
-        // Inicjalizacja boxa Ilość Rat
-        if (elements.iloscRat) {
-            elements.iloscRat.min = 12;
-            elements.iloscRat.max = 420;
-            elements.iloscRat.step = 12;
-            elements.iloscRat.type = "text"; // Typ text dla pełnej kontroli nad formatowaniem
-            elements.iloscRat.value = "360"; // Ustawiamy wartość początkową bez części dziesiętnej
-        }
-        if (elements.iloscRatRange) {
-            elements.iloscRatRange.min = 12;
-            elements.iloscRatRange.max = 420;
-            elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 360;
-        }
-
-        // Obsługa wpisywania wartości - tylko cyfry
-        elements.iloscRat?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
-            e.target.value = value;
-        });
-
-        // Obsługa blur - walidacja i formatowanie jako liczba całkowita
-        elements.iloscRat?.addEventListener("blur", () => {
-            let value = parseInt(elements.iloscRat.value) || 12;
-            value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
-            if (value < 12) value = 12;
-            if (value > 420) value = 420;
-            elements.iloscRat.value = value.toString(); 
-            elements.iloscRatRange.value = value;
-            updateLata();
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                    input.max = value - 1;
-                    if (input.nextElementSibling?.nextElementSibling) {
-                        input.nextElementSibling.nextElementSibling.max = value - 1;
-                    }
-                });
-            }
-            if (elements.variableOprocentowanieWrapper) {
-                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                    input.max = value;
-                    if (input.nextElementSibling?.nextElementSibling) {
-                        input.nextElementSibling.nextElementSibling.max = value;
-                    }
-                });
-            }
-        });
-
-        // Obsługa suwaka
-        elements.iloscRatRange?.addEventListener("input", () => {
-            let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value.toString(); // Ustawienie jako liczba całkowita
-            updateLata();
-            if (elements.nadplataKredytuWrapper) {
-                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                    input.max = value - 1;
-                    if (input.nextElementSibling?.nextElementSibling) {
-                        input.nextElementSibling.nextElementSibling.max = value - 1;
-                    }
-                });
-            }
-            if (elements.variableOprocentowanieWrapper) {
-                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
-                    input.max = value;
-                    if (input.nextElementSibling?.nextElementSibling) {
-                        input.nextElementSibling.nextElementSibling.max = value;
-                    }
-                });
-            }
-        });
-
-        // Jawne wywołanie synchronizacji po inicjalizacji
-        if (elements.iloscRat && elements.iloscRatRange) {
-            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata, true);
-        }
-
-        // Inicjalizacja boxa Oprocentowanie
-        if (elements.oprocentowanie) {
-            elements.oprocentowanie.min = 0.1;
-            elements.oprocentowanie.max = 25;
-            elements.oprocentowanie.step = 0.01;
-            elements.oprocentowanie.type = "text"; // Zmiana typu na text dla pełnej kontroli formatowania
-            elements.oprocentowanie.value = "7.00"; // Ustawiamy wartość początkową z kropką
-        }
-        if (elements.oprocentowanieRange) {
-            elements.oprocentowanieRange.min = 0.1;
-            elements.oprocentowanieRange.max = 25;
-            elements.oprocentowanieRange.step = 0.01;
-            elements.oprocentowanieRange.value = 7;
-        }
-
-        // Obsługa wpisywania wartości - zamiana przecinka na kropkę, tylko cyfry i kropka, max 2 miejsca po przecinku
-        elements.oprocentowanie?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/,/g, "."); // Zamiana przecinka na kropkę
-            value = value.replace(/[^0-9.]/g, ""); // Akceptujemy tylko cyfry i kropkę
-            const parts = value.split(".");
-            if (parts.length > 2) {
-                value = parts[0] + "." + parts.slice(1).join("");
-            } else if (parts.length === 2 && parts[1].length > 2) {
-                value = parts[0] + "." + parts[1].substring(0, 2);
-            }
-            e.target.value = value;
-        });
-
-        // Obsługa blur - walidacja i formatowanie z kropką
-        elements.oprocentowanie?.addEventListener("blur", () => {
-            let value = parseFloat(elements.oprocentowanie.value) || 0.1;
-            if (value < 0.1) value = 0.1;
-            if (value > 25) value = 25;
-            elements.oprocentowanie.value = value.toFixed(2); // Formatowanie z kropką i dwoma miejscami dziesiętnymi
-            elements.oprocentowanieRange.value = value;
-        });
-
-        // Obsługa suwaka
-        elements.oprocentowanieRange?.addEventListener("input", () => {
-            let value = parseFloat(elements.oprocentowanieRange.value);
-            elements.oprocentowanie.value = value.toFixed(2); // Formatowanie z kropką i dwoma miejscami dziesiętnymi
-        });
-
-        // Inicjalizacja boxa Prowizja
-        if (elements.prowizja) {
-            elements.prowizja.min = 0;
-            elements.prowizja.max = 25;
-            elements.prowizja.step = 0.01;
-            elements.prowizja.value = 2;
-        }
-        if (elements.prowizjaRange) {
-            elements.prowizjaRange.min = 0;
-            elements.prowizjaRange.max = 25;
-            elements.prowizjaRange.step = 0.01;
-            elements.prowizjaRange.value = 2;
-        }
-
-        elements.prowizja?.addEventListener("blur", () => {
-            let value = elements.prowizja.value.replace(",", ".").replace(/[^0-9.]/g, "");
-            let parsedValue = parseFloat(value);
-            let maxAllowed = parseFloat(elements.prowizja.max) || 25;
-            let minAllowed = parseFloat(elements.prowizja.min) || 0;
-            if (isNaN(parsedValue) || parsedValue < minAllowed) parsedValue = minAllowed;
-            if (parsedValue > maxAllowed) parsedValue = maxAllowed;
-            elements.prowizja.value = parsedValue.toFixed(2);
-            elements.prowizjaRange.value = parsedValue;
-            updateProwizjaInfo();
-        });
-
-        elements.prowizjaRange?.addEventListener("input", () => {
-            let value = parseFloat(elements.prowizjaRange.value);
-            elements.prowizja.value = value.toFixed(2);
-            updateProwizjaInfo();
-        });
-
-        elements.jednostkaProwizji?.addEventListener("change", () => {
-            const jednostka = elements.jednostkaProwizji.value;
-            const kwota = parseFloat(elements.kwota?.value) || 0;
-            if (jednostka === "zl") {
-                const defaultProwizjaZl = (2 / 100) * kwota;
-                elements.prowizja.value = defaultProwizjaZl.toFixed(2);
-            } else {
-                elements.prowizja.value = 2;
-            }
-            updateProwizjaInfo();
-        });
-
-        // Inicjalizacja sekcji Nadpłata Kredytu
-        elements.nadplataKredytuBtn?.addEventListener("change", () => {
-            const isChecked = elements.nadplataKredytuBtn.checked;
-            elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
-            if (isChecked) {
-                resetNadplataKredytuSection();
-                const newGroup = createNadplataKredytuGroup();
-                elements.nadplataKredytuWrapper.appendChild(newGroup);
-                initializeNadplataKredytuGroup(newGroup);
-                debouncedUpdateNadplataKredytuRemoveButtons();
-            } else {
-                resetNadplataKredytuSection();
-            }
-        });
-        
-        elements.addNadplataKredytuBtn?.addEventListener("click", () => {
-            const newGroup = createNadplataKredytuGroup();
-            elements.nadplataKredytuWrapper.appendChild(newGroup);
-            initializeNadplataKredytuGroup(newGroup);
-            debouncedUpdateNadplataKredytuRemoveButtons();
-        });
-
-        // Inicjalizacja sekcji Zmienne Oprocentowanie
-        elements.zmienneOprocentowanieBtn?.addEventListener("change", () => {
+    if (elements.zmienneOprocentowanieBtn) {
+        elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
             const isChecked = elements.zmienneOprocentowanieBtn.checked;
             elements.variableOprocentowanieInputs.classList.toggle("active", isChecked);
+
             if (isChecked) {
-                resetVariableOprocentowanieSection();
+                elements.variableOprocentowanieWrapper.innerHTML = "";
                 const newGroup = createVariableOprocentowanieGroup();
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
@@ -2227,102 +1859,39 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        elements.addVariableOprocentowanieBtn?.addEventListener("click", () => {
+        elements.addVariableOprocentowanieBtn.addEventListener("click", () => {
             const newGroup = createVariableOprocentowanieGroup();
             elements.variableOprocentowanieWrapper.appendChild(newGroup);
             initializeVariableOprocentowanieGroup(newGroup);
             updateVariableOprocentowanieRemoveButtons();
         });
-
-        // Przycisk Oblicz
-        elements.obliczBtn?.addEventListener("click", () => {
-            state.lastFormData = {
-                kwota: parseFloat(elements.kwota?.value) || 500000,
-                iloscRat: parseInt(elements.iloscRat?.value) || 360, // Domyślna wartość 360
-                oprocentowanie: parseFloat(elements.oprocentowanie?.value) || 7,
-                rodzajRat: elements.rodzajRat?.value || "rowne",
-                prowizja: parseFloat(elements.prowizja?.value) || 2,
-                jednostkaProwizji: elements.jednostkaProwizji?.value || "procent",
-            };
-
-            const result = calculateLoan(
-                state.lastFormData.kwota,
-                state.lastFormData.oprocentowanie,
-                state.lastFormData.iloscRat,
-                state.lastFormData.rodzajRat,
-                state.lastFormData.prowizja,
-                state.lastFormData.jednostkaProwizji,
-                state.variableRates,
-                state.overpaymentRates
-            );
-
-            if (result) {
-                updateChart(result);
-                updateHarmonogram(result);
-                updateSummary(result);
-                showResults();
-            }
-        });
-
-        elements.generatePdfBtn?.addEventListener("click", () => {
-            const result = calculateLoan(
-                state.lastFormData.kwota,
-                state.lastFormData.oprocentowanie,
-                state.lastFormData.iloscRat,
-                state.lastFormData.rodzajRat,
-                state.lastFormData.prowizja,
-                state.lastFormData.jednostkaProwizji,
-                state.variableRates,
-                state.overpaymentRates
-            );
-            if (result) {
-                generatePDF(result);
-            }
-        });
-
-        elements.zoomInBtn?.addEventListener("click", () => {
-            state.zoomLevel = Math.min(state.zoomLevel + 0.1, 2);
-            updateZoom();
-        });
-
-        elements.zoomOutBtn?.addEventListener("click", () => {
-            state.zoomLevel = Math.max(state.zoomLevel - 0.1, 0.5);
-            updateZoom();
-        });
-
-        elements.toggleDarkModeBtn?.addEventListener("click", toggleDarkMode);
-
-        const savedDarkMode = localStorage.getItem("darkMode");
-        if (savedDarkMode === "true") {
-            state.isDarkMode = true;
-            document.body.classList.add("dark-mode");
-            if (elements.toggleDarkModeBtn) {
-                elements.toggleDarkModeBtn.textContent = "☀️";
-            }
-        }
-
-        resetNadplataKredytuSection();
-        resetVariableOprocentowanieSection();
-
-        updateKwotaInfo();
-        updateLata();
-        updateProwizjaInfo();
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo, true);
-        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata, true);
-        syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange, null, true);
-        syncInputWithRange(elements.prowizja, elements.prowizjaRange, updateProwizjaInfo, true);
-
-        document.querySelectorAll(".legend-item").forEach(item => {
-            item.addEventListener("click", () => {
-                const index = parseInt(item.dataset.index);
-                if (creditChart) {
-                    const meta = creditChart.getDatasetMeta(index);
-                    meta.hidden = !meta.hidden;
-                    creditChart.update();
-                }
-            });
-        });
-    } catch (error) {
-        console.error("Błąd podczas inicjalizacji aplikacji:", error);
     }
-});
+
+    if (elements.zoomInBtn) {
+        elements.zoomInBtn.addEventListener("click", () => {
+            state.zoomLevel = Math.min(state.zoomLevel + 0.1, 2);
+            document.documentElement.style.fontSize = `${16 * state.zoomLevel}px`;
+        });
+    }
+
+    if (elements.zoomOutBtn) {
+        elements.zoomOutBtn.addEventListener("click", () => {
+            state.zoomLevel = Math.max(state.zoomLevel - 0.1, 0.5);
+            document.documentElement.style.fontSize = `${16 * state.zoomLevel}px`;
+        });
+    }
+
+    if (elements.toggleDarkModeBtn) {
+        elements.toggleDarkModeBtn.addEventListener("click", () => {
+            state.isDarkMode = !state.isDarkMode;
+            document.body.classList.toggle("dark-mode", state.isDarkMode);
+        });
+    }
+
+    elements.obliczBtn.click();
+}
+
+document.addEventListener("DOMContentLoaded", initializeApp);
+
+
+
