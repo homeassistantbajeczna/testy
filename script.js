@@ -1977,8 +1977,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.type = "text"; // Zmiana typu na text, aby kontrolować formatowanie
-            elements.iloscRat.value = "360.00"; // Ustawiamy wartość początkową z kropką
+            elements.iloscRat.type = "text"; // Typ text dla pełnej kontroli nad formatowaniem
+            elements.iloscRat.value = "360"; // Ustawiamy wartość początkową bez części dziesiętnej
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1987,19 +1987,19 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRatRange.value = 360;
         }
 
-        // Obsługa wpisywania wartości - tylko cyfry, formatowanie z kropką
+        // Obsługa wpisywania wartości - tylko cyfry
         elements.iloscRat?.addEventListener("input", (e) => {
             let value = e.target.value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
             e.target.value = value;
         });
 
-        // Obsługa blur - walidacja i formatowanie z kropką
+        // Obsługa blur - walidacja i formatowanie jako liczba całkowita
         elements.iloscRat?.addEventListener("blur", () => {
             let value = parseInt(elements.iloscRat.value) || 12;
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value.toFixed(2); // Formatowanie z kropką i dwoma zerami
+            elements.iloscRat.value = value.toString(); // Ustawienie jako liczba całkowita
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -2023,7 +2023,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Obsługa suwaka
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value.toFixed(2); // Formatowanie z kropką i dwoma zerami
+            elements.iloscRat.value = value.toString(); // Ustawienie jako liczba całkowita
             updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
