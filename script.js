@@ -449,7 +449,7 @@ function initializeInputHandling() {
             delete elements.prowizja.dataset.manual; // Wymuś reset flagi przy zmianie jednostki
         }
 
-        if ((jednostka === "zl" && (!elements.prowizja.dataset.manual || reset)) || reset) {
+        if (jednostka === "zl" && (reset || !elements.prowizja.dataset.manual)) {
             // Ustaw prowizję na 2% kwoty przy zmianie jednostki lub jeśli wartość jest domyślna
             const defaultProwizja = (kwota * 0.02).toFixed(2);
             prowizjaValue = Math.max(parseFloat(defaultProwizja), minValue);
@@ -457,7 +457,7 @@ function initializeInputHandling() {
             elements.prowizja.value = prowizjaValue.toFixed(2);
             elements.prowizjaRange.value = prowizjaValue;
             delete elements.prowizja.dataset.manual; // Resetuj flagę po automatycznej zmianie
-        } else if ((jednostka === "procent" && (!elements.prowizja.dataset.manual || reset)) || reset) {
+        } else if (jednostka === "procent" && reset) {
             // Ustaw domyślną wartość 2 dla procentów przy zmianie jednostki
             prowizjaValue = 2;
             if (prowizjaValue < minValue) prowizjaValue = minValue;
@@ -468,7 +468,6 @@ function initializeInputHandling() {
         }
     }
 }
-
 
 
 
