@@ -1373,14 +1373,8 @@ function updateVariableOprocentowanieRemoveButtons() {
         existingRemoveBtnWrapper.remove();
     }
 
-    if (groups.length === 0) {
-        if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
-            existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
-        }
-        return;
-    }
-
-    if (!existingRemoveBtnWrapper) {
+    if (groups.length > 0) {
+        const lastGroup = groups[groups.length - 1];
         existingRemoveBtnWrapper = document.createElement("div");
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
         existingRemoveBtnWrapper.style.display = "flex";
@@ -1396,7 +1390,14 @@ function updateVariableOprocentowanieRemoveButtons() {
         removeBtn.textContent = "Usuń";
         existingRemoveBtnWrapper.appendChild(removeBtn);
 
-        const lastGroup = groups[groups.length - 1];
+        const addBtn = document.createElement("button");
+        addBtn.type = "button";
+        addBtn.id = "addVariableOprocentowanieBtn";
+        addBtn.classList.add("btn", "btn-functional");
+        addBtn.setAttribute("aria-label", "Dodaj kolejne zmienne oprocentowanie");
+        addBtn.textContent = "Dodaj kolejną zmianę";
+        existingRemoveBtnWrapper.appendChild(addBtn);
+
         lastGroup.appendChild(existingRemoveBtnWrapper);
 
         removeBtn.addEventListener("click", () => {
@@ -1410,12 +1411,24 @@ function updateVariableOprocentowanieRemoveButtons() {
             updateVariableOprocentowanieRemoveButtons();
             toggleAddButtonVisibility();
         });
-    } else {
-        const lastGroup = groups[groups.length - 1];
-        const currentParent = existingRemoveBtnWrapper.parentElement;
-        if (currentParent !== lastGroup) {
-            lastGroup.appendChild(existingRemoveBtnWrapper);
-        }
+
+        addBtn.addEventListener("click", () => {
+            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+            const lastGroup = groups[groups.length - 1];
+            const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
+            const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
+            const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
+            const newStartPeriod = lastPeriodValue + 1;
+
+            if (newStartPeriod <= maxPeriod) {
+                const newGroup = createVariableOprocentowanieGroup(newStartPeriod);
+                elements.variableOprocentowanieWrapper.appendChild(newGroup);
+                initializeVariableOprocentowanieGroup(newGroup);
+                updateVariableOprocentowanieRemoveButtons();
+                updateRatesArray("oprocentowanie");
+                toggleAddButtonVisibility();
+            }
+        });
     }
 
     toggleAddButtonVisibility();
@@ -1475,30 +1488,6 @@ function initializeZmienneOprocentowanieToggle() {
                 elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanieRange.value;
             }
         });
-
-        const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
-        if (addVariableOprocentowanieBtn) {
-            // Upewnij się, że przycisk ma odpowiednie klasy
-            addVariableOprocentowanieBtn.classList.add("btn", "btn-functional");
-
-            addVariableOprocentowanieBtn.addEventListener("click", () => {
-                const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-                const lastGroup = groups[groups.length - 1];
-                const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
-                const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
-                const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
-                const newStartPeriod = lastPeriodValue + 1;
-
-                if (newStartPeriod <= maxPeriod) {
-                    const newGroup = createVariableOprocentowanieGroup(newStartPeriod);
-                    elements.variableOprocentowanieWrapper.appendChild(newGroup);
-                    initializeVariableOprocentowanieGroup(newGroup);
-                    updateVariableOprocentowanieRemoveButtons();
-                    updateRatesArray("oprocentowanie");
-                    toggleAddButtonVisibility();
-                }
-            });
-        }
 
         elements.iloscRat.addEventListener("input", () => {
             toggleAddButtonVisibility();
