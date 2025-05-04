@@ -284,7 +284,6 @@ function initializeInputHandling() {
 
 
 
-
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
