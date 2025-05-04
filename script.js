@@ -1977,8 +1977,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = 360; // Ustawienie wartości początkowej jako liczby całkowitej
             elements.iloscRat.type = "number"; // Typ number dla natywnej walidacji
+            elements.iloscRat.value = "360"; // Ustawienie wartości początkowej jako string, aby uniknąć formatowania
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1999,7 +1999,7 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value; // Ustawienie jako liczba całkowita
+            elements.iloscRat.value = value.toString(); // Ustawienie jako string, aby uniknąć formatowania dziesiętnego
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
@@ -2023,7 +2023,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Obsługa suwaka
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value; // Ustawienie jako liczba całkowita
+            elements.iloscRat.value = value.toString(); // Ustawienie jako string, aby uniknąć formatowania dziesiętnego
             updateLata();
             if (elements.nadplataKredytuWrapper) {
                 elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
@@ -2042,6 +2042,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
         });
+
+        // Wymuszamy zdarzenie blur zaraz po inicjalizacji, aby upewnić się, że wartość początkowa jest poprawnie sformatowana
+        if (elements.iloscRat) {
+            elements.iloscRat.dispatchEvent(new Event("blur"));
+        }
 
         // Jawne wywołanie synchronizacji po inicjalizacji
         if (elements.iloscRat && elements.iloscRatRange) {
