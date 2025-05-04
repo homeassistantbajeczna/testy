@@ -110,6 +110,61 @@ function updateProwizjaInfo() {
 
 
 
+// F U N K C J E    U Ż Y T E C Z N I E
+
+function toggleInputFields(disabled) {
+    const inputFields = [
+        elements.kwota,
+        elements.kwotaRange,
+        elements.iloscRat,
+        elements.iloscRatRange,
+        elements.oprocentowanie,
+        elements.oprocentowanieRange,
+        elements.rodzajRat,
+        elements.prowizja,
+        elements.prowizjaRange,
+        elements.jednostkaProwizji
+    ];
+
+    inputFields.forEach(field => {
+        if (field) {
+            field.disabled = disabled;
+        }
+    });
+
+    // Aktualizuj stan przełączników w sekcji Wprowadzenia Danych
+    if (disabled) {
+        elements.kwota.parentElement?.classList.add("disabled");
+        elements.iloscRat.parentElement?.classList.add("disabled");
+        elements.oprocentowanie.parentElement?.classList.add("disabled");
+        elements.rodzajRat.parentElement?.classList.add("disabled");
+        elements.prowizja.parentElement?.classList.add("disabled");
+        elements.jednostkaProwizji.parentElement?.classList.add("disabled");
+    } else {
+        elements.kwota.parentElement?.classList.remove("disabled");
+        elements.iloscRat.parentElement?.classList.remove("disabled");
+        elements.oprocentowanie.parentElement?.classList.remove("disabled");
+        elements.rodzajRat.parentElement?.classList.remove("disabled");
+        elements.prowizja.parentElement?.classList.remove("disabled");
+        elements.jednostkaProwizji.parentElement?.classList.remove("disabled");
+    }
+}
+
+// Funkcja sprawdzająca, czy którekolwiek z pól "Zmienne Oprocentowanie" lub "Nadpłata Kredytu" jest aktywne
+function updateInputFieldsState() {
+    const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
+    const isNadplataKredytuActive = elements.nadplataKredytuBtn?.checked || false;
+    toggleInputFields(isZmienneOprocentowanieActive || isNadplataKredytuActive);
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -232,6 +287,7 @@ function updateRatesArray(type) {
 
 
 // F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
+
 function initializeInputHandling() {
     // Kwota Kredytu
     elements.kwota.addEventListener("input", (e) => {
@@ -476,8 +532,8 @@ function initializeInputHandling() {
 
 
 
-
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -1161,6 +1217,7 @@ function resetNadplataKredytuSection() {
     if (existingRemoveBtnWrapper) {
         existingRemoveBtnWrapper.remove();
     }
+    updateInputFieldsState(); // Aktualizuj stan pól po resecie
 }
 
 const debouncedUpdateNadplataKredytuRemoveButtons = debounce(() => {
@@ -1173,6 +1230,7 @@ const debouncedUpdateNadplataKredytuRemoveButtons = debounce(() => {
         if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) {
             existingRemoveBtnWrapper.parentElement.removeChild(existingRemoveBtnWrapper);
         }
+        updateInputFieldsState(); // Aktualizuj stan pól, jeśli nie ma grup
         return;
     }
 
@@ -1218,6 +1276,7 @@ const debouncedUpdateNadplataKredytuRemoveButtons = debounce(() => {
                 lastGroup.remove();
                 updateRatesArray("nadplata");
                 updateAllOverpaymentLimits();
+                debouncedUpdateNadplataKredytuRemoveButtons();
             }
         });
 
@@ -1248,29 +1307,26 @@ const debouncedUpdateNadplataKredytuRemoveButtons = debounce(() => {
     }
 }, 150);
 
-if (elements.nadplataKredytuBtn) {
-    elements.nadplataKredytuBtn.addEventListener("change", () => {
-        const isChecked = elements.nadplataKredytuBtn.checked;
-        elements.nadplataKredytuInputs?.classList.toggle("active", isChecked);
+function initializeNadplataKredytuToggle() {
+    if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.addEventListener("change", () => {
+            const isChecked = elements.nadplataKredytuBtn.checked;
+            elements.nadplataKredytuInputs?.classList.toggle("active", isChecked);
 
-        if (isChecked) {
-            elements.nadplataKredytuWrapper.innerHTML = "";
-            const newGroup = createNadplataKredytuGroup();
-            elements.nadplataKredytuWrapper.appendChild(newGroup);
-            initializeNadplataKredytuGroup(newGroup);
-            debouncedUpdateNadplataKredytuRemoveButtons();
-        } else {
-            resetNadplataKredytuSection();
-        }
-    });
+            if (isChecked) {
+                elements.nadplataKredytuWrapper.innerHTML = "";
+                const newGroup = createNadplataKredytuGroup();
+                elements.nadplataKredytuWrapper.appendChild(newGroup);
+                initializeNadplataKredytuGroup(newGroup);
+                debouncedUpdateNadplataKredytuRemoveButtons();
+                updateInputFieldsState(); // Zablokuj pola przy włączeniu
+            } else {
+                resetNadplataKredytuSection();
+                updateInputFieldsState(); // Odblokuj pola, jeśli Zmienne Oprocentowanie też jest wyłączone
+            }
+        });
+    }
 }
-
-elements.addNadplataKredytuBtn?.addEventListener("click", () => {
-    const newGroup = createNadplataKredytuGroup();
-    elements.nadplataKredytuWrapper.appendChild(newGroup);
-    initializeNadplataKredytuGroup(newGroup);
-    debouncedUpdateNadplataKredytuRemoveButtons();
-});
 
 
 
@@ -1362,6 +1418,7 @@ function resetVariableOprocentowanieSection() {
     elements.oprocentowanieRange.disabled = false;
     delete elements.oprocentowanie.dataset.lastManualValue;
     toggleAddButtonVisibility();
+    updateInputFieldsState(); // Aktualizuj stan pól po resecie
 }
 
 function updateVariableOprocentowanieRemoveButtons() {
@@ -1410,6 +1467,7 @@ function updateVariableOprocentowanieRemoveButtons() {
             }
             updateVariableOprocentowanieRemoveButtons();
             toggleAddButtonVisibility();
+            updateInputFieldsState(); // Aktualizuj stan pól po usunięciu
         });
 
         addBtn.addEventListener("click", () => {
@@ -1429,6 +1487,8 @@ function updateVariableOprocentowanieRemoveButtons() {
                 toggleAddButtonVisibility();
             }
         });
+    } else {
+        updateInputFieldsState(); // Aktualizuj stan pól, jeśli nie ma grup
     }
 
     toggleAddButtonVisibility();
@@ -1468,10 +1528,12 @@ function initializeZmienneOprocentowanieToggle() {
                 updateRatesArray("oprocentowanie");
                 elements.oprocentowanie.disabled = true;
                 elements.oprocentowanieRange.disabled = true;
+                updateInputFieldsState(); // Zablokuj pola przy włączeniu
             } else {
                 elements.variableOprocentowanieInputs.classList.remove("active");
                 resetVariableOprocentowanieSection();
                 updateVariableOprocentowanieRemoveButtons();
+                updateInputFieldsState(); // Odblokuj pola, jeśli Nadpłata Kredytu też jest wyłączona
             }
             updateKwotaInfo();
             toggleAddButtonVisibility();
@@ -1646,7 +1708,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
 
 
-
 // F U N K C J E    W Y N I K I    I    W Y K R E S Y
 
 function updateChart(data) {
@@ -1710,25 +1771,44 @@ function updateChart(data) {
                         callback: (value) => `${value.toLocaleString("pl-PL")} zł`,
                         font: { size: 10 },
                     },
-                },
+                }
             },
         },
     });
 
-    elements.valueKapital.textContent = `${data.harmonogram.reduce((sum, row) => sum + row.kapital, 0).toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-    elements.valueOdsetki.textContent = `${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-    elements.valueNadplata.textContent = `${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-    elements.valueProwizja.textContent = `${data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+    // Dostosuj rozmiar wykresu na podstawie poziomu zoomu
+    ctx.canvas.style.transform = `scale(${state.zoomLevel})`;
+    ctx.canvas.style.transformOrigin = "top left";
+    ctx.canvas.parentElement.style.width = `${500 * state.zoomLevel}px`;
+    ctx.canvas.parentElement.style.height = `${300 * state.zoomLevel}px`;
 }
 
-function updateHarmonogram(data) {
-    elements.harmonogramTabela.innerHTML = "";
+function updateResults(data) {
+    elements.valueKapital.textContent = data.harmonogram.reduce((sum, row) => sum + row.kapital, 0).toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.valueOdsetki.textContent = data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.valueNadplata.textContent = data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.valueProwizja.textContent = data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.okresPoNadplacie.textContent = `${data.pozostaleRaty} miesięcy`;
+    elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+
+    // Generowanie harmonogramu
+    elements.harmonogramTabela.innerHTML = `
+        <tr>
+            <th>Miesiąc</th>
+            <th>Rata</th>
+            <th>Oprocentowanie</th>
+            <th>Nadpłata</th>
+            <th>Kapitał</th>
+            <th>Odsetki</th>
+            <th>Kapitał do spłaty</th>
+        </tr>
+    `;
     data.harmonogram.forEach(row => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${row.miesiac}</td>
             <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-            <td>${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %</td>
+            <td>${row.oprocentowanie.toFixed(2)} %</td>
             <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
             <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
             <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
@@ -1736,172 +1816,173 @@ function updateHarmonogram(data) {
         `;
         elements.harmonogramTabela.appendChild(tr);
     });
+
+    updateChart(data);
 }
 
-function updateSummary(data) {
-    elements.okresPoNadplacie.textContent = data.pozostaleRaty;
-    elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 });
-}
-
-function generatePDF(data) {
+function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.setFont("helvetica");
+    let y = 10;
+
+    doc.setFontSize(16);
+    doc.text("Harmonogram Spłat Kredytu", 10, y);
+    y += 10;
+
     doc.setFontSize(12);
-    doc.text(APP_TITLE, 10, 10);
+    doc.text(`Data: ${new Date().toLocaleDateString("pl-PL")}`, 10, y);
+    y += 10;
 
-    doc.setFontSize(10);
-    doc.text(`Kwota kredytu: ${state.lastFormData.kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 20);
-    doc.text(`Ilość rat: ${state.lastFormData.iloscRat}`, 10, 30);
-    doc.text(`Oprocentowanie: ${state.lastFormData.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`, 10, 40);
-    doc.text(`Rodzaj rat: ${state.lastFormData.rodzajRat === "rowne" ? "Równe" : "Malejące"}`, 10, 50);
-    doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} ${state.lastFormData.jednostkaProwizji === "procent" ? "%" : "zł"}`, 10, 60);
-    doc.text(`Całkowity koszt: ${data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 70);
-    doc.text(`Całkowite odsetki: ${data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 80);
-    doc.text(`Całkowite nadpłaty: ${data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, 90);
-
-    const tableData = data.harmonogram.map(row => [
-        row.miesiac.toString(),
-        `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-        `${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %`,
-        `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-        `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-        `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-        `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-    ]);
+    const data = [
+        ["Miesiąc", "Rata", "Oprocentowanie", "Nadpłata", "Kapitał", "Odsetki", "Kapitał do spłaty"],
+        ...state.lastFormData.harmonogram.map(row => [
+            row.miesiac,
+            `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.oprocentowanie.toFixed(2)} %`,
+            `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`
+        ])
+    ];
 
     doc.autoTable({
-        head: [["Miesiąc", "Rata", "Oprocentowanie", "Nadpłata", "Kapitał", "Odsetki", "Kapitał do spłaty"]],
-        body: tableData,
-        startY: 100,
+        head: [data[0]],
+        body: data.slice(1),
+        startY: y,
+        theme: 'grid',
         styles: { fontSize: 8 },
-        headStyles: { fillColor: [194, 178, 128] },
-    });
-
-    doc.save("kalkulator_kredytu.pdf");
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-// F U N K C J E    I N T E R F E J S U
-
-function showResults() {
-    elements.formSection.style.display = "none";
-    elements.resultSection.style.display = "block";
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function showForm() {
-    elements.formSection.style.display = "block";
-    elements.resultSection.style.display = "none";
-    window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function toggleHarmonogram(contentId) {
-    const content = document.getElementById(contentId);
-    const header = content.previousElementSibling.querySelector(".btn-toggle");
-    const isHidden = content.style.display === "none" || content.style.display === "";
-    content.style.display = isHidden ? "block" : "none";
-    header.textContent = `Harmonogram spłat ${isHidden ? "▼" : "▲"}`;
-}
-
-function updateZoom() {
-    document.body.style.zoom = state.zoomLevel;
-    elements.zoomInBtn.disabled = state.zoomLevel >= 2;
-    elements.zoomOutBtn.disabled = state.zoomLevel <= 0.5;
-}
-
-function toggleDarkMode() {
-    state.isDarkMode = !state.isDarkMode;
-    document.body.classList.toggle("dark-mode", state.isDarkMode);
-    elements.toggleDarkModeBtn.textContent = state.isDarkMode ? "☀️" : "🌙";
-}
-
-
-
-
-
-
-
-
-// ... (pozostała część kodu bez zmian do sekcji INITIALIZACJA APLIKACJI)
-
-// I N I C J A L I Z A C J A       A P L I K A C J I
-function initialize() {
-    updateKwotaInfo();
-    updateLata();
-    updateProwizjaInfo();
-
-    // Initialize input handling
-    initializeInputHandling();
-
-    // Inicjalizacja przełącznika zmiennego oprocentowania
-    initializeZmienneOprocentowanieToggle();
-
-    elements.obliczBtn.addEventListener("click", () => {
-        state.lastFormData.kwota = parseFloat(elements.kwota.value) || 500000;
-        state.lastFormData.iloscRat = parseInt(elements.iloscRat.value) || 360;
-        state.lastFormData.oprocentowanie = parseFloat(elements.oprocentowanie.value) || 7;
-        state.lastFormData.rodzajRat = elements.rodzajRat.value;
-        state.lastFormData.prowizja = parseFloat(elements.prowizja.value) || 2;
-        state.lastFormData.jednostkaProwizji = elements.jednostkaProwizji.value;
-
-        const result = calculateLoan(
-            state.lastFormData.kwota,
-            state.lastFormData.oprocentowanie,
-            state.lastFormData.iloscRat,
-            state.lastFormData.rodzajRat,
-            state.lastFormData.prowizja,
-            state.lastFormData.jednostkaProwizji,
-            state.variableRates,
-            state.overpaymentRates
-        );
-
-        if (result) {
-            updateChart(result);
-            updateHarmonogram(result);
-            updateSummary(result);
-            showResults();
+        columnStyles: {
+            0: { cellWidth: 20 },
+            1: { cellWidth: 30 },
+            2: { cellWidth: 30 },
+            3: { cellWidth: 30 },
+            4: { cellWidth: 30 },
+            5: { cellWidth: 30 },
+            6: { cellWidth: 30 }
         }
     });
 
-    elements.generatePdfBtn.addEventListener("click", () => {
-        const result = calculateLoan(
-            state.lastFormData.kwota,
-            state.lastFormData.oprocentowanie,
-            state.lastFormData.iloscRat,
-            state.lastFormData.rodzajRat,
-            state.lastFormData.prowizja,
-            state.lastFormData.jednostkaProwizji,
+    y = doc.autoTable.previous.finalY + 10;
+    doc.text(`Całkowity koszt: ${state.lastFormData.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Odsetki: ${state.lastFormData.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Nadpłaty: ${state.lastFormData.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Okres po nadpłacie: ${state.lastFormData.pozostaleRaty} miesięcy`, 10, y);
+
+    doc.save("harmonogram_spłat.pdf");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
+
+function initializeButtons() {
+    elements.obliczBtn.addEventListener("click", () => {
+        const kwota = parseFloat(elements.kwota.value) || 500000;
+        const iloscRat = parseInt(elements.iloscRat.value) || 360;
+        const oprocentowanie = parseFloat(elements.oprocentowanie.value) || 7;
+        const rodzajRat = elements.rodzajRat.value || "rowne";
+        const prowizja = parseFloat(elements.prowizja.value) || 2;
+        const prowizjaJednostka = elements.jednostkaProwizji.value || "procent";
+
+        const data = calculateLoan(
+            kwota,
+            oprocentowanie,
+            iloscRat,
+            rodzajRat,
+            prowizja,
+            prowizjaJednostka,
             state.variableRates,
             state.overpaymentRates
         );
-        if (result) {
-            generatePDF(result);
+
+        state.lastFormData = data;
+        elements.resultSection.classList.add("active");
+        updateResults(data);
+    });
+
+    elements.generatePdfBtn.addEventListener("click", () => {
+        if (state.lastFormData && state.lastFormData.harmonogram) {
+            generatePDF();
+        } else {
+            alert("Najpierw oblicz harmonogram, aby wygenerować PDF!");
         }
     });
 
     elements.zoomInBtn.addEventListener("click", () => {
-        state.zoomLevel += 0.1;
-        updateZoom();
+        if (state.zoomLevel < 2) {
+            state.zoomLevel += 0.1;
+            if (creditChart) updateChart(state.lastFormData);
+        }
     });
 
     elements.zoomOutBtn.addEventListener("click", () => {
-        state.zoomLevel -= 0.1;
-        updateZoom();
+        if (state.zoomLevel > 0.5) {
+            state.zoomLevel -= 0.1;
+            if (creditChart) updateChart(state.lastFormData);
+        }
     });
 
-    elements.toggleDarkModeBtn.addEventListener("click", toggleDarkMode);
+    elements.toggleDarkModeBtn.addEventListener("click", () => {
+        state.isDarkMode = !state.isDarkMode;
+        document.body.classList.toggle("dark-mode", state.isDarkMode);
+        elements.toggleDarkModeBtn.textContent = state.isDarkMode ? "Tryb jasny" : "Tryb ciemny";
+        if (creditChart) updateChart(state.lastFormData);
+    });
 }
 
-initialize();
+
+
+
+
+
+
+
+
+
+
+// I N I C J A L I Z A C J A
+
+function initializeApp() {
+    initializeInputHandling();
+    initializeNadplataKredytuToggle();
+    initializeZmienneOprocentowanieToggle();
+    initializeButtons();
+
+    // Ustaw początkowe wartości
+    updateKwotaInfo();
+    updateLata();
+    updateProwizjaInfo();
+    syncProwizjaWithKwota();
+    updateInputFieldsState(); // Ustaw początkowy stan pól
+
+    // Załaduj domyślne dane i oblicz
+    const defaultData = calculateLoan(
+        state.lastFormData.kwota,
+        state.lastFormData.oprocentowanie,
+        state.lastFormData.iloscRat,
+        state.lastFormData.rodzajRat,
+        state.lastFormData.prowizja,
+        state.lastFormData.jednostkaProwizji
+    );
+    state.lastFormData = defaultData;
+    elements.resultSection.classList.add("active");
+    updateResults(defaultData);
+}
+
+document.addEventListener("DOMContentLoaded", initializeApp);
