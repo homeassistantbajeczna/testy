@@ -1,5 +1,3 @@
-Sprawdź proszę cały kod, bo widocznie w innym miejscu coś blokuje naprawę tego boxa PROWIZJA:
-
 const APP_TITLE = "Kalkulator Kredytu Hipotecznego";
 
 const elements = {
