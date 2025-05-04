@@ -232,23 +232,22 @@ function updateRatesArray(type) {
 
 
 // F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
-// F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
 function initializeInputHandling() {
     // Kwota Kredytu
     elements.kwota.addEventListener("input", (e) => {
         let value = e.target.value;
 
-        // Zamień przecinek na kropkę i usuń nieprawidłowe znaki
-        value = value.replace(",", ".").replace(/[^0-9.]/g, "");
+        // Zamień przecinek na kropkę, ale nie nadpisz wartości, jeśli nie jest to konieczne
+        if (value.includes(",")) {
+            value = value.replace(",", ".");
+            e.target.value = value;
+        }
 
         // Zapobiegnij wpisywaniu więcej niż jednej kropki
         const dotCount = value.split(".").length - 1;
         if (dotCount > 1) {
-            value = value.substring(0, value.lastIndexOf("."));
+            e.target.value = value.substring(0, value.lastIndexOf("."));
         }
-
-        // Aktualizuj pole tekstowe, ale pozwól przeglądarce obsłużyć wpisywanie
-        e.target.value = value;
     });
 
     elements.kwota.addEventListener("blur", () => {
@@ -264,7 +263,6 @@ function initializeInputHandling() {
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
 
-        // Zachowaj pełną precyzję w polu
         elements.kwota.value = parsedValue.toString();
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
@@ -272,7 +270,7 @@ function initializeInputHandling() {
 
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toString(); // Synchronizuj pole tekstowe z suwakiem
+        elements.kwota.value = value.toString();
         updateKwotaInfo();
     });
 
