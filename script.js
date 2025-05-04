@@ -450,7 +450,7 @@ function debounce(func, wait) {
     };
 }
 
-function syncInputWithRangeNadplata(input, range) {
+function syncInputWithRange(input, range) {
     if (!input || !range) return;
 
     let value = input.classList.contains("variable-cykl")
@@ -722,7 +722,7 @@ function updateAllOverpaymentLimits() {
             if (periodStartValue > maxPeriodLimit) periodStartValue = maxPeriodLimit;
             periodStartInput.value = periodStartValue;
             periodStartRange.value = periodStartValue;
-            syncInputWithRangeNadplata(periodStartInput, periodStartRange);
+            syncInputWithRange(periodStartInput, periodStartRange);
         }
 
         if (periodEndInput && periodEndRange) {
@@ -740,7 +740,7 @@ function updateAllOverpaymentLimits() {
                 if (periodEndValue > maxPeriodLimit) periodEndValue = maxPeriodLimit;
                 periodEndInput.value = periodEndValue;
                 periodEndRange.value = periodEndValue;
-                syncInputWithRangeNadplata(periodEndInput, periodEndRange);
+                syncInputWithRange(periodEndInput, periodEndRange);
             }
         }
     });
@@ -809,7 +809,7 @@ function initializeNadplataKredytuGroup(group) {
                 if (periodStartValue > maxValue) periodStartValue = maxValue;
                 periodStartInput.value = periodStartValue;
                 periodStartRange.value = periodStartValue;
-                syncInputWithRangeNadplata(periodStartInput, periodStartRange);
+                syncInputWithRange(periodStartInput, periodStartRange);
             }
         } else {
             if (periodLabel) periodLabel.textContent = "OD";
@@ -847,7 +847,7 @@ function initializeNadplataKredytuGroup(group) {
                 if (periodStartValue > maxValue) periodStartValue = maxValue;
                 periodStartInput.value = periodStartValue;
                 periodStartRange.value = periodStartValue;
-                syncInputWithRangeNadplata(periodStartInput, periodStartRange);
+                syncInputWithRange(periodStartInput, periodStartRange);
             }
 
             if (existingEndBox) {
@@ -876,7 +876,7 @@ function initializeNadplataKredytuGroup(group) {
                     endInput.value = endValue;
                     endRange.value = endValue;
 
-                    syncInputWithRangeNadplata(endInput, endRange);
+                    syncInputWithRange(endInput, endRange);
                 }
             } else if (type !== "Jednorazowa") {
                 minValue = parseInt(periodStartInput?.value) || minPeriodStart;
@@ -935,7 +935,7 @@ function initializeNadplataKredytuGroup(group) {
             }, 300);
 
             input.addEventListener("blur", () => {
-                let value = parseInt(input.value) || minPeriodStart;
+                let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minPeriodStart;
                 if (value < minPeriodStart) value = minPeriodStart;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
@@ -954,17 +954,18 @@ function initializeNadplataKredytuGroup(group) {
             }, 300);
 
             input.addEventListener("blur", () => {
-                let value = parseFloat(input.value);
+                let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                let parsedValue = parseFloat(value);
                 let maxAllowed = parseFloat(input.max) || 5000000;
                 let minAllowed = parseFloat(input.min) || 100;
 
-                if (isNaN(value) || value < minAllowed) {
-                    value = minAllowed;
-                } else if (value > maxAllowed) {
-                    value = maxAllowed;
+                if (isNaN(parsedValue) || parsedValue < minAllowed) {
+                    parsedValue = minAllowed;
+                } else if (parsedValue > maxAllowed) {
+                    parsedValue = maxAllowed;
                 }
-                input.value = value.toFixed(2);
-                range.value = value;
+                input.value = parsedValue.toFixed(2);
+                range.value = parsedValue;
                 debouncedUpdate();
             });
 
@@ -992,7 +993,7 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("blur", () => {
                     let minValue = parseInt(periodStartInput?.value) || 1;
-                    let value = parseInt(input.value) || minValue;
+                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
                     input.value = value;
@@ -1229,7 +1230,7 @@ function initializeVariableOprocentowanieGroup(group) {
             }, 300);
 
             input.addEventListener("blur", () => {
-                let value = parseInt(input.value) || 2;
+                let value = parseInt(input.value.replace(/[^0-9]/g, "")) || 2;
                 if (value < 2) value = 2;
                 if (value > iloscRat) value = iloscRat;
                 input.value = value;
@@ -1247,17 +1248,18 @@ function initializeVariableOprocentowanieGroup(group) {
             }, 300);
 
             input.addEventListener("blur", () => {
-                let value = parseFloat(input.value);
+                let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                let parsedValue = parseFloat(value);
                 let maxAllowed = parseFloat(input.max) || 25;
                 let minAllowed = parseFloat(input.min) || 0.1;
 
-                if (isNaN(value) || value < minAllowed) {
-                    value = minAllowed;
-                } else if (value > maxAllowed) {
-                    value = maxAllowed;
+                if (isNaN(parsedValue) || parsedValue < minAllowed) {
+                    parsedValue = minAllowed;
+                } else if (parsedValue > maxAllowed) {
+                    parsedValue = maxAllowed;
                 }
-                input.value = value.toFixed(2);
-                range.value = value;
+                input.value = parsedValue.toFixed(2);
+                range.value = parsedValue;
                 debouncedUpdate();
             });
 
@@ -1309,29 +1311,6 @@ function updateVariableOprocentowanieRemoveButtons() {
     }
 }
 
-if (elements.zmienneOprocentowanieBtn) {
-    elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-        const isChecked = elements.zmienneOprocentowanieBtn.checked;
-        elements.variableOprocentowanieInputs?.classList.toggle("active", isChecked);
-
-        if (isChecked) {
-            elements.variableOprocentowanieWrapper.innerHTML = "";
-            const newGroup = createVariableOprocentowanieGroup();
-            elements.variableOprocentowanieWrapper.appendChild(newGroup);
-            initializeVariableOprocentowanieGroup(newGroup);
-            updateVariableOprocentowanieRemoveButtons();
-        } else {
-            resetVariableOprocentowanieSection();
-        }
-    });
-}
-
-elements.addVariableOprocentowanieBtn?.addEventListener("click", () => {
-    const newGroup = createVariableOprocentowanieGroup();
-    elements.variableOprocentowanieWrapper.appendChild(newGroup);
-    initializeVariableOprocentowanieGroup(newGroup);
-    updateVariableOprocentowanieRemoveButtons();
-});
 
 
 
