@@ -1528,6 +1528,9 @@ function initialize() {
     updateProwizjaInfo();
 
     elements.kwota.addEventListener("input", () => {
+        let value = parseFloat(elements.kwota.value.replace(",", ".")) || 0;
+        value = Math.max(parseFloat(elements.kwota.min) || 0, Math.min(parseFloat(elements.kwota.max) || Infinity, value));
+        elements.kwota.value = value.toFixed(2);
         syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
     });
     elements.kwotaRange.addEventListener("input", () => {
