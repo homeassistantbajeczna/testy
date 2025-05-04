@@ -235,13 +235,16 @@ function updateRatesArray(type) {
 function initializeInputHandling() {
     // Kwota Kredytu
     elements.kwota.addEventListener("input", () => {
-        let value = parseFloat(elements.kwota.value.replace(",", ".")) || 0;
+        let value = parseFloat(elements.kwota.value) || 0;
         value = Math.max(parseFloat(elements.kwota.min) || 0, Math.min(parseFloat(elements.kwota.max) || Infinity, value));
-        elements.kwota.value = value.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        elements.kwota.value = value;
+        elements.kwotaRange.value = value;
+        updateKwotaInfo();
     });
     elements.kwotaRange.addEventListener("input", () => {
-        syncInputWithRange(elements.kwotaRange, elements.kwota, updateKwotaInfo);
+        let value = parseFloat(elements.kwotaRange.value);
+        elements.kwota.value = value;
+        updateKwotaInfo();
     });
 
     // Ilość Rat
@@ -1569,7 +1572,13 @@ function toggleDarkMode() {
 
 
 // I N I C J A L I Z A C J A       A P L I K A C J I
-initializeInputHandling();
+function initialize() {
+    updateKwotaInfo();
+    updateLata();
+    updateProwizjaInfo();
+
+    // Initialize input handling
+    initializeInputHandling();
 
     elements.obliczBtn.addEventListener("click", () => {
         state.lastFormData.kwota = parseFloat(elements.kwota.value) || 500000;
