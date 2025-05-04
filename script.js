@@ -1703,6 +1703,74 @@ function generatePDF(data) {
 
 
 
+// F U N K C J E    I N T E R F E J S U
+
+function showResults() {
+    try {
+        if (elements.formSection) elements.formSection.style.display = "none";
+        if (elements.resultSection) elements.resultSection.style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+        console.error("Błąd podczas pokazywania wyników:", error);
+    }
+}
+
+function showForm() {
+    try {
+        if (elements.formSection) elements.formSection.style.display = "block";
+        if (elements.resultSection) elements.resultSection.style.display = "none";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+        console.error("Błąd podczas pokazywania formularza:", error);
+    }
+}
+
+function toggleHarmonogram(contentId) {
+    try {
+        const content = document.getElementById(contentId);
+        const header = content?.previousElementSibling?.querySelector(".btn-toggle");
+        if (content && header) {
+            const isHidden = content.style.display === "none";
+            content.style.display = isHidden ? "block" : "none";
+            header.textContent = `Harmonogram spłat ${isHidden ? "▼" : "▲"}`;
+        }
+    } catch (error) {
+        console.error("Błąd podczas przełączania harmonogramu:", error);
+    }
+}
+
+function updateZoom() {
+    try {
+        document.body.style.zoom = state.zoomLevel;
+        if (elements.zoomInBtn) {
+            elements.zoomInBtn.disabled = state.zoomLevel >= 2;
+        }
+        if (elements.zoomOutBtn) {
+            elements.zoomOutBtn.disabled = state.zoomLevel <= 0.5;
+        }
+    } catch (error) {
+        console.error("Błąd podczas aktualizacji zoomu:", error);
+    }
+}
+
+function toggleDarkMode() {
+    try {
+        state.isDarkMode = !state.isDarkMode;
+        document.body.classList.toggle("dark-mode", state.isDarkMode);
+        if (elements.toggleDarkModeBtn) {
+            elements.toggleDarkModeBtn.textContent = state.isDarkMode ? "☀️" : "🌙";
+        }
+        localStorage.setItem("darkMode", state.isDarkMode);
+    } catch (error) {
+        console.error("Błąd podczas przełączania trybu ciemnego:", error);
+    }
+}
+
+
+
+
+
+
 
 
 // F U N K C J E    I N I C J A L I Z A C J A    A P L I K A C J I
