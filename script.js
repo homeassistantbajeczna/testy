@@ -146,7 +146,7 @@ function updateProwizjaInfo() {
                 elements.prowizja.max = 1250000;
                 elements.prowizja.min = 0;
                 elements.prowizja.step = 1;
-                elements.prowizja.value = prowizja.toFixed(2).replace(".", ".");
+                elements.prowizja.value = prowizja.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
             }
         }
     } catch (error) {
@@ -172,14 +172,14 @@ elements.prowizja?.addEventListener("blur", () => {
     let minAllowed = 0;
     if (value < minAllowed) value = minAllowed;
     if (value > maxAllowed) value = maxAllowed;
-    elements.prowizja.value = value.toFixed(2);
+    elements.prowizja.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
     elements.prowizjaRange.value = value;
     updateProwizjaInfo();
 });
 
 elements.prowizjaRange?.addEventListener("input", () => {
     let value = parseFloat(elements.prowizjaRange.value);
-    elements.prowizja.value = value.toFixed(2);
+    elements.prowizja.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
     updateProwizjaInfo();
 });
 
@@ -203,7 +203,7 @@ elements.jednostkaProwizji?.addEventListener("change", () => {
     }
     if (value < 0) value = 0;
     if (value > elements.prowizja.max) value = elements.prowizja.max;
-    elements.prowizja.value = value.toFixed(2);
+    elements.prowizja.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny, dwa miejsca po przecinku
     elements.prowizjaRange.value = value;
     updateProwizjaInfo();
 });
