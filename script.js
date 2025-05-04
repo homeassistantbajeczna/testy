@@ -271,7 +271,6 @@ function initializeInputHandling() {
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
 
-        // Zachowaj wartość z maksymalnie dwoma miejscami po przecinku
         elements.kwota.value = parsedValue.toFixed(2);
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
@@ -279,16 +278,43 @@ function initializeInputHandling() {
 
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toFixed(2); // Synchronizuj z dwoma miejscami po przecinku
+        elements.kwota.value = value.toFixed(2);
         updateKwotaInfo();
     });
 
     // Ilość Rat
-    elements.iloscRat.addEventListener("input", () => {
-        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+    elements.iloscRat.addEventListener("input", (e) => {
+        let value = e.target.value;
+
+        // Usuń wszystko poza cyframi
+        value = value.replace(/[^0-9]/g, "");
+
+        // Aktualizuj pole tekstowe
+        e.target.value = value;
     });
+
+    elements.iloscRat.addEventListener("blur", () => {
+        let value = elements.iloscRat.value;
+        let parsedValue = parseInt(value) || 0;
+        let minValue = parseInt(elements.iloscRat.min) || 0;
+        let maxValue = parseInt(elements.iloscRat.max) || Infinity;
+
+        if (isNaN(parsedValue) || value === "") {
+            parsedValue = minValue;
+        } else {
+            if (parsedValue < minValue) parsedValue = minValue;
+            if (parsedValue > maxValue) parsedValue = maxValue;
+        }
+
+        elements.iloscRat.value = parsedValue.toString();
+        elements.iloscRatRange.value = parsedValue;
+        updateLata();
+    });
+
     elements.iloscRatRange.addEventListener("input", () => {
-        syncInputWithRange(elements.iloscRatRange, elements.iloscRat, updateLata);
+        let value = parseInt(elements.iloscRatRange.value);
+        elements.iloscRat.value = value.toString();
+        updateLata();
     });
 
     // Oprocentowanie
@@ -1137,7 +1163,7 @@ function createVariableOprocentowanieGroup() {
     group.innerHTML = `
         <div class="fields-wrapper">
             <div class="form-group box-period">
-                <label>Od</label>
+                <label class="form-label">Od</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-cykl" min="2" max="420" step="1" value="2">
                     <span class="input-group-text unit-miesiaca">miesiąca</span>
@@ -1145,7 +1171,7 @@ function createVariableOprocentowanieGroup() {
                 <input type="range" class="form-range range-slider variable-cykl-range" min="2" max="420" step="1" value="2">
             </div>
             <div class="form-group box-rate">
-                <label>Oprocentowanie</label>
+                <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
                     <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
                     <span class="input-group-text">%</span>
@@ -1158,7 +1184,7 @@ function createVariableOprocentowanieGroup() {
 }
 
 function initializeVariableOprocentowanieGroup(group) {
-    const iloscRat = parseInt(elements.iloscRat.value) || 360;
+    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
 
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
@@ -1168,55 +1194,20 @@ function initializeVariableOprocentowanieGroup(group) {
         if (input.classList.contains("variable-cykl")) {
             input.max = iloscRat;
             range.max = iloscRat;
-            let value = parseInt(input.value) || 2;
-            if (value > iloscRat) value = iloscRat;
-            if (value < 2) value = 2;
-            input.value = value;
-            range.value = value;
-
-            const debouncedUpdate = debounce(() => {
-                updateRatesArray("oprocentowanie");
-            }, 300);
-
-            input.addEventListener("blur", () => {
-                let value = parseInt(input.value) || 2;
-                if (value < 2) value = 2;
-                if (value > iloscRat) value = iloscRat;
-                input.value = value;
-                range.value = value;
-                debouncedUpdate();
-            });
-
-            range.addEventListener("input", () => {
-                input.value = parseInt(range.value);
-                debouncedUpdate();
-            });
+            syncInputWithRange(input, range);
         } else if (input.classList.contains("variable-rate")) {
-            const debouncedUpdate = debounce(() => {
-                updateRatesArray("oprocentowanie");
-            }, 300);
-
-            input.addEventListener("blur", () => {
-                let value = parseFloat(input.value);
-                let maxAllowed = parseFloat(input.max) || 25;
-                let minAllowed = parseFloat(input.min) || 0.1;
-
-                if (isNaN(value) || value < minAllowed) {
-                    value = minAllowed;
-                } else if (value > maxAllowed) {
-                    value = maxAllowed;
-                }
-                input.value = value.toFixed(2);
-                range.value = value;
-                debouncedUpdate();
-            });
-
-            range.addEventListener("input", () => {
-                let value = parseFloat(range.value);
-                input.value = value.toFixed(2);
-                debouncedUpdate();
-            });
+            syncInputWithRange(input, range);
         }
+
+        input.addEventListener("input", () => {
+            syncInputWithRange(input, range);
+            updateRatesArray("oprocentowanie");
+        });
+
+        range.addEventListener("input", () => {
+            input.value = range.value;
+            updateRatesArray("oprocentowanie");
+        });
     });
 }
 
@@ -1240,7 +1231,7 @@ function updateVariableOprocentowanieRemoveButtons() {
         removeBtnWrapper.classList.add("remove-btn-wrapper");
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
-        removeBtn.classList.add("btn", "btn-danger");
+        removeBtn.classList.add("btn-reset");
         removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
         removeBtn.textContent = "Usuń";
         removeBtnWrapper.appendChild(removeBtn);
@@ -1258,21 +1249,6 @@ function updateVariableOprocentowanieRemoveButtons() {
         });
     }
 }
-
-elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-    const isChecked = elements.zmienneOprocentowanieBtn.checked;
-    elements.variableOprocentowanieInputs.classList.toggle("active", isChecked);
-
-    if (isChecked) {
-        elements.variableOprocentowanieWrapper.innerHTML = "";
-        const newGroup = createVariableOprocentowanieGroup();
-        elements.variableOprocentowanieWrapper.appendChild(newGroup);
-        initializeVariableOprocentowanieGroup(newGroup);
-        updateVariableOprocentowanieRemoveButtons();
-    } else {
-        resetVariableOprocentowanieSection();
-    }
-});
 
 
 
