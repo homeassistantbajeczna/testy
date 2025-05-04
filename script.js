@@ -1978,13 +1978,22 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
             elements.iloscRat.type = "number"; // Typ number dla natywnej walidacji
-            elements.iloscRat.value = "360"; // Ustawienie wartości początkowej jako string, aby uniknąć formatowania
+            elements.iloscRat.value = ""; // Początkowo ustawiamy pustą wartość, aby uniknąć formatowania przez przeglądarkę
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
             elements.iloscRatRange.max = 420;
             elements.iloscRatRange.step = 12;
-            elements.iloscRatRange.value = 360;
+            elements.iloscRatRange.value = 360; // Suwak ustawia wartość początkową
+        }
+
+        // Ustawiamy wartość początkową dynamicznie i od razu synchronizujemy
+        if (elements.iloscRat && elements.iloscRatRange) {
+            const initialValue = 360;
+            elements.iloscRat.value = initialValue.toString(); // Ustawiamy jako string
+            elements.iloscRatRange.value = initialValue; // Synchronizujemy suwak
+            // Wywołujemy zdarzenie input na suwaku, aby wymusić synchronizację
+            elements.iloscRatRange.dispatchEvent(new Event("input"));
         }
 
         // Obsługa wpisywania wartości - tylko cyfry, bez zakłócania kursora
@@ -2042,11 +2051,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
         });
-
-        // Wymuszamy zdarzenie blur zaraz po inicjalizacji, aby upewnić się, że wartość początkowa jest poprawnie sformatowana
-        if (elements.iloscRat) {
-            elements.iloscRat.dispatchEvent(new Event("blur"));
-        }
 
         // Jawne wywołanie synchronizacji po inicjalizacji
         if (elements.iloscRat && elements.iloscRatRange) {
