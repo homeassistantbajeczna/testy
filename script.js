@@ -231,6 +231,53 @@ function updateRatesArray(type) {
 
 
 
+// F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
+function initializeInputHandling() {
+    // Kwota Kredytu
+    elements.kwota.addEventListener("input", () => {
+        let value = parseFloat(elements.kwota.value.replace(",", ".")) || 0;
+        value = Math.max(parseFloat(elements.kwota.min) || 0, Math.min(parseFloat(elements.kwota.max) || Infinity, value));
+        elements.kwota.value = value.toFixed(2);
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+    });
+    elements.kwotaRange.addEventListener("input", () => {
+        syncInputWithRange(elements.kwotaRange, elements.kwota, updateKwotaInfo);
+    });
+
+    // Ilość Rat
+    elements.iloscRat.addEventListener("input", () => {
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+    });
+    elements.iloscRatRange.addEventListener("input", () => {
+        syncInputWithRange(elements.iloscRatRange, elements.iloscRat, updateLata);
+    });
+
+    // Oprocentowanie
+    elements.oprocentowanie.addEventListener("input", () => {
+        syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange);
+    });
+    elements.oprocentowanieRange.addEventListener("input", () => {
+        syncInputWithRange(elements.oprocentowanieRange, elements.oprocentowanie);
+    });
+
+    // Prowizja
+    elements.prowizja.addEventListener("input", () => {
+        syncInputWithRange(elements.prowizja, elements.prowizjaRange, updateProwizjaInfo);
+    });
+    elements.prowizjaRange.addEventListener("input", () => {
+        syncInputWithRange(elements.prowizjaRange, elements.prowizja, updateProwizjaInfo);
+    });
+
+    // Jednostka Prowizji
+    elements.jednostkaProwizji.addEventListener("change", updateProwizjaInfo);
+}
+
+
+
+
+
+
+
 
 
 
@@ -1522,42 +1569,7 @@ function toggleDarkMode() {
 
 
 // I N I C J A L I Z A C J A       A P L I K A C J I
-function initialize() {
-    updateKwotaInfo();
-    updateLata();
-    updateProwizjaInfo();
-
-    elements.kwota.addEventListener("input", () => {
-        let value = parseFloat(elements.kwota.value.replace(",", ".")) || 0;
-        value = Math.max(parseFloat(elements.kwota.min) || 0, Math.min(parseFloat(elements.kwota.max) || Infinity, value));
-        elements.kwota.value = value.toFixed(2);
-        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-    });
-    elements.kwotaRange.addEventListener("input", () => {
-        syncInputWithRange(elements.kwotaRange, elements.kwota, updateKwotaInfo);
-    });
-
-    elements.iloscRat.addEventListener("input", () => {
-        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
-    });
-    elements.iloscRatRange.addEventListener("input", () => {
-        syncInputWithRange(elements.iloscRatRange, elements.iloscRat, updateLata);
-    });
-
-    elements.oprocentowanie.addEventListener("input", () => {
-        syncInputWithRange(elements.oprocentowanie, elements.oprocentowanieRange);
-    });
-    elements.oprocentowanieRange.addEventListener("input", () => {
-        syncInputWithRange(elements.oprocentowanieRange, elements.oprocentowanie);
-    });
-
-    elements.prowizja.addEventListener("input", () => {
-        syncInputWithRange(elements.prowizja, elements.prowizjaRange, updateProwizjaInfo);
-    });
-    elements.prowizjaRange.addEventListener("input", () => {
-        syncInputWithRange(elements.prowizjaRange, elements.prowizja, updateProwizjaInfo);
-    });
-    elements.jednostkaProwizji.addEventListener("change", updateProwizjaInfo);
+initializeInputHandling();
 
     elements.obliczBtn.addEventListener("click", () => {
         state.lastFormData.kwota = parseFloat(elements.kwota.value) || 500000;
