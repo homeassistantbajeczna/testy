@@ -232,12 +232,13 @@ function updateRatesArray(type) {
 
 
 // F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
+// F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
 function initializeInputHandling() {
     // Kwota Kredytu
     elements.kwota.addEventListener("input", (e) => {
         let value = e.target.value;
 
-        // Zamień przecinek na kropkę i usuń nieprawidłowe znaki, zachowując kropkę
+        // Zamień przecinek na kropkę i usuń nieprawidłowe znaki
         value = value.replace(",", ".").replace(/[^0-9.]/g, "");
 
         // Zapobiegnij wpisywaniu więcej niż jednej kropki
@@ -246,19 +247,8 @@ function initializeInputHandling() {
             value = value.substring(0, value.lastIndexOf("."));
         }
 
-        // Aktualizuj pole tekstowe bez natychmiastowego formatowania
-        elements.kwota.value = value;
-
-        // Parsuj wartość do synchronizacji z suwakiem
-        let parsedValue = parseFloat(value) || 0;
-        let minValue = parseFloat(elements.kwota.min) || 0;
-        let maxValue = parseFloat(elements.kwota.max) || Infinity;
-
-        if (parsedValue < minValue) parsedValue = minValue;
-        if (parsedValue > maxValue) parsedValue = maxValue;
-
-        elements.kwotaRange.value = parsedValue; // Synchronizuj suwak
-        updateKwotaInfo();
+        // Aktualizuj pole tekstowe, ale pozwól przeglądarce obsłużyć wpisywanie
+        e.target.value = value;
     });
 
     elements.kwota.addEventListener("blur", () => {
@@ -274,7 +264,7 @@ function initializeInputHandling() {
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
 
-        // Zachowaj pełną precyzję w polu, formatowanie w updateKwotaInfo
+        // Zachowaj pełną precyzję w polu
         elements.kwota.value = parsedValue.toString();
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
@@ -282,7 +272,7 @@ function initializeInputHandling() {
 
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toString(); // Zachowaj pełną wartość z suwaka
+        elements.kwota.value = value.toString(); // Synchronizuj pole tekstowe z suwakiem
         updateKwotaInfo();
     });
 
