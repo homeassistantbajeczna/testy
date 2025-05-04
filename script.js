@@ -1402,6 +1402,8 @@ function initializeZmienneOprocentowanieToggle() {
             if (elements.zmienneOprocentowanieBtn.checked) {
                 // Włącz zmienne oprocentowanie
                 elements.variableOprocentowanieInputs.classList.add("active");
+                // Upewnij się, że wrapper jest pusty przed dodaniem nowej grupy
+                elements.variableOprocentowanieWrapper.innerHTML = "";
                 const newGroup = createVariableOprocentowanieGroup();
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
@@ -1431,6 +1433,18 @@ function initializeZmienneOprocentowanieToggle() {
                 elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanieRange.value;
             }
         });
+
+        // Dodaj obsługę przycisku "Dodaj kolejną zmianę"
+        const addVariableOprocentowanieBtn = document.getElementById("addVariableOprocentowanieBtn");
+        if (addVariableOprocentowanieBtn) {
+            addVariableOprocentowanieBtn.addEventListener("click", () => {
+                const newGroup = createVariableOprocentowanieGroup();
+                elements.variableOprocentowanieWrapper.appendChild(newGroup);
+                initializeVariableOprocentowanieGroup(newGroup);
+                updateVariableOprocentowanieRemoveButtons();
+                updateRatesArray("oprocentowanie");
+            });
+        }
     }
 }
 
