@@ -1288,6 +1288,7 @@ elements.addNadplataKredytuBtn?.addEventListener("click", () => {
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
 function createVariableOprocentowanieGroup(startPeriod = 2) {
+    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
     group.setAttribute("data-type", "oprocentowanie");
@@ -1296,10 +1297,10 @@ function createVariableOprocentowanieGroup(startPeriod = 2) {
             <div class="form-group box-period">
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${startPeriod}" max="420" step="1" value="${startPeriod}">
+                    <input type="number" class="form-control variable-cykl" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
                     <span class="input-group-text unit-miesiaca">miesiąca</span>
                 </div>
-                <input type="range" class="form-range range-slider variable-cykl-range" min="${startPeriod}" max="420" step="1" value="${startPeriod}">
+                <input type="range" class="form-range range-slider variable-cykl-range" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
             </div>
             <div class="form-group box-rate">
                 <label class="form-label">Oprocentowanie</label>
@@ -1315,7 +1316,7 @@ function createVariableOprocentowanieGroup(startPeriod = 2) {
 }
 
 function initializeVariableOprocentowanieGroup(group) {
-    const iloscRat = parseInt(elements.iloscRat?.value) || 420; // Maksymalna wartość dostosowana do iloscRat
+    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
 
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
@@ -1333,13 +1334,13 @@ function initializeVariableOprocentowanieGroup(group) {
         input.addEventListener("input", () => {
             syncInputWithRange(input, range);
             updateRatesArray("oprocentowanie");
-            toggleAddButtonVisibility(); // Aktualizuj widoczność przycisku
+            toggleAddButtonVisibility();
         });
 
         range.addEventListener("input", () => {
             input.value = range.value;
             updateRatesArray("oprocentowanie");
-            toggleAddButtonVisibility(); // Aktualizuj widoczność przycisku
+            toggleAddButtonVisibility();
         });
     });
 }
@@ -1360,7 +1361,7 @@ function resetVariableOprocentowanieSection() {
     elements.oprocentowanie.disabled = false;
     elements.oprocentowanieRange.disabled = false;
     delete elements.oprocentowanie.dataset.lastManualValue;
-    toggleAddButtonVisibility(); // Aktualizuj widoczność przycisku po resecie
+    toggleAddButtonVisibility();
 }
 
 function updateVariableOprocentowanieRemoveButtons() {
@@ -1393,16 +1394,15 @@ function updateVariableOprocentowanieRemoveButtons() {
                 resetVariableOprocentowanieSection();
             }
             updateVariableOprocentowanieRemoveButtons();
-            toggleAddButtonVisibility(); // Aktualizuj widoczność przycisku
+            toggleAddButtonVisibility();
         });
     }
 }
 
-// Funkcja do przełączania widoczności przycisku "Dodaj kolejną zmianę"
 function toggleAddButtonVisibility() {
     const addButton = document.getElementById("addVariableOprocentowanieBtn");
     const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-    const maxPeriod = 420; // Maksymalna wartość z inputów
+    const maxPeriod = parseInt(elements.iloscRat?.value) || 420; // Używamy iloscRat jako maksymalną wartość
 
     if (!addButton || groups.length === 0) {
         addButton.style.display = "none";
@@ -1420,14 +1420,13 @@ function toggleAddButtonVisibility() {
     }
 }
 
-// Dodaj obsługę przełącznika Zmienne Oprocentowanie
 function initializeZmienneOprocentowanieToggle() {
     if (elements.zmienneOprocentowanieBtn) {
         elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
             if (elements.zmienneOprocentowanieBtn.checked) {
                 elements.variableOprocentowanieInputs.classList.add("active");
                 elements.variableOprocentowanieWrapper.innerHTML = "";
-                const newGroup = createVariableOprocentowanieGroup(2); // Start z wartością 2
+                const newGroup = createVariableOprocentowanieGroup(2);
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
                 updateVariableOprocentowanieRemoveButtons();
@@ -1440,7 +1439,7 @@ function initializeZmienneOprocentowanieToggle() {
                 updateVariableOprocentowanieRemoveButtons();
             }
             updateKwotaInfo();
-            toggleAddButtonVisibility(); // Aktualizuj widoczność przycisku
+            toggleAddButtonVisibility();
         });
 
         elements.oprocentowanie.addEventListener("change", () => {
@@ -1462,21 +1461,34 @@ function initializeZmienneOprocentowanieToggle() {
                 const lastGroup = groups[groups.length - 1];
                 const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
                 const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
+                const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
                 const newStartPeriod = lastPeriodValue + 1;
 
-                if (newStartPeriod <= 420) {
+                if (newStartPeriod <= maxPeriod) {
                     const newGroup = createVariableOprocentowanieGroup(newStartPeriod);
                     elements.variableOprocentowanieWrapper.appendChild(newGroup);
                     initializeVariableOprocentowanieGroup(newGroup);
                     updateVariableOprocentowanieRemoveButtons();
                     updateRatesArray("oprocentowanie");
-                    toggleAddButtonVisibility(); // Aktualizuj widoczność przycisku
+                    toggleAddButtonVisibility();
                 }
             });
         }
+
+        // Synchronizacja z iloscRat przy zmianie wartości
+        elements.iloscRat.addEventListener("input", () => {
+            toggleAddButtonVisibility();
+            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+            groups.forEach(group => initializeVariableOprocentowanieGroup(group));
+        });
+
+        elements.iloscRatRange.addEventListener("input", () => {
+            toggleAddButtonVisibility();
+            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+            groups.forEach(group => initializeVariableOprocentowanieGroup(group));
+        });
     }
 }
-
 
 
 
