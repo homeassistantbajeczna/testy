@@ -1355,6 +1355,64 @@ function initializeNadplataKredytuToggle() {
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
+function createVariableOprocentowanieGroup(startPeriod = 2) {
+    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
+    const group = document.createElement("div");
+    group.classList.add("variable-input-group");
+    group.setAttribute("data-type", "oprocentowanie");
+    group.innerHTML = `
+        <div class="fields-wrapper">
+            <div class="form-group box-period">
+                <label class="form-label">Od</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-cykl" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
+                    <span class="input-group-text unit-miesiaca">miesiąca</span>
+                </div>
+                <input type="range" class="form-range range-slider variable-cykl-range" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
+            </div>
+            <div class="form-group box-rate">
+                <label class="form-label">Oprocentowanie</label>
+                <div class="input-group">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
+                    <span class="input-group-text">%</span>
+                </div>
+                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.1" value="7">
+            </div>
+        </div>
+    `;
+    return group;
+}
+
+function initializeVariableOprocentowanieGroup(group) {
+    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
+
+    const inputs = group.querySelectorAll(".form-control");
+    const ranges = group.querySelectorAll(".form-range");
+
+    inputs.forEach((input, index) => {
+        const range = ranges[index];
+        if (input.classList.contains("variable-cykl")) {
+            input.max = iloscRat;
+            range.max = iloscRat;
+            syncInputWithRange(input, range);
+        } else if (input.classList.contains("variable-rate")) {
+            syncInputWithRange(input, range);
+        }
+
+        input.addEventListener("input", () => {
+            syncInputWithRange(input, range);
+            updateRatesArray("oprocentowanie");
+            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+        });
+
+        range.addEventListener("input", () => {
+            input.value = range.value;
+            updateRatesArray("oprocentowanie");
+            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+        });
+    });
+}
+
 function resetVariableOprocentowanieSection() {
     elements.variableOprocentowanieWrapper.innerHTML = "";
     state.variableRates = [];
@@ -1369,9 +1427,8 @@ function resetVariableOprocentowanieSection() {
     elements.oprocentowanie.value = oprocentowanieValue.toFixed(2);
     elements.oprocentowanieRange.value = oprocentowanieValue;
     
-    // Usunięto bezpośrednie odblokowywanie pól oprocentowania, bo zarządza tym updateInputFieldsState
     delete elements.oprocentowanie.dataset.lastManualValue;
-    toggleAddButtonVisibility();
+    updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są odpowiednio zaktualizowane
     updateInputFieldsState(); // Aktualizuj stan pól po resecie
 }
 
@@ -1420,7 +1477,6 @@ function updateVariableOprocentowanieRemoveButtons() {
                 resetVariableOprocentowanieSection();
             }
             updateVariableOprocentowanieRemoveButtons();
-            toggleAddButtonVisibility();
             updateInputFieldsState(); // Aktualizuj stan pól po usunięciu
         });
 
@@ -1436,16 +1492,39 @@ function updateVariableOprocentowanieRemoveButtons() {
                 const newGroup = createVariableOprocentowanieGroup(newStartPeriod);
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
-                updateVariableOprocentowanieRemoveButtons();
                 updateRatesArray("oprocentowanie");
-                toggleAddButtonVisibility();
+                updateVariableOprocentowanieRemoveButtons();
             }
         });
+
+        // Ustaw widoczność przycisku "Dodaj kolejną zmianę" na podstawie okresu
+        const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
+        const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
+        const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
+        addBtn.style.display = lastPeriodValue >= maxPeriod ? "none" : "block";
     } else {
         updateInputFieldsState(); // Aktualizuj stan pól, jeśli nie ma grup
     }
+}
 
-    toggleAddButtonVisibility();
+function toggleAddButtonVisibility() {
+    const addButton = document.getElementById("addVariableOprocentowanieBtn");
+    const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+    const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
+
+    // Jeśli nie ma przycisku "Dodaj" lub nie ma grup, nie rób nic
+    if (!addButton) return;
+
+    if (groups.length === 0) {
+        // Nie ukrywaj przycisku, jeśli nie ma grup - pozwól, aby updateVariableOprocentowanieRemoveButtons zarządzało widocznością
+        return;
+    }
+
+    const lastGroup = groups[groups.length - 1];
+    const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
+    const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
+
+    addButton.style.display = lastPeriodValue >= maxPeriod ? "none" : "block";
 }
 
 function initializeZmienneOprocentowanieToggle() {
@@ -1457,8 +1536,8 @@ function initializeZmienneOprocentowanieToggle() {
                 const newGroup = createVariableOprocentowanieGroup(2);
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
-                updateVariableOprocentowanieRemoveButtons();
                 updateRatesArray("oprocentowanie");
+                updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są widoczne
                 updateInputFieldsState(); // Zablokuj pola przy włączeniu
             } else {
                 elements.variableOprocentowanieInputs.classList.remove("active");
@@ -1467,7 +1546,6 @@ function initializeZmienneOprocentowanieToggle() {
                 updateInputFieldsState(); // Odblokuj pola, jeśli Nadpłata Kredytu też jest wyłączona
             }
             updateKwotaInfo();
-            toggleAddButtonVisibility();
         });
 
         elements.oprocentowanie.addEventListener("change", () => {
@@ -1483,18 +1561,21 @@ function initializeZmienneOprocentowanieToggle() {
         });
 
         elements.iloscRat.addEventListener("input", () => {
-            toggleAddButtonVisibility();
             const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
             groups.forEach(group => initializeVariableOprocentowanieGroup(group));
+            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie ilości rat
         });
 
         elements.iloscRatRange.addEventListener("input", () => {
-            toggleAddButtonVisibility();
             const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
             groups.forEach(group => initializeVariableOprocentowanieGroup(group));
+            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie ilości rat
         });
     }
 }
+
+
+
 
 
 
