@@ -77,7 +77,7 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
         if (input.id === "iloscRat" || input.classList.contains("variable-cykl") || parseFloat(input.step) === 12) {
             value = parseInt(input.value.replace(/[^0-9]/g, "")) || parseInt(range.value);
             value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
-            //input.value = value.toString();
+            input.value = value.toString();
         } else {
             value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || parseFloat(range.value);
             value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
@@ -1667,8 +1667,7 @@ document.addEventListener("DOMContentLoaded", () => {
         value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
         if (value < 12) value = 12;
         if (value > 420) value = 420;
-        //elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako string
-        
+        elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako string
         elements.iloscRatRange.value = value;
         syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
         if (elements.nadplataKredytuWrapper) {
@@ -1691,7 +1690,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     elements.iloscRatRange?.addEventListener("input", () => {
         let value = parseInt(elements.iloscRatRange.value);
-        //elements.iloscRat.value = value.toString();
+        elements.iloscRat.value = value.toString();
         syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
         if (elements.nadplataKredytuWrapper) {
             elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
@@ -2054,8 +2053,7 @@ document.addEventListener("DOMContentLoaded", () => {
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            //elements.iloscRat.value = value.toString(); 
-            //elements.iloscRat.value = value.toFixed(0); 
+            elements.iloscRat.value = value.toString(); 
             elements.iloscRatRange.value = value;
             updateLata();
             if (elements.nadplataKredytuWrapper) {
