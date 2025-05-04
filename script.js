@@ -2063,9 +2063,10 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanieRange.value = 7;
         }
 
-        // Obsługa wpisywania wartości - tylko cyfry i kropka, max 2 miejsca po przecinku
+        // Obsługa wpisywania wartości - zamiana przecinka na kropkę, tylko cyfry i kropka, max 2 miejsca po przecinku
         elements.oprocentowanie?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/[^0-9.]/g, ""); // Akceptujemy tylko cyfry i kropkę
+            let value = e.target.value.replace(/,/g, "."); // Zamiana przecinka na kropkę
+            value = value.replace(/[^0-9.]/g, ""); // Akceptujemy tylko cyfry i kropkę
             const parts = value.split(".");
             if (parts.length > 2) {
                 value = parts[0] + "." + parts.slice(1).join("");
