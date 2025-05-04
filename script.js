@@ -91,7 +91,7 @@ function updateKwotaInfo() {
 
 function updateLata() {
     const iloscRat = parseInt(elements.iloscRat.value) || 0;
-    elements.lata.textContent = `Okres spłaty: ${iloscRat / 12} lat (${iloscRat} miesięcy)`;
+    elements.lata.textContent = `Okres spłaty: ${iloscRat / 12} lat`;
 }
 
 function updateProwizjaInfo() {
