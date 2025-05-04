@@ -81,7 +81,7 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
         } else {
             value = parseFloat(input.value.replace(",", ".").replace(/[^0-9.]/g, "")) || parseFloat(range.value);
             value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
-            input.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek jako separator dziesiętny
+            input.value = value.toFixed(2).replace(".", "."); // Zawsze kropka jako separator dziesiętny
         }
         range.value = value;
         if (!skipOnChange && onChange) {
@@ -92,103 +92,9 @@ function syncInputWithRange(input, range, onChange = null, skipOnChange = false)
     }
 }
 
-function updateProwizjaInfo() {
-    try {
-        const prowizja = parseFloat(elements.prowizja?.value.replace(',', '.') || 0);
-        const jednostka = elements.jednostkaProwizji?.value || "procent";
-        const kwota = parseFloat(elements.kwota?.value.replace(',', '.') || 0);
-        let prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
-        if (isNaN(prowizjaKwota)) prowizjaKwota = 0;
-        if (elements.prowizjaInfo) {
-            elements.prowizjaInfo.textContent = `Prowizja: ${formatNumberWithSpaces(prowizjaKwota)} zł`;
-        }
-
-        if (jednostka === "procent") {
-            if (elements.prowizjaRange) {
-                elements.prowizjaRange.max = 25;
-                elements.prowizjaRange.min = 0;
-                elements.prowizjaRange.step = 0.01;
-                elements.prowizjaRange.value = prowizja;
-                elements.prowizja.max = 25;
-                elements.prowizja.min = 0;
-                elements.prowizja.step = 0.01;
-                elements.prowizja.value = prowizja.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-            }
-        } else {
-            if (elements.prowizjaRange) {
-                elements.prowizjaRange.max = 1250000;
-                elements.prowizjaRange.min = 0;
-                elements.prowizjaRange.step = 1;
-                elements.prowizjaRange.value = prowizja;
-                elements.prowizja.max = 1250000;
-                elements.prowizja.min = 0;
-                elements.prowizja.step = 1;
-                elements.prowizja.value = prowizja.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-            }
-        }
-    } catch (error) {
-        console.error("Błąd podczas aktualizacji informacji o prowizji:", error);
-    }
-}
-
-elements.prowizja?.addEventListener("input", (e) => {
-    let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, ""); // Akceptujemy kropkę i cyfry
-    const parts = value.split(".");
-    if (parts.length > 2) {
-        value = parts[0] + "." + parts.slice(1).join("");
-    } else if (parts.length === 2 && parts[1].length > 2) {
-        value = parts[0] + "." + parts[1].substring(0, 2);
-    }
-    e.target.value = value.replace(".", ","); // Zmieniono na przecinek
-    syncInputWithRange(e.target, elements.prowizjaRange, updateProwizjaInfo);
-});
-
-elements.prowizja?.addEventListener("blur", () => {
-    let value = parseFloat(elements.prowizja.value.replace(",", ".")) || 0;
-    const jednostka = elements.jednostkaProwizji?.value || "procent";
-    let maxAllowed = jednostka === "procent" ? 25 : 1250000;
-    let minAllowed = 0;
-    if (value < minAllowed) value = minAllowed;
-    if (value > maxAllowed) value = maxAllowed;
-    elements.prowizja.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-    elements.prowizjaRange.value = value;
-    updateProwizjaInfo();
-});
-
-elements.prowizjaRange?.addEventListener("input", () => {
-    let value = parseFloat(elements.prowizjaRange.value);
-    elements.prowizja.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-    updateProwizjaInfo();
-});
-
-elements.jednostkaProwizji?.addEventListener("change", () => {
-    const jednostka = elements.jednostkaProwizji.value;
-    const kwota = parseFloat(elements.kwota?.value.replace(',', '.')) || 0;
-    let value = parseFloat(elements.prowizja.value.replace(',', '.')) || 0;
-    if (jednostka === "zl") {
-        const defaultProwizjaZl = (2 / 100) * kwota;
-        value = defaultProwizjaZl;
-        elements.prowizja.max = 1250000;
-        elements.prowizjaRange.max = 1250000;
-        elements.prowizja.step = 1;
-        elements.prowizjaRange.step = 1;
-    } else {
-        value = 2;
-        elements.prowizja.max = 25;
-        elements.prowizjaRange.max = 25;
-        elements.prowizja.step = 0.01;
-        elements.prowizjaRange.step = 0.01;
-    }
-    if (value < 0) value = 0;
-    if (value > elements.prowizja.max) value = elements.prowizja.max;
-    elements.prowizja.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-    elements.prowizjaRange.value = value;
-    updateProwizjaInfo();
-});
-
 function updateKwotaInfo() {
     try {
-        const kwota = parseFloat(elements.kwota?.value.replace(',', '.')) || 0;
+        const kwota = parseFloat(elements.kwota?.value) || 0;
         if (elements.kwotaInfo) {
             elements.kwotaInfo.textContent = `Kwota kredytu: ${formatNumberWithSpaces(kwota)} zł`;
         }
@@ -197,6 +103,158 @@ function updateKwotaInfo() {
         console.error("Błąd podczas aktualizacji informacji o kwocie:", error);
     }
 }
+
+// Aktualizacja limitów przy zmianie kwoty kredytu
+document.addEventListener("DOMContentLoaded", () => {
+    // Inicjalizacja boxa KWOTA KREDYTU
+    if (elements.kwota) {
+        elements.kwota.min = 50000;
+        elements.kwota.max = 5000000;
+        elements.kwota.step = 0.01;
+        elements.kwota.value = "500000.00"; // Wartość początkowa z kropką
+        if (elements.kwota.type === "number") {
+            elements.kwota.type = "text"; // Zmiana typu na text dla lepszej kontroli
+        }
+    }
+    if (elements.kwotaRange) {
+        elements.kwotaRange.min = 50000;
+        elements.kwotaRange.max = 5000000;
+        elements.kwotaRange.step = 0.01;
+        elements.kwotaRange.value = 500000;
+    }
+
+    elements.kwota?.addEventListener("input", (e) => {
+        let value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        value = value.replace(/[^0-9.,]/g, "").replace(/,/, ".").replace(/\.+/g, ".");
+        const parts = value.split(".");
+        if (parts.length > 2) {
+            value = parts[0] + "." + parts.slice(1).join("");
+        } else if (parts.length === 2 && parts[1].length > 2) {
+            value = parts[0] + "." + parts[1].substring(0, 2);
+        }
+        e.target.value = value;
+        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
+    });
+
+    elements.kwota?.addEventListener("blur", () => {
+        let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
+        let parsedValue = parseFloat(value) || 50000;
+        parsedValue = Math.max(50000, Math.min(5000000, parsedValue));
+        elements.kwota.value = parsedValue.toFixed(2);
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
+    });
+
+    elements.kwotaRange?.addEventListener("input", () => {
+        let value = parseFloat(elements.kwotaRange.value);
+        elements.kwota.value = value.toFixed(2);
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
+    });
+
+    elements.kwotaRange?.addEventListener("change", () => {
+        let value = parseFloat(elements.kwotaRange.value);
+        let validatedValue = Math.max(50000, Math.min(5000000, value));
+        elements.kwota.value = validatedValue.toFixed(2);
+        elements.kwotaRange.value = validatedValue;
+        syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate").forEach((input, index) => {
+                const range = elements.nadplataKredytuWrapper.querySelectorAll(".variable-rate-range")[index];
+                updateOverpaymentLimit(input, range, input.closest(".variable-input-group"));
+            });
+        }
+    });
+
+    // Inicjalizacja boxa Ilość Rat
+    if (elements.iloscRat) {
+        elements.iloscRat.min = 12;
+        elements.iloscRat.max = 420;
+        elements.iloscRat.step = 12;
+        elements.iloscRat.value = 420; // Nowa wartość domyślna
+        elements.iloscRat.type = "number";
+    }
+    if (elements.iloscRatRange) {
+        elements.iloscRatRange.min = 12;
+        elements.iloscRatRange.max = 420;
+        elements.iloscRatRange.step = 12;
+        elements.iloscRatRange.value = 420; // Nowa wartość domyślna
+    }
+
+    // Dodajemy walidację przy wpisywaniu, aby akceptować tylko cyfry
+    elements.iloscRat?.addEventListener("input", (e) => {
+        let value = e.target.value;
+        const cursorPos = e.target.selectionStart;
+        value = value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
+        e.target.value = value;
+        e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
+    });
+
+    // Jawne wywołanie synchronizacji po inicjalizacji
+    if (elements.iloscRat && elements.iloscRatRange) {
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata, true);
+    }
+
+    elements.iloscRat?.addEventListener("blur", () => {
+        let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
+        value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
+        if (value < 12) value = 12;
+        if (value > 420) value = 420;
+        elements.iloscRat.value = value.toString(); // Ustawiamy wartość jako string
+        elements.iloscRatRange.value = value;
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value - 1;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value - 1;
+                }
+            });
+        }
+        if (elements.variableOprocentowanieWrapper) {
+            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value;
+                }
+            });
+        }
+    });
+
+    elements.iloscRatRange?.addEventListener("input", () => {
+        let value = parseInt(elements.iloscRatRange.value);
+        elements.iloscRat.value = value.toString();
+        syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+        if (elements.nadplataKredytuWrapper) {
+            elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value - 1;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value - 1;
+                }
+            });
+        }
+        if (elements.variableOprocentowanieWrapper) {
+            elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                input.max = value;
+                if (input.nextElementSibling?.nextElementSibling) {
+                    input.nextElementSibling.nextElementSibling.max = value;
+                }
+            });
+        }
+    });
+});
+
 
 
 
@@ -1925,15 +1983,13 @@ function toggleDarkMode() {
 
 document.addEventListener("DOMContentLoaded", () => {
     try {
-        // Inicjalizacja boxa Kwota Kredytu
+        // Inicjalizacja boxa Kwota Kredytu (tylko przypisanie wartości początkowych, reszta w pierwszym bloku)
         if (elements.kwota) {
             elements.kwota.min = 50000;
             elements.kwota.max = 5000000;
             elements.kwota.step = 0.01;
-            elements.kwota.value = "500000,00"; // Ustawiono początkową wartość z przecinkiem
-            if (elements.kwota.type === "number") {
-                elements.kwota.type = "text"; // Zmiana typu na text dla lepszej kontroli
-            }
+            elements.kwota.value = "500000.00"; // Ustawiamy z kropką, spójnie z pierwszym blokiem
+            elements.kwota.type = "text"; // Spójne z pierwszym blokiem
         }
         if (elements.kwotaRange) {
             elements.kwotaRange.min = 50000;
@@ -1942,49 +1998,15 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.kwotaRange.value = 500000;
         }
 
-        elements.kwota?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/[^0-9,]/g, "").replace(".", ","); // Akceptuj tylko cyfry i przecinek
-            const parts = value.split(",");
-            if (parts.length > 2) {
-                value = parts[0] + "," + parts.slice(1).join("");
-            } else if (parts.length === 2 && parts[1].length > 2) {
-                value = parts[0] + "," + parts[1].substring(0, 2);
-            }
-            e.target.value = value;
-            const cursorPos = e.target.selectionStart;
-            e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
-        });
-
-        elements.kwota?.addEventListener("blur", () => {
-            let value = elements.kwota.value.replace(",", ".").replace(/[^0-9.]/g, "");
-            let parsedValue = parseFloat(value) || 50000;
-            parsedValue = Math.max(50000, Math.min(5000000, parsedValue));
-            elements.kwota.value = parsedValue.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-            elements.kwotaRange.value = parsedValue;
-            syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        });
-
-        elements.kwotaRange?.addEventListener("input", () => {
-            let value = parseFloat(elements.kwotaRange.value);
-            elements.kwota.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-            syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        });
-
-        elements.kwotaRange?.addEventListener("change", () => {
-            let value = parseFloat(elements.kwotaRange.value);
-            let validatedValue = Math.max(50000, Math.min(5000000, value));
-            elements.kwota.value = validatedValue.toFixed(2).replace(".", ","); // Zmieniono na przecinek
-            elements.kwotaRange.value = validatedValue;
-            syncInputWithRange(elements.kwota, elements.kwotaRange, updateKwotaInfo);
-        });
+        // Usunięto nadmiarowe event listenery, które już są w pierwszym bloku
 
         // Inicjalizacja boxa Ilość Rat
         if (elements.iloscRat) {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = "360"; // Ustawiono jako string
-            elements.iloscRat.type = "text"; // Typ text dla pełnej kontroli
+            elements.iloscRat.type = "text"; // Typ text dla pełnej kontroli nad formatowaniem
+            elements.iloscRat.value = "360"; // Ustawiamy wartość początkową bez części dziesiętnej
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1993,27 +2015,60 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRatRange.value = 360;
         }
 
+        // Obsługa wpisywania wartości - tylko cyfry
         elements.iloscRat?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(/[^0-9]/g, ""); // Akceptuj tylko cyfry
-            const cursorPos = e.target.selectionStart;
+            let value = e.target.value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
             e.target.value = value;
-            e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
         });
 
+        // Obsługa blur - walidacja i formatowanie jako liczba całkowita
         elements.iloscRat?.addEventListener("blur", () => {
-            let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
-            value = Math.round(value / 12) * 12; // Zaokrąglanie do wielokrotności 12
+            let value = parseInt(elements.iloscRat.value) || 12;
+            value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
-            elements.iloscRat.value = value.toString(); // Ustawiono jako string
+            elements.iloscRat.value = value.toString(); 
             elements.iloscRatRange.value = value;
-            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+            updateLata();
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = value - 1;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = value - 1;
+                    }
+                });
+            }
+            if (elements.variableOprocentowanieWrapper) {
+                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = value;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = value;
+                    }
+                });
+            }
         });
 
+        // Obsługa suwaka
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
-            elements.iloscRat.value = value.toString(); // Ustawiono jako string
-            syncInputWithRange(elements.iloscRat, elements.iloscRatRange, updateLata);
+            elements.iloscRat.value = value.toString(); // Ustawienie jako liczba całkowita
+            updateLata();
+            if (elements.nadplataKredytuWrapper) {
+                elements.nadplataKredytuWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = value - 1;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = value - 1;
+                    }
+                });
+            }
+            if (elements.variableOprocentowanieWrapper) {
+                elements.variableOprocentowanieWrapper.querySelectorAll(".variable-cykl").forEach(input => {
+                    input.max = value;
+                    if (input.nextElementSibling?.nextElementSibling) {
+                        input.nextElementSibling.nextElementSibling.max = value;
+                    }
+                });
+            }
         });
 
         // Inicjalizacja boxa Oprocentowanie
@@ -2021,8 +2076,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanie.min = 0.1;
             elements.oprocentowanie.max = 25;
             elements.oprocentowanie.step = 0.01;
-            elements.oprocentowanie.value = "7,00"; // Ustawiono z przecinkiem
-            elements.oprocentowanie.type = "text"; // Typ text dla pełnej kontroli
+            elements.oprocentowanie.type = "text"; // Zmiana typu na text dla pełnej kontroli formatowania
+            elements.oprocentowanie.value = "7.00"; // Ustawiamy wartość początkową z kropką
         }
         if (elements.oprocentowanieRange) {
             elements.oprocentowanieRange.min = 0.1;
@@ -2031,30 +2086,32 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanieRange.value = 7;
         }
 
+        // Obsługa wpisywania wartości - zamiana przecinka na kropkę, tylko cyfry i kropka, max 2 miejsca po przecinku
         elements.oprocentowanie?.addEventListener("input", (e) => {
-            let value = e.target.value.replace(",", ".").replace(/[^0-9.]/g, ""); // Zamiana przecinka na kropkę
+            let value = e.target.value.replace(/,/g, "."); // Zamiana przecinka na kropkę
+            value = value.replace(/[^0-9.]/g, ""); // Akceptujemy tylko cyfry i kropkę
             const parts = value.split(".");
             if (parts.length > 2) {
                 value = parts[0] + "." + parts.slice(1).join("");
             } else if (parts.length === 2 && parts[1].length > 2) {
                 value = parts[0] + "." + parts[1].substring(0, 2);
             }
-            e.target.value = value.replace(".", ","); // Powrót do przecinka
-            const cursorPos = e.target.selectionStart;
-            e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
+            e.target.value = value;
         });
 
+        // Obsługa blur - walidacja i formatowanie z kropką
         elements.oprocentowanie?.addEventListener("blur", () => {
-            let value = parseFloat(elements.oprocentowanie.value.replace(",", ".")) || 0.1;
+            let value = parseFloat(elements.oprocentowanie.value) || 0.1;
             if (value < 0.1) value = 0.1;
             if (value > 25) value = 25;
-            elements.oprocentowanie.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek
+            elements.oprocentowanie.value = value.toFixed(2); // Formatowanie z kropką i dwoma miejscami dziesiętnymi
             elements.oprocentowanieRange.value = value;
         });
 
+        // Obsługa suwaka
         elements.oprocentowanieRange?.addEventListener("input", () => {
             let value = parseFloat(elements.oprocentowanieRange.value);
-            elements.oprocentowanie.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek
+            elements.oprocentowanie.value = value.toFixed(2); // Formatowanie z kropką i dwoma miejscami dziesiętnymi
         });
 
         // Inicjalizacja boxa Prowizja
@@ -2062,7 +2119,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.prowizja.min = 0;
             elements.prowizja.max = 25;
             elements.prowizja.step = 0.01;
-            elements.prowizja.value = "2,00"; // Ustawiono z przecinkiem
+            elements.prowizja.value = 2;
         }
         if (elements.prowizjaRange) {
             elements.prowizjaRange.min = 0;
@@ -2078,14 +2135,26 @@ document.addEventListener("DOMContentLoaded", () => {
             let minAllowed = parseFloat(elements.prowizja.min) || 0;
             if (isNaN(parsedValue) || parsedValue < minAllowed) parsedValue = minAllowed;
             if (parsedValue > maxAllowed) parsedValue = maxAllowed;
-            elements.prowizja.value = parsedValue.toFixed(2).replace(".", ","); // Zmieniono na przecinek
+            elements.prowizja.value = parsedValue.toFixed(2);
             elements.prowizjaRange.value = parsedValue;
             updateProwizjaInfo();
         });
 
         elements.prowizjaRange?.addEventListener("input", () => {
             let value = parseFloat(elements.prowizjaRange.value);
-            elements.prowizja.value = value.toFixed(2).replace(".", ","); // Zmieniono na przecinek
+            elements.prowizja.value = value.toFixed(2);
+            updateProwizjaInfo();
+        });
+
+        elements.jednostkaProwizji?.addEventListener("change", () => {
+            const jednostka = elements.jednostkaProwizji.value;
+            const kwota = parseFloat(elements.kwota?.value) || 0;
+            if (jednostka === "zl") {
+                const defaultProwizjaZl = (2 / 100) * kwota;
+                elements.prowizja.value = defaultProwizjaZl.toFixed(2);
+            } else {
+                elements.prowizja.value = 2;
+            }
             updateProwizjaInfo();
         });
 
