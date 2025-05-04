@@ -237,11 +237,8 @@ function initializeInputHandling() {
     elements.kwota.addEventListener("input", (e) => {
         let value = e.target.value;
 
-        // Pozwól na wpisywanie liczb z kropką lub przecinkiem, ale zamień przecinek na kropkę
-        value = value.replace(",", ".");
-
-        // Usuń nieprawidłowe znaki, ale zachowaj kropkę i cyfry
-        value = value.replace(/[^0-9.]/g, "");
+        // Zamień przecinek na kropkę i usuń nieprawidłowe znaki, zachowując kropkę
+        value = value.replace(",", ".").replace(/[^0-9.]/g, "");
 
         // Zapobiegnij wpisywaniu więcej niż jednej kropki
         const dotCount = value.split(".").length - 1;
@@ -249,30 +246,27 @@ function initializeInputHandling() {
             value = value.substring(0, value.lastIndexOf("."));
         }
 
-        // Aktualizuj pole tekstowe bez natychmiastowego parsowania
+        // Aktualizuj pole tekstowe bez natychmiastowego formatowania
         elements.kwota.value = value;
 
-        // Parsuj wartość tylko do synchronizacji z suwakiem i aktualizacji informacji
-        let parsedValue = parseFloat(value);
+        // Parsuj wartość do synchronizacji z suwakiem
+        let parsedValue = parseFloat(value) || 0;
         let minValue = parseFloat(elements.kwota.min) || 0;
         let maxValue = parseFloat(elements.kwota.max) || Infinity;
 
-        // Jeśli wartość jest poprawna, synchronizuj suwak i aktualizuj informacje
-        if (!isNaN(parsedValue)) {
-            if (parsedValue < minValue) parsedValue = minValue;
-            if (parsedValue > maxValue) parsedValue = maxValue;
-            elements.kwotaRange.value = parsedValue;
-            updateKwotaInfo();
-        }
+        if (parsedValue < minValue) parsedValue = minValue;
+        if (parsedValue > maxValue) parsedValue = maxValue;
+
+        elements.kwotaRange.value = parsedValue; // Synchronizuj suwak
+        updateKwotaInfo();
     });
 
     elements.kwota.addEventListener("blur", () => {
         let value = elements.kwota.value;
-        let parsedValue = parseFloat(value);
+        let parsedValue = parseFloat(value) || 0;
         let minValue = parseFloat(elements.kwota.min) || 0;
         let maxValue = parseFloat(elements.kwota.max) || Infinity;
 
-        // Po opuszczeniu pola, jeśli wartość jest niepoprawna, ustaw domyślną
         if (isNaN(parsedValue) || value === "") {
             parsedValue = minValue;
         } else {
@@ -280,14 +274,15 @@ function initializeInputHandling() {
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
 
-        elements.kwota.value = parsedValue.toFixed(2);
+        // Zachowaj pełną precyzję w polu, formatowanie w updateKwotaInfo
+        elements.kwota.value = parsedValue.toString();
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
     });
 
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toFixed(2); // Synchronizuj pole tekstowe z suwakiem
+        elements.kwota.value = value.toString(); // Zachowaj pełną wartość z suwaka
         updateKwotaInfo();
     });
 
