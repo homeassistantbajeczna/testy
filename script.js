@@ -132,29 +132,41 @@ function toggleInputFields(disabled) {
         }
     });
 
-    // Aktualizuj stan przełączników w sekcji Wprowadzenia Danych
-    if (disabled) {
-        elements.kwota.parentElement?.classList.add("disabled");
-        elements.iloscRat.parentElement?.classList.add("disabled");
-        elements.oprocentowanie.parentElement?.classList.add("disabled");
-        elements.rodzajRat.parentElement?.classList.add("disabled");
-        elements.prowizja.parentElement?.classList.add("disabled");
-        elements.jednostkaProwizji.parentElement?.classList.add("disabled");
-    } else {
-        elements.kwota.parentElement?.classList.remove("disabled");
-        elements.iloscRat.parentElement?.classList.remove("disabled");
-        elements.oprocentowanie.parentElement?.classList.remove("disabled");
-        elements.rodzajRat.parentElement?.classList.remove("disabled");
-        elements.prowizja.parentElement?.classList.remove("disabled");
-        elements.jednostkaProwizji.parentElement?.classList.remove("disabled");
-    }
+    // Aktualizuj klasy disabled dla pól
+    const parentElements = [
+        elements.kwota.parentElement,
+        elements.iloscRat.parentElement,
+        elements.oprocentowanie.parentElement,
+        elements.rodzajRat.parentElement,
+        elements.prowizja.parentElement,
+        elements.jednostkaProwizji.parentElement
+    ];
+
+    parentElements.forEach(parent => {
+        if (parent) {
+            if (disabled) {
+                parent.classList.add("disabled");
+            } else {
+                parent.classList.remove("disabled");
+            }
+        }
+    });
 }
 
 // Funkcja sprawdzająca, czy którekolwiek z pól "Zmienne Oprocentowanie" lub "Nadpłata Kredytu" jest aktywne
 function updateInputFieldsState() {
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const isNadplataKredytuActive = elements.nadplataKredytuBtn?.checked || false;
-    toggleInputFields(isZmienneOprocentowanieActive || isNadplataKredytuActive);
+    const shouldDisable = isZmienneOprocentowanieActive || isNadplataKredytuActive;
+
+    toggleInputFields(shouldDisable);
+
+    // Jeśli Zmienne Oprocentowanie jest wyłączone, upewnij się, że pole oprocentowanie jest odpowiednio odblokowane
+    if (!isZmienneOprocentowanieActive) {
+        elements.oprocentowanie.disabled = isNadplataKredytuActive;
+        elements.oprocentowanieRange.disabled = isNadplataKredytuActive;
+        elements.oprocentowanie.parentElement?.classList.toggle("disabled", isNadplataKredytuActive);
+    }
 }
 
 
@@ -1343,64 +1355,6 @@ function initializeNadplataKredytuToggle() {
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
-function createVariableOprocentowanieGroup(startPeriod = 2) {
-    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
-    const group = document.createElement("div");
-    group.classList.add("variable-input-group");
-    group.setAttribute("data-type", "oprocentowanie");
-    group.innerHTML = `
-        <div class="fields-wrapper">
-            <div class="form-group box-period">
-                <label class="form-label">Od</label>
-                <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
-                    <span class="input-group-text unit-miesiaca">miesiąca</span>
-                </div>
-                <input type="range" class="form-range range-slider variable-cykl-range" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
-            </div>
-            <div class="form-group box-rate">
-                <label class="form-label">Oprocentowanie</label>
-                <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
-                    <span class="input-group-text">%</span>
-                </div>
-                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.1" value="7">
-            </div>
-        </div>
-    `;
-    return group;
-}
-
-function initializeVariableOprocentowanieGroup(group) {
-    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
-
-    const inputs = group.querySelectorAll(".form-control");
-    const ranges = group.querySelectorAll(".form-range");
-
-    inputs.forEach((input, index) => {
-        const range = ranges[index];
-        if (input.classList.contains("variable-cykl")) {
-            input.max = iloscRat;
-            range.max = iloscRat;
-            syncInputWithRange(input, range);
-        } else if (input.classList.contains("variable-rate")) {
-            syncInputWithRange(input, range);
-        }
-
-        input.addEventListener("input", () => {
-            syncInputWithRange(input, range);
-            updateRatesArray("oprocentowanie");
-            toggleAddButtonVisibility();
-        });
-
-        range.addEventListener("input", () => {
-            input.value = range.value;
-            updateRatesArray("oprocentowanie");
-            toggleAddButtonVisibility();
-        });
-    });
-}
-
 function resetVariableOprocentowanieSection() {
     elements.variableOprocentowanieWrapper.innerHTML = "";
     state.variableRates = [];
@@ -1414,8 +1368,8 @@ function resetVariableOprocentowanieSection() {
 
     elements.oprocentowanie.value = oprocentowanieValue.toFixed(2);
     elements.oprocentowanieRange.value = oprocentowanieValue;
-    elements.oprocentowanie.disabled = false;
-    elements.oprocentowanieRange.disabled = false;
+    
+    // Usunięto bezpośrednie odblokowywanie pól oprocentowania, bo zarządza tym updateInputFieldsState
     delete elements.oprocentowanie.dataset.lastManualValue;
     toggleAddButtonVisibility();
     updateInputFieldsState(); // Aktualizuj stan pól po resecie
@@ -1494,27 +1448,6 @@ function updateVariableOprocentowanieRemoveButtons() {
     toggleAddButtonVisibility();
 }
 
-function toggleAddButtonVisibility() {
-    const addButton = document.getElementById("addVariableOprocentowanieBtn");
-    const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-    const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
-
-    if (!addButton || groups.length === 0) {
-        addButton.style.display = "none";
-        return;
-    }
-
-    const lastGroup = groups[groups.length - 1];
-    const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
-    const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
-
-    if (lastPeriodValue >= maxPeriod) {
-        addButton.style.display = "none";
-    } else {
-        addButton.style.display = "block";
-    }
-}
-
 function initializeZmienneOprocentowanieToggle() {
     if (elements.zmienneOprocentowanieBtn) {
         elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
@@ -1526,8 +1459,6 @@ function initializeZmienneOprocentowanieToggle() {
                 initializeVariableOprocentowanieGroup(newGroup);
                 updateVariableOprocentowanieRemoveButtons();
                 updateRatesArray("oprocentowanie");
-                elements.oprocentowanie.disabled = true;
-                elements.oprocentowanieRange.disabled = true;
                 updateInputFieldsState(); // Zablokuj pola przy włączeniu
             } else {
                 elements.variableOprocentowanieInputs.classList.remove("active");
@@ -1564,7 +1495,6 @@ function initializeZmienneOprocentowanieToggle() {
         });
     }
 }
-
 
 
 
