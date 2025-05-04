@@ -2053,7 +2053,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanie.min = 0.1;
             elements.oprocentowanie.max = 25;
             elements.oprocentowanie.step = 0.01;
-            elements.oprocentowanie.value = 7;
+            elements.oprocentowanie.type = "text"; // Zmiana typu na text dla pełnej kontroli formatowania
+            elements.oprocentowanie.value = "7.00"; // Ustawiamy wartość początkową z kropką
         }
         if (elements.oprocentowanieRange) {
             elements.oprocentowanieRange.min = 0.1;
@@ -2062,18 +2063,31 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.oprocentowanieRange.value = 7;
         }
 
-        elements.oprocentowanie?.addEventListener("blur", () => {
-            let value = elements.oprocentowanie.value.replace(",", ".").replace(/[^0-9.]/g, "");
-            let parsedValue = parseFloat(value);
-            if (isNaN(parsedValue) || parsedValue < 0.1) parsedValue = 0.1;
-            if (parsedValue > 25) parsedValue = 25;
-            elements.oprocentowanie.value = parsedValue.toFixed(2);
-            elements.oprocentowanieRange.value = parsedValue;
+        // Obsługa wpisywania wartości - tylko cyfry i kropka, max 2 miejsca po przecinku
+        elements.oprocentowanie?.addEventListener("input", (e) => {
+            let value = e.target.value.replace(/[^0-9.]/g, ""); // Akceptujemy tylko cyfry i kropkę
+            const parts = value.split(".");
+            if (parts.length > 2) {
+                value = parts[0] + "." + parts.slice(1).join("");
+            } else if (parts.length === 2 && parts[1].length > 2) {
+                value = parts[0] + "." + parts[1].substring(0, 2);
+            }
+            e.target.value = value;
         });
 
+        // Obsługa blur - walidacja i formatowanie z kropką
+        elements.oprocentowanie?.addEventListener("blur", () => {
+            let value = parseFloat(elements.oprocentowanie.value) || 0.1;
+            if (value < 0.1) value = 0.1;
+            if (value > 25) value = 25;
+            elements.oprocentowanie.value = value.toFixed(2); // Formatowanie z kropką i dwoma miejscami dziesiętnymi
+            elements.oprocentowanieRange.value = value;
+        });
+
+        // Obsługa suwaka
         elements.oprocentowanieRange?.addEventListener("input", () => {
             let value = parseFloat(elements.oprocentowanieRange.value);
-            elements.oprocentowanie.value = value.toFixed(2);
+            elements.oprocentowanie.value = value.toFixed(2); // Formatowanie z kropką i dwoma miejscami dziesiętnymi
         });
 
         // Inicjalizacja boxa Prowizja
