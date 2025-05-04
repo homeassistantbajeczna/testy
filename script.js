@@ -1977,8 +1977,8 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRat.min = 12;
             elements.iloscRat.max = 420;
             elements.iloscRat.step = 12;
-            elements.iloscRat.value = "360"; // Ustawienie jako string bez miejsc po przecinku
-            elements.iloscRat.type = "number"; // Powrót do typu number dla natywnej walidacji
+            elements.iloscRat.value = 360; // Ustawienie wartości początkowej jako liczby całkowitej
+            elements.iloscRat.type = "number"; // Typ number dla natywnej walidacji
         }
         if (elements.iloscRatRange) {
             elements.iloscRatRange.min = 12;
@@ -1987,15 +1987,15 @@ document.addEventListener("DOMContentLoaded", () => {
             elements.iloscRatRange.value = 360;
         }
 
+        // Obsługa wpisywania wartości - tylko cyfry, bez zakłócania kursora
         elements.iloscRat?.addEventListener("input", (e) => {
             let value = e.target.value.replace(/[^0-9]/g, ""); // Akceptujemy tylko cyfry
-            const cursorPos = e.target.selectionStart;
             e.target.value = value;
-            e.target.selectionStart = e.target.selectionEnd = Math.min(cursorPos, value.length);
         });
 
+        // Obsługa blur - walidacja i zaokrąglanie do wielokrotności 12
         elements.iloscRat?.addEventListener("blur", () => {
-            let value = parseInt(elements.iloscRat.value.replace(/[^0-9]/g, "")) || 12;
+            let value = parseInt(elements.iloscRat.value) || 12;
             value = Math.round(value / 12) * 12; // Zaokrąglanie do najbliższej wielokrotności 12
             if (value < 12) value = 12;
             if (value > 420) value = 420;
@@ -2020,6 +2020,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+        // Obsługa suwaka
         elements.iloscRatRange?.addEventListener("input", () => {
             let value = parseInt(elements.iloscRatRange.value);
             elements.iloscRat.value = value; // Ustawienie jako liczba całkowita
