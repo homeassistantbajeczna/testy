@@ -1,4 +1,3 @@
-Jaja sobie robisz ze mnie prawda? To jest cały kod, tutaj wprowadź zmiany:
 const APP_TITLE = "Kalkulator Kredytu Hipotecznego";
 
 const elements = {
