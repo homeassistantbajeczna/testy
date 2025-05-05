@@ -1954,3 +1954,5 @@ function initializeApp() {
         applyZoom();
     }
 }
+
+document.addEventListener("DOMContentLoaded", initializeApp);
