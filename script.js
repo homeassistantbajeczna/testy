@@ -1737,24 +1737,137 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
 
 
+/ F U N K C J E    W Y N I K I    I    W Y K R E S Y
+
+function updateChart(data) {
+    if (creditChart) {
+        creditChart.destroy();
+    }
+
+    const ctx = document.getElementById('creditChart')?.getContext('2d');
+    if (!ctx) {
+        console.error("Nie znaleziono elementu canvas dla wykresu.");
+        return;
+    }
+
+    const labels = data.harmonogram.map(row => row.miesiac);
+    const capitalData = data.harmonogram.map(row => row.kapitalDoSplaty);
+    const interestData = data.harmonogram.map(row => row.odsetki);
+    const overpaymentData = data.harmonogram.map(row => row.nadplata);
+
+    creditChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Pozostały kapitał',
+                    data: capitalData,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: false,
+                },
+                {
+                    label: 'Odsetki',
+                    data: interestData,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false,
+                },
+                {
+                    label: 'Nadpłata',
+                    data: overpaymentData,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: false,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Miesiąc',
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Kwota (PLN)',
+                    },
+                    beginAtZero: true,
+                },
+            },
+        },
+    });
+}
+
+function updateResults(data) {
+    elements.valueKapital.textContent = (data.harmonogram.reduce((sum, row) => sum + row.kapital, 0)).toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.valueOdsetki.textContent = data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.valueNadplata.textContent = data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.valueProwizja.textContent = data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+    elements.okresPoNadplacie.textContent = data.pozostaleRaty + " miesięcy (" + (data.pozostaleRaty / 12).toFixed(1) + " lat)";
+    elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
+
+    // Generowanie tabelki harmonogramu
+    elements.harmonogramTabela.innerHTML = `
+        <tr>
+            <th>Miesiąc</th>
+            <th>Rata całkowita</th>
+            <th>Rata kapitałowa</th>
+            <th>Odsetki</th>
+            <th>Nadpłata</th>
+            <th>Pozostały kapitał</th>
+        </tr>
+        ${data.harmonogram.map(row => `
+            <tr>
+                <td>${row.miesiac}</td>
+                <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+                <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+                <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+                <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+                <td>${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            </tr>
+        `).join('')}
+    `;
+
+    // Aktualizacja wykresu po wygenerowaniu wyników
+    updateChart(data)
+
+
+
+
+
+
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
 
-function showForm() {
-    elements.formSection.style.display = "block";
-    elements.resultSection.style.display = "none";
-    elements.resultSection.classList.remove("active");
-}
-
 function applyZoom() {
-    // Zastosuj zoom na poziomie document.body
-    document.body.style.transform = `scale(${state.zoomLevel})`;
-    document.body.style.transformOrigin = "top left";
-    // Dostosuj wymiary body, aby uniknąć obcinania zawartości
+    // Zakładamy, że istnieje kontener główny (np. .main-content) obejmujący formSection i resultSection
+    const mainContent = document.querySelector('.main-content');
+    const header = document.querySelector('header');
+
+    if (mainContent) {
+        mainContent.style.transform = `scale(${state.zoomLevel})`;
+        mainContent.style.transformOrigin = "top left";
+        mainContent.style.width = `${100 / state.zoomLevel}%`;
+        mainContent.style.height = `auto`;
+        mainContent.style.minHeight = `${100 / state.zoomLevel}%`;
+    }
+
+    if (header) {
+        // Zastosuj odwrotną transformację dla nagłówka, aby zniwelować efekt zoomu
+        header.style.transform = `scale(${1 / state.zoomLevel})`;
+        header.style.transformOrigin = "top left";
+        header.style.width = `${state.zoomLevel * 100}%`;
+    }
+
+    // Dostosuj szerokość body, aby uniknąć problemów z przewijaniem
     document.body.style.width = `${100 / state.zoomLevel}%`;
-    document.body.style.height = `${100 / state.zoomLevel}%`;
     document.body.style.overflow = "auto";
-    console.log("Zoom applied to:", state.zoomLevel); // Debug
 }
 
 function initializeButtons() {
@@ -1785,9 +1898,8 @@ function initializeButtons() {
             elements.formSection.style.display = "none";
             elements.resultSection.style.display = "block";
             elements.resultSection.classList.add("active");
-            updateResults(data);
-            applyZoom(); // Upewnij się, że zoom jest zastosowany po przełączeniu sekcji
-            console.log("Oblicz clicked, data:", data); // Debug
+            updateResults(data); // Upewnij się, że updateResults wywołuje updateChart
+            applyZoom();
         } else {
             elements.resultSection.style.display = "none";
             elements.formSection.style.display = "block";
@@ -1806,7 +1918,6 @@ function initializeButtons() {
         if (state.zoomLevel < 2) {
             state.zoomLevel += 0.1;
             applyZoom();
-            console.log("Zoom in to:", state.zoomLevel); // Debug
         }
     });
 
@@ -1814,7 +1925,6 @@ function initializeButtons() {
         if (state.zoomLevel > 0.5) {
             state.zoomLevel -= 0.1;
             applyZoom();
-            console.log("Zoom out to:", state.zoomLevel); // Debug
         }
     });
 
@@ -1823,7 +1933,7 @@ function initializeButtons() {
         document.body.classList.toggle("dark-mode", state.isDarkMode);
         elements.toggleDarkModeBtn.innerHTML = state.isDarkMode ? "☀️" : "🌙";
         elements.toggleDarkModeBtn.setAttribute("aria-label", state.isDarkMode ? "Przełącz na tryb jasny" : "Przełącz na tryb ciemny");
-        if (state.lastFormData && creditChart) {
+        if (state.lastFormData) {
             updateChart(state.lastFormData);
         }
     });
@@ -1850,7 +1960,7 @@ function initializeApp() {
     updateLata();
     updateProwizjaInfo();
     syncProwizjaWithKwota();
-    updateInputFieldsState(); // Ustaw początkowy stan pól
+    updateInputFieldsState();
 
     // Załaduj domyślne dane i oblicz
     const defaultData = calculateLoan(
@@ -1864,6 +1974,5 @@ function initializeApp() {
     state.lastFormData = defaultData;
     elements.resultSection.classList.add("active");
     updateResults(defaultData);
+    applyZoom(); // Zastosuj zoom przy inicjalizacji
 }
-
-document.addEventListener("DOMContentLoaded", initializeApp);
