@@ -1795,6 +1795,19 @@ function updateZoom() {
     container.style.transformOrigin = 'top center';
 }
 
+function showForm() {
+    if (elements.formSection && elements.resultSection) {
+        elements.resultSection.style.display = "none";
+        elements.formSection.style.display = "block";
+        elements.resultSection.classList.remove("active");
+        currentZoom = 1; // Reset zoomu
+        updateZoom();
+        console.log("Powrót do edycji wykonany, zoom zresetowany do 1");
+    } else {
+        console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
+    }
+}
+
 function initializeButtons() {
     elements.obliczBtn.addEventListener("click", () => {
         const kwota = parseFloat(elements.kwota.value) || 500000;
@@ -1824,7 +1837,7 @@ function initializeButtons() {
             elements.resultSection.style.display = "block";
             elements.resultSection.classList.add("active");
             updateResults(data);
-            updateZoom(); // Użycie nowej funkcji zoom
+            updateZoom();
         } else {
             elements.resultSection.style.display = "none";
             elements.formSection.style.display = "block";
@@ -1839,18 +1852,7 @@ function initializeButtons() {
         }
     });
 
-    if (elements.backToEditBtn && elements.formSection && elements.resultSection) {
-        elements.backToEditBtn.addEventListener("click", () => {
-            elements.resultSection.style.display = "none";
-            elements.formSection.style.display = "block";
-            elements.resultSection.classList.remove("active");
-            currentZoom = 1; // Reset zoomu
-            updateZoom();
-            console.log("Powrót do edycji wykonany, zoom zresetowany do 1");
-        });
-    } else {
-        console.error("Błąd: backToEditBtn, formSection lub resultSection nie zostały znalezione!");
-    }
+    window.showForm = showForm;
 
     elements.zoomInBtn.addEventListener("click", () => {
         if (currentZoom < maxZoom) {
@@ -1878,7 +1880,6 @@ function initializeButtons() {
         }
     });
 }
-
 
 
 
