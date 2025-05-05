@@ -1782,19 +1782,16 @@ function updateResults(data) {
 
 function applyZoom() {
     const mainContent = document.querySelector('.main-content');
-
-    if (mainContent) {
-        mainContent.style.transform = `scale(${state.zoomLevel})`;
-        mainContent.style.transformOrigin = "top center"; // Skalowanie od góry i środka
-        mainContent.style.width = "100%"; // Zachowaj pełną szerokość
-        mainContent.style.height = "auto"; // Dopasuj wysokość
-        mainContent.style.margin = "0 auto"; // Wyśrodkuj
+    if (!mainContent) {
+        console.error("Element .main-content nie został znaleziony!");
+        return;
     }
-
-    // Ustawienia dla body, aby uniknąć przesunięcia
+    mainContent.style.transform = `scale(${state.zoomLevel})`;
+    mainContent.style.transformOrigin = "top center";
+    mainContent.style.width = "100%";
+    mainContent.style.height = "auto";
+    mainContent.style.margin = "0 auto";
     document.body.style.overflow = "auto";
-    document.body.style.width = "100%";
-    document.body.style.height = "auto";
 }
 
 function initializeButtons() {
@@ -1841,22 +1838,28 @@ function initializeButtons() {
         }
     });
 
-    // Dodajemy obsługę przycisku "Powrót do edycji"
-    const backToEditBtn = document.getElementById("backToEditBtn");
-    if (backToEditBtn) {
-        backToEditBtn.addEventListener("click", () => {
-            elements.resultSection.style.display = "none";
-            elements.formSection.style.display = "block";
-            elements.resultSection.classList.remove("active");
-            state.zoomLevel = 1; // Resetowanie zoomu przy powrocie do edycji
-            applyZoom();
+    if (elements.backToEditBtn) {
+        elements.backToEditBtn.addEventListener("click", () => {
+            if (elements.resultSection && elements.formSection) {
+                elements.resultSection.style.display = "none";
+                elements.formSection.style.display = "block";
+                elements.resultSection.classList.remove("active");
+                state.zoomLevel = 1;
+                applyZoom();
+                console.log("Powrót do edycji wykonany");
+            } else {
+                console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
+            }
         });
+    } else {
+        console.error("Przycisk backToEditBtn nie został znaleziony!");
     }
 
     elements.zoomInBtn.addEventListener("click", () => {
         if (state.zoomLevel < 2) {
             state.zoomLevel += 0.1;
             applyZoom();
+            console.log(`Zoom zwiększony do: ${state.zoomLevel}`);
         }
     });
 
@@ -1864,6 +1867,7 @@ function initializeButtons() {
         if (state.zoomLevel > 0.5) {
             state.zoomLevel -= 0.1;
             applyZoom();
+            console.log(`Zoom zmniejszony do: ${state.zoomLevel}`);
         }
     });
 
