@@ -1737,72 +1737,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
 
 
-/ F U N K C J E    W Y N I K I    I    W Y K R E S Y
-
-function updateChart(data) {
-    if (creditChart) {
-        creditChart.destroy();
-    }
-
-    const ctx = document.getElementById('creditChart')?.getContext('2d');
-    if (!ctx) {
-        console.error("Nie znaleziono elementu canvas dla wykresu.");
-        return;
-    }
-
-    const labels = data.harmonogram.map(row => row.miesiac);
-    const capitalData = data.harmonogram.map(row => row.kapitalDoSplaty);
-    const interestData = data.harmonogram.map(row => row.odsetki);
-    const overpaymentData = data.harmonogram.map(row => row.nadplata);
-
-    creditChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Pozostały kapitał',
-                    data: capitalData,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: false,
-                },
-                {
-                    label: 'Odsetki',
-                    data: interestData,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: false,
-                },
-                {
-                    label: 'Nadpłata',
-                    data: overpaymentData,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    fill: false,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Miesiąc',
-                    },
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Kwota (PLN)',
-                    },
-                    beginAtZero: true,
-                },
-            },
-        },
-    });
-}
+// F U N K C J E    W Y N I K I    I    W Y K R E S Y
 
 function updateResults(data) {
     elements.valueKapital.textContent = (data.harmonogram.reduce((sum, row) => sum + row.kapital, 0)).toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
@@ -1835,8 +1770,8 @@ function updateResults(data) {
     `;
 
     // Aktualizacja wykresu po wygenerowaniu wyników
-    updateChart(data)
-
+    updateChart(data);
+}
 
 
 
@@ -1845,8 +1780,50 @@ function updateResults(data) {
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
 
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(12);
+    doc.text("Harmonogram Spłaty Kredytu", 10, 10);
+
+    let y = 20;
+    const headers = ["Miesiąc", "Rata całkowita", "Rata kapitałowa", "Odsetki", "Nadpłata", "Pozostały kapitał"];
+    doc.setFontSize(10);
+    doc.text(headers, 10, y);
+
+    state.lastFormData.harmonogram.forEach((row, index) => {
+        y += 10;
+        if (y > 280) {
+            doc.addPage();
+            y = 20;
+            doc.text(headers, 10, y);
+            y += 10;
+        }
+        doc.text([
+            row.miesiac.toString(),
+            `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
+            `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`
+        ], 10, y);
+    });
+
+    y += 10;
+    doc.text(`Całkowity koszt: ${state.lastFormData.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Całkowite odsetki: ${state.lastFormData.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Całkowite nadpłaty: ${state.lastFormData.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
+    y += 10;
+    doc.text(`Pozostałe raty: ${state.lastFormData.pozostaleRaty} miesięcy`, 10, y);
+
+    doc.save("harmonogram_kredytu.pdf");
+}
+
 function applyZoom() {
-    // Zakładamy, że istnieje kontener główny (np. .main-content) obejmujący formSection i resultSection
     const mainContent = document.querySelector('.main-content');
     const header = document.querySelector('header');
 
@@ -1859,13 +1836,11 @@ function applyZoom() {
     }
 
     if (header) {
-        // Zastosuj odwrotną transformację dla nagłówka, aby zniwelować efekt zoomu
         header.style.transform = `scale(${1 / state.zoomLevel})`;
         header.style.transformOrigin = "top left";
         header.style.width = `${state.zoomLevel * 100}%`;
     }
 
-    // Dostosuj szerokość body, aby uniknąć problemów z przewijaniem
     document.body.style.width = `${100 / state.zoomLevel}%`;
     document.body.style.overflow = "auto";
 }
@@ -1898,7 +1873,7 @@ function initializeButtons() {
             elements.formSection.style.display = "none";
             elements.resultSection.style.display = "block";
             elements.resultSection.classList.add("active");
-            updateResults(data); // Upewnij się, że updateResults wywołuje updateChart
+            updateResults(data);
             applyZoom();
         } else {
             elements.resultSection.style.display = "none";
@@ -1947,6 +1922,7 @@ function initializeButtons() {
 
 
 
+
 // I N I C J A L I Z A C J A
 
 function initializeApp() {
@@ -1971,10 +1947,10 @@ function initializeApp() {
         state.lastFormData.prowizja,
         state.lastFormData.jednostkaProwizji
     );
-    state.lastFormData = defaultData;
-    elements.resultSection.classList.add("active");
-    updateResults(defaultData);
-    applyZoom(); // Zastosuj zoom przy inicjalizacji
+    if (defaultData) {
+        state.lastFormData = defaultData;
+        elements.resultSection.classList.add("active");
+        updateResults(defaultData);
+        applyZoom();
+    }
 }
-
-document.addEventListener("DOMContentLoaded", initializeApp);
