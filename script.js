@@ -1976,3 +1976,5 @@ function initializeApp() {
     updateResults(defaultData);
     applyZoom(); // Zastosuj zoom przy inicjalizacji
 }
+
+document.addEventListener("DOMContentLoaded", initializeApp);
