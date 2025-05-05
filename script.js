@@ -1780,69 +1780,21 @@ function updateResults(data) {
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
 
-function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(12);
-    doc.text("Harmonogram Spłaty Kredytu", 10, 10);
-
-    let y = 20;
-    const headers = ["Miesiąc", "Rata całkowita", "Rata kapitałowa", "Odsetki", "Nadpłata", "Pozostały kapitał"];
-    doc.setFontSize(10);
-    doc.text(headers, 10, y);
-
-    state.lastFormData.harmonogram.forEach((row, index) => {
-        y += 10;
-        if (y > 280) {
-            doc.addPage();
-            y = 20;
-            doc.text(headers, 10, y);
-            y += 10;
-        }
-        doc.text([
-            row.miesiac.toString(),
-            `${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`,
-            `${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`
-        ], 10, y);
-    });
-
-    y += 10;
-    doc.text(`Całkowity koszt: ${state.lastFormData.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Całkowite odsetki: ${state.lastFormData.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Całkowite nadpłaty: ${state.lastFormData.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Prowizja: ${state.lastFormData.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`, 10, y);
-    y += 10;
-    doc.text(`Pozostałe raty: ${state.lastFormData.pozostaleRaty} miesięcy`, 10, y);
-
-    doc.save("harmonogram_kredytu.pdf");
-}
-
 function applyZoom() {
     const mainContent = document.querySelector('.main-content');
-    const header = document.querySelector('header');
 
     if (mainContent) {
         mainContent.style.transform = `scale(${state.zoomLevel})`;
-        mainContent.style.transformOrigin = "top left";
-        mainContent.style.width = `${100 / state.zoomLevel}%`;
-        mainContent.style.height = `auto`;
-        mainContent.style.minHeight = `${100 / state.zoomLevel}%`;
+        mainContent.style.transformOrigin = "top center"; // Skalowanie od góry i środka
+        mainContent.style.width = "100%"; // Zachowaj pełną szerokość
+        mainContent.style.height = "auto"; // Dopasuj wysokość
+        mainContent.style.margin = "0 auto"; // Wyśrodkuj
     }
 
-    if (header) {
-        header.style.transform = `scale(${1 / state.zoomLevel})`;
-        header.style.transformOrigin = "top left";
-        header.style.width = `${state.zoomLevel * 100}%`;
-    }
-
-    document.body.style.width = `${100 / state.zoomLevel}%`;
+    // Ustawienia dla body, aby uniknąć przesunięcia
     document.body.style.overflow = "auto";
+    document.body.style.width = "100%";
+    document.body.style.height = "auto";
 }
 
 function initializeButtons() {
@@ -1889,6 +1841,18 @@ function initializeButtons() {
         }
     });
 
+    // Dodajemy obsługę przycisku "Powrót do edycji"
+    const backToEditBtn = document.getElementById("backToEditBtn");
+    if (backToEditBtn) {
+        backToEditBtn.addEventListener("click", () => {
+            elements.resultSection.style.display = "none";
+            elements.formSection.style.display = "block";
+            elements.resultSection.classList.remove("active");
+            state.zoomLevel = 1; // Resetowanie zoomu przy powrocie do edycji
+            applyZoom();
+        });
+    }
+
     elements.zoomInBtn.addEventListener("click", () => {
         if (state.zoomLevel < 2) {
             state.zoomLevel += 0.1;
@@ -1913,7 +1877,6 @@ function initializeButtons() {
         }
     });
 }
-
 
 
 
