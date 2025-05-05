@@ -1780,18 +1780,19 @@ function updateResults(data) {
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
 
-function applyZoom() {
-    const mainContent = document.querySelector('.main-content');
-    if (!mainContent) {
-        console.error("Element .main-content nie został znaleziony!");
+let currentZoom = 1;
+const zoomStep = 0.1;
+const minZoom = 0.5;
+const maxZoom = 2;
+
+function updateZoom() {
+    const container = document.querySelector('.container');
+    if (!container) {
+        console.error("Element .container nie został znaleziony!");
         return;
     }
-    mainContent.style.transform = `scale(${state.zoomLevel})`;
-    mainContent.style.transformOrigin = "top center";
-    mainContent.style.width = "100%";
-    mainContent.style.height = "auto";
-    mainContent.style.margin = "0 auto";
-    document.body.style.overflow = "auto";
+    container.style.transform = `scale(${currentZoom})`;
+    container.style.transformOrigin = 'top center';
 }
 
 function initializeButtons() {
@@ -1823,7 +1824,7 @@ function initializeButtons() {
             elements.resultSection.style.display = "block";
             elements.resultSection.classList.add("active");
             updateResults(data);
-            applyZoom();
+            updateZoom(); // Użycie nowej funkcji zoom
         } else {
             elements.resultSection.style.display = "none";
             elements.formSection.style.display = "block";
@@ -1838,36 +1839,32 @@ function initializeButtons() {
         }
     });
 
-    if (elements.backToEditBtn) {
+    if (elements.backToEditBtn && elements.formSection && elements.resultSection) {
         elements.backToEditBtn.addEventListener("click", () => {
-            if (elements.resultSection && elements.formSection) {
-                elements.resultSection.style.display = "none";
-                elements.formSection.style.display = "block";
-                elements.resultSection.classList.remove("active");
-                state.zoomLevel = 1;
-                applyZoom();
-                console.log("Powrót do edycji wykonany");
-            } else {
-                console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
-            }
+            elements.resultSection.style.display = "none";
+            elements.formSection.style.display = "block";
+            elements.resultSection.classList.remove("active");
+            currentZoom = 1; // Reset zoomu
+            updateZoom();
+            console.log("Powrót do edycji wykonany, zoom zresetowany do 1");
         });
     } else {
-        console.error("Przycisk backToEditBtn nie został znaleziony!");
+        console.error("Błąd: backToEditBtn, formSection lub resultSection nie zostały znalezione!");
     }
 
     elements.zoomInBtn.addEventListener("click", () => {
-        if (state.zoomLevel < 2) {
-            state.zoomLevel += 0.1;
-            applyZoom();
-            console.log(`Zoom zwiększony do: ${state.zoomLevel}`);
+        if (currentZoom < maxZoom) {
+            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+            updateZoom();
+            console.log(`Zoom zwiększony do: ${currentZoom}`);
         }
     });
 
     elements.zoomOutBtn.addEventListener("click", () => {
-        if (state.zoomLevel > 0.5) {
-            state.zoomLevel -= 0.1;
-            applyZoom();
-            console.log(`Zoom zmniejszony do: ${state.zoomLevel}`);
+        if (currentZoom > minZoom) {
+            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+            updateZoom();
+            console.log(`Zoom zmniejszony do: ${currentZoom}`);
         }
     });
 
