@@ -1086,6 +1086,15 @@ body {
         max-width: 148px;
     }
 
+    .variable-input-group.locked .form-group {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+    .variable-input-group.locked input,
+    .variable-input-group.locked select {
+        background-color: #f0f0f0;
+        cursor: not-allowed;
+    }
     .form-group.disabled {
         opacity: 0.5;
         pointer-events: none;
