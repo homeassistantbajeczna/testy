@@ -304,33 +304,16 @@ function initializeInputHandling() {
     // Kwota Kredytu
     elements.kwota.addEventListener("input", (e) => {
         let value = e.target.value;
-
-        // Zamień przecinek na kropkę
-        if (value.includes(",")) {
-            value = value.replace(",", ".");
-            e.target.value = value;
-        }
-
-        // Zapobiegnij wpisywaniu więcej niż jednej kropki
-        const dotCount = value.split(".").length - 1;
-        if (dotCount > 1) {
-            e.target.value = value.substring(0, value.lastIndexOf("."));
-            return;
-        }
-
-        // Ogranicz do dwóch miejsc po przecinku
-        const parts = value.split(".");
-        if (parts.length > 1 && parts[1].length > 2) {
-            parts[1] = parts[1].substring(0, 2);
-            e.target.value = parts.join(".");
-        }
+        // Usuń kropki i wszystko poza cyframi
+        value = value.replace(/[^0-9]/g, "");
+        e.target.value = value;
     });
 
     elements.kwota.addEventListener("blur", () => {
         let value = elements.kwota.value;
-        let parsedValue = parseFloat(value) || 0;
-        let minValue = parseFloat(elements.kwota.min) || 0;
-        let maxValue = parseFloat(elements.kwota.max) || Infinity;
+        let parsedValue = parseInt(value) || 0;
+        let minValue = parseInt(elements.kwota.min) || 0;
+        let maxValue = parseInt(elements.kwota.max) || Infinity;
 
         if (isNaN(parsedValue) || value === "") {
             parsedValue = minValue;
@@ -339,7 +322,7 @@ function initializeInputHandling() {
             if (parsedValue > maxValue) parsedValue = maxValue;
         }
 
-        elements.kwota.value = parsedValue.toFixed(2);
+        elements.kwota.value = parsedValue;
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
         // Aktualizuj prowizję tylko jeśli jednostka to "zl" i wartość prowizji jest domyślna
@@ -349,8 +332,8 @@ function initializeInputHandling() {
     });
 
     elements.kwotaRange.addEventListener("input", () => {
-        let value = parseFloat(elements.kwotaRange.value);
-        elements.kwota.value = value.toFixed(2);
+        let value = parseInt(elements.kwotaRange.value);
+        elements.kwota.value = value;
         updateKwotaInfo();
         // Aktualizuj prowizję tylko jeśli jednostka to "zl" i wartość prowizji jest domyślna
         if (elements.jednostkaProwizji.value === "zl" && !elements.prowizja.dataset.manual) {
@@ -361,11 +344,8 @@ function initializeInputHandling() {
     // Ilość Rat
     elements.iloscRat.addEventListener("input", (e) => {
         let value = e.target.value;
-
-        // Usuń wszystko poza cyframi
+        // Usuń kropki i wszystko poza cyframi
         value = value.replace(/[^0-9]/g, "");
-
-        // Aktualizuj pole tekstowe
         e.target.value = value;
     });
 
@@ -508,7 +488,7 @@ function initializeInputHandling() {
     // Funkcja do synchronizacji prowizji z kwotą
     function syncProwizjaWithKwota(reset = false) {
         const jednostka = elements.jednostkaProwizji.value;
-        const kwota = parseFloat(elements.kwota.value) || 0;
+        const kwota = parseInt(elements.kwota.value) || 0;
         let prowizjaValue = parseFloat(elements.prowizja.value) || 0;
         const minValue = parseFloat(elements.prowizja.min) || 0;
         const maxValue = parseFloat(elements.prowizja.max) || Infinity;
@@ -519,8 +499,8 @@ function initializeInputHandling() {
 
         if (jednostka === "zl" && (reset || !elements.prowizja.dataset.manual)) {
             // Ustaw prowizję na 2% kwoty przy zmianie jednostki lub jeśli wartość jest domyślna
-            const defaultProwizja = (kwota * 0.02).toFixed(2);
-            prowizjaValue = Math.max(parseFloat(defaultProwizja), minValue);
+            const defaultProwizja = (kwota * 0.02);
+            prowizjaValue = Math.max(defaultProwizja, minValue);
             if (prowizjaValue > maxValue) prowizjaValue = maxValue;
             elements.prowizja.value = prowizjaValue.toFixed(2);
             elements.prowizjaRange.value = prowizjaValue;
@@ -536,7 +516,6 @@ function initializeInputHandling() {
         }
     }
 }
-
 
 
 
@@ -1333,7 +1312,7 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
     removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
     removeBtn.textContent = "Usuń";
-    //removeBtn.style.width = "100%"; // Szerokość 100%
+    removeBtn.style.width = "100%"; // Szerokość 100%
     existingRemoveBtnWrapper.appendChild(removeBtn);
 
     const addBtn = document.createElement("button");
@@ -1341,7 +1320,7 @@ function updateNadplataKredytuRemoveButtons() {
     addBtn.classList.add("btn", "btn-functional");
     addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
     addBtn.textContent = "Dodaj kolejną nadpłatę";
-    //addBtn.style.width = "100%"; // Szerokość 100%
+    addBtn.style.width = "100%"; // Szerokość 100%
     existingRemoveBtnWrapper.appendChild(addBtn);
 
     const lastGroup = groups[groups.length - 1];
