@@ -786,7 +786,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
             rateInput.value = rateValue.toFixed(2);
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1050,7 +1050,7 @@ function initializeNadplataKredytuGroup(group) {
                 }
             } else {
                 minValue = parseInt(periodStartInput?.value) || minPeriodStart;
-                defaultValue = minValue;
+                defaultValue = minValue + 4; // Domyślnie 5 miesięcy nadpłaty
                 if (defaultValue > maxValue) defaultValue = maxValue;
                 if (minValue > maxValue) minValue = maxValue;
                 const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type);
@@ -1113,8 +1113,8 @@ function initializeNadplataKredytuGroup(group) {
                     const periodEndInput = group.querySelector(".variable-cykl-end");
                     const periodEndRange = group.querySelector(".variable-cykl-end-range");
                     if (periodEndInput && periodEndRange) {
-                        const currentEndValue = parseInt(periodEndInput.value) || value;
-                        const numberOfOverpayments = currentEndValue - (parseInt(input.value) - 1); // Zachowaj liczbę miesięcy nadpłaty
+                        const initialEndValue = parseInt(periodEndInput.dataset.initialValue) || (parseInt(input.value) + 4); // Domyślnie 5 miesięcy nadpłaty
+                        const numberOfOverpayments = initialEndValue - (parseInt(periodStartInput.dataset.initialValue) || minPeriodStart) + 1;
                         let newEndValue = value + (numberOfOverpayments - 1);
                         if (newEndValue > maxPeriodLimit) {
                             newEndValue = maxPeriodLimit;
@@ -1141,8 +1141,8 @@ function initializeNadplataKredytuGroup(group) {
                     const periodEndInput = group.querySelector(".variable-cykl-end");
                     const periodEndRange = group.querySelector(".variable-cykl-end-range");
                     if (periodEndInput && periodEndRange) {
-                        const currentEndValue = parseInt(periodEndInput.value) || value;
-                        const numberOfOverpayments = currentEndValue - (parseInt(input.value) - 1);
+                        const initialEndValue = parseInt(periodEndInput.dataset.initialValue) || (parseInt(input.value) + 4);
+                        const numberOfOverpayments = initialEndValue - (parseInt(periodStartInput.dataset.initialValue) || minPeriodStart) + 1;
                         let newEndValue = value + (numberOfOverpayments - 1);
                         if (newEndValue > maxPeriodLimit) {
                             newEndValue = maxPeriodLimit;
@@ -1203,7 +1203,7 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, rateRange, group);
+                    updateOverpaymentLimit(rateInput, range, group);
                     updateRatesArray("nadplata");
                     updateNadplataKredytuRemoveButtons();
                 }
@@ -1216,6 +1216,7 @@ function initializeNadplataKredytuGroup(group) {
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 range.value = value;
+                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
 
@@ -1226,6 +1227,7 @@ function initializeNadplataKredytuGroup(group) {
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 range.value = value;
+                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
         }
