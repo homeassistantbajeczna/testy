@@ -1297,7 +1297,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, range, group);
+        updateOverpaymentLimit(rateInput, rateRange, group); // Poprawiono na rateRange
     }
 
     updateNadplataKredytuRemoveButtons();
