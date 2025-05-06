@@ -1241,7 +1241,7 @@ function initializeNadplataKredytuGroup(group) {
 
     if (typeSelect) {
         typeSelect.addEventListener("change", () => {
-            update期間Box();
+            updatePeriodBox(); // Poprawiono z update期間Box() na updatePeriodBox()
             const rateInput = group.querySelector(".variable-rate");
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
