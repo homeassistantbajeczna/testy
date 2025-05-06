@@ -1047,18 +1047,16 @@ function initializeNadplataKredytuGroup(group) {
         inputs.forEach((input, index) => {
             const range = ranges[index];
             if (input.classList.contains("variable-cykl-end")) {
-                const periodStartInput = group.querySelector(".variable-cykl-start");
-                const periodEndRange = range;
+                let minValue = parseInt(group.querySelector(".variable-cykl-start")?.value) || 1;
                 const { lastMonthWithCapital } = updateAllOverpaymentLimits();
                 let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
 
-                let minValue = parseInt(periodStartInput?.value) || 1;
                 input.min = minValue;
                 input.max = maxPeriodLimit;
-                if (periodEndRange) {
-                    periodEndRange.min = minValue;
-                    periodEndRange.max = maxPeriodLimit;
-                    periodEndRange.step = 1;
+                if (range) {
+                    range.min = minValue;
+                    range.max = maxPeriodLimit;
+                    range.step = 1;
                 }
 
                 const debouncedUpdate = debounce(() => {
@@ -1071,6 +1069,16 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
+                // Blokada wprowadzania kropki i przecinka
+                input.addEventListener("keypress", (e) => {
+                    if (e.key === "." || e.key === ",") {
+                        e.preventDefault();
+                    }
+                    if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                        e.preventDefault();
+                    }
+                });
+
                 // Obsługa ręcznego wprowadzania wartości
                 input.addEventListener("input", () => {
                     let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
@@ -1078,33 +1086,89 @@ function initializeNadplataKredytuGroup(group) {
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
 
                     input.value = value;
-                    if (periodEndRange) periodEndRange.value = value;
-                    syncInputWithRange(input, periodEndRange);
+                    if (range) range.value = value;
+                    syncInputWithRange(input, range);
 
-                    const periodStartValue = parseInt(periodStartInput?.value) || 1;
+                    const periodStartValue = parseInt(group.querySelector(".variable-cykl-start")?.value) || 1;
                     periodDifference = value - periodStartValue; // Aktualizacja różnicy
                     debouncedUpdate();
                 });
 
-                if (periodEndRange) {
-                    periodEndRange.addEventListener("input", () => {
-                        let value = parseInt(periodEndRange.value);
+                if (range) {
+                    range.addEventListener("input", () => {
+                        let value = parseInt(range.value);
                         if (value < minValue) {
                             value = minValue;
-                            periodEndRange.value = value;
+                            range.value = value;
                         }
                         if (value > maxPeriodLimit) {
                             value = maxPeriodLimit;
-                            periodEndRange.value = value;
+                            range.value = value;
                         }
                         input.value = value;
-                        syncInputWithRange(input, periodEndRange);
+                        syncInputWithRange(input, range);
 
-                        const periodStartValue = parseInt(periodStartInput?.value) || 1;
+                        const periodStartValue = parseInt(group.querySelector(".variable-cykl-start")?.value) || 1;
                         periodDifference = value - periodStartValue; // Aktualizacja różnicy
                         debouncedUpdate();
                     });
                 }
+            } else if (input.classList.contains("variable-rate")) {
+                const debouncedUpdate = debounce(() => {
+                    updateOverpaymentLimit(input, range, group);
+                    updateRatesArray("nadplata");
+                    updateNadplataKredytuRemoveButtons();
+                }, 50);
+
+                // Blokada wprowadzania kropki i przecinka
+                input.addEventListener("keypress", (e) => {
+                    if (e.key === "." || e.key === ",") {
+                        e.preventDefault();
+                    }
+                    if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                        e.preventDefault();
+                    }
+                });
+
+                // Obsługa wprowadzania wartości (tylko liczby całkowite)
+                input.addEventListener("input", (e) => {
+                    let value = e.target.value.replace(/[^0-9]/g, "");
+                    e.target.value = value;
+                });
+
+                // Obsługa opuszczenia pola
+                input.addEventListener("blur", () => {
+                    let value = parseInt(input.value) || 0;
+                    let minValue = parseInt(input.min) || 100;
+                    let maxValue = parseInt(input.max) || 5000000;
+
+                    if (isNaN(value) || value === "") {
+                        value = minValue;
+                    } else {
+                        if (value < minValue) value = minValue;
+                        if (value > maxValue) value = maxValue;
+                    }
+
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                // Obsługa strzałek i suwaka
+                range.addEventListener("input", () => {
+                    let value = parseInt(range.value);
+                    const minAllowed = parseInt(range.min) || 100;
+                    const maxAllowed = parseInt(range.max) || 5000000;
+
+                    if (value < minAllowed) value = minAllowed;
+                    if (value > maxAllowed) value = maxAllowed;
+
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
             }
         });
     };
@@ -1189,54 +1253,6 @@ function initializeNadplataKredytuGroup(group) {
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 updateEndPeriod();
-                debouncedUpdate();
-            });
-        } else if (input.classList.contains("variable-rate")) {
-            const debouncedUpdate = debounce(() => {
-                updateOverpaymentLimit(input, range, group);
-                updateRatesArray("nadplata");
-                updateNadplataKredytuRemoveButtons();
-            }, 50);
-
-            // Obsługa wprowadzania wartości (tylko liczby całkowite)
-            input.addEventListener("input", (e) => {
-                let value = e.target.value;
-                // Usuwamy wszystko poza cyframi
-                value = value.replace(/[^0-9]/g, "");
-                e.target.value = value;
-            });
-
-            // Obsługa opuszczenia pola
-            input.addEventListener("blur", () => {
-                let value = parseInt(input.value) || 0;
-                let minValue = parseInt(input.min) || 100;
-                let maxValue = parseInt(input.max) || 5000000;
-
-                if (isNaN(value) || value === "") {
-                    value = minValue;
-                } else {
-                    if (value < minValue) value = minValue;
-                    if (value > maxValue) value = maxValue;
-                }
-
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
-
-            // Obsługa strzałek i suwaka
-            range.addEventListener("input", () => {
-                let value = parseInt(range.value);
-                const minAllowed = parseInt(range.min) || 100;
-                const maxAllowed = parseInt(range.max) || 5000000;
-
-                if (value < minAllowed) value = minAllowed;
-                if (value > maxAllowed) value = maxAllowed;
-
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
         }
