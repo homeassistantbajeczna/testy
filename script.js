@@ -578,7 +578,7 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="text" inputmode="decimal" class="form-control variable-rate" min="100" max="5000000" step="0.01" value="100,00">
+                        <input type="text" inputmode="decimal" class="form-control variable-rate" min="100" max="5000000" step="0.01" value="100">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
                     <input type="range" class="form-range range-slider variable-rate-range" min="100" max="5000000" step="0.01" value="100">
@@ -1085,9 +1085,9 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
-                // Obsługa zmiany wartości (w tym spinerów)
+                // Obsługa ręcznego wprowadzania wartości
                 input.addEventListener("input", () => {
-                    let value = parseInt(input.value) || minValue;
+                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
 
@@ -1244,7 +1244,7 @@ function initializeNadplataKredytuGroup(group) {
             input.addEventListener("blur", () => {
                 let value = input.value;
                 let parsedValue = parseFloat(value.replace(",", ".")) || 0;
-                let minValue = parseFloat(input.min.replace(",", ".")) || 100;
+                let minValue = 100;
                 let maxValue = parseFloat(input.max.replace(",", ".")) || kwota;
 
                 if (isNaN(parsedValue) || value === "") {
@@ -1263,7 +1263,7 @@ function initializeNadplataKredytuGroup(group) {
             // Obsługa suwaka
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value);
-                const minAllowed = parseFloat(range.min) || 100;
+                const minAllowed = 100;
                 const maxAllowed = parseFloat(range.max) || kwota;
 
                 if (value < minAllowed) value = minAllowed;
@@ -1283,7 +1283,7 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = group.querySelector(".variable-rate");
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, rateRange, group);
+                updateOverpaymentLimit(rateInput, range, group);
                 updateRatesArray("nadplata");
             }
             updateNadplataKredytuRemoveButtons();
@@ -1354,9 +1354,8 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
     removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
     removeBtn.textContent = "Usuń";
-    removeBtn.style.width = "100%"; // Szerokość 100%
     existingRemoveBtnWrapper.appendChild(removeBtn);
-
+    
     const addBtn = document.createElement("button");
     addBtn.type = "button";
     addBtn.classList.add("btn", "btn-functional");
