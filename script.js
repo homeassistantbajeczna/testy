@@ -1427,7 +1427,6 @@ function updateInputFieldsState(lock = false) {
 
 
 
-
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
 function createVariableOprocentowanieGroup(startPeriod = 2) {
