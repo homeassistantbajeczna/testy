@@ -587,7 +587,7 @@ function createNadplataKredytuGroup() {
                     <label class="form-label">W</label>
                     <div class="input-group">
                         <input type="number" class="form-control variable-cykl variable-cykl-start" min="1" max="360" step="1" value="1">
-                        <span class="inputgroup-text unit-period">miesiącu</span>
+                        <span class="input-group-text unit-period">miesiącu</span>
                     </div>
                     <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-start-range" min="1" max="360" step="1" value="1">
                 </div>
@@ -780,7 +780,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
             rateInput.value = rateValue.toFixed(2).replace(".", ",");
-            range.value = rateValue;
+            rateRange.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1354,6 +1354,7 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
     removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
     removeBtn.textContent = "Usuń";
+    removeBtn.style.width = "100%"; // Szerokość 100%
     existingRemoveBtnWrapper.appendChild(removeBtn);
 
     const addBtn = document.createElement("button");
@@ -1361,6 +1362,7 @@ function updateNadplataKredytuRemoveButtons() {
     addBtn.classList.add("btn", "btn-functional");
     addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
     addBtn.textContent = "Dodaj kolejną nadpłatę";
+    addBtn.style.width = "100%"; // Szerokość 100%
     existingRemoveBtnWrapper.appendChild(addBtn);
 
     const lastGroup = groups[groups.length - 1];
