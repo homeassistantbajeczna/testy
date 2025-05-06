@@ -587,7 +587,7 @@ function createNadplataKredytuGroup() {
                     <label class="form-label">W</label>
                     <div class="input-group">
                         <input type="number" class="form-control variable-cykl variable-cykl-start" min="1" max="360" step="1" value="1">
-                        <span class="input-group-text unit-period">miesiącu</span>
+                        <span class="inputgroup-text unit-period">miesiącu</span>
                     </div>
                     <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-start-range" min="1" max="360" step="1" value="1">
                 </div>
@@ -604,7 +604,7 @@ function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, ste
     box.innerHTML = `
         <label class="form-label">DO</label>
         <div class="input-group">
-            <input type="text" inputmode="numeric" class="form-control variable-cykl variable-cykl-end" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
+            <input type="number" class="form-control variable-cykl variable-cykl-end" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
             <span class="input-group-text unit-period">${unitText}</span>
         </div>
         <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-end-range" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
@@ -780,7 +780,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
             rateInput.value = rateValue.toFixed(2).replace(".", ",");
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1085,26 +1085,8 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
-                // Obsługa ręcznego wprowadzania dla boxa "DO"
+                // Obsługa zmiany wartości (w tym spinerów)
                 input.addEventListener("input", () => {
-                    let value = input.value.replace(/[^0-9]/g, "");
-                    input.value = value;
-
-                    let parsedValue = parseInt(value) || minValue;
-                    if (parsedValue < minValue) parsedValue = minValue;
-                    if (parsedValue > maxPeriodLimit) parsedValue = maxPeriodLimit;
-
-                    input.value = parsedValue;
-                    if (periodEndRange) periodEndRange.value = parsedValue;
-                    syncInputWithRange(input, periodEndRange);
-
-                    const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = parsedValue - periodStartValue; // Aktualizacja różnicy
-                    debouncedUpdate();
-                });
-
-                // Walidacja po zakończeniu edycji
-                input.addEventListener("blur", () => {
                     let value = parseInt(input.value) || minValue;
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
