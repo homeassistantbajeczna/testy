@@ -578,10 +578,10 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="number" inputmode="decimal" class="form-control variable-rate" min="100" max="500000" step="0.01" value="100">
+                        <input type="number" inputmode="decimal" class="form-control variable-rate" min="100" step="0.01" value="100">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
-                    <input type="range" class="form-range range-slider variable-rate-range" min="100" max="500000" step="0.01" value="100">
+                    <input type="range" class="form-range range-slider variable-rate-range" min="100" step="0.01" value="100">
                 </div>
                 <div class="form-group box-period box-period-start">
                     <label class="form-label">W</label>
@@ -744,11 +744,10 @@ function updateOverpaymentLimit(input, range, group) {
                 let monthsToPayOff = Math.floor(remainingCapital / rateValue);
                 maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff);
             } else if (type === "Miesięczna") {
-                // Dla nadpłaty miesięcznej obliczamy, ile miesięcy możemy spłacać daną kwotą
                 let totalOverpayment = rateValue * (periodEnd - periodStart + 1);
                 if (totalOverpayment > remainingCapital) {
-                    let monthsToPayOff = Math.floor(remainingCapital / rateValue);
-                    maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff);
+                    let monthsToPayOff = Math.ceil(remainingCapital / rateValue);
+                    maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff - 1);
                 }
             }
         } else if (effect === "Zmniejsz ratę") {
@@ -850,9 +849,10 @@ function updateAllOverpaymentLimits() {
     if (lastRemainingCapital > 0) {
         let minRate = 100; // Minimalna kwota nadpłaty
         let monthsToPayOff = Math.ceil(lastRemainingCapital / minRate);
-        maxPeriodLimit = Math.min(maxPeriodLimit, lastOverpaymentMonth + monthsToPayOff);
+        maxPeriodLimit = Math.min(totalMonths, lastOverpaymentMonth + monthsToPayOff);
     } else {
         maxPeriodLimit = lastOverpaymentMonth;
+        lastMonthWithCapital = lastOverpaymentMonth;
     }
 
     groups.forEach((g, index) => {
@@ -893,8 +893,8 @@ function updateAllOverpaymentLimits() {
                     const periodEndValue = periodEndInput ? parseInt(periodEndInput.value) || periodStartValue : periodStartValue;
                     let totalOverpayment = rateValue * (periodEndValue - periodStartValue + 1);
                     if (totalOverpayment > remainingCapitalBefore) {
-                        let monthsToPayOff = Math.floor(remainingCapitalBefore / rateValue);
-                        maxPeriod = Math.min(maxPeriodLimit, minPeriodStart + monthsToPayOff);
+                        let monthsToPayOff = Math.ceil(remainingCapitalBefore / rateValue);
+                        maxPeriod = Math.min(maxPeriodLimit, minPeriodStart + monthsToPayOff - 1);
                     }
                 }
             }
@@ -1438,13 +1438,15 @@ function updateNadplataKredytuRemoveButtons() {
 
     const maxPeriodStart = parseInt(periodStartInput.max) || 0;
     const maxPeriodEnd = periodEndInput ? parseInt(periodEndInput.max) || 0 : 0;
-    const currentRate = parseFloat(rateInput.value) || 0;
     const currentPeriodStart = parseInt(periodStartInput.value) || 0;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput.value) || 0 : 0;
 
-    if (remainingCapital <= 0 || currentPeriodStart >= maxPeriodStart || (periodEndInput && currentPeriodEnd >= maxPeriodEnd)) {
+    // Poprawiony warunek widoczności przycisku "Dodaj kolejną nadpłatę"
+    if (remainingCapital <= 0 || (currentPeriodStart >= maxPeriodStart && (!periodEndInput || currentPeriodEnd >= maxPeriodEnd))) {
         addBtn.style.display = "none";
-    } else addBtn.style.display = "inline-block";
+    } else {
+        addBtn.style.display = "inline-block";
+    }
 }
 
 function initializeNadplataKredytuToggle() {
