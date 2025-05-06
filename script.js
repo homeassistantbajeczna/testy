@@ -786,7 +786,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
             rateInput.value = rateValue.toFixed(2);
-            range.value = rateValue;
+            rateRange.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1050,7 +1050,7 @@ function initializeNadplataKredytuGroup(group) {
                 }
             } else {
                 minValue = parseInt(periodStartInput?.value) || minPeriodStart;
-                defaultValue = minValue + 4; // Domyślnie 5 miesięcy nadpłaty
+                defaultValue = minValue; // Domyślnie DO = OD
                 if (defaultValue > maxValue) defaultValue = maxValue;
                 if (minValue > maxValue) minValue = maxValue;
                 const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type);
@@ -1113,9 +1113,9 @@ function initializeNadplataKredytuGroup(group) {
                     const periodEndInput = group.querySelector(".variable-cykl-end");
                     const periodEndRange = group.querySelector(".variable-cykl-end-range");
                     if (periodEndInput && periodEndRange) {
-                        const initialEndValue = parseInt(periodEndInput.dataset.initialValue) || (parseInt(input.value) + 4); // Domyślnie 5 miesięcy nadpłaty
-                        const numberOfOverpayments = initialEndValue - (parseInt(periodStartInput.dataset.initialValue) || minPeriodStart) + 1;
-                        let newEndValue = value + (numberOfOverpayments - 1);
+                        const currentEndValue = parseInt(periodEndInput.value) || value;
+                        const difference = currentEndValue - parseInt(periodStartInput.dataset.initialValue || value);
+                        let newEndValue = value + difference;
                         if (newEndValue > maxPeriodLimit) {
                             newEndValue = maxPeriodLimit;
                         }
@@ -1129,6 +1129,7 @@ function initializeNadplataKredytuGroup(group) {
                         periodEndInput.value = newEndValue;
                         periodEndRange.value = newEndValue;
                         syncInputWithRange(periodEndInput, periodEndRange);
+                        periodEndInput.dataset.initialValue = newEndValue; // Aktualizacja początkowej wartości
                     }
                 }
                 debouncedUpdate();
@@ -1141,9 +1142,9 @@ function initializeNadplataKredytuGroup(group) {
                     const periodEndInput = group.querySelector(".variable-cykl-end");
                     const periodEndRange = group.querySelector(".variable-cykl-end-range");
                     if (periodEndInput && periodEndRange) {
-                        const initialEndValue = parseInt(periodEndInput.dataset.initialValue) || (parseInt(input.value) + 4);
-                        const numberOfOverpayments = initialEndValue - (parseInt(periodStartInput.dataset.initialValue) || minPeriodStart) + 1;
-                        let newEndValue = value + (numberOfOverpayments - 1);
+                        const currentEndValue = parseInt(periodEndInput.value) || value;
+                        const difference = currentEndValue - parseInt(periodStartInput.dataset.initialValue || value);
+                        let newEndValue = value + difference;
                         if (newEndValue > maxPeriodLimit) {
                             newEndValue = maxPeriodLimit;
                         }
@@ -1157,6 +1158,7 @@ function initializeNadplataKredytuGroup(group) {
                         periodEndInput.value = newEndValue;
                         periodEndRange.value = newEndValue;
                         syncInputWithRange(periodEndInput, periodEndRange);
+                        periodEndInput.dataset.initialValue = newEndValue;
                     }
                 }
                 debouncedUpdate();
@@ -1203,7 +1205,7 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, range, group);
+                    updateOverpaymentLimit(rateInput, rateRange, group);
                     updateRatesArray("nadplata");
                     updateNadplataKredytuRemoveButtons();
                 }
