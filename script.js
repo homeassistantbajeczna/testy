@@ -564,7 +564,7 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" class="form-control variable-rate" min="100" max="5000000" step="1" value="100">
+                        <input type="text" inputmode="numeric" class="form-control variable-rate" min="100" max="5000000" value="100">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
                     <input type="range" class="form-range range-slider variable-rate-range" min="100" max="5000000" step="1" value="100">
@@ -1120,20 +1120,24 @@ function initializeNadplataKredytuGroup(group) {
                     updateNadplataKredytuRemoveButtons();
                 }, 50);
 
-                // Blokada wprowadzania kropki i przecinka
-                input.addEventListener("keypress", (e) => {
-                    if (e.key === "." || e.key === ",") {
-                        e.preventDefault();
-                    }
-                    if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
-                        e.preventDefault();
-                    }
-                });
-
-                // Obsługa wprowadzania wartości (tylko liczby całkowite)
+                // Blokada wprowadzania kropki i przecinka oraz innych znaków
                 input.addEventListener("input", (e) => {
-                    let value = e.target.value.replace(/[^0-9]/g, "");
-                    e.target.value = value;
+                    const input = e.target;
+                    const originalValue = input.value;
+                    const cursorPosition = input.selectionStart;
+
+                    // Zezwalaj tylko na cyfry
+                    let value = originalValue.replace(/[^0-9]/g, "");
+                    if (value === "") value = "0"; // Zapobiega pustemu polu
+
+                    // Aktualizuj wartość tylko jeśli się zmieniła
+                    if (input.value !== value) {
+                        input.value = value;
+
+                        // Przywróć pozycję kursora
+                        const offset = originalValue.length - value.length;
+                        input.selectionStart = input.selectionEnd = Math.max(0, cursorPosition - offset);
+                    }
                 });
 
                 // Obsługa opuszczenia pola
