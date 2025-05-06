@@ -578,7 +578,7 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="text" inputmode="decimal" class="form-control variable-rate" min="100" max="5000000" step="0.01" value="100">
+                        <input type="number" inputmode="decimal" class="form-control variable-rate" min="100" max="5000000" step="0.01" value="100">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
                     <input type="range" class="form-range range-slider variable-rate-range" min="100" max="5000000" step="0.01" value="100">
@@ -629,7 +629,7 @@ function syncInputWithRange(input, range) {
 
     let value = input.classList.contains("variable-cykl")
         ? parseInt(input.value) || parseInt(range.value)
-        : parseFloat(input.value.replace(",", ".")) || parseFloat(range.value);
+        : parseFloat(input.value) || parseFloat(range.value);
 
     const min = parseFloat(range.min);
     const max = parseFloat(range.max);
@@ -709,7 +709,7 @@ function updateOverpaymentLimit(input, range, group) {
         const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
         const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
         const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
-        const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value.replace(",", ".")) || 0;
+        const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
         const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
         previousOverpayments.push({ type: prevType, start: prevPeriodStart, end: prevPeriodEnd, amount: prevAmount, effect: prevEffect });
     }
@@ -726,13 +726,13 @@ function updateOverpaymentLimit(input, range, group) {
             maxAllowed = remainingCapital / numberOfOverpayments;
         }
         maxAllowed = Math.max(100, maxAllowed);
-        rateInput.max = maxAllowed.toFixed(2).replace(".", ",");
+        rateInput.max = maxAllowed.toFixed(2);
         rateRange.max = maxAllowed;
 
-        let rateValue = parseFloat(rateInput.value.replace(",", ".")) || 100;
+        let rateValue = parseFloat(rateInput.value) || 100;
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
-            rateInput.value = rateValue.toFixed(2).replace(".", ",");
+            rateInput.value = rateValue.toFixed(2);
             rateRange.value = rateValue;
         }
 
@@ -773,13 +773,13 @@ function updateOverpaymentLimit(input, range, group) {
             periodEndRange.value = periodEnd;
         }
     } else {
-        rateInput.max = maxAllowed.toFixed(2).replace(".", ",");
+        rateInput.max = maxAllowed.toFixed(2);
         rateRange.max = maxAllowed;
 
-        let rateValue = parseFloat(rateInput.value.replace(",", ".")) || 100;
+        let rateValue = parseFloat(rateInput.value) || 100;
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
-            rateInput.value = rateValue.toFixed(2).replace(".", ",");
+            rateInput.value = rateValue.toFixed(2);
             rateRange.value = rateValue;
         }
 
@@ -833,7 +833,7 @@ function updateAllOverpaymentLimits() {
         const type = g.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
         const periodStart = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
         const periodEnd = g.querySelector(".variable-cykl-end") ? parseInt(g.querySelector(".variable-cykl-end")?.value) || periodStart : periodStart;
-        const amount = parseFloat(g.querySelector(".variable-rate")?.value.replace(",", ".")) || 0;
+        const amount = parseFloat(g.querySelector(".variable-rate")?.value) || 0;
         const effect = g.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
 
         overpayments.push({
@@ -1212,50 +1212,17 @@ function initializeNadplataKredytuGroup(group) {
                 updateNadplataKredytuRemoveButtons();
             }, 50);
 
-            // Obsługa wprowadzania danych
-            input.addEventListener("input", (e) => {
-                let value = e.target.value;
+            // Obsługa zmiany wartości (w tym strzałek)
+            input.addEventListener("change", () => {
+                let value = parseFloat(input.value) || 100;
+                const minValue = 100;
+                const maxValue = parseFloat(input.max) || 5000000;
 
-                // Zamień kropkę na przecinek
-                if (value.includes(".")) {
-                    value = value.replace(".", ",");
-                    e.target.value = value;
-                }
+                if (value < minValue) value = minValue;
+                if (value > maxValue) value = maxValue;
 
-                // Zapobiegnij wpisywaniu więcej niż jednego przecinka
-                const commaCount = value.split(",").length - 1;
-                if (commaCount > 1) {
-                    e.target.value = value.substring(0, value.lastIndexOf(","));
-                    return;
-                }
-
-                // Ogranicz do dwóch miejsc po przecinku
-                const parts = value.split(",");
-                if (parts.length > 1 && parts[1].length > 2) {
-                    parts[1] = parts[1].substring(0, 2);
-                    e.target.value = parts.join(",");
-                }
-
-                // Usuń nieprawidłowe znaki
-                e.target.value = e.target.value.replace(/[^0-9,]/g, "");
-            });
-
-            // Walidacja po zakończeniu edycji
-            input.addEventListener("blur", () => {
-                let value = input.value;
-                let parsedValue = parseFloat(value.replace(",", ".")) || 0;
-                let minValue = 100;
-                let maxValue = parseFloat(input.max.replace(",", ".")) || kwota;
-
-                if (isNaN(parsedValue) || value === "") {
-                    parsedValue = minValue;
-                } else {
-                    if (parsedValue < minValue) parsedValue = minValue;
-                    if (parsedValue > maxValue) parsedValue = maxValue;
-                }
-
-                input.value = parsedValue.toFixed(2).replace(".", ",");
-                range.value = parsedValue;
+                input.value = value.toFixed(2).replace(".", ",");
+                range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
@@ -1264,7 +1231,7 @@ function initializeNadplataKredytuGroup(group) {
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value);
                 const minAllowed = 100;
-                const maxAllowed = parseFloat(range.max) || kwota;
+                const maxAllowed = parseFloat(range.max) || 5000000;
 
                 if (value < minAllowed) value = minAllowed;
                 if (value > maxAllowed) value = maxAllowed;
@@ -1283,7 +1250,7 @@ function initializeNadplataKredytuGroup(group) {
             const rateInput = group.querySelector(".variable-rate");
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
-                updateOverpaymentLimit(rateInput, range, group);
+                updateOverpaymentLimit(rateInput, rateRange, group);
                 updateRatesArray("nadplata");
             }
             updateNadplataKredytuRemoveButtons();
@@ -1354,8 +1321,9 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
     removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
     removeBtn.textContent = "Usuń";
+    removeBtn.style.width = "100%"; // Szerokość 100%
     existingRemoveBtnWrapper.appendChild(removeBtn);
-    
+
     const addBtn = document.createElement("button");
     addBtn.type = "button";
     addBtn.classList.add("btn", "btn-functional");
@@ -1415,10 +1383,10 @@ function updateNadplataKredytuRemoveButtons() {
     const periodStartInput = lastGroupData.querySelector(".variable-cykl-start");
     const periodEndInput = lastGroupData.querySelector(".variable-cykl-end");
 
-    const maxRate = parseFloat(rateInput.max.replace(",", ".")) || 0;
+    const maxRate = parseFloat(rateInput.max) || 0;
     const maxPeriodStart = parseInt(periodStartInput.max) || 0;
     const maxPeriodEnd = periodEndInput ? parseInt(periodEndInput.max) || 0 : 0;
-    const currentRate = parseFloat(rateInput.value.replace(",", ".")) || 0;
+    const currentRate = parseFloat(rateInput.value) || 0;
     const currentPeriodStart = parseInt(periodStartInput.value) || 0;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput.value) || 0 : 0;
 
