@@ -1210,30 +1210,50 @@ function initializeNadplataKredytuGroup(group) {
                 updateNadplataKredytuRemoveButtons();
             }, 50);
 
+            // Ręczne wprowadzanie wartości w input
             input.addEventListener("input", () => {
+                // Zastąp przecinki kropkami i usuń nieprawidłowe znaki
                 let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
-                let parsedValue = parseFloat(value);
-                let maxAllowed = parseFloat(input.max) || kwota;
-                let minAllowed = 100;
+                // Upewnij się, że jest tylko jedna kropka
+                const parts = value.split(".");
+                if (parts.length > 2) {
+                    value = parts[0] + "." + parts.slice(1).join("");
+                }
+                input.value = value; // Zaktualizuj wartość w polu input
 
+                let parsedValue = parseFloat(value);
+                const minAllowed = parseFloat(input.min) || 100;
+                const maxAllowed = parseFloat(input.max) || kwota;
+
+                // Walidacja wartości
                 if (isNaN(parsedValue) || parsedValue < minAllowed) {
                     parsedValue = minAllowed;
+                    input.value = parsedValue.toFixed(2);
                 } else if (parsedValue > maxAllowed) {
                     parsedValue = maxAllowed;
+                    input.value = parsedValue.toFixed(2);
+                } else {
+                    input.value = parsedValue.toFixed(2);
                 }
-                input.value = parsedValue.toFixed(2);
+
+                // Synchronizacja z suwakiem
                 range.value = parsedValue;
+                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
 
+            // Obsługa suwaka
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value);
-                let maxAllowed = parseFloat(input.max) || kwota;
-                let minAllowed = 100;
+                const minAllowed = parseFloat(range.min) || 100;
+                const maxAllowed = parseFloat(range.max) || kwota;
+
                 if (value < minAllowed) value = minAllowed;
                 if (value > maxAllowed) value = maxAllowed;
+
                 input.value = value.toFixed(2);
                 range.value = value;
+                syncInputWithRange(input, range);
                 debouncedUpdate();
             });
         }
@@ -1241,7 +1261,7 @@ function initializeNadplataKredytuGroup(group) {
 
     if (typeSelect) {
         typeSelect.addEventListener("change", () => {
-            updatePeriodBox(); // Poprawiono z update期間Box() na updatePeriodBox()
+            updatePeriodBox();
             const rateInput = group.querySelector(".variable-rate");
             const rateRange = group.querySelector(".variable-rate-range");
             if (rateInput && rateRange) {
