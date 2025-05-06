@@ -564,7 +564,7 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="text" inputmode="numeric" class="form-control variable-rate" min="100" max="5000000" value="100">
+                        <input type="number" class="form-control variable-rate" min="100" max="5000000" value="100">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
                     <input type="range" class="form-range range-slider variable-rate-range" min="100" max="5000000" step="1" value="100">
@@ -766,7 +766,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = Math.floor(maxAllowed);
             rateInput.value = rateValue;
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1120,7 +1120,7 @@ function initializeNadplataKredytuGroup(group) {
                     updateNadplataKredytuRemoveButtons();
                 }, 50);
 
-                // Blokada wprowadzania kropki i przecinka oraz innych znaków
+                // Blokada wprowadzania kropki i przecinka
                 input.addEventListener("keypress", (e) => {
                     if (e.key === "." || e.key === ",") {
                         e.preventDefault();
