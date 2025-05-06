@@ -304,8 +304,12 @@ function initializeInputHandling() {
     // Kwota Kredytu
     elements.kwota.addEventListener("input", (e) => {
         let value = e.target.value;
-        // Usuń kropki i wszystko poza cyframi
+        // Usuń kropki i inne znaki poza cyframi, zachowując istniejące cyfry
+        let originalValue = value;
         value = value.replace(/[^0-9]/g, "");
+        if (value === "" && originalValue !== "") {
+            value = "0"; // Zachowaj minimalną wartość, jeśli cała zawartość została usunięta przez filtr
+        }
         e.target.value = value;
     });
 
@@ -344,8 +348,12 @@ function initializeInputHandling() {
     // Ilość Rat
     elements.iloscRat.addEventListener("input", (e) => {
         let value = e.target.value;
-        // Usuń kropki i wszystko poza cyframi
+        // Usuń kropki i inne znaki poza cyframi, zachowując istniejące cyfry
+        let originalValue = value;
         value = value.replace(/[^0-9]/g, "");
+        if (value === "" && originalValue !== "") {
+            value = "0"; // Zachowaj minimalną wartość, jeśli cała zawartość została usunięta przez filtr
+        }
         e.target.value = value;
     });
 
@@ -516,7 +524,6 @@ function initializeInputHandling() {
         }
     }
 }
-
 
 
 
