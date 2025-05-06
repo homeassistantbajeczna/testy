@@ -578,10 +578,10 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="text" inputmode="decimal" class="form-control variable-rate" min="100" step="0.01" value="100,00">
+                        <input type="text" inputmode="decimal" class="form-control variable-rate" min="100" max="5000000" step="0.01" value="100,00">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
-                    <input type="range" class="form-range range-slider variable-rate-range" min="100" step="0.01" value="100">
+                    <input type="range" class="form-range range-slider variable-rate-range" min="100" max="5000000" step="0.01" value="100">
                 </div>
                 <div class="form-group box-period box-period-start">
                     <label class="form-label">W</label>
@@ -718,11 +718,17 @@ function updateOverpaymentLimit(input, range, group) {
     let periodEnd = type === "Miesięczna" && periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
     let rateValue = parseFloat(rateInput.value.replace(",", ".")) || 100;
 
-    // Kwota nadpłaty jest nadrzędna, więc nie ograniczamy jej dynamicznie
+    // Walidacja kwoty nadpłaty
     rateInput.min = "100";
     rateRange.min = 100;
+    rateInput.max = "5000000";
+    rateRange.max = 5000000;
     if (rateValue < 100) {
         rateValue = 100;
+        rateInput.value = rateValue.toFixed(2).replace(".", ",");
+        rateRange.value = rateValue;
+    } else if (rateValue > 5000000) {
+        rateValue = 5000000;
         rateInput.value = rateValue.toFixed(2).replace(".", ",");
         rateRange.value = rateValue;
     }
@@ -733,8 +739,15 @@ function updateOverpaymentLimit(input, range, group) {
     // Oblicz maksymalny okres na podstawie kwoty nadpłaty
     let maxPeriod = totalMonths;
     if (effect === "Skróć okres" && remainingCapital > 0) {
-        const monthsToPayOff = Math.floor(remainingCapital / rateValue);
-        maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff);
+        let totalOverpayment = type === "Miesięczna" ? rateValue * (periodEnd - periodStart + 1) : rateValue;
+        let monthsToPayOff = Math.floor(remainingCapital / rateValue);
+        if (type === "Jednorazowa") {
+            maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff);
+        } else {
+            maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff - 1);
+        }
+    } else if (effect === "Zmniejsz ratę") {
+        maxPeriod = totalMonths;
     }
 
     let minPeriodStart = 1;
@@ -751,6 +764,11 @@ function updateOverpaymentLimit(input, range, group) {
     periodStartRange.min = minPeriodStart;
     periodStartInput.max = maxPeriod;
     periodStartRange.max = maxPeriod;
+    if (periodStart < minPeriodStart) {
+        periodStart = minPeriodStart;
+        periodStartInput.value = periodStart;
+        periodStartRange.value = periodStart;
+    }
     if (periodStart > maxPeriod) {
         periodStart = maxPeriod;
         periodStartInput.value = periodStart;
@@ -765,6 +783,11 @@ function updateOverpaymentLimit(input, range, group) {
         periodEndRange.max = maxPeriod;
         if (periodEnd < periodStart) {
             periodEnd = periodStart;
+            periodEndInput.value = periodEnd;
+            periodEndRange.value = periodEnd;
+        }
+        if (periodEnd > maxPeriod) {
+            periodEnd = maxPeriod;
             periodEndInput.value = periodEnd;
             periodEndRange.value = periodEnd;
         }
@@ -815,10 +838,13 @@ function updateAllOverpaymentLimits() {
     remainingCapital = calculateRemainingCapital(remainingCapital, interestRate, totalMonths, paymentType, overpayments, lastOverpaymentMonth);
 
     lastRemainingCapital = remainingCapital;
-    let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, totalMonths) : totalMonths;
+    let maxPeriodLimit = totalMonths;
     if (lastRemainingCapital > 0) {
-        let monthsToPayOff = Math.ceil(lastRemainingCapital / 100);
+        let minRate = 100; // Minimalna kwota nadpłaty
+        let monthsToPayOff = Math.ceil(lastRemainingCapital / minRate);
         maxPeriodLimit = Math.min(maxPeriodLimit, lastOverpaymentMonth + monthsToPayOff);
+    } else {
+        maxPeriodLimit = lastOverpaymentMonth;
     }
 
     groups.forEach((g, index) => {
@@ -1227,16 +1253,18 @@ function initializeNadplataKredytuGroup(group) {
                 e.target.value = e.target.value.replace(/[^0-9,]/g, "");
             });
 
-            // Walidacja po zakończeniu edycji
-            input.addEventListener("blur", () => {
+            // Walidacja po zakończeniu edycji i dla strzałek
+            input.addEventListener("change", () => {
                 let value = input.value;
                 let parsedValue = parseFloat(value.replace(",", ".")) || 0;
-                let minValue = 100;
+                let minValue = parseFloat(input.min) || 100;
+                let maxValue = parseFloat(input.max) || 5000000;
 
                 if (isNaN(parsedValue) || value === "") {
                     parsedValue = minValue;
                 } else {
                     if (parsedValue < minValue) parsedValue = minValue;
+                    if (parsedValue > maxValue) parsedValue = maxValue;
                 }
 
                 input.value = parsedValue.toFixed(2).replace(".", ",");
@@ -1248,9 +1276,11 @@ function initializeNadplataKredytuGroup(group) {
             // Obsługa suwaka
             range.addEventListener("input", () => {
                 let value = parseFloat(range.value);
-                const minAllowed = 100;
+                const minAllowed = parseFloat(range.min) || 100;
+                const maxAllowed = parseFloat(range.max) || 5000000;
 
                 if (value < minAllowed) value = minAllowed;
+                if (value > maxAllowed) value = maxAllowed;
 
                 input.value = value.toFixed(2).replace(".", ",");
                 range.value = value;
