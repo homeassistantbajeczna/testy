@@ -1233,6 +1233,9 @@ function initializeNadplataKredytuGroup(group) {
                     parts[1] = parts[1].substring(0, 2);
                     e.target.value = parts.join(".");
                 }
+
+                // Usuń nieprawidłowe znaki
+                e.target.value = e.target.value.replace(/[^0-9.]/g, "");
             });
 
             // Walidacja po zakończeniu edycji
@@ -1297,10 +1300,150 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rateRange, group); // Poprawiono na rateRange
+        updateOverpaymentLimit(rateInput, rateRange, group);
     }
 
     updateNadplataKredytuRemoveButtons();
+}
+
+function resetNadplataKredytuSection() {
+    elements.nadplataKredytuWrapper.innerHTML = "";
+    state.overpaymentRates = [];
+    if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.disabled = false;
+        elements.nadplataKredytuBtn.parentElement?.classList.remove("disabled");
+    }
+
+    const existingRemoveBtnWrapper = elements.nadplataKredytuWrapper.querySelector(".remove-btn-wrapper");
+    if (existingRemoveBtnWrapper) existingRemoveBtnWrapper.remove();
+    updateInputFieldsState(false);
+}
+
+function updateNadplataKredytuRemoveButtons() {
+    const wrapper = elements.nadplataKredytuWrapper;
+    const groups = wrapper.querySelectorAll(".variable-input-group");
+    const activeGroups = wrapper.querySelectorAll(".variable-input-group:not(.locked)");
+
+    let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
+
+    if (groups.length === 0) {
+        if (existingRemoveBtnWrapper && existingRemoveBtnWrapper.parentElement) existingRemoveBtnWrapper.remove();
+        updateInputFieldsState(false);
+        return;
+    }
+
+    if (!existingRemoveBtnWrapper) {
+        existingRemoveBtnWrapper = document.createElement("div");
+        existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
+        existingRemoveBtnWrapper.style.display = "flex";
+        existingRemoveBtnWrapper.style.justifyContent = "space-between";
+        existingRemoveBtnWrapper.style.marginTop = "10px";
+    } else existingRemoveBtnWrapper.innerHTML = "";
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
+    removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
+    removeBtn.textContent = "Usuń";
+    existingRemoveBtnWrapper.appendChild(removeBtn);
+
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.classList.add("btn", "btn-functional");
+    addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
+    addBtn.textContent = "Dodaj kolejną nadpłatę";
+    existingRemoveBtnWrapper.appendChild(addBtn);
+
+    const lastGroup = groups[groups.length - 1];
+    if (existingRemoveBtnWrapper.parentElement !== lastGroup) lastGroup.appendChild(existingRemoveBtnWrapper);
+
+    removeBtn.addEventListener("click", () => {
+        const groups = wrapper.querySelectorAll(".variable-input-group");
+        const currentIndex = groups.length - 1;
+
+        if (currentIndex === 0) {
+            if (elements.nadplataKredytuBtn) {
+                elements.nadplataKredytuBtn.checked = false;
+                elements.nadplataKredytuInputs?.classList.remove("active");
+            }
+            resetNadplataKredytuSection();
+        } else {
+            const lastGroup = groups[currentIndex];
+            const secondLastGroup = groups[currentIndex - 1];
+            lastGroup.remove();
+            if (secondLastGroup) {
+                secondLastGroup.classList.remove("locked");
+                secondLastGroup.querySelectorAll("input, select").forEach(el => el.disabled = false);
+                secondLastGroup.querySelectorAll(".form-group").forEach(el => el.classList.remove("disabled"));
+            }
+            updateRatesArray("nadplata");
+            updateAllOverpaymentLimits();
+            updateNadplataKredytuRemoveButtons();
+        }
+    });
+
+    addBtn.addEventListener("click", () => {
+        const newGroup = createNadplataKredytuGroup();
+        wrapper.appendChild(newGroup);
+        const groups = wrapper.querySelectorAll(".variable-input-group");
+        const activeGroups = wrapper.querySelectorAll(".variable-input-group:not(.locked)");
+        if (activeGroups.length > 0) {
+            const lastActiveGroup = activeGroups[activeGroups.length - 1];
+            lastActiveGroup.classList.add("locked");
+            lastActiveGroup.querySelectorAll("input, select").forEach(el => el.disabled = true);
+            lastActiveGroup.querySelectorAll(".form-group").forEach(el => el.classList.add("disabled"));
+        }
+        initializeNadplataKredytuGroup(newGroup);
+        updateRatesArray("nadplata");
+        updateAllOverpaymentLimits();
+        updateNadplataKredytuRemoveButtons();
+    });
+
+    const { remainingCapital } = updateAllOverpaymentLimits();
+    const lastGroupData = groups[groups.length - 1];
+    const rateInput = lastGroupData.querySelector(".variable-rate");
+    const periodStartInput = lastGroupData.querySelector(".variable-cykl-start");
+    const periodEndInput = lastGroupData.querySelector(".variable-cykl-end");
+
+    const maxRate = parseFloat(rateInput.max) || 0;
+    const maxPeriodStart = parseInt(periodStartInput.max) || 0;
+    const maxPeriodEnd = periodEndInput ? parseInt(periodEndInput.max) || 0 : 0;
+    const currentRate = parseFloat(rateInput.value) || 0;
+    const currentPeriodStart = parseInt(periodStartInput.value) || 0;
+    const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput.value) || 0 : 0;
+
+    if (remainingCapital <= 0 || currentRate >= maxRate || currentPeriodStart >= maxPeriodStart || (periodEndInput && currentPeriodEnd >= maxPeriodEnd)) {
+        addBtn.style.display = "none";
+    } else addBtn.style.display = "inline-block";
+}
+
+function initializeNadplataKredytuToggle() {
+    if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.addEventListener("change", () => {
+            const isChecked = elements.nadplataKredytuBtn.checked;
+            elements.nadplataKredytuInputs?.classList.toggle("active", isChecked);
+
+            if (isChecked) {
+                elements.nadplataKredytuWrapper.innerHTML = "";
+                const newGroup = createNadplataKredytuGroup();
+                elements.nadplataKredytuWrapper.appendChild(newGroup);
+                initializeNadplataKredytuGroup(newGroup);
+                updateNadplataKredytuRemoveButtons();
+                updateInputFieldsState(true);
+            } else {
+                resetNadplataKredytuSection();
+                updateInputFieldsState(false);
+            }
+        });
+    }
+}
+
+function updateInputFieldsState(lock = false) {
+    const mainInputs = document.querySelectorAll("#main-form input, #main-form select");
+    mainInputs.forEach(input => {
+        input.disabled = lock;
+        input.parentElement?.classList.toggle("disabled", lock);
+    });
 }
 
 
