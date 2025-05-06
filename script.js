@@ -625,7 +625,10 @@ function debounce(func, wait) {
 }
 
 function syncInputWithRange(input, range) {
-    if (!input || !range) return;
+    if (!input || !range) {
+        console.log("syncInputWithRange: Brak inputu lub range", { input, range });
+        return;
+    }
 
     let value = input.classList.contains("variable-cykl")
         ? parseInt(input.value) || parseInt(range.value)
@@ -634,12 +637,16 @@ function syncInputWithRange(input, range) {
     const min = parseFloat(range.min);
     const max = parseFloat(range.max);
 
+    console.log("syncInputWithRange: Przed korektą", { value, min, max });
+
     if (isNaN(value)) value = min;
     if (value < min) value = min;
     if (value > max) value = max;
 
     input.value = input.classList.contains("variable-cykl") ? value : value.toFixed(2);
     range.value = value;
+
+    console.log("syncInputWithRange: Po korekcie", { inputValue: input.value, rangeValue: range.value });
 }
 
 function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth) {
@@ -683,7 +690,7 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
 
 function updateOverpaymentLimit(input, range, group) {
     if (!group || !group.parentElement || group.classList.contains("locked")) {
-        console.log("Group jest zablokowany lub nie istnieje w DOM, pomijam updateOverpaymentLimit");
+        console.log("updateOverpaymentLimit: Group zablokowany lub nie istnieje", { group });
         return 0;
     }
 
@@ -1201,7 +1208,7 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, rateRange, group);
+                    updateOverpaymentLimit(rateInput, range, group);
                     updateRatesArray("nadplata");
                     updateNadplataKredytuRemoveButtons();
                 }
@@ -1219,6 +1226,7 @@ function initializeNadplataKredytuGroup(group) {
 
             if (periodEndRange) {
                 periodEndRange.addEventListener("input", () => {
+                    console.log("Range DO input triggered", { value: periodEndRange.value, min: periodEndRange.min, max: periodEndRange.max });
                     let value = parseInt(periodEndRange.value);
                     if (value < minValue) {
                         value = minValue;
