@@ -604,7 +604,7 @@ function createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, ste
     box.innerHTML = `
         <label class="form-label">DO</label>
         <div class="input-group">
-            <input type="number" class="form-control variable-cykl variable-cykl-end" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
+            <input type="text" inputmode="numeric" class="form-control variable-cykl variable-cykl-end" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
             <span class="input-group-text unit-period">${unitText}</span>
         </div>
         <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-end-range" min="${minValue}" max="${maxValue}" step="${stepValue}" value="${defaultValue}">
@@ -1085,16 +1085,36 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
+                // Obsługa ręcznego wprowadzania dla boxa "DO"
                 input.addEventListener("input", () => {
-                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
+                    let value = input.value.replace(/[^0-9]/g, "");
+                    input.value = value;
+
+                    let parsedValue = parseInt(value) || minValue;
+                    if (parsedValue < minValue) parsedValue = minValue;
+                    if (parsedValue > maxPeriodLimit) parsedValue = maxPeriodLimit;
+
+                    input.value = parsedValue;
+                    if (periodEndRange) periodEndRange.value = parsedValue;
+                    syncInputWithRange(input, periodEndRange);
+
+                    const periodStartValue = parseInt(periodStartInput?.value) || 1;
+                    periodDifference = parsedValue - periodStartValue; // Aktualizacja różnicy
+                    debouncedUpdate();
+                });
+
+                // Walidacja po zakończeniu edycji
+                input.addEventListener("blur", () => {
+                    let value = parseInt(input.value) || minValue;
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
+
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
                     syncInputWithRange(input, periodEndRange);
 
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = value - periodStartValue; // Aktualizacja różnicy przy zmianie DO
+                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
                     debouncedUpdate();
                 });
 
@@ -1113,7 +1133,7 @@ function initializeNadplataKredytuGroup(group) {
                         syncInputWithRange(input, periodEndRange);
 
                         const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                        periodDifference = value - periodStartValue; // Aktualizacja różnicy przy zmianie DO
+                        periodDifference = value - periodStartValue; // Aktualizacja różnicy
                         debouncedUpdate();
                     });
                 }
