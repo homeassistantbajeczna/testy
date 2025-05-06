@@ -1114,40 +1114,49 @@ function initializeNadplataKredytuGroup(group) {
                     const periodEndRange = group.querySelector(".variable-cykl-end-range");
                     if (periodEndInput && periodEndRange) {
                         const currentEndValue = parseInt(periodEndInput.value) || value;
-                        const numberOfOverpayments = currentEndValue - value + 1;
-                        const newEndValue = value + numberOfOverpayments - 1;
+                        const numberOfOverpayments = currentEndValue - (parseInt(input.value) - 1); // Zachowaj liczbę miesięcy nadpłaty
+                        let newEndValue = value + (numberOfOverpayments - 1);
+                        if (newEndValue > maxPeriodLimit) {
+                            newEndValue = maxPeriodLimit;
+                        }
+                        if (newEndValue < value) {
+                            newEndValue = value; // DO nie może być mniejsze niż OD
+                        }
                         periodEndInput.min = value;
                         periodEndRange.min = value;
-                        if (newEndValue <= maxPeriodLimit) {
-                            periodEndInput.value = newEndValue;
-                            periodEndRange.value = newEndValue;
-                        } else {
-                            periodEndInput.value = maxPeriodLimit;
-                            periodEndRange.value = maxPeriodLimit;
-                        }
+                        periodEndInput.max = maxPeriodLimit;
+                        periodEndRange.max = maxPeriodLimit;
+                        periodEndInput.value = newEndValue;
+                        periodEndRange.value = newEndValue;
+                        syncInputWithRange(periodEndInput, periodEndRange);
                     }
                 }
                 debouncedUpdate();
             });
 
             range.addEventListener("input", () => {
-                input.value = parseInt(range.value);
+                let value = parseInt(range.value);
+                input.value = value;
                 if (typeSelect?.value === "Miesięczna") {
                     const periodEndInput = group.querySelector(".variable-cykl-end");
                     const periodEndRange = group.querySelector(".variable-cykl-end-range");
                     if (periodEndInput && periodEndRange) {
-                        const currentEndValue = parseInt(periodEndInput.value) || parseInt(input.value);
-                        const numberOfOverpayments = currentEndValue - parseInt(input.value) + 1;
-                        const newEndValue = parseInt(input.value) + numberOfOverpayments - 1;
-                        periodEndInput.min = parseInt(input.value);
-                        periodEndRange.min = parseInt(input.value);
-                        if (newEndValue <= maxPeriodLimit) {
-                            periodEndInput.value = newEndValue;
-                            periodEndRange.value = newEndValue;
-                        } else {
-                            periodEndInput.value = maxPeriodLimit;
-                            periodEndRange.value = maxPeriodLimit;
+                        const currentEndValue = parseInt(periodEndInput.value) || value;
+                        const numberOfOverpayments = currentEndValue - (parseInt(input.value) - 1);
+                        let newEndValue = value + (numberOfOverpayments - 1);
+                        if (newEndValue > maxPeriodLimit) {
+                            newEndValue = maxPeriodLimit;
                         }
+                        if (newEndValue < value) {
+                            newEndValue = value;
+                        }
+                        periodEndInput.min = value;
+                        periodEndRange.min = value;
+                        periodEndInput.max = maxPeriodLimit;
+                        periodEndRange.max = maxPeriodLimit;
+                        periodEndInput.value = newEndValue;
+                        periodEndRange.value = newEndValue;
+                        syncInputWithRange(periodEndInput, periodEndRange);
                     }
                 }
                 debouncedUpdate();
