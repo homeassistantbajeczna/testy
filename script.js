@@ -1198,8 +1198,19 @@ function initializeNadplataKredytuGroup(group) {
             });
         } else if (input.classList.contains("variable-cykl-end")) {
             const periodStartInput = group.querySelector(".variable-cykl-start");
+            const periodEndRange = group.querySelector(".variable-cykl-end-range");
             const { lastMonthWithCapital } = updateAllOverpaymentLimits();
             let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
+
+            // Ustawienie wartości min i max dla inputa i suwaka
+            let minValue = parseInt(periodStartInput?.value) || 1;
+            input.min = minValue;
+            input.max = maxPeriodLimit;
+            if (periodEndRange) {
+                periodEndRange.min = minValue;
+                periodEndRange.max = maxPeriodLimit;
+                periodEndRange.step = 1;
+            }
 
             const debouncedUpdate = debounce(() => {
                 const rateInput = group.querySelector(".variable-rate");
@@ -1212,26 +1223,33 @@ function initializeNadplataKredytuGroup(group) {
             }, 50);
 
             input.addEventListener("input", () => {
-                let minValue = parseInt(periodStartInput?.value) || 1;
                 let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
                 if (value < minValue) value = minValue;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
+                if (periodEndRange) {
+                    periodEndRange.value = value;
+                }
+                syncInputWithRange(input, periodEndRange);
                 debouncedUpdate();
             });
 
-            range.addEventListener("input", () => {
-                let minValue = parseInt(periodStartInput?.value) || 1;
-                let value = parseInt(range.value);
-                if (value < minValue) value = minValue;
-                if (value > maxPeriodLimit) value = maxPeriodLimit;
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
+            if (periodEndRange) {
+                periodEndRange.addEventListener("input", () => {
+                    let value = parseInt(periodEndRange.value);
+                    if (value < minValue) {
+                        value = minValue;
+                        periodEndRange.value = value;
+                    }
+                    if (value > maxPeriodLimit) {
+                        value = maxPeriodLimit;
+                        periodEndRange.value = value;
+                    }
+                    input.value = value;
+                    syncInputWithRange(input, periodEndRange);
+                    debouncedUpdate();
+                });
+            }
         }
     });
 
