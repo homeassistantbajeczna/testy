@@ -578,7 +578,7 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="number" class="form-control variable-rate" min="100" max="5000000" step="0.01" value="100">
+                        <input type="text" inputmode="decimal" class="form-control variable-rate" min="100" max="5000000" step="0.01" value="100.00">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
                     <input type="range" class="form-range range-slider variable-rate-range" min="100" max="5000000" step="0.01" value="100">
@@ -780,7 +780,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
             rateInput.value = rateValue.toFixed(2);
-            range.value = rateValue;
+            rateRange.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1211,32 +1211,31 @@ function initializeNadplataKredytuGroup(group) {
             }, 50);
 
             // Ręczne wprowadzanie wartości w input
-            input.addEventListener("input", () => {
-                // Zastąp przecinki kropkami i usuń nieprawidłowe znaki
+            input.addEventListener("input", (e) => {
                 let value = input.value.replace(",", ".").replace(/[^0-9.]/g, "");
-                // Upewnij się, że jest tylko jedna kropka
                 const parts = value.split(".");
                 if (parts.length > 2) {
                     value = parts[0] + "." + parts.slice(1).join("");
                 }
-                input.value = value; // Zaktualizuj wartość w polu input
+                input.value = value; // Pozwalamy użytkownikowi wprowadzać dane
+            });
 
+            // Walidacja i formatowanie po zakończeniu edycji (na blur)
+            input.addEventListener("blur", () => {
+                let value = input.value.trim();
                 let parsedValue = parseFloat(value);
                 const minAllowed = parseFloat(input.min) || 100;
                 const maxAllowed = parseFloat(input.max) || kwota;
 
-                // Walidacja wartości
-                if (isNaN(parsedValue) || parsedValue < minAllowed) {
+                if (isNaN(parsedValue) || value === "") {
                     parsedValue = minAllowed;
-                    input.value = parsedValue.toFixed(2);
+                } else if (parsedValue < minAllowed) {
+                    parsedValue = minAllowed;
                 } else if (parsedValue > maxAllowed) {
                     parsedValue = maxAllowed;
-                    input.value = parsedValue.toFixed(2);
-                } else {
-                    input.value = parsedValue.toFixed(2);
                 }
 
-                // Synchronizacja z suwakiem
+                input.value = parsedValue.toFixed(2);
                 range.value = parsedValue;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
