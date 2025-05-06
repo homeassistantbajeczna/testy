@@ -302,26 +302,14 @@ function updateRatesArray(type) {
 
 function initializeInputHandling() {
     // Kwota Kredytu
-    elements.kwota.addEventListener("input", (e) => {
-        const input = e.target;
-        const originalValue = input.value;
-        const cursorPosition = input.selectionStart;
-
-        // Usuń kropki i inne znaki poza cyframi
-        let value = originalValue.replace(/[^0-9]/g, "");
-
-        // Jeśli wartość jest pusta po filtracji, przywróć oryginalną wartość bez kropki
-        if (value === "" && originalValue !== "") {
-            value = originalValue.replace(".", "");
+    elements.kwota.addEventListener("keypress", (e) => {
+        // Blokuj wprowadzanie kropki i przecinka
+        if (e.key === "." || e.key === ",") {
+            e.preventDefault();
         }
-
-        // Aktualizuj wartość tylko jeśli się zmieniła
-        if (input.value !== value) {
-            input.value = value;
-
-            // Przywróć pozycję kursora
-            const offset = originalValue.length - value.length;
-            input.selectionStart = input.selectionEnd = Math.max(0, cursorPosition - offset);
+        // Zezwalaj tylko na cyfry
+        if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+            e.preventDefault();
         }
     });
 
@@ -358,26 +346,14 @@ function initializeInputHandling() {
     });
 
     // Ilość Rat
-    elements.iloscRat.addEventListener("input", (e) => {
-        const input = e.target;
-        const originalValue = input.value;
-        const cursorPosition = input.selectionStart;
-
-        // Usuń kropki i inne znaki poza cyframi
-        let value = originalValue.replace(/[^0-9]/g, "");
-
-        // Jeśli wartość jest pusta po filtracji, przywróć oryginalną wartość bez kropki
-        if (value === "" && originalValue !== "") {
-            value = originalValue.replace(".", "");
+    elements.iloscRat.addEventListener("keypress", (e) => {
+        // Blokuj wprowadzanie kropki i przecinka
+        if (e.key === "." || e.key === ",") {
+            e.preventDefault();
         }
-
-        // Aktualizuj wartość tylko jeśli się zmieniła
-        if (input.value !== value) {
-            input.value = value;
-
-            // Przywróć pozycję kursora
-            const offset = originalValue.length - value.length;
-            input.selectionStart = input.selectionEnd = Math.max(0, cursorPosition - offset);
+        // Zezwalaj tylko na cyfry
+        if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+            e.preventDefault();
         }
     });
 
