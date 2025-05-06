@@ -682,7 +682,7 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
 }
 
 function updateOverpaymentLimit(input, range, group) {
-    if (!group || !group.parentElement || group.classList.contains("locked")) return 0;
+    if (!group || !group.parentElement || group.classList.contains("locked")) return { remainingCapital: 0, maxPeriod: 1 };
 
     const typeSelect = group.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
@@ -703,6 +703,7 @@ function updateOverpaymentLimit(input, range, group) {
     const allGroups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
     const currentIndex = Array.from(allGroups).indexOf(group);
     const previousOverpayments = [];
+    let lastOverpaymentMonth = 0;
     for (let i = 0; i < currentIndex; i++) {
         const prevGroup = allGroups[i];
         if (!prevGroup || !prevGroup.parentElement) continue;
@@ -712,59 +713,62 @@ function updateOverpaymentLimit(input, range, group) {
         const prevAmount = parseFloat(prevGroup.querySelector(".variable-rate")?.value) || 0;
         const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
         previousOverpayments.push({ type: prevType, start: prevPeriodStart, end: prevPeriodEnd, amount: prevAmount, effect: prevEffect });
+        lastOverpaymentMonth = Math.max(lastOverpaymentMonth, prevType === "Miesięczna" ? prevPeriodEnd : prevPeriodStart);
     }
 
     let periodStart = parseInt(periodStartInput?.value) || 1;
     let periodEnd = type === "Miesięczna" && periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
     let rateValue = parseFloat(rateInput.value) || 100;
 
-    // Ustawienie maksymalnej kwoty nadpłaty na podstawie kwoty kredytu
+    // Oblicz pozostały kapitał przed okresem nadpłaty (do ostatniego miesiąca z poprzednich nadpłat)
+    let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, lastOverpaymentMonth);
+
+    // Ustawienie maksymalnej kwoty nadpłaty (KWOTA NADPŁATY jest nadrzędna)
     rateInput.min = 100;
     rateRange.min = 100;
-    rateInput.max = loanAmount;
-    rateRange.max = loanAmount;
+    rateInput.max = remainingCapital;
+    rateRange.max = remainingCapital;
     if (rateValue < 100) {
         rateValue = 100;
         rateInput.value = rateValue.toFixed(2);
         rateRange.value = rateValue;
-    } else if (rateValue > loanAmount) {
-        rateValue = loanAmount;
+    } else if (rateValue > remainingCapital) {
+        rateValue = remainingCapital;
         rateInput.value = rateValue.toFixed(2);
         rateRange.value = rateValue;
     }
 
-    // Oblicz pozostały kapitał przed okresem nadpłaty
-    let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
-
-    // Oblicz maksymalny okres na podstawie kwoty nadpłaty
+    // Oblicz maksymalny okres (W/OD i DO) na podstawie KWOTA NADPŁATY
     let maxPeriod = totalMonths;
     if (remainingCapital > 0) {
         if (effect === "Skróć okres") {
             if (type === "Jednorazowa") {
-                let monthsToPayOff = Math.floor(remainingCapital / rateValue);
-                maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff);
+                // Maksymalny okres to taki, w którym można spłacić pozostały kapitał
+                let remainingAfterStart = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
+                if (remainingAfterStart <= rateValue) {
+                    maxPeriod = periodStart;
+                } else {
+                    maxPeriod = totalMonths; // Możemy nadpłacić w dowolnym okresie, ale ograniczymy to później
+                }
             } else if (type === "Miesięczna") {
+                // Dla nadpłaty miesięcznej obliczamy maksymalny okres na podstawie kwoty nadpłaty
+                let remainingAfterStart = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
                 let totalOverpayment = rateValue * (periodEnd - periodStart + 1);
-                if (totalOverpayment > remainingCapital) {
-                    let monthsToPayOff = Math.ceil(remainingCapital / rateValue);
-                    maxPeriod = Math.min(totalMonths, periodStart + monthsToPayOff - 1);
+                if (totalOverpayment > remainingAfterStart) {
+                    let maxMonths = Math.floor(remainingAfterStart / rateValue);
+                    maxPeriod = periodStart + maxMonths;
+                } else {
+                    maxPeriod = totalMonths;
                 }
             }
         } else if (effect === "Zmniejsz ratę") {
             maxPeriod = totalMonths;
         }
     } else {
-        maxPeriod = periodStart;
+        maxPeriod = lastOverpaymentMonth + 1;
     }
 
-    let minPeriodStart = 1;
-    if (currentIndex > 0) {
-        const prevGroup = allGroups[currentIndex - 1];
-        const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-        const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
-        const prevPeriodEnd = prevType === "Miesięczna" ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
-        minPeriodStart = prevPeriodEnd + 1;
-    }
+    let minPeriodStart = lastOverpaymentMonth + 1;
 
     // Aktualizacja granic dla periodStart
     periodStartInput.min = minPeriodStart;
@@ -801,7 +805,7 @@ function updateOverpaymentLimit(input, range, group) {
     }
 
     updateRatesArray("nadplata");
-    return remainingCapital;
+    return { remainingCapital, maxPeriod };
 }
 
 function updateAllOverpaymentLimits() {
@@ -868,33 +872,37 @@ function updateAllOverpaymentLimits() {
         const effect = g.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
 
         let minPeriodStart = 1;
-        if (index > 0) {
-            const previousGroup = allGroups[allGroups.length - groups.length + index - 1];
-            if (previousGroup && previousGroup.parentElement) {
-                const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                let previousPeriodEndValue = previousPeriodStartValue;
-                if (previousType === "Miesięczna") {
-                    previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
-                }
-                minPeriodStart = previousPeriodEndValue + 1;
-            }
+        let lastOverpaymentMonthBefore = 0;
+        for (let i = 0; i < index; i++) {
+            const prevGroup = allGroups[i];
+            if (!prevGroup || !prevGroup.parentElement) continue;
+            const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
+            const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
+            const prevPeriodEnd = prevGroup.querySelector(".variable-cykl-end") ? parseInt(prevGroup.querySelector(".variable-cykl-end")?.value) || prevPeriodStart : prevPeriodStart;
+            lastOverpaymentMonthBefore = Math.max(lastOverpaymentMonthBefore, prevType === "Miesięczna" ? prevPeriodEnd : prevPeriodStart);
         }
+        minPeriodStart = lastOverpaymentMonthBefore + 1;
 
-        let remainingCapitalBefore = calculateRemainingCapital(remainingCapital, interestRate, totalMonths, paymentType, overpayments.filter(op => op !== overpayments[index]), minPeriodStart - 1);
+        let previousOverpayments = overpayments.slice(0, index);
+        let remainingCapitalBefore = calculateRemainingCapital(remainingCapital, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
         let maxPeriod = maxPeriodLimit;
         if (remainingCapitalBefore > 0) {
             if (effect === "Skróć okres") {
                 if (type === "Jednorazowa") {
-                    const monthsToPayOff = Math.floor(remainingCapitalBefore / rateValue);
-                    maxPeriod = Math.min(maxPeriodLimit, minPeriodStart + monthsToPayOff);
+                    if (remainingCapitalBefore <= rateValue) {
+                        maxPeriod = minPeriodStart;
+                    } else {
+                        maxPeriod = totalMonths;
+                    }
                 } else if (type === "Miesięczna") {
                     const periodStartValue = parseInt(periodStartInput?.value) || minPeriodStart;
                     const periodEndValue = periodEndInput ? parseInt(periodEndInput.value) || periodStartValue : periodStartValue;
                     let totalOverpayment = rateValue * (periodEndValue - periodStartValue + 1);
                     if (totalOverpayment > remainingCapitalBefore) {
-                        let monthsToPayOff = Math.ceil(remainingCapitalBefore / rateValue);
-                        maxPeriod = Math.min(maxPeriodLimit, minPeriodStart + monthsToPayOff - 1);
+                        let monthsToPayOff = Math.floor(remainingCapitalBefore / rateValue);
+                        maxPeriod = minPeriodStart + monthsToPayOff;
+                    } else {
+                        maxPeriod = totalMonths;
                     }
                 }
             }
@@ -929,6 +937,15 @@ function updateAllOverpaymentLimits() {
             periodEndInput.value = periodEndValue;
             periodEndRange.value = periodEndValue;
             syncInputWithRange(periodEndInput, periodEndRange);
+        }
+
+        // Aktualizacja maksymalnej kwoty nadpłaty
+        let remainingAfterPrevious = calculateRemainingCapital(remainingCapital, interestRate, totalMonths, paymentType, previousOverpayments, lastOverpaymentMonthBefore);
+        rateInput.max = remainingAfterPrevious;
+        rateRange.max = remainingAfterPrevious;
+        if (parseFloat(rateInput.value) > remainingAfterPrevious) {
+            rateInput.value = remainingAfterPrevious.toFixed(2);
+            rateRange.value = remainingAfterPrevious;
         }
     });
 
@@ -973,13 +990,27 @@ function initializeNadplataKredytuGroup(group) {
         let minValue;
         let defaultValue;
 
+        let lastOverpaymentMonth = 1;
+        if (currentIndex > 0) {
+            const previousGroup = groups[currentIndex - 1];
+            if (previousGroup && previousGroup.parentElement) {
+                const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
+                const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                let previousPeriodEndValue = previousPeriodStartValue;
+                if (previousType === "Miesięczna") {
+                    previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
+                }
+                lastOverpaymentMonth = previousType === "Miesięczna" ? previousPeriodEndValue : previousPeriodStartValue;
+            }
+        }
+
         if (type === "Jednorazowa") {
             if (periodLabel) periodLabel.textContent = "W";
             if (periodUnit) periodUnit.textContent = "miesiącu";
             if (existingEndBox) existingEndBox.remove();
             maxValue = maxPeriodLimit;
             if (periodStartInput && periodStartRange) {
-                minValue = currentIndex > 0 ? parseInt(groups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) + 1 || 1 : 1;
+                minValue = lastOverpaymentMonth + 1;
                 defaultValue = minValue;
                 periodStartInput.min = minValue;
                 periodStartRange.min = minValue;
@@ -1001,19 +1032,7 @@ function initializeNadplataKredytuGroup(group) {
             maxValue = maxPeriodLimit;
             stepValue = 1;
 
-            let minPeriodStart = 1;
-            if (currentIndex > 0) {
-                const previousGroup = groups[currentIndex - 1];
-                if (previousGroup && previousGroup.parentElement) {
-                    const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-                    const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
-                    let previousPeriodEndValue = previousPeriodStartValue;
-                    if (previousType === "Miesięczna") {
-                        previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
-                    }
-                    minPeriodStart = previousPeriodEndValue + 1;
-                }
-            }
+            let minPeriodStart = lastOverpaymentMonth + 1;
 
             if (periodStartInput && periodStartRange) {
                 periodStartInput.min = minPeriodStart;
@@ -1083,7 +1102,21 @@ function initializeNadplataKredytuGroup(group) {
                 const { lastMonthWithCapital } = updateAllOverpaymentLimits();
                 let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
 
-                let minValue = parseInt(periodStartInput?.value) || 1;
+                let lastOverpaymentMonth = 1;
+                if (currentIndex > 0) {
+                    const previousGroup = groups[currentIndex - 1];
+                    if (previousGroup && previousGroup.parentElement) {
+                        const previousType = previousGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
+                        const previousPeriodStartValue = parseInt(previousGroup.querySelector(".variable-cykl-start")?.value) || 1;
+                        let previousPeriodEndValue = previousPeriodStartValue;
+                        if (previousType === "Miesięczna") {
+                            previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
+                        }
+                        lastOverpaymentMonth = previousType === "Miesięczna" ? previousPeriodEndValue : previousPeriodStartValue;
+                    }
+                }
+
+                let minValue = parseInt(periodStartInput?.value) || (lastOverpaymentMonth + 1);
                 input.min = minValue;
                 input.max = maxPeriodLimit;
                 if (periodEndRange) {
@@ -1096,7 +1129,14 @@ function initializeNadplataKredytuGroup(group) {
                     const rateInput = group.querySelector(".variable-rate");
                     const rateRange = group.querySelector(".variable-rate-range");
                     if (rateInput && rateRange) {
-                        updateOverpaymentLimit(rateInput, rateRange, group);
+                        const { maxPeriod } = updateOverpaymentLimit(rateInput, rateRange, group);
+                        periodEndRange.max = maxPeriod;
+                        input.max = maxPeriod;
+                        let value = parseInt(input.value);
+                        if (value > maxPeriod) {
+                            input.value = maxPeriod;
+                            periodEndRange.value = maxPeriod;
+                        }
                         updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
                     }
@@ -1161,7 +1201,7 @@ function initializeNadplataKredytuGroup(group) {
     inputs.forEach((input, index) => {
         const range = ranges[index];
         if (input.classList.contains("variable-cykl-start")) {
-            let minPeriodStart = 1;
+            let lastOverpaymentMonth = 1;
             let defaultPeriodStart = 1;
             if (currentIndex > 0) {
                 const previousGroup = groups[currentIndex - 1];
@@ -1172,20 +1212,20 @@ function initializeNadplataKredytuGroup(group) {
                     if (previousType === "Miesięczna") {
                         previousPeriodEndValue = parseInt(previousGroup.querySelector(".variable-cykl-end")?.value) || previousPeriodStartValue;
                     }
-                    minPeriodStart = previousPeriodEndValue + 1;
-                    defaultPeriodStart = minPeriodStart;
+                    lastOverpaymentMonth = previousType === "Miesięczna" ? previousPeriodEndValue : previousPeriodStartValue;
+                    defaultPeriodStart = lastOverpaymentMonth + 1;
                 }
             }
 
             const { lastMonthWithCapital } = updateAllOverpaymentLimits();
             let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
 
-            input.min = minPeriodStart;
+            input.min = lastOverpaymentMonth + 1;
             input.max = maxPeriodLimit;
-            range.min = minPeriodStart;
+            range.min = lastOverpaymentMonth + 1;
             range.max = maxPeriodLimit;
 
-            let value = Math.max(minPeriodStart, Math.min(defaultPeriodStart, maxPeriodLimit));
+            let value = Math.max(lastOverpaymentMonth + 1, Math.min(defaultPeriodStart, maxPeriodLimit));
             input.value = value;
             range.value = value;
 
@@ -1193,7 +1233,14 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, rateRange, group);
+                    const { maxPeriod } = updateOverpaymentLimit(rateInput, rateRange, group);
+                    input.max = maxPeriod;
+                    range.max = maxPeriod;
+                    let currentValue = parseInt(input.value);
+                    if (currentValue > maxPeriod) {
+                        input.value = maxPeriod;
+                        range.value = maxPeriod;
+                    }
                     updateRatesArray("nadplata");
                     updateNadplataKredytuRemoveButtons();
                 }
@@ -1204,7 +1251,7 @@ function initializeNadplataKredytuGroup(group) {
                     const periodEndInput = group.querySelector(".variable-cykl-end");
                     const periodEndRange = group.querySelector(".variable-cykl-end-range");
                     if (periodEndInput && periodEndRange) {
-                        let periodStartValue = parseInt(input.value) || minPeriodStart;
+                        let periodStartValue = parseInt(input.value) || (lastOverpaymentMonth + 1);
                         let newEndValue = periodStartValue + periodDifference;
 
                         let maxPeriodLimit = Math.min(lastMonthWithCapital || iloscRat, iloscRat);
@@ -1223,8 +1270,8 @@ function initializeNadplataKredytuGroup(group) {
             };
 
             input.addEventListener("input", () => {
-                let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minPeriodStart;
-                if (value < minPeriodStart) value = minPeriodStart;
+                let value = parseInt(input.value.replace(/[^0-9]/g, "")) || (lastOverpaymentMonth + 1);
+                if (value < (lastOverpaymentMonth + 1)) value = lastOverpaymentMonth + 1;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 range.value = value;
@@ -1234,7 +1281,7 @@ function initializeNadplataKredytuGroup(group) {
 
             range.addEventListener("input", () => {
                 let value = parseInt(range.value);
-                if (value < minPeriodStart) value = minPeriodStart;
+                if (value < (lastOverpaymentMonth + 1)) value = lastOverpaymentMonth + 1;
                 if (value > maxPeriodLimit) value = maxPeriodLimit;
                 input.value = value;
                 updateEndPeriod();
@@ -1242,7 +1289,39 @@ function initializeNadplataKredytuGroup(group) {
             });
         } else if (input.classList.contains("variable-rate")) {
             const debouncedUpdate = debounce(() => {
-                updateOverpaymentLimit(input, range, group);
+                const { maxPeriod } = updateOverpaymentLimit(input, range, group);
+                const periodStartInput = group.querySelector(".variable-cykl-start");
+                const periodStartRange = group.querySelector(".variable-cykl-start-range");
+                const periodEndInput = group.querySelector(".variable-cykl-end");
+                const periodEndRange = group.querySelector(".variable-cykl-end-range");
+
+                if (periodStartInput && periodStartRange) {
+                    periodStartInput.max = maxPeriod;
+                    periodStartRange.max = maxPeriod;
+                    let periodStartValue = parseInt(periodStartInput.value);
+                    if (periodStartValue > maxPeriod) {
+                        periodStartInput.value = maxPeriod;
+                        periodStartRange.value = maxPeriod;
+                    }
+                }
+
+                if (periodEndInput && periodEndRange) {
+                    periodEndInput.max = maxPeriod;
+                    periodEndRange.max = maxPeriod;
+                    let periodEndValue = parseInt(periodEndInput.value);
+                    let periodStartValue = parseInt(periodStartInput?.value) || 1;
+                    if (periodEndValue > maxPeriod) {
+                        periodEndValue = maxPeriod;
+                        periodEndInput.value = periodEndValue;
+                        periodEndRange.value = periodEndValue;
+                    }
+                    if (periodEndValue < periodStartValue) {
+                        periodEndValue = periodStartValue;
+                        periodEndInput.value = periodEndValue;
+                        periodEndRange.value = periodEndValue;
+                    }
+                }
+
                 updateRatesArray("nadplata");
                 updateNadplataKredytuRemoveButtons();
             }, 50);
@@ -1436,13 +1515,15 @@ function updateNadplataKredytuRemoveButtons() {
     const periodStartInput = lastGroupData.querySelector(".variable-cykl-start");
     const periodEndInput = lastGroupData.querySelector(".variable-cykl-end");
 
+    const maxRate = parseFloat(rateInput.max) || 0;
+    const currentRate = parseFloat(rateInput.value) || 0;
     const maxPeriodStart = parseInt(periodStartInput.max) || 0;
     const maxPeriodEnd = periodEndInput ? parseInt(periodEndInput.max) || 0 : 0;
     const currentPeriodStart = parseInt(periodStartInput.value) || 0;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput.value) || 0 : 0;
 
-    // Poprawiony warunek widoczności przycisku "Dodaj kolejną nadpłatę"
-    if (remainingCapital <= 0 || (currentPeriodStart >= maxPeriodStart && (!periodEndInput || currentPeriodEnd >= maxPeriodEnd))) {
+    // Warunek widoczności przycisku "Dodaj kolejną nadpłatę"
+    if (remainingCapital <= 0 || currentRate >= maxRate || currentPeriodStart >= maxPeriodStart || (periodEndInput && currentPeriodEnd >= maxPeriodEnd)) {
         addBtn.style.display = "none";
     } else {
         addBtn.style.display = "inline-block";
