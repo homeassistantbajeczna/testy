@@ -1085,18 +1085,21 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
-                // Obsługa zmiany wartości (w tym spinerów)
+                // Obsługa ręcznego wprowadzania wartości
                 input.addEventListener("input", () => {
-                    let value = parseInt(input.value) || minValue;
-                    if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
-
+                    let value = input.value.replace(/[^0-9]/g, "");
                     input.value = value;
-                    if (periodEndRange) periodEndRange.value = value;
+
+                    let parsedValue = parseInt(value) || minValue;
+                    if (parsedValue < minValue) parsedValue = minValue;
+                    if (parsedValue > maxPeriodLimit) parsedValue = maxPeriodLimit;
+
+                    input.value = parsedValue;
+                    if (periodEndRange) periodEndRange.value = parsedValue;
                     syncInputWithRange(input, periodEndRange);
 
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
+                    periodDifference = parsedValue - periodStartValue; // Aktualizacja różnicy
                     debouncedUpdate();
                 });
 
