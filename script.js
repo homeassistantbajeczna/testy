@@ -1100,6 +1100,21 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                 });
 
+                // Walidacja po zakończeniu edycji
+                input.addEventListener("blur", () => {
+                    let value = parseInt(input.value) || minValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+
+                    input.value = value;
+                    if (periodEndRange) periodEndRange.value = value;
+                    syncInputWithRange(input, periodEndRange);
+
+                    const periodStartValue = parseInt(periodStartInput?.value) || 1;
+                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
+                    debouncedUpdate();
+                });
+
                 if (periodEndRange) {
                     periodEndRange.addEventListener("input", () => {
                         let value = parseInt(periodEndRange.value);
@@ -1354,7 +1369,6 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
     removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
     removeBtn.textContent = "Usuń";
-    removeBtn.style.width = "100%"; // Szerokość 100%
     existingRemoveBtnWrapper.appendChild(removeBtn);
 
     const addBtn = document.createElement("button");
@@ -1362,7 +1376,7 @@ function updateNadplataKredytuRemoveButtons() {
     addBtn.classList.add("btn", "btn-functional");
     addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
     addBtn.textContent = "Dodaj kolejną nadpłatę";
-    addBtn.style.width = "100%"; // Szerokość 100%
+    addBtn.style.width = "100%"; // Szerokość 100% tylko dla "DODAJ"
     existingRemoveBtnWrapper.appendChild(addBtn);
 
     const lastGroup = groups[groups.length - 1];
