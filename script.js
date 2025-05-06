@@ -1356,9 +1356,16 @@ function updateNadplataKredytuRemoveButtons() {
         existingRemoveBtnWrapper = document.createElement("div");
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
         existingRemoveBtnWrapper.style.display = "flex";
-        existingRemoveBtnWrapper.style.justifyContent = "space-between";
+        existingRemoveBtnWrapper.style.flexDirection = "column"; // Układ pionowy
+        existingRemoveBtnWrapper.style.gap = "5px"; // Odstęp 5px między przyciskami
         existingRemoveBtnWrapper.style.marginTop = "10px";
-    } else existingRemoveBtnWrapper.innerHTML = "";
+    } else {
+        existingRemoveBtnWrapper.innerHTML = "";
+        existingRemoveBtnWrapper.style.display = "flex";
+        existingRemoveBtnWrapper.style.flexDirection = "column"; // Układ pionowy
+        existingRemoveBtnWrapper.style.gap = "5px"; // Odstęp 5px między przyciskami
+        existingRemoveBtnWrapper.style.marginTop = "10px";
+    }
 
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
