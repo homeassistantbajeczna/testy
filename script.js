@@ -1121,22 +1121,12 @@ function initializeNadplataKredytuGroup(group) {
                 }, 50);
 
                 // Blokada wprowadzania kropki i przecinka oraz innych znaków
-                input.addEventListener("input", (e) => {
-                    const input = e.target;
-                    const originalValue = input.value;
-                    const cursorPosition = input.selectionStart;
-
-                    // Zezwalaj tylko na cyfry
-                    let value = originalValue.replace(/[^0-9]/g, "");
-                    if (value === "") value = "0"; // Zapobiega pustemu polu
-
-                    // Aktualizuj wartość tylko jeśli się zmieniła
-                    if (input.value !== value) {
-                        input.value = value;
-
-                        // Przywróć pozycję kursora
-                        const offset = originalValue.length - value.length;
-                        input.selectionStart = input.selectionEnd = Math.max(0, cursorPosition - offset);
+                input.addEventListener("keypress", (e) => {
+                    if (e.key === "." || e.key === ",") {
+                        e.preventDefault();
+                    }
+                    if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                        e.preventDefault();
                     }
                 });
 
