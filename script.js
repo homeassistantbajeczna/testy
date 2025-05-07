@@ -999,7 +999,7 @@ function initializeNadplataKredytuGroup(group) {
                 const periodEndRange = range;
                 const { lastMonthWithCapital } = updateAllOverpaymentLimits();
                 let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
-
+    
                 let minValue = parseInt(periodStartInput?.value) || 1;
                 input.min = minValue;
                 input.max = maxPeriodLimit;
@@ -1008,7 +1008,7 @@ function initializeNadplataKredytuGroup(group) {
                     periodEndRange.max = maxPeriodLimit;
                     periodEndRange.step = 1;
                 }
-
+    
                 const debouncedUpdate = debounce(() => {
                     const rateInput = group.querySelector(".variable-rate");
                     const rateRange = group.querySelector(".variable-rate-range");
@@ -1018,35 +1018,89 @@ function initializeNadplataKredytuGroup(group) {
                         updateNadplataKredytuRemoveButtons();
                     }
                 }, 50);
-
-                // Obsługa ręcznego wprowadzania wartości, zgodna z boxem OD
+    
+                // Zapobiegamy wprowadzaniu innych znaków niż cyfry
+                input.addEventListener("keypress", (e) => {
+                    if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                        e.preventDefault();
+                    }
+                });
+    
+                // Obsługa wprowadzania wartości (tylko liczby całkowite)
                 input.addEventListener("input", () => {
-                    let value = input.value.replace(/[^0-9]/g, "") || minValue;
-                    if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    let value = input.value;
+                    // Usuwamy wszystko poza cyframi, zachowując pozycję kursora
+                    value = value.replace(/[^0-9]/g, "");
+                    if (value !== input.value) {
+                        const cursorPosition = input.selectionStart;
+                        input.value = value;
+                        input.setSelectionRange(cursorPosition, cursorPosition);
+                    }
+                    debouncedUpdate();
+                });
+    
+                // Walidacja i synchronizacja po zakończeniu wpisywania
+                input.addEventListener("change", () => {
+                    let value = parseInt(input.value) || 0;
+                    let minValue = parseInt(input.min) || 1;
+                    let maxValue = parseInt(input.max) || maxPeriodLimit;
+    
+                    if (isNaN(value) || input.value === "") {
+                        value = minValue;
+                    } else {
+                        if (value < minValue) value = minValue;
+                        if (value > maxValue) value = maxValue;
+                    }
+    
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
                     syncInputWithRange(input, periodEndRange);
-
+    
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = parseInt(value) - periodStartValue; // Aktualizacja różnicy
+                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
                     debouncedUpdate();
                 });
-
+    
+                // Obsługa opuszczenia pola
+                input.addEventListener("blur", () => {
+                    let value = parseInt(input.value) || 0;
+                    let minValue = parseInt(input.min) || 1;
+                    let maxValue = parseInt(input.max) || maxPeriodLimit;
+    
+                    if (isNaN(value) || input.value === "") {
+                        value = minValue;
+                    } else {
+                        if (value < minValue) value = minValue;
+                        if (value > maxValue) value = maxValue;
+                    }
+    
+                    input.value = value;
+                    if (periodEndRange) periodEndRange.value = value;
+                    syncInputWithRange(input, periodEndRange);
+    
+                    const periodStartValue = parseInt(periodStartInput?.value) || 1;
+                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
+                    debouncedUpdate();
+                });
+    
                 if (periodEndRange) {
                     periodEndRange.addEventListener("input", () => {
                         let value = parseInt(periodEndRange.value);
+                        let minValue = parseInt(periodEndRange.min) || 1;
+                        let maxValue = parseInt(periodEndRange.max) || maxPeriodLimit;
+    
                         if (value < minValue) {
                             value = minValue;
                             periodEndRange.value = value;
                         }
-                        if (value > maxPeriodLimit) {
-                            value = maxPeriodLimit;
+                        if (value > maxValue) {
+                            value = maxValue;
                             periodEndRange.value = value;
                         }
+    
                         input.value = value;
                         syncInputWithRange(input, periodEndRange);
-
+    
                         const periodStartValue = parseInt(periodStartInput?.value) || 1;
                         periodDifference = value - periodStartValue; // Aktualizacja różnicy
                         debouncedUpdate();
@@ -1055,7 +1109,6 @@ function initializeNadplataKredytuGroup(group) {
             }
         });
     };
-
     inputs.forEach((input, index) => {
         const range = ranges[index];
         if (input.classList.contains("variable-cykl-start")) {
