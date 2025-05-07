@@ -1135,9 +1135,23 @@ body {
     .variable-input-group.locked .form-control,
     .variable-input-group.locked .form-select,
     .variable-input-group.locked .form-range {
-        background-color: #e9ecef;
+        background-color: #e9ecef; /* Szary kolor tła */
         cursor: not-allowed;
         opacity: 0.7;
+    }
+    
+    /* Specyficzne style dla boxów Typ nadpłaty i Po nadpłacie w zablokowanych grupach */
+    .variable-input-group.locked .box-select {
+        background-color: #e9ecef; /* Szary kolor tła dla całego box-select */
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    
+    /* Opcjonalnie, aby upewnić się, że tekst w selektach jest czytelny */
+    .variable-input-group.locked .box-select .form-select {
+        background-color: #e9ecef; /* Szary kolor tła dla selekta */
+        color: #495057; /* Ciemniejszy tekst dla kontrastu */
+        border-color: #ced4da; /* Dopasowanie koloru obramowania */
     }
 
     .chart-container {
