@@ -905,6 +905,12 @@ body {
     box-shadow: 0 6px 12px var(--shadow-color);
 }
 
+/* Zmiana koloru czcionki na biały przy najechaniu w trybie jasnym */
+.btn-functional:not(.dark-mode):hover,
+.btn-additional:not(.dark-mode):hover {
+    color: #ffffff;
+}
+
 /* Przycisk reset ("Usuń") */
 .btn-reset {
     font-size: 10px; /* Było 0.625em, czyli ok. 10px */
