@@ -1075,7 +1075,7 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
-                // Obsługa ręcznego wprowadzania wartości
+                // Obsługa ręcznego wprowadzania wartości, zgodna z boxem OD
                 input.addEventListener("input", () => {
                     let value = input.value.replace(/[^0-9]/g, "") || minValue;
                     if (value < minValue) value = minValue;
@@ -1085,7 +1085,7 @@ function initializeNadplataKredytuGroup(group) {
                     syncInputWithRange(input, periodEndRange);
 
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
+                    periodDifference = parseInt(value) - periodStartValue; // Aktualizacja różnicy
                     debouncedUpdate();
                 });
 
