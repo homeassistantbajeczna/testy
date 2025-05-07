@@ -1076,8 +1076,12 @@ function initializeNadplataKredytuGroup(group) {
                 }, 50);
 
                 // Obsługa ręcznego wprowadzania wartości
-                input.addEventListener("input", () => {
-                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
+                input.addEventListener("input", (e) => {
+                    let value = input.value;
+                    // Usuwamy wszystko poza cyframi
+                    value = value.replace(/[^0-9]/g, "");
+                    value = value === "" ? parseInt(input.value) || minValue : parseInt(value) || minValue;
+
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
 
@@ -1281,7 +1285,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rangeRate, group);
+        updateOverpaymentLimit(rateInput, rateRange, group);
     }
 
     updateNadplataKredytuRemoveButtons();
