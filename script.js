@@ -1385,7 +1385,11 @@ function updateNadplataKredytuRemoveButtons() {
             group.classList.add("locked");
             const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
             inputs.forEach(input => {
-                input.disabled = true; // Blokada edycji pól
+                input.disabled = true;
+                if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
+                    input.style.backgroundColor = "#e9ecef";
+                    input.style.opacity = "0.7";
+                }
             });
             console.log(`Zablokowano grupę na indeksie ${index}`); // Debug
         } else if (index === groups.length - 1 && group.classList.contains("locked")) {
