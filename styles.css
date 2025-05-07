@@ -21,6 +21,11 @@
     --range-bg: #e5e5e5;
     --range-border-light: #cccccc; /* Jaśniejszy szary dla trybu jasnego */
     --range-border-dark: #ffffff; /* Biały dla trybu ciemnego */
+    /* Dodane zmienne dla selektów */
+    --select-bg: #ffffff; /* Domyślny kolor tła (jasny motyw) */
+    --select-opacity: 1; /* Domyślna przezroczystość */
+    --select-bg-locked: #e9ecef; /* Szary kolor dla zablokowanych */
+    --select-opacity-locked: 0.7; /* Przezroczystość dla zablokowanych */
 }
 
 /* R E S E T   I   B A Z A */
@@ -531,6 +536,20 @@ body {
     background-size: 8px 8px;
 }
 
+/* Styl dla zablokowanych selektów w szablonie nadpłaty */
+.variable-input-group.locked .nadplata-type-select,
+.variable-input-group.locked .nadplata-effect-select {
+    background-color: var(--select-bg-locked) !important;
+    opacity: var(--select-opacity-locked) !important;
+    cursor: not-allowed;
+}
+
+/* Styl dla odblokowanych selektów */
+.unlocked-select {
+    background-color: var(--select-bg) !important;
+    opacity: var(--select-opacity) !important;
+}
+
 /* Style dla :focus */
 .box-select .form-select:focus,
 .box-amount .form-control:focus,
@@ -922,6 +941,11 @@ body {
     --input-group-bg: #222222; /* Dla input-group-text */
     --harmonogram-bg: #333333;
     --range-bg: #666666;
+    /* Dodane zmienne dla selektów w trybie ciemnym */
+    --select-bg: #333333; /* Ciemne tło dla selektów w trybie ciemnym (zgodne z --input-bg) */
+    --select-opacity: 1;
+    --select-bg-locked: #495057; /* Ciemniejszy szary dla zablokowanych w trybie ciemnym */
+    --select-opacity-locked: 0.7;
 }
 
 .dark-mode body {
@@ -1086,7 +1110,6 @@ body {
         max-width: 148px;
     }
 
-
     .input-group {
         width: 148px;
     }
@@ -1132,18 +1155,18 @@ body {
         width: 148px;
     }
 
-    /* Zachowaj te style */
+    /* Zaktualizowane style dla responsywności */
     .variable-input-group.locked .form-control,
     .variable-input-group.locked .form-select,
     .variable-input-group.locked .form-range {
-        background-color: #e9ecef 
-        cursor: not-allowed 
-        opacity: 0.7 
+        background-color: var(--select-bg-locked) !important;
+        cursor: not-allowed;
+        opacity: var(--select-opacity-locked) !important;
     }
 
     .unlocked-select {
-        background-color: #ffffff !important;
-        opacity: 1 !important;
+        background-color: var(--select-bg) !important;
+        opacity: var(--select-opacity) !important;
     }
     
     .chart-container {
