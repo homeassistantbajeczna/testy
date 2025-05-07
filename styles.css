@@ -27,6 +27,7 @@
     --select-bg-locked: #e9ecef; /* Szary kolor dla zablokowanych */
     --select-opacity-locked: 0.7; /* Przezroczystość dla zablokowanych */
     --locked-text-color: #666666; /* Szary kolor tekstu dla zablokowanych boxów */
+    --unit-text-color: #555555; /* Kolor tekstu dla jednostek stałych w trybie jasnym */
 }
 
 /* R E S E T   I   B A Z A */
@@ -441,7 +442,7 @@ body {
     padding: 2px 5px;
     text-align: center;
     background: var(--input-group-bg);
-    color: var(--primary-text);
+    color: var(--unit-text-color); /* Zmiana koloru tekstu na nową zmienną */
     border: 1px solid var(--border-color);
     border-radius: 0 0 var(--border-radius) 0;
     box-sizing: border-box;
@@ -961,6 +962,7 @@ body {
     --select-bg-locked: var(--input-bg);
     --select-opacity-locked: 0.7;
     --locked-text-color: #999999;
+    --unit-text-color: #cccccc; /* Kolor tekstu dla jednostek stałych w trybie ciemnym */
 }
 
 .dark-mode body {
@@ -987,7 +989,7 @@ body {
 
 .dark-mode .input-group-text {
     background: var(--input-bg);
-    color: var(--primary-text);
+    color: var(--unit-text-color); /* Zmiana koloru tekstu na nową zmienną w trybie ciemnym */
     border-color: var(--border-color);
 }
 
