@@ -1368,16 +1368,14 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
     removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
     removeBtn.textContent = "Usuń";
-    removeBtn.style.width = "100%";
     existingRemoveBtnWrapper.appendChild(removeBtn);
 
     const addBtn = document.createElement("button");
     addBtn.type = "button";
-    addBtn.id = "addNadplataKredytuBtn"; // Dodanie unikalnego ID dla spójności
+    addBtn.id = "addNadplataKredytuBtn";
     addBtn.classList.add("btn", "btn-functional");
     addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
     addBtn.textContent = "Dodaj kolejną nadpłatę";
-    addBtn.style.width = "100%";
     existingRemoveBtnWrapper.appendChild(addBtn);
 
     const lastGroup = groups[groups.length - 1];
