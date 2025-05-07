@@ -1000,6 +1000,30 @@ body {
     border-color: var(--border-color);
 }
 
+/* Stylizacja strzałek w inputach typu number w trybie ciemnym */
+.dark-mode .form-control[type="number"]::-webkit-inner-spin-button,
+.dark-mode .form-control[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    background: #444444; /* Ciemniejszy kolor strzałek */
+    color: #444444; /* Dopasowanie koloru tekstu strzałek */
+    width: 20px;
+    height: 100%;
+    opacity: 0.8; /* Lekka przezroczystość dla lepszego efektu */
+}
+
+.dark-mode .form-control[type="number"]::-moz-number-spin-box {
+    -moz-appearance: textfield; /* Reset domyślnego stylu */
+}
+
+.dark-mode .form-control[type="number"]::-moz-number-spin-box {
+    background: #444444; /* Ciemniejszy kolor strzałek */
+    color: #444444; /* Dopasowanie koloru tekstu strzałek */
+    width: 20px;
+    height: 100%;
+    opacity: 0.8; /* Lekka przezroczystość */
+    border-left: 1px solid #444444; /* Opcjonalna granica dla spójności */
+}
+
 .dark-mode .input-group-text {
     background: var(--input-bg);
     color: var(--unit-text-color);
