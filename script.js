@@ -1,3 +1,4 @@
+
 const APP_TITLE = "Kalkulator Kredytu Hipotecznego";
 
 const elements = {
@@ -1385,7 +1386,7 @@ function updateNadplataKredytuRemoveButtons() {
             group.classList.add("locked");
             const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
             inputs.forEach(input => {
-                input.disabled = true; // Blokada edycji pól
+                input.disabled = true;
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
                     input.style.backgroundColor = "#e9ecef";
                     input.style.opacity = "0.7";
@@ -1397,10 +1398,6 @@ function updateNadplataKredytuRemoveButtons() {
             const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
             inputs.forEach(input => {
                 input.disabled = false; // Odblokowanie ostatniej grupy
-                if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.style.backgroundColor = ""; // Usunięcie inline stylu
-                    input.style.opacity = ""; // Usunięcie inline stylu
-                }
             });
             console.log(`Odblokowano grupę na indeksie ${index}`); // Debug
         }
@@ -2058,4 +2055,3 @@ function initializeApp() {
 }
 
 document.addEventListener("DOMContentLoaded", initializeApp);
-
