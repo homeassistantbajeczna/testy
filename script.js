@@ -132,7 +132,6 @@ function toggleInputFields(disabled) {
         }
     });
 
-    // Aktualizuj klasy disabled dla pól
     const parentElements = [
         elements.kwota.parentElement,
         elements.iloscRat.parentElement,
@@ -144,16 +143,11 @@ function toggleInputFields(disabled) {
 
     parentElements.forEach(parent => {
         if (parent) {
-            if (disabled) {
-                parent.classList.add("disabled");
-            } else {
-                parent.classList.remove("disabled");
-            }
+            parent.classList.toggle("disabled", disabled);
         }
     });
 }
 
-// Funkcja sprawdzająca, czy którekolwiek z pól "Zmienne Oprocentowanie" lub "Nadpłata Kredytu" jest aktywne
 function updateInputFieldsState() {
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const isNadplataKredytuActive = elements.nadplataKredytuBtn?.checked || false;
@@ -161,11 +155,11 @@ function updateInputFieldsState() {
 
     toggleInputFields(shouldDisable);
 
-    // Jeśli Zmienne Oprocentowanie jest wyłączone, upewnij się, że pole oprocentowanie jest odpowiednio odblokowane
     if (!isZmienneOprocentowanieActive) {
-        elements.oprocentowanie.disabled = isNadplataKredytuActive;
-        elements.oprocentowanieRange.disabled = isNadplataKredytuActive;
-        elements.oprocentowanie.parentElement?.classList.toggle("disabled", isNadplataKredytuActive);
+        const shouldEnableOprocentowanie = !isNadplataKredytuActive;
+        elements.oprocentowanie.disabled = !shouldEnableOprocentowanie;
+        elements.oprocentowanieRange.disabled = !shouldEnableOprocentowanie;
+        elements.oprocentowanie.parentElement?.classList.toggle("disabled", !shouldEnableOprocentowanie);
     }
 }
 
@@ -1075,13 +1069,6 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
-                // Ignorowanie kropki i przecinka
-                input.addEventListener("keypress", (e) => {
-                    if (e.key === "." || e.key === ",") {
-                        e.preventDefault();
-                    }
-                });
-
                 // Obsługa ręcznego wprowadzania wartości, zgodna z boxem OD
                 input.addEventListener("input", () => {
                     let value = input.value.replace(/[^0-9]/g, "") || minValue;
@@ -1182,13 +1169,6 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }
             };
-
-            // Ignorowanie kropki i przecinka
-            input.addEventListener("keypress", (e) => {
-                if (e.key === "." || e.key === ",") {
-                    e.preventDefault();
-                }
-            });
 
             input.addEventListener("input", () => {
                 let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minPeriodStart;
@@ -1304,13 +1284,13 @@ function resetNadplataKredytuSection() {
     elements.nadplataKredytuWrapper.innerHTML = "";
     state.overpaymentRates = [];
     if (elements.nadplataKredytuBtn) {
-        elements.nadplataKredytuBtn.disabled = false;
-        elements.nadplataKredytuBtn.parentElement?.classList.remove("disabled");
+        elements.nadplataKredytuBtn.checked = false;
+        elements.nadplataKredytuInputs?.classList.remove("active");
     }
 
     const existingRemoveBtnWrapper = elements.nadplataKredytuWrapper.querySelector(".remove-btn-wrapper");
     if (existingRemoveBtnWrapper) existingRemoveBtnWrapper.remove();
-    updateInputFieldsState(false);
+    updateInputFieldsState(); // Zaktualizuj stan pól po resecie
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -1432,10 +1412,9 @@ function initializeNadplataKredytuToggle() {
                 elements.nadplataKredytuWrapper.appendChild(newGroup);
                 initializeNadplataKredytuGroup(newGroup);
                 updateNadplataKredytuRemoveButtons();
-                updateInputFieldsState(true);
+                updateInputFieldsState(); // Zablokuj pola przy włączeniu
             } else {
                 resetNadplataKredytuSection();
-                updateInputFieldsState(false);
             }
         });
     }
@@ -1537,8 +1516,8 @@ function resetVariableOprocentowanieSection() {
     elements.oprocentowanieRange.value = oprocentowanieValue;
     
     delete elements.oprocentowanie.dataset.lastManualValue;
-    updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są odpowiednio zaktualizowane
-    updateInputFieldsState(); // Aktualizuj stan pól po resecie
+    updateVariableOprocentowanieRemoveButtons();
+    updateInputFieldsState(); // Zaktualizuj stan pól po resecie
 }
 
 function updateVariableOprocentowanieRemoveButtons() {
@@ -1646,13 +1625,11 @@ function initializeZmienneOprocentowanieToggle() {
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
                 updateRatesArray("oprocentowanie");
-                updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są widoczne
+                updateVariableOprocentowanieRemoveButtons();
                 updateInputFieldsState(); // Zablokuj pola przy włączeniu
             } else {
                 elements.variableOprocentowanieInputs.classList.remove("active");
                 resetVariableOprocentowanieSection();
-                updateVariableOprocentowanieRemoveButtons();
-                updateInputFieldsState(); // Odblokuj pola, jeśli Nadpłata Kredytu też jest wyłączona
             }
             updateKwotaInfo();
         });
@@ -1672,13 +1649,13 @@ function initializeZmienneOprocentowanieToggle() {
         elements.iloscRat.addEventListener("input", () => {
             const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
             groups.forEach(group => initializeVariableOprocentowanieGroup(group));
-            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie ilości rat
+            updateVariableOprocentowanieRemoveButtons();
         });
 
         elements.iloscRatRange.addEventListener("input", () => {
             const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
             groups.forEach(group => initializeVariableOprocentowanieGroup(group));
-            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie ilości rat
+            updateVariableOprocentowanieRemoveButtons();
         });
     }
 }
