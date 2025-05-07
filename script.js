@@ -1075,18 +1075,17 @@ function initializeNadplataKredytuGroup(group) {
                     }
                 }, 50);
 
-                // Obsługa ręcznego wprowadzania wartości
+                // Obsługa ręcznego wprowadzania wartości, zgodna z boxem OD
                 input.addEventListener("input", () => {
-                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
+                    let value = input.value.replace(/[^0-9]/g, "") || minValue;
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
-
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
                     syncInputWithRange(input, periodEndRange);
 
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
+                    periodDifference = parseInt(value) - periodStartValue; // Aktualizacja różnicy
                     debouncedUpdate();
                 });
 
@@ -1281,7 +1280,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rangeRate, group);
+        updateOverpaymentLimit(rateInput, rateRange, group);
     }
 
     updateNadplataKredytuRemoveButtons();
