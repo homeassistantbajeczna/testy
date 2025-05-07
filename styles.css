@@ -1004,11 +1004,12 @@ body {
 .dark-mode .form-control[type="number"]::-webkit-inner-spin-button,
 .dark-mode .form-control[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
-    background: #444444; /* Ciemniejszy kolor strzałek */
-    color: #444444; /* Dopasowanie koloru tekstu strzałek */
+    background: #666666; /* Jasniejszy szary dla lepszej widoczności */
+    color: #ffffff; /* Biały tekst strzałek dla kontrastu */
     width: 20px;
     height: 100%;
-    opacity: 0.8; /* Lekka przezroczystość dla lepszego efektu */
+    opacity: 0.9; /* Nieco wyższa nieprzezroczystość */
+    border-left: 1px solid #555555; /* Lekka granica dla widoczności */
 }
 
 .dark-mode .form-control[type="number"]::-moz-number-spin-box {
@@ -1016,12 +1017,12 @@ body {
 }
 
 .dark-mode .form-control[type="number"]::-moz-number-spin-box {
-    background: #444444; /* Ciemniejszy kolor strzałek */
-    color: #444444; /* Dopasowanie koloru tekstu strzałek */
+    background: #666666; /* Jasniejszy szary dla lepszej widoczności */
+    color: #ffffff; /* Biały tekst strzałek dla kontrastu */
     width: 20px;
     height: 100%;
-    opacity: 0.8; /* Lekka przezroczystość */
-    border-left: 1px solid #444444; /* Opcjonalna granica dla spójności */
+    opacity: 0.9; /* Nieco wyższa nieprzezroczystość */
+    border-left: 1px solid #555555; /* Lekka granica dla widoczności */
 }
 
 .dark-mode .input-group-text {
