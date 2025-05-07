@@ -534,6 +534,8 @@ function initializeInputHandling() {
 
 
 
+// F U N K C J A     N A D P Ł A T A     K R E D Y T U
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -768,7 +770,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = Math.floor(maxAllowed);
             rateInput.value = rateValue;
-            rangeRate.value = rateValue;
+            rateRange.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1074,13 +1076,10 @@ function initializeNadplataKredytuGroup(group) {
                 }, 50);
 
                 // Obsługa ręcznego wprowadzania wartości
-                input.addEventListener("input", (e) => {
-                    let value = e.target.value.replace(/[^0-9]/g, ""); // Usuwamy wszystko poza cyframi
-                    value = value === "" ? minValue : parseInt(value) || minValue;
-
-                    const maxValue = parseInt(input.max) || maxPeriodLimit;
+                input.addEventListener("input", () => {
+                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
                     if (value < minValue) value = minValue;
-                    if (value > maxValue) value = maxValue;
+                    if (value > maxPeriodLimit) value = maxPeriodLimit;
 
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
@@ -1091,15 +1090,18 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                 });
 
-                // Obsługa zmiany wartości suwakiem
                 if (periodEndRange) {
                     periodEndRange.addEventListener("input", () => {
                         let value = parseInt(periodEndRange.value);
-                        if (value < minValue) value = minValue;
-                        if (value > maxPeriodLimit) value = maxPeriodLimit;
-
+                        if (value < minValue) {
+                            value = minValue;
+                            periodEndRange.value = value;
+                        }
+                        if (value > maxPeriodLimit) {
+                            value = maxPeriodLimit;
+                            periodEndRange.value = value;
+                        }
                         input.value = value;
-                        periodEndRange.value = value;
                         syncInputWithRange(input, periodEndRange);
 
                         const periodStartValue = parseInt(periodStartInput?.value) || 1;
