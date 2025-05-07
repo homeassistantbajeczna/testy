@@ -1076,15 +1076,10 @@ function initializeNadplataKredytuGroup(group) {
                 }, 50);
 
                 // Obsługa ręcznego wprowadzania wartości
-                input.addEventListener("input", (e) => {
-                    let value = input.value;
-                    // Usuwamy wszystko poza cyframi
-                    value = value.replace(/[^0-9]/g, "");
-                    value = value === "" ? parseInt(input.value) || minValue : parseInt(value) || minValue;
-
+                input.addEventListener("input", () => {
+                    let value = input.value.replace(/[^0-9]/g, "") || minValue;
                     if (value < minValue) value = minValue;
                     if (value > maxPeriodLimit) value = maxPeriodLimit;
-
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
                     syncInputWithRange(input, periodEndRange);
@@ -1439,7 +1434,6 @@ function updateInputFieldsState(lock = false) {
         input.parentElement?.classList.toggle("disabled", lock);
     });
 }
-
 
 
 
