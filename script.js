@@ -1245,7 +1245,6 @@ function resetNadplataKredytuSection() {
 function updateNadplataKredytuRemoveButtons() {
     const wrapper = elements.nadplataKredytuWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
-    const activeGroups = wrapper.querySelectorAll(".variable-input-group:not(.locked)");
 
     let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
 
@@ -1300,13 +1299,7 @@ function updateNadplataKredytuRemoveButtons() {
             resetNadplataKredytuSection();
         } else {
             const lastGroup = groups[currentIndex];
-            const secondLastGroup = groups[currentIndex - 1];
             lastGroup.remove();
-            if (secondLastGroup) {
-                secondLastGroup.classList.remove("locked");
-                secondLastGroup.querySelectorAll("input, select").forEach(el => el.disabled = false);
-                secondLastGroup.querySelectorAll(".form-group").forEach(el => el.classList.remove("disabled"));
-            }
             updateRatesArray("nadplata");
             updateAllOverpaymentLimits();
             updateNadplataKredytuRemoveButtons();
@@ -1316,14 +1309,6 @@ function updateNadplataKredytuRemoveButtons() {
     addBtn.addEventListener("click", () => {
         const newGroup = createNadplataKredytuGroup();
         wrapper.appendChild(newGroup);
-        const groups = wrapper.querySelectorAll(".variable-input-group");
-        const activeGroups = wrapper.querySelectorAll(".variable-input-group:not(.locked)");
-        if (activeGroups.length > 0) {
-            const lastActiveGroup = activeGroups[activeGroups.length - 1];
-            lastActiveGroup.classList.add("locked");
-            lastActiveGroup.querySelectorAll("input, select").forEach(el => el.disabled = true);
-            lastActiveGroup.querySelectorAll(".form-group").forEach(el => el.classList.add("disabled"));
-        }
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
         updateAllOverpaymentLimits();
