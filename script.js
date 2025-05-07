@@ -1144,53 +1144,67 @@ function initializeNadplataKredytuGroup(group) {
                 updateRatesArray("nadplata");
                 updateNadplataKredytuRemoveButtons();
             }, 50);
-
-            // Blokada wprowadzania kropki i przecinka
+        
+            // Zapobiegamy wprowadzaniu innych znaków niż cyfry
             input.addEventListener("keypress", (e) => {
-                if (e.key === "." || e.key === ",") {
+                if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
                     e.preventDefault();
                 }
             });
-
+        
             // Obsługa wprowadzania wartości (tylko liczby całkowite)
             input.addEventListener("input", (e) => {
                 let value = e.target.value;
                 // Usuwamy wszystko poza cyframi
                 value = value.replace(/[^0-9]/g, "");
                 e.target.value = value;
-                range.value = value; // Synchronizacja z suwakiem
+        
+                // Konwersja na liczbę całkowitą i synchronizacja z suwakiem
+                let numericValue = parseInt(value) || 0;
+                let minValue = parseInt(input.min) || 100;
+                let maxValue = parseInt(input.max) || 5000000;
+        
+                if (isNaN(numericValue) || value === "") {
+                    numericValue = minValue;
+                } else {
+                    if (numericValue < minValue) numericValue = minValue;
+                    if (numericValue > maxValue) numericValue = maxValue;
+                }
+        
+                input.value = numericValue;
+                range.value = numericValue;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
-
+        
             // Obsługa opuszczenia pola
             input.addEventListener("blur", () => {
                 let value = parseInt(input.value) || 0;
                 let minValue = parseInt(input.min) || 100;
                 let maxValue = parseInt(input.max) || 5000000;
-
+        
                 if (isNaN(value) || value === "") {
                     value = minValue;
                 } else {
                     if (value < minValue) value = minValue;
                     if (value > maxValue) value = maxValue;
                 }
-
+        
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
-
-            // Obsługa suwaka
+        
+            // Obsługa suwaka (tylko wartości całkowite)
             range.addEventListener("input", () => {
                 let value = parseInt(range.value);
                 const minAllowed = parseInt(range.min) || 100;
                 const maxAllowed = parseInt(range.max) || 5000000;
-
+        
                 if (value < minAllowed) value = minAllowed;
                 if (value > maxAllowed) value = maxAllowed;
-
+        
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
