@@ -1351,12 +1351,14 @@ function updateNadplataKredytuRemoveButtons() {
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
         existingRemoveBtnWrapper.style.display = "flex";
         existingRemoveBtnWrapper.style.flexDirection = "column";
+        existingRemoveBtnWrapper.style.alignItems = "center";
         existingRemoveBtnWrapper.style.gap = "5px";
         existingRemoveBtnWrapper.style.marginTop = "10px";
     } else {
         existingRemoveBtnWrapper.innerHTML = "";
         existingRemoveBtnWrapper.style.display = "flex";
         existingRemoveBtnWrapper.style.flexDirection = "column";
+        existingRemoveBtnWrapper.style.alignItems = "center";
         existingRemoveBtnWrapper.style.gap = "5px";
         existingRemoveBtnWrapper.style.marginTop = "10px";
     }
@@ -1371,6 +1373,7 @@ function updateNadplataKredytuRemoveButtons() {
 
     const addBtn = document.createElement("button");
     addBtn.type = "button";
+    addBtn.id = "addNadplataKredytuBtn"; // Dodanie unikalnego ID dla spójności
     addBtn.classList.add("btn", "btn-functional");
     addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
     addBtn.textContent = "Dodaj kolejną nadpłatę";
@@ -1388,24 +1391,22 @@ function updateNadplataKredytuRemoveButtons() {
             inputs.forEach(input => {
                 input.disabled = true;
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.style.backgroundColor = "#e9ecef"; // Szary kolor przy blokadzie
-                    input.style.opacity = "0.7"; // Zmniejszona przezroczystość
-                    input.classList.remove("unlocked-select"); // Usuń klasę unlocked przy blokadzie
+                    input.style.backgroundColor = "#e9ecef";
+                    input.style.opacity = "0.7";
+                    input.classList.remove("unlocked-select");
                 }
             });
-            console.log(`Zablokowano grupę na indeksie ${index}`); // Debug
         } else if (index === groups.length - 1 && group.classList.contains("locked")) {
             group.classList.remove("locked");
             const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
             inputs.forEach(input => {
-                input.disabled = false; // Odblokowanie ostatniej grupy
+                input.disabled = false;
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.classList.add("unlocked-select"); // Dodaj klasę dla resetu stylów
-                    input.style.backgroundColor = "#ffffff"; // Domyślny biały kolor
-                    input.style.opacity = "1"; // Pełna przezroczystość
+                    input.classList.add("unlocked-select");
+                    input.style.backgroundColor = "#ffffff";
+                    input.style.opacity = "1";
                 }
             });
-            console.log(`Odblokowano grupę na indeksie ${index}`); // Debug
         }
     });
 
@@ -1423,7 +1424,6 @@ function updateNadplataKredytuRemoveButtons() {
             const lastGroup = groups[currentIndex];
             lastGroup.remove();
 
-            // Odblokowanie i reset stylów poprzedniej grupy
             if (currentIndex - 1 >= 0) {
                 const previousGroup = groups[currentIndex - 1];
                 if (previousGroup && previousGroup.classList.contains("locked")) {
@@ -1432,12 +1432,11 @@ function updateNadplataKredytuRemoveButtons() {
                     inputs.forEach(input => {
                         input.disabled = false;
                         if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                            input.classList.add("unlocked-select"); // Dodaj klasę dla resetu
-                            input.style.backgroundColor = "#ffffff"; // Domyślny biały kolor
-                            input.style.opacity = "1"; // Pełna przezroczystość
+                            input.classList.add("unlocked-select");
+                            input.style.backgroundColor = "#ffffff";
+                            input.style.opacity = "1";
                         }
                     });
-                    console.log(`Odblokowano i zresetowano style dla grupy na indeksie ${currentIndex - 1}`); // Debug
                 }
             }
 
@@ -1471,7 +1470,9 @@ function updateNadplataKredytuRemoveButtons() {
 
     if (remainingCapital <= 0 || currentRate >= maxRate || currentPeriodStart >= maxPeriodStart || (periodEndInput && currentPeriodEnd >= maxPeriodEnd)) {
         addBtn.style.display = "none";
-    } else addBtn.style.display = "inline-block";
+    } else {
+        addBtn.style.display = "block";
+    }
 }
 
 function initializeNadplataKredytuToggle() {
