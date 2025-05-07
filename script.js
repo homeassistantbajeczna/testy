@@ -1398,6 +1398,10 @@ function updateNadplataKredytuRemoveButtons() {
             const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
             inputs.forEach(input => {
                 input.disabled = false; // Odblokowanie ostatniej grupy
+                if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
+                    input.style.backgroundColor = ""; // Reset stylu tła
+                    input.style.opacity = ""; // Reset przezroczystości
+                }
             });
             console.log(`Odblokowano grupę na indeksie ${index}`); // Debug
         }
