@@ -126,54 +126,49 @@ function toggleInputFields(disabled) {
         elements.jednostkaProwizji
     ];
 
-    // Sprawdzenie, czy elementy istnieją przed manipulacją
     inputFields.forEach(field => {
         if (field) {
             field.disabled = disabled;
-        } else {
-            console.warn(`Pole ${field} nie istnieje w DOM.`);
         }
     });
 
+    // Aktualizuj klasy disabled dla pól
     const parentElements = [
-        elements.kwota?.parentElement,
-        elements.iloscRat?.parentElement,
-        elements.oprocentowanie?.parentElement,
-        elements.rodzajRat?.parentElement,
-        elements.prowizja?.parentElement,
-        elements.jednostkaProwizji?.parentElement
+        elements.kwota.parentElement,
+        elements.iloscRat.parentElement,
+        elements.oprocentowanie.parentElement,
+        elements.rodzajRat.parentElement,
+        elements.prowizja.parentElement,
+        elements.jednostkaProwizji.parentElement
     ];
 
     parentElements.forEach(parent => {
         if (parent) {
-            parent.classList.toggle("disabled", disabled);
+            if (disabled) {
+                parent.classList.add("disabled");
+            } else {
+                parent.classList.remove("disabled");
+            }
         }
     });
 }
 
+// Funkcja sprawdzająca, czy którekolwiek z pól "Zmienne Oprocentowanie" lub "Nadpłata Kredytu" jest aktywne
 function updateInputFieldsState() {
-    if (!elements.nadplataKredytuBtn || !elements.zmienneOprocentowanieBtn) {
-        console.warn("Przełączniki nadplataKredytuBtn lub zmienneOprocentowanieBtn nie zostały znalezione.");
-        return;
-    }
-
-    const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn.checked;
-    const isNadplataKredytuActive = elements.nadplataKredytuBtn.checked;
+    const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
+    const isNadplataKredytuActive = elements.nadplataKredytuBtn?.checked || false;
     const shouldDisable = isZmienneOprocentowanieActive || isNadplataKredytuActive;
 
     toggleInputFields(shouldDisable);
 
-    // Odblokuj oprocentowanie tylko, jeśli obie opcje są wyłączone
+    // Jeśli Zmienne Oprocentowanie jest wyłączone, upewnij się, że pole oprocentowanie jest odpowiednio odblokowane
     if (!isZmienneOprocentowanieActive) {
         elements.oprocentowanie.disabled = isNadplataKredytuActive;
         elements.oprocentowanieRange.disabled = isNadplataKredytuActive;
-        elements.oprocentowanie?.parentElement?.classList.toggle("disabled", isNadplataKredytuActive);
-    } else {
-        elements.oprocentowanie.disabled = true;
-        elements.oprocentowanieRange.disabled = true;
-        elements.oprocentowanie?.parentElement?.classList.add("disabled");
+        elements.oprocentowanie.parentElement?.classList.toggle("disabled", isNadplataKredytuActive);
     }
 }
+
 
 
 
@@ -1295,13 +1290,13 @@ function resetNadplataKredytuSection() {
     elements.nadplataKredytuWrapper.innerHTML = "";
     state.overpaymentRates = [];
     if (elements.nadplataKredytuBtn) {
-        elements.nadplataKredytuBtn.checked = false;
-        elements.nadplataKredytuInputs?.classList.remove("active");
+        elements.nadplataKredytuBtn.disabled = false;
+        elements.nadplataKredytuBtn.parentElement?.classList.remove("disabled");
     }
 
     const existingRemoveBtnWrapper = elements.nadplataKredytuWrapper.querySelector(".remove-btn-wrapper");
     if (existingRemoveBtnWrapper) existingRemoveBtnWrapper.remove();
-    updateInputFieldsState(); // Upewnij się, że pola są odblokowane po resecie
+    updateInputFieldsState(false);
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -1412,29 +1407,24 @@ function updateNadplataKredytuRemoveButtons() {
 }
 
 function initializeNadplataKredytuToggle() {
-    if (!elements.nadplataKredytuBtn) {
-        console.warn("Przycisk nadplataKredytuBtn nie został znaleziony.");
-        return;
+    if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.addEventListener("change", () => {
+            const isChecked = elements.nadplataKredytuBtn.checked;
+            elements.nadplataKredytuInputs?.classList.toggle("active", isChecked);
+
+            if (isChecked) {
+                elements.nadplataKredytuWrapper.innerHTML = "";
+                const newGroup = createNadplataKredytuGroup();
+                elements.nadplataKredytuWrapper.appendChild(newGroup);
+                initializeNadplataKredytuGroup(newGroup);
+                updateNadplataKredytuRemoveButtons();
+                updateInputFieldsState(true);
+            } else {
+                resetNadplataKredytuSection();
+                updateInputFieldsState(false);
+            }
+        });
     }
-
-    elements.nadplataKredytuBtn.addEventListener("change", () => {
-        const isChecked = elements.nadplataKredytuBtn.checked;
-        elements.nadplataKredytuInputs?.classList.toggle("active", isChecked);
-
-        if (isChecked) {
-            elements.nadplataKredytuWrapper.innerHTML = "";
-            const newGroup = createNadplataKredytuGroup();
-            elements.nadplataKredytuWrapper.appendChild(newGroup);
-            initializeNadplataKredytuGroup(newGroup);
-            updateNadplataKredytuRemoveButtons();
-            updateInputFieldsState(); // Blokuj pola natychmiast po włączeniu
-        } else {
-            resetNadplataKredytuSection();
-        }
-    });
-
-    // Wywołaj początkowy stan, aby upewnić się, że pola są w prawidłowym stanie
-    updateInputFieldsState();
 }
 
 function updateInputFieldsState(lock = false) {
@@ -1533,8 +1523,8 @@ function resetVariableOprocentowanieSection() {
     elements.oprocentowanieRange.value = oprocentowanieValue;
     
     delete elements.oprocentowanie.dataset.lastManualValue;
-    updateVariableOprocentowanieRemoveButtons();
-    updateInputFieldsState(); // Upewnij się, że pola są odblokowane po resecie
+    updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są odpowiednio zaktualizowane
+    updateInputFieldsState(); // Aktualizuj stan pól po resecie
 }
 
 function updateVariableOprocentowanieRemoveButtons() {
@@ -1633,30 +1623,50 @@ function toggleAddButtonVisibility() {
 }
 
 function initializeZmienneOprocentowanieToggle() {
-    if (!elements.zmienneOprocentowanieBtn) {
-        console.warn("Przycisk zmienneOprocentowanieBtn nie został znaleziony.");
-        return;
+    if (elements.zmienneOprocentowanieBtn) {
+        elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+            if (elements.zmienneOprocentowanieBtn.checked) {
+                elements.variableOprocentowanieInputs.classList.add("active");
+                elements.variableOprocentowanieWrapper.innerHTML = "";
+                const newGroup = createVariableOprocentowanieGroup(2);
+                elements.variableOprocentowanieWrapper.appendChild(newGroup);
+                initializeVariableOprocentowanieGroup(newGroup);
+                updateRatesArray("oprocentowanie");
+                updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są widoczne
+                updateInputFieldsState(); // Zablokuj pola przy włączeniu
+            } else {
+                elements.variableOprocentowanieInputs.classList.remove("active");
+                resetVariableOprocentowanieSection();
+                updateVariableOprocentowanieRemoveButtons();
+                updateInputFieldsState(); // Odblokuj pola, jeśli Nadpłata Kredytu też jest wyłączona
+            }
+            updateKwotaInfo();
+        });
+
+        elements.oprocentowanie.addEventListener("change", () => {
+            if (!elements.zmienneOprocentowanieBtn.checked) {
+                elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanie.value;
+            }
+        });
+
+        elements.oprocentowanieRange.addEventListener("change", () => {
+            if (!elements.zmienneOprocentowanieBtn.checked) {
+                elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanieRange.value;
+            }
+        });
+
+        elements.iloscRat.addEventListener("input", () => {
+            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+            groups.forEach(group => initializeVariableOprocentowanieGroup(group));
+            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie ilości rat
+        });
+
+        elements.iloscRatRange.addEventListener("input", () => {
+            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+            groups.forEach(group => initializeVariableOprocentowanieGroup(group));
+            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie ilości rat
+        });
     }
-
-    elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-        if (elements.zmienneOprocentowanieBtn.checked) {
-            elements.variableOprocentowanieInputs.classList.add("active");
-            elements.variableOprocentowanieWrapper.innerHTML = "";
-            const newGroup = createVariableOprocentowanieGroup(2);
-            elements.variableOprocentowanieWrapper.appendChild(newGroup);
-            initializeVariableOprocentowanieGroup(newGroup);
-            updateRatesArray("oprocentowanie");
-            updateVariableOprocentowanieRemoveButtons();
-            updateInputFieldsState(); // Blokuj pola natychmiast po włączeniu
-        } else {
-            elements.variableOprocentowanieInputs.classList.remove("active");
-            resetVariableOprocentowanieSection();
-        }
-        updateKwotaInfo();
-    });
-
-    // Wywołaj początkowy stan, aby upewnić się, że pola są w prawidłowym stanie
-    updateInputFieldsState();
 }
 
 
@@ -2006,3 +2016,4 @@ function initializeApp() {
 }
 
 document.addEventListener("DOMContentLoaded", initializeApp);
+
