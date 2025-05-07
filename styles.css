@@ -540,7 +540,7 @@ body {
 .variable-input-group.locked .nadplata-type-select,
 .variable-input-group.locked .nadplata-effect-select,
 .variable-input-group.locked .form-control {
-    background-color: var(--input-group-bg) !important;
+    background-color: var(--input-bg) !important;
     opacity: 0.7 !important;
     cursor: not-allowed;
 }
@@ -548,7 +548,7 @@ body {
 /* Styl dla odblokowanych selektów i inputów */
 .unlocked-select,
 .unlocked-input {
-    background-color: var(--input-bg) !important;
+    background-color: var(--input-group-bg) !important;
     opacity: 1 !important;
 }
 
@@ -564,7 +564,7 @@ body {
     outline: none;
     box-shadow: 0 0 4px var(--accent-color);
     border: 1px solid var(--border-color);
-    background-color: var(--input-bg);
+    background-color: var(--input-group-bg); /* Zmiana dla trybu ciemnego */
     color: var(--primary-text);
     appearance: none;
     -webkit-appearance: none;
@@ -939,14 +939,14 @@ body {
     --highlight-green: #BBBBD2;
     --shadow-color: rgba(255, 255, 255, 0.1);
     --logo-bg: #333333;
-    --input-bg: #333333; /* Kolor boxów rozwijanych i wartości w trybie odblokowanym */
-    --input-group-bg: #222222; /* Kolor jednostek stałych w trybie odblokowanym */
+    --input-bg: #333333; /* Kolor jednostek stałych w trybie odblokowanym */
+    --input-group-bg: #222222; /* Kolor boxów rozwijanych i wartości w trybie odblokowanym */
     --harmonogram-bg: #333333;
     --range-bg: #666666;
     /* Dodane zmienne dla selektów w trybie ciemnym */
-    --select-bg: var(--input-bg); /* Kolor boxów w trybie odblokowanym */
+    --select-bg: var(--input-group-bg); /* Kolor boxów w trybie odblokowanym */
     --select-opacity: 1;
-    --select-bg-locked: var(--input-group-bg); /* Kolor boxów w trybie zablokowanym */
+    --select-bg-locked: var(--input-bg); /* Kolor boxów w trybie zablokowanym */
     --select-opacity-locked: 0.7;
 }
 
@@ -964,20 +964,22 @@ body {
     background-color: var(--logo-bg);
 }
 
+/* Zamiana kolorów w trybie ciemnym */
 .dark-mode .form-control,
-.dark-mode .form-select,
-.dark-mode .input-group-text {
-    background: var(--input-bg);
+.dark-mode .form-select {
+    background: var(--input-group-bg); /* #222222 dla boxów w trybie odblokowanym */
     color: var(--primary-text);
     border-color: var(--border-color);
 }
 
 .dark-mode .input-group-text {
-    background: var(--input-group-bg); /* Zachowujemy jaśniejsze tło dla input-group-text w trybie ciemnym */
+    background: var(--input-bg); /* #333333 dla jednostek stałych */
+    color: var(--primary-text);
+    border-color: var(--border-color);
 }
 
 .dark-mode .checkbox-custom {
-    background: var(--input-bg);
+    background: var(--input-group-bg); /* #222222 dla checkboxów */
     border-color: var(--border-color);
 }
 
