@@ -1349,14 +1349,14 @@ function updateNadplataKredytuRemoveButtons() {
         existingRemoveBtnWrapper = document.createElement("div");
         existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
         existingRemoveBtnWrapper.style.display = "flex";
-        existingRemoveBtnWrapper.style.flexDirection = "column"; // Układ pionowy
-        existingRemoveBtnWrapper.style.gap = "5px"; // Odstęp 5px między przyciskami
+        existingRemoveBtnWrapper.style.flexDirection = "column";
+        existingRemoveBtnWrapper.style.gap = "5px";
         existingRemoveBtnWrapper.style.marginTop = "10px";
     } else {
         existingRemoveBtnWrapper.innerHTML = "";
         existingRemoveBtnWrapper.style.display = "flex";
-        existingRemoveBtnWrapper.style.flexDirection = "column"; // Układ pionowy
-        existingRemoveBtnWrapper.style.gap = "5px"; // Odstęp 5px między przyciskami
+        existingRemoveBtnWrapper.style.flexDirection = "column";
+        existingRemoveBtnWrapper.style.gap = "5px";
         existingRemoveBtnWrapper.style.marginTop = "10px";
     }
 
@@ -1365,7 +1365,7 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
     removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
     removeBtn.textContent = "Usuń";
-    removeBtn.style.width = "100%"; // Szerokość 100%
+    removeBtn.style.width = "100%";
     existingRemoveBtnWrapper.appendChild(removeBtn);
 
     const addBtn = document.createElement("button");
@@ -1373,11 +1373,28 @@ function updateNadplataKredytuRemoveButtons() {
     addBtn.classList.add("btn", "btn-functional");
     addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
     addBtn.textContent = "Dodaj kolejną nadpłatę";
-    addBtn.style.width = "100%"; // Szerokość 100%
+    addBtn.style.width = "100%";
     existingRemoveBtnWrapper.appendChild(addBtn);
 
     const lastGroup = groups[groups.length - 1];
     if (existingRemoveBtnWrapper.parentElement !== lastGroup) lastGroup.appendChild(existingRemoveBtnWrapper);
+
+    // Blokada poprzednich grup po dodaniu nowej nadpłaty
+    groups.forEach((group, index) => {
+        if (index < groups.length - 1 && !group.classList.contains("locked")) {
+            group.classList.add("locked");
+            const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
+            inputs.forEach(input => {
+                input.disabled = true; // Blokada edycji pól
+            });
+        } else if (index === groups.length - 1 && group.classList.contains("locked")) {
+            group.classList.remove("locked");
+            const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
+            inputs.forEach(input => {
+                input.disabled = false; // Odblokowanie ostatniej grupy
+            });
+        }
+    });
 
     removeBtn.addEventListener("click", () => {
         const groups = wrapper.querySelectorAll(".variable-input-group");
@@ -1392,6 +1409,19 @@ function updateNadplataKredytuRemoveButtons() {
         } else {
             const lastGroup = groups[currentIndex];
             lastGroup.remove();
+
+            // Odblokowanie poprzedniej grupy po usunięciu
+            if (currentIndex - 1 >= 0) {
+                const previousGroup = groups[currentIndex - 1];
+                if (previousGroup && previousGroup.classList.contains("locked")) {
+                    previousGroup.classList.remove("locked");
+                    const inputs = previousGroup.querySelectorAll(".form-control, .form-select, .form-range");
+                    inputs.forEach(input => {
+                        input.disabled = false;
+                    });
+                }
+            }
+
             updateRatesArray("nadplata");
             updateAllOverpaymentLimits();
             updateNadplataKredytuRemoveButtons();
