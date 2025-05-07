@@ -1010,12 +1010,15 @@ function initializeNadplataKredytuGroup(group) {
                 }
     
                 const debouncedUpdate = debounce(() => {
-                    const rateInput = group.querySelector(".variable-rate");
-                    const rateRange = group.querySelector(".variable-rate-range");
-                    if (rateInput && rateRange) {
-                        updateOverpaymentLimit(rateInput, rateRange, group);
-                        updateRatesArray("nadplata");
-                        updateNadplataKredytuRemoveButtons();
+                    // Aktualizacja tylko, jeśli pole nie jest w trakcie edycji
+                    if (!state.isEditing.get(input)) {
+                        const rateInput = group.querySelector(".variable-rate");
+                        const rateRange = group.querySelector(".variable-rate-range");
+                        if (rateInput && rateRange) {
+                            updateOverpaymentLimit(rateInput, rateRange, group);
+                            updateRatesArray("nadplata");
+                            updateNadplataKredytuRemoveButtons();
+                        }
                     }
                 }, 50);
     
@@ -1024,6 +1027,11 @@ function initializeNadplataKredytuGroup(group) {
                     if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
                         e.preventDefault();
                     }
+                });
+    
+                // Ustawiamy flagę edycji na true, gdy użytkownik zaczyna edytować pole
+                input.addEventListener("focus", () => {
+                    state.isEditing.set(input, true);
                 });
     
                 // Obsługa wprowadzania wartości (tylko liczby całkowite)
@@ -1036,7 +1044,7 @@ function initializeNadplataKredytuGroup(group) {
                         input.value = value;
                         input.setSelectionRange(cursorPosition, cursorPosition);
                     }
-                    debouncedUpdate();
+                    // Nie wywołujemy debouncedUpdate w trakcie edycji
                 });
     
                 // Walidacja i synchronizacja po zakończeniu wpisywania
@@ -1058,6 +1066,9 @@ function initializeNadplataKredytuGroup(group) {
     
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
                     periodDifference = value - periodStartValue; // Aktualizacja różnicy
+    
+                    // Po zakończeniu edycji zdejmujemy flagę i aktualizujemy
+                    state.isEditing.set(input, false);
                     debouncedUpdate();
                 });
     
@@ -1080,6 +1091,9 @@ function initializeNadplataKredytuGroup(group) {
     
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
                     periodDifference = value - periodStartValue; // Aktualizacja różnicy
+    
+                    // Po opuszczeniu pola zdejmujemy flagę i aktualizujemy
+                    state.isEditing.set(input, false);
                     debouncedUpdate();
                 });
     
@@ -1103,12 +1117,16 @@ function initializeNadplataKredytuGroup(group) {
     
                         const periodStartValue = parseInt(periodStartInput?.value) || 1;
                         periodDifference = value - periodStartValue; // Aktualizacja różnicy
+    
+                        // Suwak nie jest polem tekstowym, więc od razu zdejmujemy flagę i aktualizujemy
+                        state.isEditing.set(input, false);
                         debouncedUpdate();
                     });
                 }
             }
         });
     };
+    
     inputs.forEach((input, index) => {
         const range = ranges[index];
         if (input.classList.contains("variable-cykl-start")) {
