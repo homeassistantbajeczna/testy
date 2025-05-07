@@ -1390,6 +1390,7 @@ function updateNadplataKredytuRemoveButtons() {
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
                     input.style.backgroundColor = "#e9ecef"; // Szary kolor przy blokadzie
                     input.style.opacity = "0.7"; // Zmniejszona przezroczystość
+                    input.classList.remove("unlocked-select"); // Usuń klasę unlocked przy blokadzie
                 }
             });
             console.log(`Zablokowano grupę na indeksie ${index}`); // Debug
@@ -1399,7 +1400,7 @@ function updateNadplataKredytuRemoveButtons() {
             inputs.forEach(input => {
                 input.disabled = false; // Odblokowanie ostatniej grupy
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.classList.add("unlocked-select"); // Dodaj klasę
+                    input.classList.add("unlocked-select"); // Dodaj klasę dla resetu stylów
                     input.style.backgroundColor = "#ffffff"; // Domyślny biały kolor
                     input.style.opacity = "1"; // Pełna przezroczystość
                 }
@@ -1422,7 +1423,7 @@ function updateNadplataKredytuRemoveButtons() {
             const lastGroup = groups[currentIndex];
             lastGroup.remove();
 
-            // Odblokowanie poprzedniej grupy po usunięciu
+            // Odblokowanie i reset stylów poprzedniej grupy
             if (currentIndex - 1 >= 0) {
                 const previousGroup = groups[currentIndex - 1];
                 if (previousGroup && previousGroup.classList.contains("locked")) {
@@ -1430,7 +1431,13 @@ function updateNadplataKredytuRemoveButtons() {
                     const inputs = previousGroup.querySelectorAll(".form-control, .form-select, .form-range");
                     inputs.forEach(input => {
                         input.disabled = false;
+                        if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
+                            input.classList.add("unlocked-select"); // Dodaj klasę dla resetu
+                            input.style.backgroundColor = "#ffffff"; // Domyślny biały kolor
+                            input.style.opacity = "1"; // Pełna przezroczystość
+                        }
                     });
+                    console.log(`Odblokowano i zresetowano style dla grupy na indeksie ${currentIndex - 1}`); // Debug
                 }
             }
 
