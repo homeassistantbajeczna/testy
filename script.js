@@ -534,8 +534,6 @@ function initializeInputHandling() {
 
 
 
-// F U N K C J A     N A D P Ł A T A     K R E D Y T U
-
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -770,7 +768,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = Math.floor(maxAllowed);
             rateInput.value = rateValue;
-            rateRange.value = rateValue;
+            rangeRate.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1076,10 +1074,13 @@ function initializeNadplataKredytuGroup(group) {
                 }, 50);
 
                 // Obsługa ręcznego wprowadzania wartości
-                input.addEventListener("input", () => {
-                    let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minValue;
+                input.addEventListener("input", (e) => {
+                    let value = e.target.value.replace(/[^0-9]/g, ""); // Usuwamy wszystko poza cyframi
+                    value = value === "" ? minValue : parseInt(value) || minValue;
+
+                    const maxValue = parseInt(input.max) || maxPeriodLimit;
                     if (value < minValue) value = minValue;
-                    if (value > maxPeriodLimit) value = maxPeriodLimit;
+                    if (value > maxValue) value = maxValue;
 
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
@@ -1090,18 +1091,15 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                 });
 
+                // Obsługa zmiany wartości suwakiem
                 if (periodEndRange) {
                     periodEndRange.addEventListener("input", () => {
                         let value = parseInt(periodEndRange.value);
-                        if (value < minValue) {
-                            value = minValue;
-                            periodEndRange.value = value;
-                        }
-                        if (value > maxPeriodLimit) {
-                            value = maxPeriodLimit;
-                            periodEndRange.value = value;
-                        }
+                        if (value < minValue) value = minValue;
+                        if (value > maxPeriodLimit) value = maxPeriodLimit;
+
                         input.value = value;
+                        periodEndRange.value = value;
                         syncInputWithRange(input, periodEndRange);
 
                         const periodStartValue = parseInt(periodStartInput?.value) || 1;
@@ -1109,6 +1107,62 @@ function initializeNadplataKredytuGroup(group) {
                         debouncedUpdate();
                     });
                 }
+            } else if (input.classList.contains("variable-rate")) {
+                const debouncedUpdate = debounce(() => {
+                    updateOverpaymentLimit(input, range, group);
+                    updateRatesArray("nadplata");
+                    updateNadplataKredytuRemoveButtons();
+                }, 50);
+
+                // Blokada wprowadzania kropki i przecinka
+                input.addEventListener("keypress", (e) => {
+                    if (e.key === "." || e.key === ",") {
+                        e.preventDefault();
+                    }
+                });
+
+                // Obsługa wprowadzania wartości
+                input.addEventListener("input", (e) => {
+                    let value = e.target.value.replace(/[^0-9]/g, "");
+                    e.target.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                // Obsługa opuszczenia pola
+                input.addEventListener("blur", () => {
+                    let value = parseInt(input.value) || 0;
+                    let minValue = parseInt(input.min) || 100;
+                    let maxValue = parseInt(input.max) || 5000000;
+
+                    if (isNaN(value) || value === "") {
+                        value = minValue;
+                    } else {
+                        if (value < minValue) value = minValue;
+                        if (value > maxValue) value = maxValue;
+                    }
+
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
+
+                // Obsługa suwaka
+                range.addEventListener("input", () => {
+                    let value = parseInt(range.value);
+                    const minAllowed = parseInt(range.min) || 100;
+                    const maxAllowed = parseInt(range.max) || 5000000;
+
+                    if (value < minAllowed) value = minAllowed;
+                    if (value > maxAllowed) value = maxAllowed;
+
+                    input.value = value;
+                    range.value = value;
+                    syncInputWithRange(input, range);
+                    debouncedUpdate();
+                });
             }
         });
     };
@@ -1195,64 +1249,6 @@ function initializeNadplataKredytuGroup(group) {
                 updateEndPeriod();
                 debouncedUpdate();
             });
-        } else if (input.classList.contains("variable-rate")) {
-            const debouncedUpdate = debounce(() => {
-                updateOverpaymentLimit(input, range, group);
-                updateRatesArray("nadplata");
-                updateNadplataKredytuRemoveButtons();
-            }, 50);
-
-            // Blokada wprowadzania kropki i przecinka
-            input.addEventListener("keypress", (e) => {
-                if (e.key === "." || e.key === ",") {
-                    e.preventDefault();
-                }
-            });
-
-            // Obsługa wprowadzania wartości (tylko liczby całkowite)
-            input.addEventListener("input", (e) => {
-                let value = e.target.value;
-                // Usuwamy wszystko poza cyframi
-                value = value.replace(/[^0-9]/g, "");
-                e.target.value = value;
-                range.value = value; // Synchronizacja z suwakiem
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
-
-            // Obsługa opuszczenia pola
-            input.addEventListener("blur", () => {
-                let value = parseInt(input.value) || 0;
-                let minValue = parseInt(input.min) || 100;
-                let maxValue = parseInt(input.max) || 5000000;
-
-                if (isNaN(value) || value === "") {
-                    value = minValue;
-                } else {
-                    if (value < minValue) value = minValue;
-                    if (value > maxValue) value = maxValue;
-                }
-
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
-
-            // Obsługa suwaka
-            range.addEventListener("input", () => {
-                let value = parseInt(range.value);
-                const minAllowed = parseInt(range.min) || 100;
-                const maxAllowed = parseInt(range.max) || 5000000;
-
-                if (value < minAllowed) value = minAllowed;
-                if (value > maxAllowed) value = maxAllowed;
-
-                input.value = value;
-                range.value = value;
-                syncInputWithRange(input, range);
-                debouncedUpdate();
-            });
         }
     });
 
@@ -1281,7 +1277,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rangeRate, group);
+        updateOverpaymentLimit(rateInput, rateRange, group);
     }
 
     updateNadplataKredytuRemoveButtons();
