@@ -536,18 +536,20 @@ body {
     background-size: 8px 8px;
 }
 
-/* Styl dla zablokowanych selektów w szablonie nadpłaty */
+/* Styl dla zablokowanych selektów i inputów */
 .variable-input-group.locked .nadplata-type-select,
-.variable-input-group.locked .nadplata-effect-select {
-    background-color: var(--select-bg-locked) !important;
-    opacity: var(--select-opacity-locked) !important;
+.variable-input-group.locked .nadplata-effect-select,
+.variable-input-group.locked .form-control {
+    background-color: var(--input-group-bg) !important;
+    opacity: 0.7 !important;
     cursor: not-allowed;
 }
 
-/* Styl dla odblokowanych selektów */
-.unlocked-select {
-    background-color: var(--select-bg) !important;
-    opacity: var(--select-opacity) !important;
+/* Styl dla odblokowanych selektów i inputów */
+.unlocked-select,
+.unlocked-input {
+    background-color: var(--input-bg) !important;
+    opacity: 1 !important;
 }
 
 /* Style dla :focus */
@@ -937,14 +939,14 @@ body {
     --highlight-green: #BBBBD2;
     --shadow-color: rgba(255, 255, 255, 0.1);
     --logo-bg: #333333;
-    --input-bg: #333333;
-    --input-group-bg: #222222; /* Dla input-group-text */
+    --input-bg: #333333; /* Kolor boxów rozwijanych i wartości w trybie odblokowanym */
+    --input-group-bg: #222222; /* Kolor jednostek stałych w trybie odblokowanym */
     --harmonogram-bg: #333333;
     --range-bg: #666666;
     /* Dodane zmienne dla selektów w trybie ciemnym */
-    --select-bg: #333333; /* Ciemne tło dla selektów w trybie ciemnym (zgodne z --input-bg) */
+    --select-bg: var(--input-bg); /* Kolor boxów w trybie odblokowanym */
     --select-opacity: 1;
-    --select-bg-locked: #495057; /* Ciemniejszy szary dla zablokowanych w trybie ciemnym */
+    --select-bg-locked: var(--input-group-bg); /* Kolor boxów w trybie zablokowanym */
     --select-opacity-locked: 0.7;
 }
 
@@ -1164,7 +1166,8 @@ body {
         opacity: var(--select-opacity-locked) !important;
     }
 
-    .unlocked-select {
+    .unlocked-select,
+    .unlocked-input {
         background-color: var(--select-bg) !important;
         opacity: var(--select-opacity) !important;
     }
