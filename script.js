@@ -1155,24 +1155,31 @@ function initializeNadplataKredytuGroup(group) {
             // Obsługa wprowadzania wartości (tylko liczby całkowite)
             input.addEventListener("input", (e) => {
                 let value = e.target.value;
-                // Usuwamy wszystko poza cyframi
+                // Usuwamy wszystko poza cyframi, zachowując pozycję kursora
                 value = value.replace(/[^0-9]/g, "");
-                e.target.value = value;
+                if (value !== e.target.value) {
+                    const cursorPosition = e.target.selectionStart;
+                    e.target.value = value;
+                    e.target.setSelectionRange(cursorPosition, cursorPosition);
+                }
+                debouncedUpdate();
+            });
         
-                // Konwersja na liczbę całkowitą i synchronizacja z suwakiem
-                let numericValue = parseInt(value) || 0;
+            // Walidacja i synchronizacja po zakończeniu wpisywania
+            input.addEventListener("change", () => {
+                let value = parseInt(input.value) || 0;
                 let minValue = parseInt(input.min) || 100;
                 let maxValue = parseInt(input.max) || 5000000;
         
-                if (isNaN(numericValue) || value === "") {
-                    numericValue = minValue;
+                if (isNaN(value) || input.value === "") {
+                    value = minValue;
                 } else {
-                    if (numericValue < minValue) numericValue = minValue;
-                    if (numericValue > maxValue) numericValue = maxValue;
+                    if (value < minValue) value = minValue;
+                    if (value > maxValue) value = maxValue;
                 }
         
-                input.value = numericValue;
-                range.value = numericValue;
+                input.value = value;
+                range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
@@ -1183,7 +1190,7 @@ function initializeNadplataKredytuGroup(group) {
                 let minValue = parseInt(input.min) || 100;
                 let maxValue = parseInt(input.max) || 5000000;
         
-                if (isNaN(value) || value === "") {
+                if (isNaN(value) || input.value === "") {
                     value = minValue;
                 } else {
                     if (value < minValue) value = minValue;
