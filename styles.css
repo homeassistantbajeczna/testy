@@ -1000,7 +1000,16 @@ body {
     border-color: var(--border-color);
 }
 
+/* Przyciemnienie strzałek w inputach typu number w trybie ciemnym */
+.dark-mode .form-control[type="number"]::-webkit-inner-spin-button,
+.dark-mode .form-control[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: inner-spin-button; /* Zachowujemy domyślne strzałki */
+    filter: brightness(0.6); /* Przyciemniamy o dwa odcienie (z #ffffff do ~#999999) */
+}
 
+.dark-mode .form-control[type="number"]::-moz-number-spin-box {
+    color: #999999; /* Średni szary, dwa odcienie ciemniejszy od białego */
+}
 
 .dark-mode .input-group-text {
     background: var(--input-bg);
