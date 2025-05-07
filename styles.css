@@ -442,7 +442,7 @@ body {
     padding: 2px 5px;
     text-align: center;
     background: var(--input-group-bg);
-    color: var(--unit-text-color); /* Zmiana koloru tekstu na nową zmienną */
+    color: var(--unit-text-color);
     border: 1px solid var(--border-color);
     border-radius: 0 0 var(--border-radius) 0;
     box-sizing: border-box;
@@ -546,11 +546,12 @@ body {
     background-size: 8px 8px;
 }
 
-/* Styl dla zablokowanych selektów i inputów */
+/* Styl dla zablokowanych selektów, inputów i jednostek stałych */
 .variable-input-group.locked .nadplata-type-select,
 .variable-input-group.locked .nadplata-effect-select,
 .variable-input-group.locked .form-control,
-.variable-input-group.locked .form-select.jednostka-select {
+.variable-input-group.locked .form-select.jednostka-select,
+.variable-input-group.locked .input-group-text { /* Dodano .input-group-text */
     background-color: var(--select-bg-locked) !important;
     color: var(--locked-text-color) !important;
     opacity: var(--select-opacity-locked) !important;
@@ -562,6 +563,12 @@ body {
 .unlocked-input {
     background-color: var(--select-bg) !important;
     color: var(--primary-text) !important;
+    opacity: var(--select-opacity) !important;
+}
+
+/* Styl dla odblokowanych jednostek stałych */
+.variable-input-group:not(.locked) .input-group-text {
+    color: var(--unit-text-color) !important;
     opacity: var(--select-opacity) !important;
 }
 
@@ -989,7 +996,7 @@ body {
 
 .dark-mode .input-group-text {
     background: var(--input-bg);
-    color: var(--unit-text-color); /* Zmiana koloru tekstu na nową zmienną w trybie ciemnym */
+    color: var(--unit-text-color);
     border-color: var(--border-color);
 }
 
@@ -1179,7 +1186,8 @@ body {
     .variable-input-group.locked .form-select,
     .variable-input-group.locked .form-select.jednostka-select,
     .variable-input-group.locked .nadplata-type-select,
-    .variable-input-group.locked .nadplata-effect-select {
+    .variable-input-group.locked .nadplata-effect-select,
+    .variable-input-group.locked .input-group-text { /* Dodano .input-group-text */
         background-color: var(--select-bg-locked) !important;
         color: var(--locked-text-color) !important;
         cursor: not-allowed;
@@ -1190,6 +1198,11 @@ body {
     .unlocked-input {
         background-color: var(--select-bg) !important;
         color: var(--primary-text) !important;
+        opacity: var(--select-opacity) !important;
+    }
+
+    .variable-input-group:not(.locked) .input-group-text {
+        color: var(--unit-text-color) !important;
         opacity: var(--select-opacity) !important;
     }
     
