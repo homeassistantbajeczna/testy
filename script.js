@@ -1399,8 +1399,8 @@ function updateNadplataKredytuRemoveButtons() {
             inputs.forEach(input => {
                 input.disabled = false; // Odblokowanie ostatniej grupy
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.style.backgroundColor = ""; // Reset stylu tła
-                    input.style.opacity = ""; // Reset przezroczystości
+                    input.style.backgroundColor = "#ffffff"; // Reset stylu tła
+                    input.style.opacity = "0.7"; // Reset przezroczystości
                 }
             });
             console.log(`Odblokowano grupę na indeksie ${index}`); // Debug
