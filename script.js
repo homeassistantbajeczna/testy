@@ -1387,12 +1387,14 @@ function updateNadplataKredytuRemoveButtons() {
             inputs.forEach(input => {
                 input.disabled = true; // Blokada edycji pól
             });
+            console.log(`Zablokowano grupę na indeksie ${index}`); // Debug
         } else if (index === groups.length - 1 && group.classList.contains("locked")) {
             group.classList.remove("locked");
             const inputs = group.querySelectorAll(".form-control, .form-select, .form-range");
             inputs.forEach(input => {
                 input.disabled = false; // Odblokowanie ostatniej grupy
             });
+            console.log(`Odblokowano grupę na indeksie ${index}`); // Debug
         }
     });
 
