@@ -317,11 +317,19 @@ body {
 .variable-input-group[data-type="nadplata"] .fields-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 0px;
     justify-content: center;
     width: 480px; /* Stała szerokość dla 3 boxów (150px każdy) + odstępy (2 x 15px) */
     min-width: 480px;
     max-width: 480px;
+}
+
+.variable-input-group[data-type="nadplata"] .form-row {
+    margin-bottom: 5px; /* Zmniejszony odstęp między wierszami */
+}
+
+.variable-input-group[data-type="nadplata"] .form-row:last-child {
+    margin-bottom: 0; /* Usunięcie marginesu dla ostatniego wiersza */
 }
 
 .variable-input-group[data-type="nadplata"] .form-group {
@@ -349,7 +357,7 @@ body {
 .variable-input-group[data-type="nadplata"] .form-row:nth-child(2) {
     display: flex;
     justify-content: center; /* Wyrównanie do środka */
-    gap: 5px;
+    gap: 15px;
     flex-wrap: nowrap; /* Wszystkie boxy w jednej linii */
     width: 100%; /* Zajmuje pełną szerokość .fields-wrapper */
 }
