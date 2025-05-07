@@ -1109,62 +1109,6 @@ function initializeNadplataKredytuGroup(group) {
                         debouncedUpdate();
                     });
                 }
-            } else if (input.classList.contains("variable-rate")) {
-                const debouncedUpdate = debounce(() => {
-                    updateOverpaymentLimit(input, range, group);
-                    updateRatesArray("nadplata");
-                    updateNadplataKredytuRemoveButtons();
-                }, 50);
-
-                // Blokada wprowadzania kropki i przecinka
-                input.addEventListener("keypress", (e) => {
-                    if (e.key === "." || e.key === ",") {
-                        e.preventDefault();
-                    }
-                });
-
-                // Obsługa wprowadzania wartości
-                input.addEventListener("input", (e) => {
-                    let value = e.target.value.replace(/[^0-9]/g, "");
-                    e.target.value = value;
-                    range.value = value;
-                    syncInputWithRange(input, range);
-                    debouncedUpdate();
-                });
-
-                // Obsługa opuszczenia pola
-                input.addEventListener("blur", () => {
-                    let value = parseInt(input.value) || 0;
-                    let minValue = parseInt(input.min) || 100;
-                    let maxValue = parseInt(input.max) || 5000000;
-
-                    if (isNaN(value) || value === "") {
-                        value = minValue;
-                    } else {
-                        if (value < minValue) value = minValue;
-                        if (value > maxValue) value = maxValue;
-                    }
-
-                    input.value = value;
-                    range.value = value;
-                    syncInputWithRange(input, range);
-                    debouncedUpdate();
-                });
-
-                // Obsługa suwaka
-                range.addEventListener("input", () => {
-                    let value = parseInt(range.value);
-                    const minAllowed = parseInt(range.min) || 100;
-                    const maxAllowed = parseInt(range.max) || 5000000;
-
-                    if (value < minAllowed) value = minAllowed;
-                    if (value > maxAllowed) value = maxAllowed;
-
-                    input.value = value;
-                    range.value = value;
-                    syncInputWithRange(input, range);
-                    debouncedUpdate();
-                });
             }
         });
     };
@@ -1251,6 +1195,64 @@ function initializeNadplataKredytuGroup(group) {
                 updateEndPeriod();
                 debouncedUpdate();
             });
+        } else if (input.classList.contains("variable-rate")) {
+            const debouncedUpdate = debounce(() => {
+                updateOverpaymentLimit(input, range, group);
+                updateRatesArray("nadplata");
+                updateNadplataKredytuRemoveButtons();
+            }, 50);
+
+            // Blokada wprowadzania kropki i przecinka
+            input.addEventListener("keypress", (e) => {
+                if (e.key === "." || e.key === ",") {
+                    e.preventDefault();
+                }
+            });
+
+            // Obsługa wprowadzania wartości (tylko liczby całkowite)
+            input.addEventListener("input", (e) => {
+                let value = e.target.value;
+                // Usuwamy wszystko poza cyframi
+                value = value.replace(/[^0-9]/g, "");
+                e.target.value = value;
+                range.value = value; // Synchronizacja z suwakiem
+                syncInputWithRange(input, range);
+                debouncedUpdate();
+            });
+
+            // Obsługa opuszczenia pola
+            input.addEventListener("blur", () => {
+                let value = parseInt(input.value) || 0;
+                let minValue = parseInt(input.min) || 100;
+                let maxValue = parseInt(input.max) || 5000000;
+
+                if (isNaN(value) || value === "") {
+                    value = minValue;
+                } else {
+                    if (value < minValue) value = minValue;
+                    if (value > maxValue) value = maxValue;
+                }
+
+                input.value = value;
+                range.value = value;
+                syncInputWithRange(input, range);
+                debouncedUpdate();
+            });
+
+            // Obsługa suwaka
+            range.addEventListener("input", () => {
+                let value = parseInt(range.value);
+                const minAllowed = parseInt(range.min) || 100;
+                const maxAllowed = parseInt(range.max) || 5000000;
+
+                if (value < minAllowed) value = minAllowed;
+                if (value > maxAllowed) value = maxAllowed;
+
+                input.value = value;
+                range.value = value;
+                syncInputWithRange(input, range);
+                debouncedUpdate();
+            });
         }
     });
 
@@ -1279,7 +1281,7 @@ function initializeNadplataKredytuGroup(group) {
     const rateInput = group.querySelector(".variable-rate");
     const rateRange = group.querySelector(".variable-rate-range");
     if (rateInput && rateRange) {
-        updateOverpaymentLimit(rateInput, rateRange, group);
+        updateOverpaymentLimit(rateInput, rangeRate, group);
     }
 
     updateNadplataKredytuRemoveButtons();
