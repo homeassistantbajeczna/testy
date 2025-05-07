@@ -1388,8 +1388,8 @@ function updateNadplataKredytuRemoveButtons() {
             inputs.forEach(input => {
                 input.disabled = true;
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.style.backgroundColor = "#e9ecef";
-                    input.style.opacity = "0.7";
+                    input.style.backgroundColor = "#e9ecef"; // Szary kolor przy blokadzie
+                    input.style.opacity = "0.7"; // Zmniejszona przezroczystość
                 }
             });
             console.log(`Zablokowano grupę na indeksie ${index}`); // Debug
@@ -1399,8 +1399,9 @@ function updateNadplataKredytuRemoveButtons() {
             inputs.forEach(input => {
                 input.disabled = false; // Odblokowanie ostatniej grupy
                 if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.style.backgroundColor = "#ffffff"; // Reset stylu tła
-                    input.style.opacity = "0.7"; // Reset przezroczystości
+                    input.classList.add("unlocked-select"); // Dodaj klasę
+                    input.style.backgroundColor = "#ffffff"; // Domyślny biały kolor
+                    input.style.opacity = "1"; // Pełna przezroczystość
                 }
             });
             console.log(`Odblokowano grupę na indeksie ${index}`); // Debug
