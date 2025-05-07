@@ -317,7 +317,7 @@ body {
 .variable-input-group[data-type="nadplata"] .fields-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     justify-content: center;
     width: 480px; /* Stała szerokość dla 3 boxów (150px każdy) + odstępy (2 x 15px) */
     min-width: 480px;
@@ -349,7 +349,7 @@ body {
 .variable-input-group[data-type="nadplata"] .form-row:nth-child(2) {
     display: flex;
     justify-content: center; /* Wyrównanie do środka */
-    gap: 15px;
+    gap: 5px;
     flex-wrap: nowrap; /* Wszystkie boxy w jednej linii */
     width: 100%; /* Zajmuje pełną szerokość .fields-wrapper */
 }
