@@ -2152,6 +2152,16 @@ function initializeButtons() {
 
     window.showForm = showForm;
 
+    elements.calcBtn.addEventListener("click", () => {
+        const num1 = elements.calcNum1.value;
+        const num2 = elements.calcNum2.value;
+        const operation = elements.calcOperation.value;
+        const result = calculateBasicOperation(num1, num2, operation);
+        if (result !== null) {
+            elements.calcResult.textContent = `Wynik: ${result}`;
+        }
+    });
+
     elements.zoomInBtn.addEventListener("click", () => {
         if (currentZoom < maxZoom) {
             currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
@@ -2177,6 +2187,50 @@ function initializeButtons() {
             updateChart(state.lastFormData);
         }
     });
+}
+
+
+
+
+
+// F U N K C J A     K A L K U L T O R
+
+function calculateBasicOperation(num1, num2, operation) {
+    try {
+        num1 = parseFloat(num1);
+        num2 = parseFloat(num2);
+
+        if (isNaN(num1) || isNaN(num2)) {
+            throw new Error("Proszę wprowadzić prawidłowe liczby");
+        }
+
+        let result;
+        switch (operation) {
+            case "add":
+                result = num1 + num2;
+                break;
+            case "subtract":
+                result = num1 - num2;
+                break;
+            case "multiply":
+                result = num1 * num2;
+                break;
+            case "divide":
+                if (num2 === 0) {
+                    throw new Error("Dzielenie przez zero jest niemożliwe");
+                }
+                result = num1 / num2;
+                break;
+            default:
+                throw new Error("Nieprawidłowa operacja");
+        }
+
+        return parseFloat(result.toFixed(2));
+    } catch (error) {
+        console.error("Błąd podczas obliczania:", error.message);
+        alert(`Wystąpił błąd: ${error.message}`);
+        return null;
+    }
 }
 
 
