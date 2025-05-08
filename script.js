@@ -1507,50 +1507,6 @@ function initializeNadplataKredytuToggle() {
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
-Rozumiem, wrócimy do boxa "Od" w sekcji Zmienne Oprocentowanie. Problem polega na tym, że przy dodawaniu kolejnego wiersza (grupy zmiennego oprocentowania) wartość w boxie "Od" nowego wiersza pojawia się jako 3,00 zamiast po prostu 3. Wynika to z tego, że kod nie uwzględnia w pełni faktu, że box "Od" powinien zawierać tylko liczby całkowite, a dodatkowo toFixed(2) (używane w innych miejscach) mogło zostać błędnie zastosowane w synchronizacji dla variable-cykl.
-
-Analiza problemu
-W createVariableOprocentowanieGroup wartość początkowa dla variable-cykl jest ustawiana na startPeriod (np. 3), ale kod mógł niepoprawnie sformatować tę wartość jako 3.00 podczas synchronizacji z suwakiem (variable-cykl-range).
-Funkcja syncInputWithRange obecnie używa toFixed(2), co zawsze formatuje wartości jako liczby dziesiętne z dwoma miejscami po przecinku, co jest poprawne dla boxa "Oprocentowanie", ale nie dla boxa "Od", gdzie oczekujemy liczb całkowitych.
-Rozwiązanie
-Naprawa syncInputWithRange:
-Zmodyfikuję funkcję syncInputWithRange, aby różnicowała formatowanie wartości w zależności od typu inputu: dla variable-cykl (box "Od") użyjemy liczb całkowitych, a dla variable-rate (box "Oprocentowanie") pozostawimy toFixed(2).
-Ustawienie wartości początkowej:
-Upewnię się, że startPeriod w createVariableOprocentowanieGroup jest zapisywane jako liczba całkowita.
-Zaktualizowany kod
-Zaktualizuję funkcje syncInputWithRange, createVariableOprocentowanieGroup i fragment initializeVariableOprocentowanieGroup:
-
-javascript
-
-Kopiuj
-function syncInputWithRange(input, range) {
-    if (!input || !range) return;
-
-    let value;
-    const min = parseFloat(range.min);
-    const max = parseFloat(range.max);
-
-    // Różne parsowanie w zależności od typu inputu
-    if (input.classList.contains("variable-cykl")) {
-        value = parseInt(input.value) || parseInt(range.value);
-    } else {
-        value = parseFloat(input.value) || parseFloat(range.value);
-    }
-
-    // Walidacja wartości
-    if (value < min) value = min;
-    if (value > max) value = max;
-
-    // Formatowanie w zależności od typu inputu
-    if (input.classList.contains("variable-cykl")) {
-        input.value = value; // Liczba całkowita
-        range.value = value;
-    } else {
-        input.value = value.toFixed(2); // Dwa miejsca po przecinku
-        range.value = value.toFixed(2);
-    }
-}
-
 function createVariableOprocentowanieGroup(startPeriod = 2) {
     const iloscRat = parseInt(elements.iloscRat?.value) || 420;
     const group = document.createElement("div");
