@@ -954,7 +954,7 @@ body {
 /* K A L K U L A T O R */
 .calculator {
     background: #000000;
-    border-radius: 20px;
+    border-radius: 8px 0 0 8px;
     padding: 15px;
     width: 180px;
     margin: 5px auto;
@@ -1029,13 +1029,13 @@ body {
     cursor: move;
     z-index: 1000;
     user-select: none;
-    width: 200px;
-    max-width: 200px;
-    min-height: 300px;
+    width: 220px;
+    max-width: 220px;
+    min-height: 320px;
     padding: 5px 0 5px 0;
     touch-action: none;
     background: var(--secondary-bg);
-    border-radius: 10px;
+    border-radius: 8px 0 0 8px;
     box-shadow: 0 2px 4px var(--shadow-color);
 }
 
