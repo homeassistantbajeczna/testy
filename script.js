@@ -35,6 +35,7 @@ const elements = {
     zoomInBtn: document.getElementById("zoomInBtn"),
     zoomOutBtn: document.getElementById("zoomOutBtn"),
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
+    porownajKredytBtn: document.getElementById("porownajKredytBtn"),
 };
 
 const state = {
@@ -1876,6 +1877,32 @@ function initializeZmienneOprocentowanieToggle() {
 
 
 
+// F U N K C J E    P O R Ó E N A J     K R E D Y T
+
+function initializePorownajKredytToggle() {
+    if (elements.porownajKredytBtn) {
+        elements.porownajKredytBtn.addEventListener("change", () => {
+            const isChecked = elements.porownajKredytBtn.checked;
+            if (isChecked) {
+                if (elements.nadplataKredytuBtn) {
+                    elements.nadplataKredytuBtn.checked = false;
+                    elements.nadplataKredytuInputs?.classList.remove("active");
+                    resetNadplataKredytuSection();
+                }
+                if (elements.zmienneOprocentowanieBtn) {
+                    elements.zmienneOprocentowanieBtn.checked = false;
+                    elements.variableOprocentowanieInputs.classList.remove("active");
+                    resetVariableOprocentowanieSection();
+                }
+            }
+        });
+    }
+}
+
+
+
+
+
 
 
 
@@ -2444,6 +2471,7 @@ function initializeApp() {
     initializeInputHandling();
     initializeNadplataKredytuToggle();
     initializeZmienneOprocentowanieToggle();
+    initializePorownajKredytToggle();
     initializeButtons();
 
     // Ustaw początkowe wartości
