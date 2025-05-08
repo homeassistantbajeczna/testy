@@ -1561,16 +1561,23 @@ function initializeVariableOprocentowanieGroup(group) {
             range.max = iloscRat;
             syncInputWithRange(input, range);
 
-            // Walidacja w czasie rzeczywistym – blokada niecyfrowych znaków
+            // Blokuj niecyfrowe znaki przed wprowadzeniem
+            input.addEventListener("beforeinput", (e) => {
+                // Sprawdź, czy wprowadzany znak jest cyfrą
+                if (e.data && !/[0-9]/.test(e.data)) {
+                    e.preventDefault(); // Zablokuj wprowadzenie znaku
+                }
+            });
+
+            // Dodatkowa walidacja w czasie rzeczywistym na wypadek wklejenia wartości
             input.addEventListener("input", (e) => {
                 let value = input.value;
                 const cursorPosition = input.selectionStart; // Zapisz pozycję kursora
 
-                // Zastąp wszystko, co nie jest cyfrą, pustym ciągiem
+                // Usuń wszystkie znaki niebędące cyframi (np. w przypadku wklejenia)
                 const sanitizedValue = value.replace(/[^0-9]/g, "");
                 if (value !== sanitizedValue) {
                     input.value = sanitizedValue;
-                    e.preventDefault(); // Zapobiegaj dalszemu przetwarzaniu niecyfrowych znaków
                 }
 
                 // Synchronizuj z suwakiem, jeśli wartość jest liczbą
