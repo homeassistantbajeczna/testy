@@ -1525,10 +1525,10 @@ function createVariableOprocentowanieGroup(startPeriod = 2) {
             <div class="form-group box-rate">
                 <label class="form-label">Oprocentowanie</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.1" value="7">
+                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="7.00">
                     <span class="input-group-text">%</span>
                 </div>
-                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.1" value="7">
+                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.01" value="7.00">
             </div>
         </div>
     `;
@@ -1563,26 +1563,24 @@ function initializeVariableOprocentowanieGroup(group) {
 
             // Blokuj niecyfrowe znaki przed wprowadzeniem
             input.addEventListener("beforeinput", (e) => {
-                // Sprawdź, czy wprowadzany znak jest cyfrą
                 if (e.data && !/[0-9]/.test(e.data)) {
                     e.preventDefault(); // Zablokuj wprowadzenie znaku
                 }
             });
 
-            // Dodatkowa walidacja w czasie rzeczywistym na wypadek wklejenia wartości
             input.addEventListener("input", (e) => {
                 let value = input.value;
-                const cursorPosition = input.selectionStart; // Zapisz pozycję kursora
+                const cursorPosition = input.selectionStart;
 
-                // Usuń wszystkie znaki niebędące cyframi (np. w przypadku wklejenia)
-                const sanitizedValue = value.replace(/[^0-9]/g, "");
+                // Usuń wszystkie znaki niebędące cyframi (na wypadek wklejenia)
+                const sanitizedValue = value.replace(/[^0-9.,-]/g, "");
                 if (value !== sanitizedValue) {
                     input.value = sanitizedValue;
                 }
 
                 // Synchronizuj z suwakiem, jeśli wartość jest liczbą
-                if (!isNaN(parseInt(sanitizedValue))) {
-                    range.value = parseInt(sanitizedValue);
+                if (!isNaN(parseFloat(sanitizedValue))) {
+                    range.value = parseFloat(sanitizedValue);
                 }
 
                 // Przywróć pozycję kursora z opóźnieniem
@@ -1596,7 +1594,6 @@ function initializeVariableOprocentowanieGroup(group) {
                 const min = parseInt(input.min);
                 const max = parseInt(input.max);
 
-                // Walidacja po zakończeniu edycji
                 if (isNaN(value) || value < min) {
                     value = min;
                     input.value = value;
@@ -1607,9 +1604,8 @@ function initializeVariableOprocentowanieGroup(group) {
 
                 syncInputWithRange(input, range);
                 updateRatesArray("oprocentowanie");
-                updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+                updateVariableOprocentowanieRemoveButtons();
 
-                // Aktualizuj min dla kolejnych grup
                 if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
                     const nextGroup = allGroups[currentIndex + 1];
                     const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
@@ -1625,15 +1621,59 @@ function initializeVariableOprocentowanieGroup(group) {
             });
 
         } else if (input.classList.contains("variable-rate")) {
+            input.min = "0.1";
+            input.max = "25";
+            range.min = "0.1";
+            range.max = "25";
             syncInputWithRange(input, range);
+
+            // Obsługa inputu dla wartości z dwoma miejscami po przecinku
+            input.addEventListener("input", (e) => {
+                let value = input.value;
+                const cursorPosition = input.selectionStart;
+
+                // Zezwól na kropkę i przecinek, ale ogranicz do dwóch miejsc po przecinku
+                if (value.includes(".") || value.includes(",")) {
+                    const parts = value.replace(",", ".").split(".");
+                    if (parts.length > 1 && parts[1].length > 2) {
+                        parts[1] = parts[1].slice(0, 2); // Ogranicz do 2 miejsc po przecinku
+                        input.value = parts.join(".");
+                    }
+                }
+
+                // Synchronizuj z suwakiem
+                if (!isNaN(parseFloat(input.value))) {
+                    range.value = parseFloat(input.value).toFixed(2);
+                }
+
+                // Przywróć pozycję kursora
+                setTimeout(() => {
+                    input.setSelectionRange(cursorPosition, cursorPosition);
+                }, 0);
+            });
+
+            input.addEventListener("change", () => {
+                let value = parseFloat(input.value) || 0;
+                const min = parseFloat(input.min);
+                const max = parseFloat(input.max);
+
+                // Walidacja po zakończeniu edycji
+                if (value < min) value = min;
+                else if (value > max) value = max;
+
+                input.value = value.toFixed(2);
+                range.value = value.toFixed(2);
+                syncInputWithRange(input, range);
+                updateRatesArray("oprocentowanie");
+                updateVariableOprocentowanieRemoveButtons();
+            });
         }
 
         range.addEventListener("input", () => {
-            input.value = range.value;
+            input.value = parseFloat(range.value).toFixed(2);
             updateRatesArray("oprocentowanie");
-            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+            updateVariableOprocentowanieRemoveButtons();
 
-            // Aktualizuj min dla kolejnych grup
             if (range.classList.contains("variable-cykl-range") && currentIndex < allGroups.length - 1) {
                 const nextGroup = allGroups[currentIndex + 1];
                 const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
