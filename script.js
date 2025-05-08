@@ -1538,13 +1538,26 @@ function createVariableOprocentowanieGroup(startPeriod = 2) {
 function initializeVariableOprocentowanieGroup(group) {
     const iloscRat = parseInt(elements.iloscRat?.value) || 420;
 
+    // Ustaw dynamiczne min dla boxa "Od" na podstawie poprzedniej grupy
+    const allGroups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+    const currentIndex = Array.from(allGroups).indexOf(group);
+    let minPeriod = 2; // Domyślne minimum dla pierwszej grupy
+    if (currentIndex > 0) {
+        const prevGroup = allGroups[currentIndex - 1];
+        const prevPeriodInput = prevGroup.querySelector(".variable-cykl");
+        const prevPeriodValue = parseInt(prevPeriodInput.value) || 2;
+        minPeriod = prevPeriodValue + 1; // Minimum to okres poprzedniej grupy + 1
+    }
+
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
 
     inputs.forEach((input, index) => {
         const range = ranges[index];
         if (input.classList.contains("variable-cykl")) {
+            input.min = minPeriod;
             input.max = iloscRat;
+            range.min = minPeriod;
             range.max = iloscRat;
             syncInputWithRange(input, range);
         } else if (input.classList.contains("variable-rate")) {
@@ -1552,15 +1565,56 @@ function initializeVariableOprocentowanieGroup(group) {
         }
 
         input.addEventListener("input", () => {
+            let value = parseInt(input.value);
+            const min = parseInt(input.min);
+            const max = parseInt(input.max);
+
+            // Walidacja ręcznego wprowadzania
+            if (isNaN(value) || value < min) {
+                value = min;
+                input.value = value;
+            } else if (value > max) {
+                value = max;
+                input.value = value;
+            }
+
             syncInputWithRange(input, range);
             updateRatesArray("oprocentowanie");
             updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+
+            // Jeśli zmieniono box "Od", upewnij się, że kolejne grupy mają odpowiednie min
+            if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
+                const nextGroup = allGroups[currentIndex + 1];
+                const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
+                const nextPeriodRange = nextGroup.querySelector(".variable-cykl-range");
+                const newMin = value + 1;
+                nextPeriodInput.min = newMin;
+                nextPeriodRange.min = newMin;
+                if (parseInt(nextPeriodInput.value) < newMin) {
+                    nextPeriodInput.value = newMin;
+                    nextPeriodRange.value = newMin;
+                }
+            }
         });
 
         range.addEventListener("input", () => {
             input.value = range.value;
             updateRatesArray("oprocentowanie");
             updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+
+            // Analogicznie aktualizuj min dla kolejnych grup
+            if (range.classList.contains("variable-cykl-range") && currentIndex < allGroups.length - 1) {
+                const nextGroup = allGroups[currentIndex + 1];
+                const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
+                const nextPeriodRange = nextGroup.querySelector(".variable-cykl-range");
+                const newMin = parseInt(range.value) + 1;
+                nextPeriodInput.min = newMin;
+                nextPeriodRange.min = newMin;
+                if (parseInt(nextPeriodInput.value) < newMin) {
+                    nextPeriodInput.value = newMin;
+                    nextPeriodRange.value = newMin;
+                }
+            }
         });
     });
 }
