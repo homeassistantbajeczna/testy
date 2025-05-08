@@ -35,14 +35,6 @@ const elements = {
     zoomInBtn: document.getElementById("zoomInBtn"),
     zoomOutBtn: document.getElementById("zoomOutBtn"),
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
-    calcToggleBtn: document.getElementById("calcToggleBtn"),
-    calculatorBox: document.getElementById("calculatorBox"),
-    closeCalcBtn: document.getElementById("closeCalcBtn"),
-    calcNum1: document.getElementById("calcNum1"),
-    calcNum2: document.getElementById("calcNum2"),
-    calcOperation: document.getElementById("calcOperation"),
-    calcBtn: document.getElementById("calcBtn"),
-    calcResult: document.getElementById("calcResult"),
 };
 
 const state = {
@@ -2114,12 +2106,6 @@ function showForm() {
     }
 }
 
-elements.calcNum1 = document.getElementById("calcNum1");
-elements.calcNum2 = document.getElementById("calcNum2");
-elements.calcOperation = document.getElementById("calcOperation");
-elements.calcBtn = document.getElementById("calcBtn");
-elements.calcResult = document.getElementById("calcResult");
-
 function initializeButtons() {
     elements.obliczBtn.addEventListener("click", () => {
         const kwota = parseFloat(elements.kwota.value) || 500000;
@@ -2166,31 +2152,6 @@ function initializeButtons() {
 
     window.showForm = showForm;
 
-    // Obsługa przycisku otwierania/zamykania kalkulatora
-    elements.calcToggleBtn.addEventListener("click", () => {
-        const isVisible = elements.calculatorBox.style.display === "block";
-        elements.calculatorBox.style.display = isVisible ? "none" : "block";
-        elements.calcToggleBtn.setAttribute("aria-label", isVisible ? "Otwórz kalkulator" : "Zamknij kalkulator");
-    });
-
-    // Obsługa przycisku zamykania kalkulatora
-    elements.closeCalcBtn.addEventListener("click", () => {
-        elements.calculatorBox.style.display = "none";
-        elements.calcToggleBtn.setAttribute("aria-label", "Otwórz kalkulator");
-    });
-
-    elements.calcBtn.addEventListener("click", () => {
-        const num1 = elements.calcNum1.value;
-        const num2 = elements.calcNum2.value;
-        const operation = elements.calcOperation.value;
-        const result = calculateBasicOperation(num1, num2, operation);
-        if (result !== null) {
-            elements.calcResult.textContent = `Wynik: ${result.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-        } else {
-            elements.calcResult.textContent = "Błąd w obliczeniach";
-        }
-    });
-
     elements.zoomInBtn.addEventListener("click", () => {
         if (currentZoom < maxZoom) {
             currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
@@ -2224,43 +2185,251 @@ function initializeButtons() {
 
 // F U N K C J A     K A L K U L T O R
 
-function calculateBasicOperation(num1, num2, operation) {
-    try {
-        num1 = parseFloat(num1);
-        num2 = parseFloat(num2);
+// Logika kalkulatora
+    const calcDisplay = document.getElementById('calcDisplay');
+    let currentInput = '0';
+    let previousInput = '';
+    let operation = null;
+    let shouldResetDisplay = false;
 
-        if (isNaN(num1) || isNaN(num2)) {
-            throw new Error("Proszę wprowadzić prawidłowe liczby");
+    function updateDisplay() {
+        calcDisplay.value = currentInput;
+    }
+
+    function clearCalculator() {
+        currentInput = '0';
+        previousInput = '';
+        operation = null;
+        shouldResetDisplay = false;
+        updateDisplay();
+    }
+
+    function toggleSign() {
+        if (currentInput === '0') return;
+        currentInput = (parseFloat(currentInput) * -1).toString();
+        updateDisplay();
+    }
+
+    function percent() {
+        currentInput = (parseFloat(currentInput) / 100).toString();
+        updateDisplay();
+    }
+
+    function appendNumber(number) {
+        if (shouldResetDisplay) {
+            currentInput = number;
+            shouldResetDisplay = false;
+        } else {
+            currentInput = currentInput === '0' ? number : currentInput + number;
         }
+        updateDisplay();
+    }
 
+    function appendDecimal() {
+        if (!currentInput.includes('.')) {
+            currentInput += '.';
+        }
+        updateDisplay();
+    }
+
+    function setOperation(op) {
+        if (currentInput === '') return;
+        if (previousInput !== '') {
+            calculate();
+        }
+        operation = op;
+        previousInput = currentInput;
+        shouldResetDisplay = true;
+    }
+
+    function calculate() {
+        if (previousInput === '' || currentInput === '' || operation === null) return;
         let result;
+        const prev = parseFloat(previousInput);
+        const curr = parseFloat(currentInput);
+
         switch (operation) {
-            case "add":
-                result = num1 + num2;
+            case '+':
+                result = prev + curr;
                 break;
-            case "subtract":
-                result = num1 - num2;
+            case '-':
+                result = prev - curr;
                 break;
-            case "multiply":
-                result = num1 * num2;
+            case '*':
+                result = prev * curr;
                 break;
-            case "divide":
-                if (num2 === 0) {
-                    throw new Error("Dzielenie przez zero jest niemożliwe");
+            case '/':
+                if (curr === 0) {
+                    alert("Nie można dzielić przez zero!");
+                    clearCalculator();
+                    return;
                 }
-                result = num1 / num2;
+                result = prev / curr;
                 break;
             default:
-                throw new Error("Nieprawidłowa operacja");
+                return;
         }
 
-        return parseFloat(result.toFixed(2));
-    } catch (error) {
-        console.error("Błąd podczas obliczania:", error.message);
-        alert(`Wystąpił błąd: ${error.message}`);
-        return null;
+        currentInput = result.toString();
+        operation = null;
+        previousInput = '';
+        shouldResetDisplay = true;
+        updateDisplay();
     }
-}
+
+    document.querySelectorAll('.calc-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const value = button.textContent;
+
+            if (button.classList.contains('calc-number')) {
+                appendNumber(value);
+            } else if (button.classList.contains('calc-operation')) {
+                if (value === '±') {
+                    toggleSign();
+                } else if (value === '%') {
+                    percent();
+                } else {
+                    setOperation(value);
+                }
+            } else if (button.classList.contains('calc-clear')) {
+                clearCalculator();
+            } else if (button.classList.contains('calc-equals')) {
+                calculate();
+            } else if (value === '.') {
+                appendDecimal();
+            }
+        });
+    });
+
+    updateDisplay();
+
+    // Logika pokazywania/ukrywania i przeciągania kalkulatora
+    const calculatorBox = document.getElementById('calculatorBox');
+    const calcToggleBtn = document.getElementById('calcToggleBtn');
+    const closeCalcBtn = document.getElementById('closeCalcBtn');
+    let isDragging = false;
+    let initialX = 0;
+    let initialY = 0;
+
+    function toggleCalculator() {
+        const isVisible = calculatorBox.style.display === 'block';
+        if (isVisible) {
+            calculatorBox.style.display = 'none';
+        } else {
+            calculatorBox.style.display = 'block';
+            // Ustaw domyślną pozycję w centrum strony
+            const windowWidth = window.innerWidth / currentZoom;
+            const windowHeight = window.innerHeight / currentZoom;
+            const calcWidth = calculatorBox.offsetWidth;
+            const calcHeight = calculatorBox.offsetHeight;
+            calculatorBox.style.left = ((windowWidth - calcWidth) / 2) + 'px';
+            calculatorBox.style.top = ((windowHeight - calcHeight) / 2) + 'px';
+        }
+    }
+
+    calcToggleBtn.addEventListener('click', toggleCalculator);
+    closeCalcBtn.addEventListener('click', () => {
+        calculatorBox.style.display = 'none';
+    });
+
+    calculatorBox.addEventListener('mousedown', (e) => {
+        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
+            isDragging = true;
+            const calcRect = calculatorBox.getBoundingClientRect();
+            const currentX = (calcRect.left + window.scrollX) / currentZoom;
+            const currentY = (calcRect.top + window.scrollY) / currentZoom;
+
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
+
+            initialX = (e.clientX / currentZoom) - currentX;
+            initialY = (e.clientY / currentZoom) - currentY;
+            calculatorBox.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            const newX = (e.clientX / currentZoom) - initialX;
+            const newY = (e.clientY / currentZoom) - initialY;
+
+            const windowWidth = window.innerWidth / currentZoom;
+            const calcWidth = calculatorBox.offsetWidth;
+            const calcHeight = calculatorBox.offsetHeight;
+            const documentHeight = document.documentElement.scrollHeight / currentZoom;
+
+            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
+            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
+
+            calculatorBox.style.left = boundedX + 'px';
+            calculatorBox.style.top = boundedY + 'px';
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            calculatorBox.style.cursor = 'move';
+        }
+    });
+
+    // Obsługa dotyku dla urządzeń mobilnych
+    calculatorBox.addEventListener('touchstart', (e) => {
+        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
+            isDragging = true;
+            const calcRect = calculatorBox.getBoundingClientRect();
+            const currentX = (calcRect.left + window.scrollX) / currentZoom;
+            const currentY = (calcRect.top + window.scrollY) / currentZoom;
+
+            calculatorBox.style.left = currentX + 'px';
+            calculatorBox.style.top = currentY + 'px';
+
+            const touch = e.touches[0];
+            initialX = (touch.clientX / currentZoom) - currentX;
+            initialY = (touch.clientY / currentZoom) - currentY;
+            e.preventDefault();
+        }
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const newX = (touch.clientX / currentZoom) - initialX;
+            const newY = (touch.clientY / currentZoom) - initialY;
+
+            const windowWidth = window.innerWidth / currentZoom;
+            const calcWidth = calculatorBox.offsetWidth;
+            const calcHeight = calculatorBox.offsetHeight;
+            const documentHeight = document.documentElement.scrollHeight / currentZoom;
+
+            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
+            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
+
+            calculatorBox.style.left = boundedX + 'px';
+            calculatorBox.style.top = boundedY + 'px';
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+        if (isDragging) {
+            isDragging = false;
+        }
+    });
+
+    // Funkcja aktualizująca pozycję kalkulatora po zmianie zoomu
+    function updateCalculatorPosition(previousZoom) {
+        if (calculatorBox.style.display === 'block') {
+            const calcRect = calculatorBox.getBoundingClientRect();
+            const zoomRatio = previousZoom / currentZoom;
+            const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
+            const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
+            calculatorBox.style.left = (newX / currentZoom) + 'px';
+            calculatorBox.style.top = (newY / currentZoom) + 'px';
+        }
+    }
 
 
 
