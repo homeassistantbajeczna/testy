@@ -1561,20 +1561,21 @@ function initializeVariableOprocentowanieGroup(group) {
             range.max = iloscRat;
             syncInputWithRange(input, range);
 
-            // Dodaj walidację blokującą kropkę i przecinek
+            // Walidacja w czasie rzeczywistym – blokada niecyfrowych znaków
             input.addEventListener("input", (e) => {
                 let value = input.value;
                 const cursorPosition = input.selectionStart; // Zapisz pozycję kursora
 
-                // Usuń kropki i przecinki
-                if (value.includes(".") || value.includes(",")) {
-                    value = value.replace(/[\.,]/g, "");
-                    input.value = value;
+                // Zastąp wszystko, co nie jest cyfrą, pustym ciągiem
+                const sanitizedValue = value.replace(/[^0-9]/g, "");
+                if (value !== sanitizedValue) {
+                    input.value = sanitizedValue;
+                    e.preventDefault(); // Zapobiegaj dalszemu przetwarzaniu niecyfrowych znaków
                 }
 
                 // Synchronizuj z suwakiem, jeśli wartość jest liczbą
-                if (!isNaN(parseInt(value))) {
-                    range.value = parseInt(value);
+                if (!isNaN(parseInt(sanitizedValue))) {
+                    range.value = parseInt(sanitizedValue);
                 }
 
                 // Przywróć pozycję kursora z opóźnieniem
