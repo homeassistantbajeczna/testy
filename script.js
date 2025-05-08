@@ -1881,7 +1881,7 @@ function initializeZmienneOprocentowanieToggle() {
 
 // F U N K C J E    P O R Ó W N A J     K R E D Y T
 
-ffunction initializePorownajKredytToggle() {
+function initializePorownajKredytToggle() {
     if (elements.porownajKredytBtn) {
         elements.porownajKredytBtn.addEventListener("change", () => {
             const isChecked = elements.porownajKredytBtn.checked;
