@@ -1570,7 +1570,23 @@ function initializeVariableOprocentowanieGroup(group) {
             const max = parseInt(input.max);
             const cursorPosition = input.selectionStart; // Zapisz pozycję kursora
 
-            // Walidacja ręcznego wprowadzania
+            // Synchronizuj z suwakiem, ale nie koryguj wartości w trakcie wpisywania
+            if (!isNaN(value)) {
+                range.value = value;
+            }
+
+            // Przywróć pozycję kursora z opóźnieniem
+            setTimeout(() => {
+                input.setSelectionRange(cursorPosition, cursorPosition);
+            }, 0);
+        });
+
+        input.addEventListener("change", () => {
+            let value = parseInt(input.value);
+            const min = parseInt(input.min);
+            const max = parseInt(input.max);
+
+            // Walidacja po zakończeniu edycji (na zdarzeniu change)
             if (isNaN(value) || value < min) {
                 value = min;
                 input.value = value;
@@ -1582,9 +1598,6 @@ function initializeVariableOprocentowanieGroup(group) {
             syncInputWithRange(input, range);
             updateRatesArray("oprocentowanie");
             updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
-
-            // Przywróć pozycję kursora
-            input.setSelectionRange(cursorPosition, cursorPosition);
 
             // Jeśli zmieniono box "Od", upewnij się, że kolejne grupy mają odpowiednie min
             if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
