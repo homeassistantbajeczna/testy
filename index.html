@@ -230,28 +230,33 @@
             <button id="closeCalcBtn" class="close-btn" title="Zamknij kalkulator">×</button>
         </h3>
         <div class="calculator">
-            <input type="text" id="calcDisplay" readonly>
+            <input type="number" id="calcNum1" class="form-control mb-2" placeholder="Liczba 1">
+            <input type="number" id="calcNum2" class="form-control mb-2" placeholder="Liczba 2">
+            <select id="calcOperation" class="form-select mb-2">
+                <option value="add">Dodawanie</option>
+                <option value="subtract">Odejmowanie</option>
+                <option value="multiply">Mnożenie</option>
+                <option value="divide">Dzielenie</option>
+            </select>
+            <button id="calcBtn" class="btn btn-primary mb-2">Oblicz</button>
+            <div id="calcResult" class="result-display"></div>
             <div class="calc-buttons">
                 <button class="calc-btn calc-clear">C</button>
                 <button class="calc-btn calc-operation">±</button>
                 <button class="calc-btn calc-operation">%</button>
                 <button class="calc-btn calc-operation">/</button>
-
                 <button class="calc-btn calc-number">7</button>
                 <button class="calc-btn calc-number">8</button>
                 <button class="calc-btn calc-number">9</button>
                 <button class="calc-btn calc-operation">*</button>
-
                 <button class="calc-btn calc-number">4</button>
                 <button class="calc-btn calc-number">5</button>
                 <button class="calc-btn calc-number">6</button>
                 <button class="calc-btn calc-operation">-</button>
-
                 <button class="calc-btn calc-number">1</button>
                 <button class="calc-btn calc-number">2</button>
                 <button class="calc-btn calc-number">3</button>
                 <button class="calc-btn calc-operation">+</button>
-
                 <button class="calc-btn calc-number calc-zero">0</button>
                 <button class="calc-btn calc-number">.</button>
                 <button class="calc-btn calc-equals">=</button>
