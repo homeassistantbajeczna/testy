@@ -20,9 +20,11 @@ const elements = {
     nadplataKredytuBtn: document.getElementById("nadplataKredytuBtn"),
     nadplataKredytuInputs: document.getElementById("nadplataKredytuInputs"),
     nadplataKredytuWrapper: document.getElementById("nadplataKredytuWrapper"),
+    nadplataKredytuContainer: document.getElementById("nadplataKredytuContainer"),
     zmienneOprocentowanieBtn: document.getElementById("zmienneOprocentowanieBtn"),
     variableOprocentowanieInputs: document.getElementById("variableOprocentowanieInputs"),
     variableOprocentowanieWrapper: document.getElementById("variableOprocentowanieWrapper"),
+    variableOprocentowanieContainer: document.getElementById("variableOprocentowanieContainer"),
     obliczBtn: document.getElementById("obliczBtn"),
     generatePdfBtn: document.getElementById("generatePdfBtn"),
     harmonogramTabela: document.getElementById("harmonogramTabela"),
@@ -1877,9 +1879,9 @@ function initializeZmienneOprocentowanieToggle() {
 
 
 
-// F U N K C J E    P O R Ó E N A J     K R E D Y T
+// F U N K C J E    P O R Ó W N A J     K R E D Y T
 
-function initializePorownajKredytToggle() {
+ffunction initializePorownajKredytToggle() {
     if (elements.porownajKredytBtn) {
         elements.porownajKredytBtn.addEventListener("change", () => {
             const isChecked = elements.porownajKredytBtn.checked;
@@ -1887,12 +1889,21 @@ function initializePorownajKredytToggle() {
                 if (elements.nadplataKredytuBtn) {
                     elements.nadplataKredytuBtn.checked = false;
                     elements.nadplataKredytuInputs?.classList.remove("active");
+                    elements.nadplataKredytuContainer.style.display = "none";
                     resetNadplataKredytuSection();
                 }
                 if (elements.zmienneOprocentowanieBtn) {
                     elements.zmienneOprocentowanieBtn.checked = false;
                     elements.variableOprocentowanieInputs.classList.remove("active");
+                    elements.variableOprocentowanieContainer.style.display = "none";
                     resetVariableOprocentowanieSection();
+                }
+            } else {
+                if (elements.nadplataKredytuContainer) {
+                    elements.nadplataKredytuContainer.style.display = "block";
+                }
+                if (elements.variableOprocentowanieContainer) {
+                    elements.variableOprocentowanieContainer.style.display = "block";
                 }
             }
         });
