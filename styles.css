@@ -985,6 +985,7 @@ body {
     color: #fff;
     border: none;
     border-radius: 50%;
+    border-radius: 8px 0 8px 0;
     width: 35px;
     height: 35px;
     font-size: 0.9em;
@@ -1020,7 +1021,7 @@ body {
 
 .calc-zero {
     grid-column: span 2;
-    border-radius: 18px;
+    border-radius: 4px 0 4px 0;
     width: 80px;
 }
 
@@ -1029,13 +1030,13 @@ body {
     cursor: move;
     z-index: 1000;
     user-select: none;
-    width: 220px;
-    max-width: 220px;
-    min-height: 320px;
+    width: 200px;
+    max-width: 200px;
+    min-height: 300px;
     padding: 5px 0 5px 0;
     touch-action: none;
     background: var(--secondary-bg);
-    border-radius: 8px 0 8px 0;
+    border-radius: 0 0 8px 0;
     box-shadow: 0 2px 4px var(--shadow-color);
 }
 
