@@ -957,7 +957,7 @@ body {
     border-radius: 20px;
     padding: 15px;
     width: 180px;
-    margin: 0 auto;
+    margin: 5px auto;
 }
 
 #calcDisplay {
@@ -1030,8 +1030,8 @@ body {
     z-index: 1000;
     user-select: none;
     width: 220px;
-    max-width: 220px;
-    min-height: 320px;
+    max-width: 210px;
+    min-height: 310px;
     padding: 5px 0 5px 0;
     touch-action: none;
     background: var(--secondary-bg);
