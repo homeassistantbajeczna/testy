@@ -1229,26 +1229,7 @@ body {
     box-shadow: 0 4px 6px var(--shadow-color);
 }
 
-.dark-mode #calcDisplay {
-    background: var(--input-bg);
-    color: var(--primary-text);
-    border-color: var(--border-color);
-}
 
-.dark-mode .calc-btn {
-    background: var(--input-group-bg);
-    color: var(--primary-text);
-    border-color: var(--border-color);
-}
-
-.dark-mode .calc-number {
-    background: var(--input-bg);
-}
-
-.dark-mode .calc-operation,
-.dark-mode .calc-equals {
-    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
-}
 
 /* R E S P O N S Y W N O Ś Ć */
 @media (max-width: 575px) {
