@@ -2106,6 +2106,12 @@ function showForm() {
     }
 }
 
+elements.calcNum1 = document.getElementById("calcNum1");
+elements.calcNum2 = document.getElementById("calcNum2");
+elements.calcOperation = document.getElementById("calcOperation");
+elements.calcBtn = document.getElementById("calcBtn");
+elements.calcResult = document.getElementById("calcResult");
+
 function initializeButtons() {
     elements.obliczBtn.addEventListener("click", () => {
         const kwota = parseFloat(elements.kwota.value) || 500000;
@@ -2158,7 +2164,9 @@ function initializeButtons() {
         const operation = elements.calcOperation.value;
         const result = calculateBasicOperation(num1, num2, operation);
         if (result !== null) {
-            elements.calcResult.textContent = `Wynik: ${result}`;
+            elements.calcResult.textContent = `Wynik: ${result.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
+        } else {
+            elements.calcResult.textContent = "Błąd w obliczeniach";
         }
     });
 
