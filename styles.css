@@ -986,8 +986,8 @@ body {
     border: none;
     border-radius: 50%;
     border-radius: 8px 0 8px 0;
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
     font-size: 0.9em;
     display: flex;
     align-items: center;
@@ -1021,8 +1021,9 @@ body {
 
 .calc-zero {
     grid-column: span 2;
-    border-radius: 4px 0 4px 0;
-    width: 80px;
+    border-radius: 8px 0 8px 0;
+    width: 75px;
+    height: 30px;
 }
 
 .draggable {
