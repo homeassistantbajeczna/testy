@@ -953,9 +953,9 @@ body {
 
 /* K A L K U L A T O R */
 .calculator {
-    background: #BBBBD2;
+    background: #000000;
     border-radius: 20px;
-    padding: 10px;
+    padding: 15px;
     width: 180px;
     margin: 0 auto;
 }
@@ -1029,8 +1029,9 @@ body {
     cursor: move;
     z-index: 1000;
     user-select: none;
-    width: 250px;
-    max-width: 250px;
+    width: 220px;
+    max-width: 220px;
+    min-height: 320px;
     touch-action: none;
     background: var(--secondary-bg);
     border-radius: 10px;
