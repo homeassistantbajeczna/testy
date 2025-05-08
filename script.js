@@ -1517,7 +1517,7 @@ function createVariableOprocentowanieGroup(startPeriod = 2) {
             <div class="form-group box-period">
                 <label class="form-label">Od</label>
                 <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
+                    <input type="number" class="form-control variable-cykl" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}" inputmode="numeric" pattern="[0-9]*">
                     <span class="input-group-text unit-miesiaca">miesiąca</span>
                 </div>
                 <input type="range" class="form-range range-slider variable-cykl-range" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
@@ -1560,66 +1560,72 @@ function initializeVariableOprocentowanieGroup(group) {
             range.min = minPeriod;
             range.max = iloscRat;
             syncInputWithRange(input, range);
+
+            // Dodaj walidację blokującą kropkę i przecinek
+            input.addEventListener("input", (e) => {
+                let value = input.value;
+                const cursorPosition = input.selectionStart; // Zapisz pozycję kursora
+
+                // Usuń kropki i przecinki
+                if (value.includes(".") || value.includes(",")) {
+                    value = value.replace(/[\.,]/g, "");
+                    input.value = value;
+                }
+
+                // Synchronizuj z suwakiem, jeśli wartość jest liczbą
+                if (!isNaN(parseInt(value))) {
+                    range.value = parseInt(value);
+                }
+
+                // Przywróć pozycję kursora z opóźnieniem
+                setTimeout(() => {
+                    input.setSelectionRange(cursorPosition, cursorPosition);
+                }, 0);
+            });
+
+            input.addEventListener("change", () => {
+                let value = parseInt(input.value);
+                const min = parseInt(input.min);
+                const max = parseInt(input.max);
+
+                // Walidacja po zakończeniu edycji
+                if (isNaN(value) || value < min) {
+                    value = min;
+                    input.value = value;
+                } else if (value > max) {
+                    value = max;
+                    input.value = value;
+                }
+
+                syncInputWithRange(input, range);
+                updateRatesArray("oprocentowanie");
+                updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+
+                // Aktualizuj min dla kolejnych grup
+                if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
+                    const nextGroup = allGroups[currentIndex + 1];
+                    const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
+                    const nextPeriodRange = nextGroup.querySelector(".variable-cykl-range");
+                    const newMin = value + 1;
+                    nextPeriodInput.min = newMin;
+                    nextPeriodRange.min = newMin;
+                    if (parseInt(nextPeriodInput.value) < newMin) {
+                        nextPeriodInput.value = newMin;
+                        nextPeriodRange.value = newMin;
+                    }
+                }
+            });
+
         } else if (input.classList.contains("variable-rate")) {
             syncInputWithRange(input, range);
         }
-
-        input.addEventListener("input", () => {
-            let value = parseInt(input.value);
-            const min = parseInt(input.min);
-            const max = parseInt(input.max);
-            const cursorPosition = input.selectionStart; // Zapisz pozycję kursora
-
-            // Synchronizuj z suwakiem, ale nie koryguj wartości w trakcie wpisywania
-            if (!isNaN(value)) {
-                range.value = value;
-            }
-
-            // Przywróć pozycję kursora z opóźnieniem
-            setTimeout(() => {
-                input.setSelectionRange(cursorPosition, cursorPosition);
-            }, 0);
-        });
-
-        input.addEventListener("change", () => {
-            let value = parseInt(input.value);
-            const min = parseInt(input.min);
-            const max = parseInt(input.max);
-
-            // Walidacja po zakończeniu edycji (na zdarzeniu change)
-            if (isNaN(value) || value < min) {
-                value = min;
-                input.value = value;
-            } else if (value > max) {
-                value = max;
-                input.value = value;
-            }
-
-            syncInputWithRange(input, range);
-            updateRatesArray("oprocentowanie");
-            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
-
-            // Jeśli zmieniono box "Od", upewnij się, że kolejne grupy mają odpowiednie min
-            if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
-                const nextGroup = allGroups[currentIndex + 1];
-                const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
-                const nextPeriodRange = nextGroup.querySelector(".variable-cykl-range");
-                const newMin = value + 1;
-                nextPeriodInput.min = newMin;
-                nextPeriodRange.min = newMin;
-                if (parseInt(nextPeriodInput.value) < newMin) {
-                    nextPeriodInput.value = newMin;
-                    nextPeriodRange.value = newMin;
-                }
-            }
-        });
 
         range.addEventListener("input", () => {
             input.value = range.value;
             updateRatesArray("oprocentowanie");
             updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
 
-            // Analogicznie aktualizuj min dla kolejnych grup
+            // Aktualizuj min dla kolejnych grup
             if (range.classList.contains("variable-cykl-range") && currentIndex < allGroups.length - 1) {
                 const nextGroup = allGroups[currentIndex + 1];
                 const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
