@@ -2,7 +2,7 @@
 :root {
     --primary-bg: #f5f6f5;
     --primary-text: #333333;
-    --secondary-bg: #A6A5A7;
+    --secondary-bg: #ffffff;
     --accent-color: #c2b280;
     --accent-gradient-start: #c2b280;
     --accent-gradient-end: #b0a070;
@@ -153,9 +153,6 @@ body {
     align-items: center;
     margin-bottom: 15px;
     position: relative;
-    background-color: var(--accent-color);
-    padding: 10px;
-    border-radius: 8px 8px 0 0;
 }
 
 .button-container {
@@ -168,7 +165,7 @@ body {
 .header-row h4,
 .result-header h4 {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 19px;
     text-align: center;
     margin: 0;
 }
@@ -956,7 +953,7 @@ body {
 
 /* K A L K U L A T O R */
 .calculator {
-    background: #000;
+    background: #BBBBD2;
     border-radius: 20px;
     padding: 10px;
     width: 180px;
@@ -1040,7 +1037,18 @@ body {
     box-shadow: 0 2px 4px var(--shadow-color);
 }
 
-.draggable .header-row .closeCalcBtn {
+.draggable h3 {
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    margin: 0;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    color: #000000;
+    padding: 5px 10px;
+    border-radius: 8px 8px 0 0;
+}
+
+.draggable .close-btn {
     background: none;
     border: none;
     font-size: 16px;
@@ -1048,9 +1056,10 @@ body {
     cursor: pointer;
     padding: 0 5px;
     transition: color 0.3s ease;
+    float: right;
 }
 
-.draggable .header-row .closeCalcBtn:hover {
+.draggable .close-btn:hover {
     color: #ff0000;
 }
 
@@ -1323,6 +1332,30 @@ body {
         width: 148px;
     }
 
+    .variable-input-group.locked .form-control,
+    .variable-input-group.locked .form-select,
+    .variable-input-group.locked .form-select.jednostka-select,
+    .variable-input-group.locked .nadplata-type-select,
+    .variable-input-group.locked .nadplata-effect-select,
+    .variable-input-group.locked .input-group-text {
+        background-color: var(--select-bg-locked) !important;
+        color: var(--locked-text-color) !important;
+        cursor: not-allowed;
+        opacity: var(--select-opacity-locked) !important;
+    }
+
+    .unlocked-select,
+    .unlocked-input {
+        background-color: var(--select-bg) !important;
+        color: var(--primary-text) !important;
+        opacity: var(--select-opacity) !important;
+    }
+
+    .variable-input-group:not(.locked) .input-group-text {
+        color: var(--unit-text-color) !important;
+        opacity: var(--select-opacity) !important;
+    }
+    
     .chart-container {
         max-width: 100%;
     }
