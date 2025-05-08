@@ -1721,7 +1721,7 @@ function updateVariableOprocentowanieRemoveButtons() {
         existingRemoveBtnWrapper.remove();
     }
 
-    // Blokuj boxy we wszystkich wierszach poza ostatnim
+    // Blokuj boxy we wszystkich wierszach poza ostatnim i ustaw style
     groups.forEach((group, index) => {
         const inputs = group.querySelectorAll(".form-control");
         const ranges = group.querySelectorAll(".form-range");
@@ -1729,9 +1729,26 @@ function updateVariableOprocentowanieRemoveButtons() {
 
         inputs.forEach(input => {
             input.disabled = !isLastGroup; // Blokuj, jeśli nie jest to ostatni wiersz
+            if (!isLastGroup) {
+                // Styl dla zablokowanych inputów
+                input.style.backgroundColor = "#e9ecef";
+                input.style.opacity = "0.7";
+            } else {
+                // Styl dla odblokowanych inputów
+                input.style.backgroundColor = "#ffffff";
+                input.style.opacity = "1";
+            }
         });
+
         ranges.forEach(range => {
             range.disabled = !isLastGroup; // Blokuj, jeśli nie jest to ostatni wiersz
+            if (!isLastGroup) {
+                // Styl dla zablokowanych suwaków
+                range.style.opacity = "0.7";
+            } else {
+                // Styl dla odblokowanych suwaków
+                range.style.opacity = "1";
+            }
         });
     });
 
