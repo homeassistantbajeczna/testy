@@ -1032,6 +1032,7 @@ body {
     width: 220px;
     max-width: 220px;
     min-height: 320px;
+    padding: 5px 0 5px 0;
     touch-action: none;
     background: var(--secondary-bg);
     border-radius: 10px;
