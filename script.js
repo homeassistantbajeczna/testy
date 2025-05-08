@@ -1568,6 +1568,7 @@ function initializeVariableOprocentowanieGroup(group) {
             let value = parseInt(input.value);
             const min = parseInt(input.min);
             const max = parseInt(input.max);
+            const cursorPosition = input.selectionStart; // Zapisz pozycję kursora
 
             // Walidacja ręcznego wprowadzania
             if (isNaN(value) || value < min) {
@@ -1581,6 +1582,9 @@ function initializeVariableOprocentowanieGroup(group) {
             syncInputWithRange(input, range);
             updateRatesArray("oprocentowanie");
             updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski po zmianie
+
+            // Przywróć pozycję kursora
+            input.setSelectionRange(cursorPosition, cursorPosition);
 
             // Jeśli zmieniono box "Od", upewnij się, że kolejne grupy mają odpowiednie min
             if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
