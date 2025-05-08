@@ -1047,7 +1047,7 @@ body {
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     color: #000000;
     padding: 5px 10px;
-    border-radius: 8px 8px 0 0;
+    border-radius: 8px 0 0 0;
 }
 
 .draggable .close-btn {
