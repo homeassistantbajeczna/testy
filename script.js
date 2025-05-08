@@ -35,6 +35,14 @@ const elements = {
     zoomInBtn: document.getElementById("zoomInBtn"),
     zoomOutBtn: document.getElementById("zoomOutBtn"),
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
+    calcToggleBtn: document.getElementById("calcToggleBtn"),
+    calculatorBox: document.getElementById("calculatorBox"),
+    closeCalcBtn: document.getElementById("closeCalcBtn"),
+    calcNum1: document.getElementById("calcNum1"),
+    calcNum2: document.getElementById("calcNum2"),
+    calcOperation: document.getElementById("calcOperation"),
+    calcBtn: document.getElementById("calcBtn"),
+    calcResult: document.getElementById("calcResult"),
 };
 
 const state = {
@@ -2157,6 +2165,19 @@ function initializeButtons() {
     });
 
     window.showForm = showForm;
+
+    // Obsługa przycisku otwierania/zamykania kalkulatora
+    elements.calcToggleBtn.addEventListener("click", () => {
+        const isVisible = elements.calculatorBox.style.display === "block";
+        elements.calculatorBox.style.display = isVisible ? "none" : "block";
+        elements.calcToggleBtn.setAttribute("aria-label", isVisible ? "Otwórz kalkulator" : "Zamknij kalkulator");
+    });
+
+    // Obsługa przycisku zamykania kalkulatora
+    elements.closeCalcBtn.addEventListener("click", () => {
+        elements.calculatorBox.style.display = "none";
+        elements.calcToggleBtn.setAttribute("aria-label", "Otwórz kalkulator");
+    });
 
     elements.calcBtn.addEventListener("click", () => {
         const num1 = elements.calcNum1.value;
