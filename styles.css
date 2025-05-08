@@ -956,8 +956,8 @@ body {
     background: #000000;
     border-radius: 8px 0 8px 0;
     padding: 15px;
-    width: 160px;
-    height: 180px;
+    width: 120px;
+    height: 200px;
     margin: 5px auto;
 }
 
@@ -1032,9 +1032,9 @@ body {
     cursor: move;
     z-index: 1000;
     user-select: none;
-    width: 200px;
-    max-width: 200px;
-    min-height: 250px;
+    width: 150px;
+    max-width: 150px;
+    min-height: 200px;
     padding: 5px 0 5px 0;
     touch-action: none;
     background: var(--secondary-bg);
