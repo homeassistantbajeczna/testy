@@ -1535,6 +1535,183 @@ function createVariableOprocentowanieGroup(startPeriod = 2) {
     return group;
 }
 
+function initializeVariableOprocentowanieGroup(group) {
+    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
+
+    // Ustaw dynamiczne min dla boxa "Od" na podstawie poprzedniej grupy
+    const allGroups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+    const currentIndex = Array.from(allGroups).indexOf(group);
+    let minPeriod = 2; // Domyślne minimum dla pierwszej grupy
+    if (currentIndex > 0) {
+        const prevGroup = allGroups[currentIndex - 1];
+        const prevPeriodInput = prevGroup.querySelector(".variable-cykl");
+        const prevPeriodValue = parseInt(prevPeriodInput.value) || 2;
+        minPeriod = prevPeriodValue + 1; // Minimum to okres poprzedniej grupy + 1
+    }
+
+    const inputs = group.querySelectorAll(".form-control");
+    const ranges = group.querySelectorAll(".form-range");
+
+    inputs.forEach((input, index) => {
+        const range = ranges[index];
+        if (input.classList.contains("variable-cykl")) {
+            input.min = minPeriod;
+            input.max = iloscRat;
+            range.min = minPeriod;
+            range.max = iloscRat;
+            syncInputWithRange(input, range);
+
+            // Blokuj niecyfrowe znaki przed wprowadzeniem
+            input.addEventListener("beforeinput", (e) => {
+                if (e.data && !/[0-9]/.test(e.data)) {
+                    e.preventDefault(); // Zablokuj wprowadzenie znaku
+                }
+            });
+
+            input.addEventListener("input", (e) => {
+                let value = input.value;
+                const cursorPosition = input.selectionStart;
+
+                // Usuń wszystkie znaki niebędące cyframi (na wypadek wklejenia)
+                const sanitizedValue = value.replace(/[^0-9]/g, "");
+                if (value !== sanitizedValue) {
+                    input.value = sanitizedValue;
+                }
+
+                // Synchronizuj z suwakiem, jeśli wartość jest liczbą
+                if (!isNaN(parseInt(sanitizedValue))) {
+                    range.value = parseInt(sanitizedValue);
+                }
+
+                // Przywróć pozycję kursora z opóźnieniem
+                setTimeout(() => {
+                    input.setSelectionRange(cursorPosition, cursorPosition);
+                }, 0);
+            });
+
+            input.addEventListener("change", () => {
+                let value = parseInt(input.value);
+                const min = parseInt(input.min);
+                const max = parseInt(input.max);
+
+                if (isNaN(value) || value < min) {
+                    value = min;
+                    input.value = value;
+                } else if (value > max) {
+                    value = max;
+                    input.value = value;
+                }
+
+                syncInputWithRange(input, range);
+                updateRatesArray("oprocentowanie");
+                updateVariableOprocentowanieRemoveButtons();
+
+                if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
+                    const nextGroup = allGroups[currentIndex + 1];
+                    const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
+                    const nextPeriodRange = nextGroup.querySelector(".variable-cykl-range");
+                    const newMin = value + 1;
+                    nextPeriodInput.min = newMin;
+                    nextPeriodRange.min = newMin;
+                    if (parseInt(nextPeriodInput.value) < newMin) {
+                        nextPeriodInput.value = newMin;
+                        nextPeriodRange.value = newMin;
+                    }
+                }
+            });
+
+        } else if (input.classList.contains("variable-rate")) {
+            input.min = "0.1";
+            input.max = "25";
+            range.min = "0.1";
+            range.max = "25";
+            syncInputWithRange(input, range);
+
+            // Obsługa inputu dla wartości z dwoma miejscami po przecinku
+            input.addEventListener("input", (e) => {
+                let value = input.value;
+                const cursorPosition = input.selectionStart;
+
+                // Zezwól na kropkę i przecinek, ale ogranicz do dwóch miejsc po przecinku
+                if (value.includes(".") || value.includes(",")) {
+                    const parts = value.replace(",", ".").split(".");
+                    if (parts.length > 1 && parts[1].length > 2) {
+                        parts[1] = parts[1].slice(0, 2); // Ogranicz do 2 miejsc po przecinku
+                        value = parts.join(".");
+                        input.value = value;
+                    }
+                }
+
+                // Synchronizuj z suwakiem
+                if (!isNaN(parseFloat(value))) {
+                    range.value = parseFloat(value).toFixed(2);
+                }
+
+                // Przywróć pozycję kursora
+                setTimeout(() => {
+                    input.setSelectionRange(cursorPosition, cursorPosition);
+                }, 0);
+            });
+
+            input.addEventListener("change", () => {
+                let value = parseFloat(input.value) || 0;
+                const min = parseFloat(input.min);
+                const max = parseFloat(input.max);
+
+                // Walidacja po zakończeniu edycji
+                if (value < min) value = min;
+                else if (value > max) value = max;
+
+                input.value = value.toFixed(2);
+                range.value = value.toFixed(2);
+                updateRatesArray("oprocentowanie");
+                updateVariableOprocentowanieRemoveButtons();
+            });
+        }
+
+        range.addEventListener("input", () => {
+            if (range.classList.contains("variable-cykl-range")) {
+                input.value = parseInt(range.value); // Liczba całkowita dla "Od"
+            } else {
+                input.value = parseFloat(range.value).toFixed(2); // Dwa miejsca po przecinku dla "Oprocentowanie"
+            }
+            updateRatesArray("oprocentowanie");
+            updateVariableOprocentowanieRemoveButtons();
+
+            if (range.classList.contains("variable-cykl-range") && currentIndex < allGroups.length - 1) {
+                const nextGroup = allGroups[currentIndex + 1];
+                const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
+                const nextPeriodRange = nextGroup.querySelector(".variable-cykl-range");
+                const newMin = parseInt(range.value) + 1;
+                nextPeriodInput.min = newMin;
+                nextPeriodRange.min = newMin;
+                if (parseInt(nextPeriodInput.value) < newMin) {
+                    nextPeriodInput.value = newMin;
+                    nextPeriodRange.value = newMin;
+                }
+            }
+        });
+    });
+}
+
+function resetVariableOprocentowanieSection() {
+    elements.variableOprocentowanieWrapper.innerHTML = "";
+    state.variableRates = [];
+    const defaultOprocentowanie = 7;
+    let oprocentowanieValue = parseFloat(elements.oprocentowanie.dataset.lastManualValue) || defaultOprocentowanie;
+    const minValue = parseFloat(elements.oprocentowanie.min) || 0;
+    const maxValue = parseFloat(elements.oprocentowanie.max) || Infinity;
+
+    if (oprocentowanieValue < minValue) oprocentowanieValue = minValue;
+    if (oprocentowanieValue > maxValue) oprocentowanieValue = maxValue;
+
+    elements.oprocentowanie.value = oprocentowanieValue.toFixed(2);
+    elements.oprocentowanieRange.value = oprocentowanieValue;
+    
+    delete elements.oprocentowanie.dataset.lastManualValue;
+    updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są odpowiednio zaktualizowane
+}
+
 function updateVariableOprocentowanieRemoveButtons() {
     const wrapper = elements.variableOprocentowanieWrapper;
     const groups = wrapper.querySelectorAll(".variable-input-group");
@@ -1610,96 +1787,6 @@ function updateVariableOprocentowanieRemoveButtons() {
                 initializeVariableOprocentowanieGroup(newGroup);
                 updateRatesArray("oprocentowanie");
                 updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski i zablokuj boxy w poprzednich wierszach
-            }
-        });
-
-        // Ustaw widoczność przycisku "Dodaj kolejną zmianę" na podstawie okresu
-        const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
-        const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
-        const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
-        addBtn.style.display = lastPeriodValue >= maxPeriod ? "none" : "block";
-    }
-}
-
-function resetVariableOprocentowanieSection() {
-    elements.variableOprocentowanieWrapper.innerHTML = "";
-    state.variableRates = [];
-    const defaultOprocentowanie = 7;
-    let oprocentowanieValue = parseFloat(elements.oprocentowanie.dataset.lastManualValue) || defaultOprocentowanie;
-    const minValue = parseFloat(elements.oprocentowanie.min) || 0;
-    const maxValue = parseFloat(elements.oprocentowanie.max) || Infinity;
-
-    if (oprocentowanieValue < minValue) oprocentowanieValue = minValue;
-    if (oprocentowanieValue > maxValue) oprocentowanieValue = maxValue;
-
-    elements.oprocentowanie.value = oprocentowanieValue.toFixed(2);
-    elements.oprocentowanieRange.value = oprocentowanieValue;
-    
-    delete elements.oprocentowanie.dataset.lastManualValue;
-    updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są odpowiednio zaktualizowane
-}
-
-function updateVariableOprocentowanieRemoveButtons() {
-    const wrapper = elements.variableOprocentowanieWrapper;
-    const groups = wrapper.querySelectorAll(".variable-input-group");
-    let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
-
-    if (existingRemoveBtnWrapper) {
-        existingRemoveBtnWrapper.remove();
-    }
-
-    if (groups.length > 0) {
-        const lastGroup = groups[groups.length - 1];
-        existingRemoveBtnWrapper = document.createElement("div");
-        existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
-        existingRemoveBtnWrapper.style.display = "flex";
-        existingRemoveBtnWrapper.style.flexDirection = "column";
-        existingRemoveBtnWrapper.style.alignItems = "center";
-        existingRemoveBtnWrapper.style.gap = "5px";
-        existingRemoveBtnWrapper.style.marginTop = "10px";
-
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
-        removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
-        removeBtn.textContent = "Usuń";
-        existingRemoveBtnWrapper.appendChild(removeBtn);
-
-        const addBtn = document.createElement("button");
-        addBtn.type = "button";
-        addBtn.id = "addVariableOprocentowanieBtn";
-        addBtn.classList.add("btn", "btn-functional");
-        addBtn.setAttribute("aria-label", "Dodaj kolejne zmienne oprocentowanie");
-        addBtn.textContent = "Dodaj kolejną zmianę";
-        existingRemoveBtnWrapper.appendChild(addBtn);
-
-        lastGroup.appendChild(existingRemoveBtnWrapper);
-
-        removeBtn.addEventListener("click", () => {
-            lastGroup.remove();
-            updateRatesArray("oprocentowanie");
-            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
-                elements.zmienneOprocentowanieBtn.checked = false;
-                elements.variableOprocentowanieInputs.classList.remove("active");
-                resetVariableOprocentowanieSection();
-            }
-            updateVariableOprocentowanieRemoveButtons();
-        });
-
-        addBtn.addEventListener("click", () => {
-            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-            const lastGroup = groups[groups.length - 1];
-            const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
-            const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
-            const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
-            const newStartPeriod = lastPeriodValue + 1;
-
-            if (newStartPeriod <= maxPeriod) {
-                const newGroup = createVariableOprocentowanieGroup(newStartPeriod);
-                elements.variableOprocentowanieWrapper.appendChild(newGroup);
-                initializeVariableOprocentowanieGroup(newGroup);
-                updateRatesArray("oprocentowanie");
-                updateVariableOprocentowanieRemoveButtons();
             }
         });
 
