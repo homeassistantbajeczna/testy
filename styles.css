@@ -65,7 +65,7 @@ body {
     margin: 30px auto 0;
     max-width: 1200px;
     background: var(--secondary-bg);
-    border-radius: 10px;
+    border-radius: 8px 0 8px 0;
     box-shadow: 0 4px 6px var(--shadow-color);
 }
 
@@ -124,6 +124,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: 8px 0 8px 0;
 }
 
 .logo,
