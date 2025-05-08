@@ -1573,14 +1573,14 @@ function initializeVariableOprocentowanieGroup(group) {
                 const cursorPosition = input.selectionStart;
 
                 // Usuń wszystkie znaki niebędące cyframi (na wypadek wklejenia)
-                const sanitizedValue = value.replace(/[^0-9.,-]/g, "");
+                const sanitizedValue = value.replace(/[^0-9]/g, "");
                 if (value !== sanitizedValue) {
                     input.value = sanitizedValue;
                 }
 
                 // Synchronizuj z suwakiem, jeśli wartość jest liczbą
-                if (!isNaN(parseFloat(sanitizedValue))) {
-                    range.value = parseFloat(sanitizedValue);
+                if (!isNaN(parseInt(sanitizedValue))) {
+                    range.value = parseInt(sanitizedValue);
                 }
 
                 // Przywróć pozycję kursora z opóźnieniem
@@ -1637,13 +1637,14 @@ function initializeVariableOprocentowanieGroup(group) {
                     const parts = value.replace(",", ".").split(".");
                     if (parts.length > 1 && parts[1].length > 2) {
                         parts[1] = parts[1].slice(0, 2); // Ogranicz do 2 miejsc po przecinku
-                        input.value = parts.join(".");
+                        value = parts.join(".");
+                        input.value = value;
                     }
                 }
 
                 // Synchronizuj z suwakiem
-                if (!isNaN(parseFloat(input.value))) {
-                    range.value = parseFloat(input.value).toFixed(2);
+                if (!isNaN(parseFloat(value))) {
+                    range.value = parseFloat(value).toFixed(2);
                 }
 
                 // Przywróć pozycję kursora
@@ -1663,7 +1664,6 @@ function initializeVariableOprocentowanieGroup(group) {
 
                 input.value = value.toFixed(2);
                 range.value = value.toFixed(2);
-                syncInputWithRange(input, range);
                 updateRatesArray("oprocentowanie");
                 updateVariableOprocentowanieRemoveButtons();
             });
