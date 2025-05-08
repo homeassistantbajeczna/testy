@@ -956,7 +956,8 @@ body {
     background: #000000;
     border-radius: 8px 0 8px 0;
     padding: 15px;
-    width: 180px;
+    width: 160px;
+    height: 180px;
     margin: 5px auto;
 }
 
@@ -986,8 +987,8 @@ body {
     border: none;
     border-radius: 50%;
     border-radius: 8px 0 8px 0;
-    width: 25px;
-    height: 25px;
+    width: 30px;
+    height: 30px;
     font-size: 0.9em;
     display: flex;
     align-items: center;
@@ -1033,7 +1034,7 @@ body {
     user-select: none;
     width: 200px;
     max-width: 200px;
-    min-height: 300px;
+    min-height: 250px;
     padding: 5px 0 5px 0;
     touch-action: none;
     background: var(--secondary-bg);
