@@ -116,7 +116,7 @@ body {
 
 /* L O G O   I   N A G Ł Ó W E K */
 .logo-container {
-    background-color: #A6A5A7;
+    background-color: #FFFFFF;
     padding: 15px;
     text-align: center;
     margin-bottom: 20px;
@@ -1240,6 +1240,7 @@ body {
     --select-opacity-locked: 0.7;
     --locked-text-color: #999999;
     --unit-text-color: #cccccc;
+    --range-border-dark: #b0b0b0; /* Ciemniejszy odcień dla krawędzi w trybie ciemnym */
 }
 
 .dark-mode body {
@@ -1304,11 +1305,8 @@ body {
     border: none;
 }
 
-.dark-mode .range-slider::before {
-    background: var(--range-border-dark);
-}
-
-.dark-mode .range-slider::before {
+.dark-mode .range-slider::before,
+.dark-mode .range-slider::after {
     background: var(--range-border-dark);
 }
 
