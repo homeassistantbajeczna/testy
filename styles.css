@@ -575,6 +575,49 @@ body {
     opacity: var(--select-opacity) !important;
 }
 
+/* Styl dla zablokowanych inputów i selectów w głównym formularzu */
+.form-group.locked .form-control,
+.form-group.locked .form-select,
+.form-group.locked .input-group-text {
+    background-color: var(--select-bg-locked) !important;
+    color: var(--locked-text-color) !important;
+    opacity: var(--select-opacity-locked) !important;
+    cursor: not-allowed;
+}
+
+/* Styl dla zablokowanych suwaków w głównym formularzu */
+.form-group.locked .range-slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.form-group.locked .range-slider:disabled::-webkit-slider-runnable-track {
+    background: var(--range-bg);
+}
+
+.form-group.locked .range-slider:disabled::-moz-range-track {
+    background: var(--range-bg);
+}
+
+.form-group.locked .range-slider:disabled::-ms-track {
+    background: var(--range-bg);
+}
+
+.form-group.locked .range-slider:disabled::-webkit-slider-thumb {
+    opacity: 0.5;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+}
+
+.form-group.locked .range-slider:disabled::-moz-range-thumb {
+    opacity: 0.5;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+}
+
+.form-group.locked .range-slider:disabled::-ms-thumb {
+    opacity: 0.5;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+}
+
 /* Style dla :focus */
 .box-select .form-select:focus,
 .box-amount .form-control:focus,
@@ -1233,7 +1276,24 @@ body {
     box-shadow: 0 4px 6px var(--shadow-color);
 }
 
+.dark-mode .form-group.locked .form-control,
+.dark-mode .form-group.locked .form-select,
+.dark-mode .form-group.locked .input-group-text {
+    background-color: var(--select-bg-locked) !important; /* #333333 */
+    color: var(--locked-text-color) !important; /* #999999 */
+}
 
+.dark-mode .form-group.locked .range-slider:disabled::-webkit-slider-runnable-track {
+    background: var(--range-bg); /* #666666 */
+}
+
+.dark-mode .form-group.locked .range-slider:disabled::-moz-range-track {
+    background: var(--range-bg); /* #666666 */
+}
+
+.dark-mode .form-group.locked .range-slider:disabled::-ms-track {
+    background: var(--range-bg); /* #666666 */
+}
 
 /* R E S P O N S Y W N O Ś Ć */
 @media (max-width: 575px) {
