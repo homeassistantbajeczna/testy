@@ -2121,27 +2121,18 @@ function updateResults(data) {
     elements.okresPoNadplacie.textContent = data.pozostaleRaty + " miesięcy (" + (data.pozostaleRaty / 12).toFixed(1) + " lat)";
     elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
 
-    // Generowanie tabelki harmonogramu
-    elements.harmonogramTabela.innerHTML = `
+    // Generowanie tylko zawartości <tbody>
+    elements.harmonogramTabela.innerHTML = data.harmonogram.map(row => `
         <tr>
-            <th>Miesiąc</th>
-            <th>Rata całkowita</th>
-            <th>Rata kapitałowa</th>
-            <th>Odsetki</th>
-            <th>Nadpłata</th>
-            <th>Pozostały kapitał</th>
+            <td>${row.miesiac}</td>
+            <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.oprocentowanie.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} %</td>
+            <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
+            <td>${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
         </tr>
-        ${data.harmonogram.map(row => `
-            <tr>
-                <td>${row.miesiac}</td>
-                <td>${row.rata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                <td>${row.kapital.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                <td>${row.odsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                <td>${row.nadplata.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-                <td>${row.kapitalDoSplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł</td>
-            </tr>
-        `).join('')}
-    `;
+    `).join('');
 
     // Aktualizacja wykresu po wygenerowaniu wyników
     updateChart(data);
