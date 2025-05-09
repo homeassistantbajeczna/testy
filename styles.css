@@ -610,12 +610,18 @@ body {
 
 /* Styl dla zablokowanych inputów i selectów w głównym formularzu (w tym RODZAJ RAT) */
 .form-group.locked .form-control,
-.form-group.locked .form-select {
+.form-group.locked .form-select,
+.form-group.locked .input-group .form-select,
+.form-group.locked .input-group .jednostka-select {
     background-color: var(--select-bg-locked) !important;
     color: var(--locked-text-color) !important;
     opacity: var(--select-opacity-locked) !important;
     cursor: not-allowed;
-    border-color: var(--border-color) !important; /* Utrzymanie spójności obramowania */
+    border-color: var(--border-color) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: none !important;
 }
 
 .form-group.locked .form-select {
@@ -1324,14 +1330,16 @@ body {
 }
 
 .dark-mode .form-group.locked .form-control,
-.dark-mode .form-group.locked .form-select {
-    background-color: var(--select-bg-locked) !important; /* #333333 */
-    color: var(--locked-text-color) !important; /* #999999 */
+.dark-mode .form-group.locked .form-select,
+.dark-mode .form-group.locked .input-group .form-select,
+.dark-mode .form-group.locked .input-group .jednostka-select {
+    background-color: var(--select-bg-locked) !important;
+    color: var(--locked-text-color) !important;
 }
 
 .dark-mode .form-group.locked .input-group-text {
-    background-color: var(--select-bg-locked) !important; /* #333333 */
-    color: var(--locked-text-color) !important; /* #999999 */
+    background-color: var(--select-bg-locked) !important;
+    color: var(--locked-text-color) !important;
 }
 
 .dark-mode .form-group.locked .range-slider:disabled::-webkit-slider-runnable-track {
