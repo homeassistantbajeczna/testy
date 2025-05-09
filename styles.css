@@ -115,9 +115,8 @@ body {
 }
 
 /* L O G O   I   N A G Ł Ó W E K */
-/* L O G O   I   N A G Ł Ó W E K */
 .logo-container {
-    background-color: #BBBBD2;
+    background-color: #A6A5A7;
     padding: 15px;
     text-align: center;
     margin-bottom: 20px;
@@ -749,6 +748,7 @@ body {
     border: none;
     box-shadow: none;
     position: relative;
+    z-index: 1; /* Tor suwaka na wyższym poziomie */
 }
 
 /* Stylizacja toru suwaka dla Firefox */
@@ -758,6 +758,7 @@ body {
     background: var(--range-bg);
     border: none;
     position: relative;
+    z-index: 1; /* Tor suwaka na wyższym poziomie */
 }
 
 /* Stylizacja toru suwaka dla Edge */
@@ -768,40 +769,43 @@ body {
     border: none;
     color: transparent;
     position: relative;
+    z-index: 1; /* Tor suwaka na wyższym poziomie */
 }
 
 /* Dodanie krawędzi w kształcie półksiężyca na lewym końcu toru suwaka */
 .range-slider::before {
     content: '';
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     background: var(--range-border-light);
     top: 50%;
     left: 0;
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    border-top-right-radius: 1px;
-    border-bottom-right-radius: 1px;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
     transform: translateX(-50%) translateY(-50%);
-    pointer-events: none; /* Zapobiega interakcji z krawędzią */
+    z-index: 0; /* Krawędź pod torem */
+    pointer-events: none; /* Zapobiega interakcji */
 }
 
 /* Dodanie krawędzi w kształcie półksiężyca na prawym końcu toru suwaka */
 .range-slider::after {
     content: '';
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     background: var(--range-border-light);
     top: 50%;
     right: 0;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-top-left-radius: 1px;
-    border-bottom-left-radius: 1px;
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
     transform: translateX(50%) translateY(-50%);
-    pointer-events: none; /* Zapobiega interakcji z krawędzią */
+    z-index: 0; /* Krawędź pod torem */
+    pointer-events: none; /* Zapobiega interakcji */
 }
 
 /* Stylizacja klikacza (thumb) */
@@ -817,7 +821,7 @@ body {
     transition: transform 0.1s ease, box-shadow 0.1s ease;
     transform: translateY(2px);
     will-change: transform;
-    z-index: 1; /* Upewnia się, że klikacz jest ponad krawędzią */
+    z-index: 2; /* Klikacz ponad torem i krawędziami */
 }
 
 .range-slider::-moz-range-thumb {
@@ -831,7 +835,7 @@ body {
     transition: transform 0.1s ease, box-shadow 0.1s ease;
     transform: translateY(-1px);
     will-change: transform;
-    z-index: 1; /* Upewnia się, że klikacz jest ponad krawędzią */
+    z-index: 2; /* Klikacz ponad torem i krawędziami */
 }
 
 .range-slider::-ms-thumb {
@@ -845,7 +849,7 @@ body {
     transition: transform 0.1s ease, box-shadow 0.1s ease;
     transform: translateY(-1px);
     will-change: transform;
-    z-index: 1; /* Upewnia się, że klikacz jest ponad krawędzią */
+    z-index: 2; /* Klikacz ponad torem i krawędziami */
 }
 
 /* Usunięcie progress (część toru przed klikaczem) */
