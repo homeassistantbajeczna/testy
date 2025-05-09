@@ -690,31 +690,40 @@ function updateOverpaymentLimit(input, range, group) {
     let periodStart = parseInt(periodStartInput?.value) || 1;
     let periodEnd = type === "Miesięczna" && periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
 
+    // Oblicz pozostały kapitał przed nadpłatą w danym okresie
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
     let maxAllowed = Math.max(100, remainingCapital);
+
+    // Oblicz maksymalny okres, w którym kapitał zostanie spłacony
+    let maxPeriod = totalMonths;
+    let currentOverpaymentAmount = parseInt(rateInput?.value) || 100;
 
     if (type === "Miesięczna" && periodEndInput) {
         const numberOfOverpayments = periodEnd - periodStart + 1;
         if (numberOfOverpayments > 0) {
             maxAllowed = remainingCapital / numberOfOverpayments;
         }
-        maxAllowed = Math.max(100, maxAllowed);
-        rateInput.max = Math.floor(maxAllowed);
-        rateRange.max = Math.floor(maxAllowed);
+        maxAllowed = Math.max(100, Math.floor(maxAllowed));
+        rateInput.max = maxAllowed;
+        rateRange.max = maxAllowed;
 
         let rateValue = parseInt(rateInput.value) || 100;
         if (rateValue > maxAllowed) {
-            rateValue = Math.floor(maxAllowed);
+            rateValue = maxAllowed;
             rateInput.value = rateValue;
             rateRange.value = rateValue;
         }
 
-        let maxPeriod = totalMonths;
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, [...previousOverpayments, { type, start: periodStart, end: periodEnd, amount: rateValue, effect }], totalMonths);
-        if (remainingCapital <= 0) {
-            maxPeriod = periodEnd;
-        } else {
-            maxPeriod = Math.min(maxPeriod, periodStart + Math.floor((loanAmount - calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1)) / rateValue));
+        // Oblicz maksymalny okres "DO" na podstawie pozostałego kapitału
+        let tempCapital = remainingCapital;
+        let month = periodStart;
+        while (tempCapital > 0 && month <= totalMonths) {
+            tempCapital -= rateValue;
+            if (tempCapital <= 0) {
+                maxPeriod = month;
+                break;
+            }
+            month++;
         }
 
         let minPeriodStart = 1;
@@ -744,6 +753,10 @@ function updateOverpaymentLimit(input, range, group) {
             periodEnd = periodStart;
             periodEndInput.value = periodEnd;
             periodEndRange.value = periodEnd;
+        } else if (periodEnd > maxPeriod) {
+            periodEnd = maxPeriod;
+            periodEndInput.value = periodEnd;
+            periodEndRange.value = periodEnd;
         }
     } else {
         rateInput.max = Math.floor(maxAllowed);
@@ -756,12 +769,10 @@ function updateOverpaymentLimit(input, range, group) {
             rateRange.value = rateValue;
         }
 
-        let maxPeriod = totalMonths;
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, [...previousOverpayments, { type, start: periodStart, end: periodStart, amount: rateValue, effect }], totalMonths);
-        if (remainingCapital <= 0) {
+        // Dla nadpłaty jednorazowej, maksymalny okres to okres startowy, jeśli kapitał zostanie spłacony
+        let tempCapital = remainingCapital;
+        if (tempCapital <= rateValue) {
             maxPeriod = periodStart;
-        } else {
-            maxPeriod = Math.min(maxPeriod, periodStart + Math.floor((loanAmount - calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1)) / rateValue));
         }
 
         let minPeriodStart = 1;
@@ -1012,11 +1023,11 @@ function initializeNadplataKredytuGroup(group) {
                     endRange.value = periodEndValue;
                     syncInputWithRange(endInput, endRange);
 
-                    periodDifference = periodEndValue - minValue; // Aktualizacja różnicy
+                    periodDifference = periodEndValue - minValue;
                 }
             } else {
                 minValue = parseInt(periodStartInput?.value) || minPeriodStart;
-                defaultValue = minValue; // Domyślnie DO = OD
+                defaultValue = minValue;
                 if (defaultValue > maxValue) defaultValue = maxValue;
                 if (minValue > maxValue) minValue = maxValue;
                 const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type);
@@ -1025,6 +1036,13 @@ function initializeNadplataKredytuGroup(group) {
                 const newRanges = endBox.querySelectorAll(".form-range");
                 initializeInputsAndRanges(newInputs, newRanges, group);
             }
+        }
+
+        // Aktualizuj limity po zmianie typu nadpłaty
+        const rateInput = group.querySelector(".variable-rate");
+        const rateRange = group.querySelector(".variable-rate-range");
+        if (rateInput && rateRange) {
+            updateOverpaymentLimit(rateInput, rateRange, group);
         }
 
         state.isUpdating = false;
@@ -1038,7 +1056,7 @@ function initializeNadplataKredytuGroup(group) {
                 const periodEndRange = range;
                 const { lastMonthWithCapital } = updateAllOverpaymentLimits();
                 let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, iloscRat) : iloscRat;
-    
+
                 let minValue = parseInt(periodStartInput?.value) || 1;
                 input.min = minValue;
                 input.max = maxPeriodLimit;
@@ -1047,9 +1065,8 @@ function initializeNadplataKredytuGroup(group) {
                     periodEndRange.max = maxPeriodLimit;
                     periodEndRange.step = 1;
                 }
-    
+
                 const debouncedUpdate = debounce(() => {
-                    // Aktualizacja tylko, jeśli pole nie jest w trakcie edycji
                     if (!state.isEditing.get(input)) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
@@ -1060,88 +1077,79 @@ function initializeNadplataKredytuGroup(group) {
                         }
                     }
                 }, 50);
-    
-                // Zapobiegamy wprowadzaniu innych znaków niż cyfry
+
                 input.addEventListener("keypress", (e) => {
                     if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
                         e.preventDefault();
                     }
                 });
-    
-                // Ustawiamy flagę edycji na true, gdy użytkownik zaczyna edytować pole
+
                 input.addEventListener("focus", () => {
                     state.isEditing.set(input, true);
                 });
-    
-                // Obsługa wprowadzania wartości (tylko liczby całkowite)
+
                 input.addEventListener("input", () => {
                     let value = input.value;
-                    // Usuwamy wszystko poza cyframi, zachowując pozycję kursora
                     value = value.replace(/[^0-9]/g, "");
                     if (value !== input.value) {
                         const cursorPosition = input.selectionStart;
                         input.value = value;
                         input.setSelectionRange(cursorPosition, cursorPosition);
                     }
-                    // Nie wywołujemy debouncedUpdate w trakcie edycji
                 });
-    
-                // Walidacja i synchronizacja po zakończeniu wpisywania
+
                 input.addEventListener("change", () => {
                     let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || maxPeriodLimit;
-    
+
                     if (isNaN(value) || input.value === "") {
                         value = minValue;
                     } else {
                         if (value < minValue) value = minValue;
                         if (value > maxValue) value = maxValue;
                     }
-    
+
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
                     syncInputWithRange(input, periodEndRange);
-    
+
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
-    
-                    // Po zakończeniu edycji zdejmujemy flagę i aktualizujemy
+                    periodDifference = value - periodStartValue;
+
                     state.isEditing.set(input, false);
                     debouncedUpdate();
                 });
-    
-                // Obsługa opuszczenia pola
+
                 input.addEventListener("blur", () => {
                     let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || maxPeriodLimit;
-    
+
                     if (isNaN(value) || input.value === "") {
                         value = minValue;
                     } else {
                         if (value < minValue) value = minValue;
                         if (value > maxValue) value = maxValue;
                     }
-    
+
                     input.value = value;
                     if (periodEndRange) periodEndRange.value = value;
                     syncInputWithRange(input, periodEndRange);
-    
+
                     const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                    periodDifference = value - periodStartValue; // Aktualizacja różnicy
-    
-                    // Po opuszczeniu pola zdejmujemy flagę i aktualizujemy
+                    periodDifference = value - periodStartValue;
+
                     state.isEditing.set(input, false);
                     debouncedUpdate();
                 });
-    
+
                 if (periodEndRange) {
                     periodEndRange.addEventListener("input", () => {
                         let value = parseInt(periodEndRange.value);
                         let minValue = parseInt(periodEndRange.min) || 1;
                         let maxValue = parseInt(periodEndRange.max) || maxPeriodLimit;
-    
+
                         if (value < minValue) {
                             value = minValue;
                             periodEndRange.value = value;
@@ -1150,14 +1158,13 @@ function initializeNadplataKredytuGroup(group) {
                             value = maxValue;
                             periodEndRange.value = value;
                         }
-    
+
                         input.value = value;
                         syncInputWithRange(input, periodEndRange);
-    
+
                         const periodStartValue = parseInt(periodStartInput?.value) || 1;
-                        periodDifference = value - periodStartValue; // Aktualizacja różnicy
-    
-                        // Suwak nie jest polem tekstowym, więc od razu zdejmujemy flagę i aktualizujemy
+                        periodDifference = value - periodStartValue;
+
                         state.isEditing.set(input, false);
                         debouncedUpdate();
                     });
@@ -1165,7 +1172,7 @@ function initializeNadplataKredytuGroup(group) {
             }
         });
     };
-    
+
     inputs.forEach((input, index) => {
         const range = ranges[index];
         if (input.classList.contains("variable-cykl-start")) {
@@ -1254,18 +1261,15 @@ function initializeNadplataKredytuGroup(group) {
                 updateRatesArray("nadplata");
                 updateNadplataKredytuRemoveButtons();
             }, 50);
-        
-            // Zapobiegamy wprowadzaniu innych znaków niż cyfry
+
             input.addEventListener("keypress", (e) => {
                 if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
                     e.preventDefault();
                 }
             });
-        
-            // Obsługa wprowadzania wartości (tylko liczby całkowite)
+
             input.addEventListener("input", (e) => {
                 let value = e.target.value;
-                // Usuwamy wszystko poza cyframi, zachowując pozycję kursora
                 value = value.replace(/[^0-9]/g, "");
                 if (value !== e.target.value) {
                     const cursorPosition = e.target.selectionStart;
@@ -1274,54 +1278,51 @@ function initializeNadplataKredytuGroup(group) {
                 }
                 debouncedUpdate();
             });
-        
-            // Walidacja i synchronizacja po zakończeniu wpisywania
+
             input.addEventListener("change", () => {
                 let value = parseInt(input.value) || 0;
                 let minValue = parseInt(input.min) || 100;
                 let maxValue = parseInt(input.max) || 5000000;
-        
+
                 if (isNaN(value) || input.value === "") {
                     value = minValue;
                 } else {
                     if (value < minValue) value = minValue;
                     if (value > maxValue) value = maxValue;
                 }
-        
+
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
-        
-            // Obsługa opuszczenia pola
+
             input.addEventListener("blur", () => {
                 let value = parseInt(input.value) || 0;
                 let minValue = parseInt(input.min) || 100;
                 let maxValue = parseInt(input.max) || 5000000;
-        
+
                 if (isNaN(value) || input.value === "") {
                     value = minValue;
                 } else {
                     if (value < minValue) value = minValue;
                     if (value > maxValue) value = maxValue;
                 }
-        
+
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
                 debouncedUpdate();
             });
-        
-            // Obsługa suwaka (tylko wartości całkowite)
+
             range.addEventListener("input", () => {
                 let value = parseInt(range.value);
                 const minAllowed = parseInt(range.min) || 100;
                 const maxAllowed = parseInt(range.max) || 5000000;
-        
+
                 if (value < minAllowed) value = minAllowed;
                 if (value > maxAllowed) value = maxAllowed;
-        
+
                 input.value = value;
                 range.value = value;
                 syncInputWithRange(input, range);
