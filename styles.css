@@ -23,7 +23,7 @@
     --range-border-dark: #ffffff;
     --select-bg: #ffffff;
     --select-opacity: 1;
-    --select-bg-locked: #e9ecef; /* Jaśniejszy szary dla trybu jasnego */
+    --select-bg-locked: #f5f5f5; /* Poprzedni jaśniejszy szary dla trybu jasnego */
     --select-opacity-locked: 0.7;
     --locked-text-color: #666666;
     --unit-text-color: #555555;
@@ -555,7 +555,7 @@ body {
 .variable-input-group.locked .form-control,
 .variable-input-group.locked .form-select.jednostka-select,
 .variable-input-group.locked .input-group-text {
-    background-color: var(--select-bg-locked) !important; /* #e9ecef w trybie jasnym */
+    background-color: var(--select-bg-locked) !important; /* #f5f5f5 w trybie jasnym */
     color: var(--locked-text-color) !important;
     opacity: var(--select-opacity-locked) !important;
     cursor: not-allowed;
@@ -608,7 +608,7 @@ body {
     opacity: var(--select-opacity) !important;
 }
 
-/* Styl dla zablokowanych inputów i selectów w głównym formularzu */
+/* Styl dla zablokowanych inputów i selectów w głównym formularzu (w tym RODZAJ RAT) */
 .form-group.locked .form-control,
 .form-group.locked .form-select,
 .form-group.locked .input-group-text {
