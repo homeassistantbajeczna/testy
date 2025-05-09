@@ -2138,6 +2138,19 @@ function updateResults(data) {
     updateChart(data);
 }
 
+function toggleHarmonogram(contentId) {
+    const content = document.getElementById(contentId);
+    const toggleButton = document.querySelector('.btn-toggle');
+    if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        toggleButton.textContent = 'Harmonogram spłat ▲'; // Zmiana na strzałkę w górę
+    } else {
+        content.style.display = 'none';
+        toggleButton.textContent = 'Harmonogram spłat ▼'; // Zmiana na strzałkę w dół
+    }
+}
+
+
 
 
 
