@@ -115,8 +115,9 @@ body {
 }
 
 /* L O G O   I   N A G Ł Ó W E K */
+/* L O G O   I   N A G Ł Ó W E K */
 .logo-container {
-    background-color: var(--logo-bg);
+    background-color: #BBBBD2;
     padding: 15px;
     text-align: center;
     margin-bottom: 20px;
@@ -124,10 +125,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 90%;
+    width: 100%;
+    max-width: 1200px; /* Dopasowane do max-width .container */
     margin-left: auto;
     margin-right: auto;
     border-radius: 12px 0 12px 0;
+    box-sizing: border-box; /* Dodano, aby padding nie zwiększał szerokości */
 }
 
 .logo,
@@ -620,6 +623,7 @@ body {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
+    background-image: none !important;
 }
 
 .form-group.locked .form-select:disabled,
