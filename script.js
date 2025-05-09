@@ -519,6 +519,22 @@ function initializeInputHandling() {
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
+const elements = {
+    nadplataKredytuBtn: document.querySelector("#nadplataKredytuBtn"),
+    nadplataKredytuInputs: document.querySelector("#nadplataKredytuInputs"),
+    nadplataKredytuWrapper: document.querySelector("#nadplataKredytuWrapper"),
+    kwota: document.querySelector("#kwota"),
+    oprocentowanie: document.querySelector("#oprocentowanie"),
+    iloscRat: document.querySelector("#iloscRat"),
+    rodzajRat: document.querySelector("#rodzajRat"),
+};
+
+const state = {
+    isUpdating: false,
+    isEditing: new Map(),
+    overpaymentRates: [],
+};
+
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
@@ -742,9 +758,11 @@ function updateOverpaymentLimit(input, range, group) {
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
         periodStartInput.max = maxPeriodStart;
-        // Zresetuj suwak "OD"
-        resetRange(periodStartRange, minPeriodStart, maxPeriodStart, parseInt(periodStartRange.value) || minPeriodStart);
-        periodStartInput.value = periodStartRange.value;
+        periodStartRange.max = maxPeriodStart;
+        let currentStartValue = parseInt(periodStartRange.value) || minPeriodStart;
+        if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
+        periodStartRange.value = currentStartValue;
+        periodStartInput.value = currentStartValue;
         syncInputWithRange(periodStartInput, periodStartRange);
 
         // Oblicz maksymalny okres "DO"
@@ -773,9 +791,11 @@ function updateOverpaymentLimit(input, range, group) {
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
         periodEndInput.max = Math.max(periodStart, maxPeriodEnd);
-        // Zresetuj suwak "DO"
-        resetRange(periodEndRange, periodStart, Math.max(periodStart, maxPeriodEnd), parseInt(periodEndRange.value) || periodStart);
-        periodEndInput.value = periodEndRange.value;
+        periodEndRange.max = Math.max(periodStart, maxPeriodEnd);
+        let currentEndValue = parseInt(periodEndRange.value) || periodStart;
+        if (currentEndValue > Math.max(periodStart, maxPeriodEnd)) currentEndValue = Math.max(periodStart, maxPeriodEnd);
+        periodEndRange.value = currentEndValue;
+        periodEndInput.value = currentEndValue;
         syncInputWithRange(periodEndInput, periodEndRange);
     } else {
         // Dla nadpłaty jednorazowej
@@ -811,28 +831,16 @@ function updateOverpaymentLimit(input, range, group) {
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
         periodStartInput.max = maxPeriod;
-        // Zresetuj suwak "W"
-        resetRange(periodStartRange, minPeriodStart, maxPeriod, parseInt(periodStartRange.value) || minPeriodStart);
-        periodStartInput.value = periodStartRange.value;
+        periodStartRange.max = maxPeriod;
+        let currentStartValue = parseInt(periodStartRange.value) || minPeriodStart;
+        if (currentStartValue > maxPeriod) currentStartValue = maxPeriod;
+        periodStartRange.value = currentStartValue;
+        periodStartInput.value = currentStartValue;
         syncInputWithRange(periodStartInput, periodStartRange);
     }
 
     updateRatesArray("nadplata");
     return remainingCapital;
-}
-
-// Pomocnicza funkcja do resetowania suwaka
-function resetRange(range, min, max, value) {
-    const parent = range.parentElement;
-    const newRange = document.createElement("input");
-    newRange.type = "range";
-    newRange.className = range.className;
-    newRange.min = min;
-    newRange.max = max;
-    newRange.step = range.step || 1;
-    newRange.value = Math.max(min, Math.min(max, value));
-    parent.replaceChild(newRange, range);
-    return newRange;
 }
 
 function updateAllOverpaymentLimits() {
@@ -888,7 +896,7 @@ function updateAllOverpaymentLimits() {
         const rateInput = g.querySelector(".variable-rate");
         const rateRange = g.querySelector(".variable-rate-range");
         if (rateInput && rateRange) {
-            updateOverpaymentLimit(rateInput, rateRange, g); // Użyj updateOverpaymentLimit dla spójności
+            updateOverpaymentLimit(rateInput, rateRange, g);
         }
     });
 
@@ -1141,6 +1149,98 @@ function initializeNadplataKredytuGroup(group) {
 
                     debouncedUpdate();
                 });
+            } else if (input.classList.contains("variable-cykl-start")) {
+                const periodStartRange = range;
+                const updateLimits = () => {
+                    const rateInput = group.querySelector(".variable-rate");
+                    const rateRange = group.querySelector(".variable-rate-range");
+                    if (rateInput && rateRange) {
+                        updateOverpaymentLimit(rateInput, rateRange, group);
+                    }
+                };
+
+                const debouncedUpdate = debounce(() => {
+                    if (!state.isEditing.get(input)) {
+                        updateLimits();
+                        updateRatesArray("nadplata");
+                        updateNadplataKredytuRemoveButtons();
+                    }
+                }, 50);
+
+                input.addEventListener("keypress", (e) => {
+                    if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+                        e.preventDefault();
+                    }
+                });
+
+                input.addEventListener("focus", () => {
+                    state.isEditing.set(input, true);
+                });
+
+                input.addEventListener("input", () => {
+                    let value = input.value;
+                    value = value.replace(/[^0-9]/g, "");
+                    if (value !== input.value) {
+                        const cursorPosition = input.selectionStart;
+                        input.value = value;
+                        input.setSelectionRange(cursorPosition, cursorPosition);
+                    }
+                });
+
+                input.addEventListener("change", () => {
+                    let value = parseInt(input.value) || 0;
+                    let minValue = parseInt(input.min) || 1;
+                    let maxValue = parseInt(input.max) || iloscRat;
+
+                    if (isNaN(value) || input.value === "") {
+                        value = minValue;
+                    } else {
+                        if (value < minValue) value = minValue;
+                        if (value > maxValue) value = maxValue;
+                    }
+
+                    input.value = value;
+                    periodStartRange.value = value;
+                    syncInputWithRange(input, periodStartRange);
+
+                    state.isEditing.set(input, false);
+                    debouncedUpdate();
+                });
+
+                input.addEventListener("blur", () => {
+                    let value = parseInt(input.value) || 0;
+                    let minValue = parseInt(input.min) || 1;
+                    let maxValue = parseInt(input.max) || iloscRat;
+
+                    if (isNaN(value) || input.value === "") {
+                        value = minValue;
+                    } else {
+                        if (value < minValue) value = minValue;
+                        if (value > maxValue) value = maxValue;
+                    }
+
+                    input.value = value;
+                    periodStartRange.value = value;
+                    syncInputWithRange(input, periodStartRange);
+
+                    state.isEditing.set(input, false);
+                    debouncedUpdate();
+                });
+
+                periodStartRange.addEventListener("input", () => {
+                    let value = parseInt(periodStartRange.value);
+                    let minValue = parseInt(periodStartRange.min) || 1;
+                    let maxValue = parseInt(periodStartRange.max) || iloscRat;
+
+                    if (value < minValue) value = minValue;
+                    if (value > maxValue) value = maxValue;
+
+                    periodStartRange.value = value;
+                    input.value = value;
+                    syncInputWithRange(input, periodStartRange);
+
+                    debouncedUpdate();
+                });
             }
         });
     };
@@ -1177,7 +1277,7 @@ function initializeNadplataKredytuGroup(group) {
 
             const debouncedUpdate = debounce(() => {
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, range, group); // Użyj range zamiast rateRange dla spójności
+                    updateOverpaymentLimit(rateInput, range, group);
                     updateRatesArray("nadplata");
                     updateNadplataKredytuRemoveButtons();
                 }
@@ -1271,24 +1371,7 @@ function initializeNadplataKredytuGroup(group) {
             });
         } else if (input.classList.contains("variable-rate")) {
             const debouncedUpdate = debounce(() => {
-                const newRange = updateOverpaymentLimit(input, range, group);
-                // Zaktualizuj zakresy suwaków "OD" i "W" po zmianie kwoty
-                const periodStartInput = group.querySelector(".variable-cykl-start");
-                const periodStartRange = group.querySelector(".variable-cykl-start-range");
-                const periodEndInput = group.querySelector(".variable-cykl-end");
-                const periodEndRange = group.querySelector(".variable-cykl-end-range");
-                if (periodStartRange && periodStartInput) {
-                    let maxStart = parseInt(periodStartInput.max);
-                    resetRange(periodStartRange, parseInt(periodStartRange.min), maxStart, parseInt(periodStartRange.value) || parseInt(periodStartRange.min));
-                    periodStartInput.value = periodStartRange.value;
-                    syncInputWithRange(periodStartInput, periodStartRange);
-                }
-                if (periodEndRange && periodEndInput) {
-                    let maxEnd = parseInt(periodEndInput.max);
-                    resetRange(periodEndRange, parseInt(periodEndRange.min), maxEnd, parseInt(periodEndRange.value) || parseInt(periodEndRange.min));
-                    periodEndInput.value = periodEndRange.value;
-                    syncInputWithRange(periodEndInput, periodEndRange);
-                }
+                updateOverpaymentLimit(input, range, group);
                 updateRatesArray("nadplata");
                 updateNadplataKredytuRemoveButtons();
             }, 50);
@@ -1399,6 +1482,34 @@ function resetNadplataKredytuSection() {
 
     const existingRemoveBtnWrapper = elements.nadplataKredytuWrapper.querySelector(".remove-btn-wrapper");
     if (existingRemoveBtnWrapper) existingRemoveBtnWrapper.remove();
+}
+
+function updateRatesArray(type) {
+    if (type === "nadplata") {
+        state.overpaymentRates = [];
+        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+        groups.forEach((group) => {
+            const typeSelect = group.querySelector(".nadplata-type-select");
+            const effectSelect = group.querySelector(".nadplata-effect-select");
+            const periodStartInput = group.querySelector(".variable-cykl-start");
+            const periodEndInput = group.querySelector(".variable-cykl-end");
+            const rateInput = group.querySelector(".variable-rate");
+
+            const overpaymentType = typeSelect?.value || "Jednorazowa";
+            const effect = effectSelect?.value || "Skróć okres";
+            const periodStart = parseInt(periodStartInput?.value) || 1;
+            const periodEnd = periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
+            const amount = parseInt(rateInput?.value) || 100;
+
+            state.overpaymentRates.push({
+                type: overpaymentType,
+                start: periodStart,
+                end: periodEnd,
+                amount: amount,
+                effect: effect,
+            });
+        });
+    }
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -1559,6 +1670,15 @@ function initializeNadplataKredytuToggle() {
     }
 }
 
+// Funkcja placeholder dla toggleMainFormLock, jeśli nie jest zdefiniowana w innym miejscu
+function toggleMainFormLock() {
+    // Placeholder - zdefiniuj tę funkcję w innym miejscu kodu, jeśli jest potrzebna
+}
+
+// Inicjalizacja sekcji nadpłaty kredytu po załadowaniu strony
+document.addEventListener("DOMContentLoaded", () => {
+    initializeNadplataKredytuToggle();
+});
 
 
 
