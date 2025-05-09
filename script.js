@@ -738,20 +738,15 @@ function updateOverpaymentLimit(input, range, group) {
             month++;
         }
 
-        // Ustaw limity dla "OD"
+        // Ustaw limity dla "OD" i wymuś nową skalę suwaka
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
         periodStartInput.max = maxPeriodStart;
-        periodStartRange.max = maxPeriodStart; // Ustawienie max od razu na obliczoną wartość
-        if (periodStart < minPeriodStart) {
-            periodStart = minPeriodStart;
-            periodStartInput.value = periodStart;
-            periodStartRange.value = periodStart;
-        }
-        if (periodStart > maxPeriodStart) {
-            periodStart = maxPeriodStart;
-            periodStartInput.value = periodStart;
-            periodStartRange.value = periodStart;
+        periodStartRange.max = maxPeriodStart; // Ustawienie max od razu
+        if (periodStartRange.value > maxPeriodStart) {
+            periodStartRange.value = maxPeriodStart; // Wymuś aktualną wartość
+            periodStartInput.value = maxPeriodStart;
+            syncInputWithRange(periodStartInput, periodStartRange);
         }
 
         // Oblicz maksymalny okres "DO" na podstawie okresu "OD"
@@ -776,20 +771,15 @@ function updateOverpaymentLimit(input, range, group) {
             month++;
         }
 
-        // Ustaw limity dla "DO"
+        // Ustaw limity dla "DO" i wymuś nową skalę suwaka
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
         periodEndInput.max = Math.max(periodStart, maxPeriodEnd);
         periodEndRange.max = Math.max(periodStart, maxPeriodEnd);
-        if (periodEnd < periodStart) {
-            periodEnd = periodStart;
-            periodEndInput.value = periodEnd;
-            periodEndRange.value = periodEnd;
-        }
-        if (periodEnd > maxPeriodEnd) {
-            periodEnd = maxPeriodEnd;
-            periodEndInput.value = periodEnd;
-            periodEndRange.value = periodEnd;
+        if (periodEndRange.value > Math.max(periodStart, maxPeriodEnd)) {
+            periodEndRange.value = Math.max(periodStart, maxPeriodEnd);
+            periodEndInput.value = Math.max(periodStart, maxPeriodEnd);
+            syncInputWithRange(periodEndInput, periodEndRange);
         }
     } else {
         // Dla nadpłaty jednorazowej
@@ -823,12 +813,12 @@ function updateOverpaymentLimit(input, range, group) {
 
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = maxPeriod; // Ustawienie max od razu na obliczoną wartość
-        periodStartRange.max = maxPeriod; // Ustawienie max od razu na obliczoną wartość
-        if (periodStart > maxPeriod) {
-            periodStart = maxPeriod;
-            periodStartInput.value = periodStart;
-            periodStartRange.value = periodStart;
+        periodStartInput.max = maxPeriod; // Ustawienie max od razu
+        periodStartRange.max = maxPeriod; // Ustawienie max od razu
+        if (periodStartRange.value > maxPeriod) {
+            periodStartRange.value = maxPeriod; // Wymuś aktualną wartość
+            periodStartInput.value = maxPeriod;
+            syncInputWithRange(periodStartInput, periodStartRange);
         }
     }
 
@@ -1257,13 +1247,13 @@ function initializeNadplataKredytuGroup(group) {
             range.addEventListener("input", () => {
                 let value = parseInt(range.value);
                 let minAllowed = parseInt(range.min) || minPeriodStart;
-                let maxAllowed = parseInt(range.max); // Użyj dynamicznego max z updateOverpaymentLimit
+                let maxAllowed = parseInt(range.max); // Użyj dynamicznego max
 
-                // Ogranicz wartość suwaka w czasie rzeczywistym
+                // Ogranicz wartość suwaka w czasie rzeczywistym do obliczonego max
                 if (value < minAllowed) value = minAllowed;
                 if (value > maxAllowed) {
-                    value = maxAllowed;
-                    range.value = maxAllowed; // Ustaw suwak na max od razu
+                    value = maxAllowed; // Ustaw na max, jeśli przekroczono
+                    range.value = maxAllowed; // Wymuś wartość max
                 }
 
                 range.value = value;
