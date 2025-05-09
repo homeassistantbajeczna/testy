@@ -23,7 +23,7 @@
     --range-border-dark: #ffffff;
     --select-bg: #ffffff;
     --select-opacity: 1;
-    --select-bg-locked: #e9ecef;
+    --select-bg-locked: #e9ecef; /* Jaśniejszy szary dla trybu jasnego */
     --select-opacity-locked: 0.7;
     --locked-text-color: #666666;
     --unit-text-color: #555555;
@@ -549,16 +549,49 @@ body {
     background-size: 8px 8px;
 }
 
-/* Styl dla zablokowanych selektów, inputów i jednostek stałych */
+/* Styl dla zablokowanych selektów, inputów i jednostek stałych w NADPŁATA KREDYTU i ZMIENNE OPROCENTOWANIE */
 .variable-input-group.locked .nadplata-type-select,
 .variable-input-group.locked .nadplata-effect-select,
 .variable-input-group.locked .form-control,
 .variable-input-group.locked .form-select.jednostka-select,
 .variable-input-group.locked .input-group-text {
-    background-color: var(--select-bg-locked) !important;
+    background-color: var(--select-bg-locked) !important; /* #e9ecef w trybie jasnym */
     color: var(--locked-text-color) !important;
     opacity: var(--select-opacity-locked) !important;
     cursor: not-allowed;
+}
+
+/* Styl dla zablokowanych suwaków w NADPŁATA KREDYTU i ZMIENNE OPROCENTOWANIE */
+.variable-input-group.locked .range-slider:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.variable-input-group.locked .range-slider:disabled::-webkit-slider-runnable-track {
+    background: var(--range-bg);
+}
+
+.variable-input-group.locked .range-slider:disabled::-moz-range-track {
+    background: var(--range-bg);
+}
+
+.variable-input-group.locked .range-slider:disabled::-ms-track {
+    background: var(--range-bg);
+}
+
+.variable-input-group.locked .range-slider:disabled::-webkit-slider-thumb {
+    opacity: 0.5;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+}
+
+.variable-input-group.locked .range-slider:disabled::-moz-range-thumb {
+    opacity: 0.5;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+}
+
+.variable-input-group.locked .range-slider:disabled::-ms-thumb {
+    opacity: 0.5;
+    background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
 }
 
 /* Styl dla odblokowanych selektów i inputów */
@@ -1133,7 +1166,7 @@ body {
     --range-bg: #666666;
     --select-bg: var(--input-group-bg);
     --select-opacity: 1;
-    --select-bg-locked: var(--input-bg);
+    --select-bg-locked: var(--input-bg); /* #333333 w trybie ciemnym */
     --select-opacity-locked: 0.7;
     --locked-text-color: #999999;
     --unit-text-color: #cccccc;
@@ -1295,6 +1328,18 @@ body {
     background: var(--range-bg); /* #666666 */
 }
 
+.dark-mode .variable-input-group.locked .range-slider:disabled::-webkit-slider-runnable-track {
+    background: var(--range-bg); /* #666666 */
+}
+
+.dark-mode .variable-input-group.locked .range-slider:disabled::-moz-range-track {
+    background: var(--range-bg); /* #666666 */
+}
+
+.dark-mode .variable-input-group.locked .range-slider:disabled::-ms-track {
+    background: var(--range-bg); /* #666666 */
+}
+
 /* R E S P O N S Y W N O Ś Ć */
 @media (max-width: 575px) {
     .logo-container {
@@ -1391,6 +1436,38 @@ body {
         color: var(--locked-text-color) !important;
         cursor: not-allowed;
         opacity: var(--select-opacity-locked) !important;
+    }
+
+    .variable-input-group.locked .range-slider:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .variable-input-group.locked .range-slider:disabled::-webkit-slider-runnable-track {
+        background: var(--range-bg);
+    }
+
+    .variable-input-group.locked .range-slider:disabled::-moz-range-track {
+        background: var(--range-bg);
+    }
+
+    .variable-input-group.locked .range-slider:disabled::-ms-track {
+        background: var(--range-bg);
+    }
+
+    .variable-input-group.locked .range-slider:disabled::-webkit-slider-thumb {
+        opacity: 0.5;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    }
+
+    .variable-input-group.locked .range-slider:disabled::-moz-range-thumb {
+        opacity: 0.5;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    }
+
+    .variable-input-group.locked .range-slider:disabled::-ms-thumb {
+        opacity: 0.5;
+        background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
     }
 
     .unlocked-select,
