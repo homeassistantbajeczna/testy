@@ -913,14 +913,26 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-align: center;
 }
 
 .btn-toggle {
-    transition: color 0.3s ease;
+    background-color: #ffffff; /* Domyślny kolor tła */
+    border: 1px solid #ccc; /* Ramka dla widoczności */
+    padding: 5px 10px; /* Wypełnienie */
+    cursor: pointer; /* Kursor wskazujący */
+    display: inline-block; /* Zachowanie jako przycisk */
+    transition: background-color 0.3s; /* Płynne przejście koloru */
+}
+
+.btn-toggle:hover {
+    background-color: #007bff; /* Kolor przycisku Oblicz przy hover */
+    color: #ffffff; /* Biały tekst przy hover */
 }
 
 #harmonogramContent {
     margin-top: 10px;
+    display: block;
 }
 
 .harmonogram table {
