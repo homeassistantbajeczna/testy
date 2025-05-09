@@ -691,11 +691,7 @@ function updateOverpaymentLimit(input, range, group) {
     let periodEnd = type === "Miesięczna" && periodEndInput ? parseInt(periodEndInput?.value) || periodStart : periodStart;
     let overpaymentAmount = parseInt(rateInput?.value) || 100;
 
-    // Oblicz pozostały kapitał przed nadpłatą w danym okresie
-    let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
-    let maxAllowed = Math.max(100, remainingCapital);
-
-    // Ustaw minimalny okres startowy na podstawie poprzednich nadpłat
+    // Oblicz pozostały kapitał w pierwszym możliwym miesiącu (przed nadpłatą)
     let minPeriodStart = 1;
     if (currentIndex > 0) {
         const prevGroup = allGroups[currentIndex - 1];
@@ -705,15 +701,13 @@ function updateOverpaymentLimit(input, range, group) {
         minPeriodStart = prevPeriodEnd + 1;
     }
 
+    let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
+    let maxAllowed = Math.max(100, remainingCapital);
+
     if (type === "Miesięczna" && periodEndInput) {
-        // Ustaw maksymalną kwotę nadpłaty
-        const numberOfOverpayments = periodEnd - periodStart + 1;
-        if (numberOfOverpayments > 0) {
-            maxAllowed = remainingCapital / numberOfOverpayments;
-        }
-        maxAllowed = Math.max(100, Math.floor(maxAllowed));
-        rateInput.max = maxAllowed;
-        rateRange.max = maxAllowed;
+        // Ustaw maksymalną kwotę nadpłaty (ale nie zmieniamy jej automatycznie)
+        rateInput.max = Math.floor(maxAllowed);
+        rateRange.max = Math.floor(maxAllowed);
 
         let rateValue = parseInt(rateInput.value) || 100;
         if (rateValue > maxAllowed) {
@@ -727,20 +721,29 @@ function updateOverpaymentLimit(input, range, group) {
         let tempCapital = remainingCapital;
         let maxPeriodStart = totalMonths;
         let month = minPeriodStart;
+        let monthsToPayOff = 0;
         while (tempCapital > 0 && month <= totalMonths) {
             tempCapital -= overpaymentAmount;
+            monthsToPayOff++;
             if (tempCapital <= 0) {
+                maxPeriodStart = minPeriodStart + monthsToPayOff - 1;
+                break;
+            }
+            // Uwzględnij spłatę kapitału w ratach
+            let tempRemaining = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, month);
+            if (tempRemaining <= 0) {
                 maxPeriodStart = month;
                 break;
             }
+            tempCapital = tempRemaining;
             month++;
         }
 
         // Ustaw limity dla "OD"
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = maxPeriodStart;
-        periodStartRange.max = maxPeriodStart;
+        periodStartInput.max = Math.max(minPeriodStart, maxPeriodStart);
+        periodStartRange.max = Math.max(minPeriodStart, maxPeriodStart);
         if (periodStart < minPeriodStart) {
             periodStart = minPeriodStart;
             periodStartInput.value = periodStart;
@@ -752,25 +755,34 @@ function updateOverpaymentLimit(input, range, group) {
             periodStartRange.value = periodStart;
         }
 
-        // Oblicz maksymalny okres "DO" na podstawie pozostałego kapitału i okresu "OD"
-        let remainingAfterStart = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
-        tempCapital = remainingAfterStart;
+        // Oblicz maksymalny okres "DO" na podstawie okresu "OD", kwoty nadpłaty i pozostałego kapitału
+        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
+        tempCapital = remainingCapital;
         let maxPeriodEnd = totalMonths;
+        monthsToPayOff = 0;
         month = periodStart;
         while (tempCapital > 0 && month <= totalMonths) {
             tempCapital -= overpaymentAmount;
+            monthsToPayOff++;
             if (tempCapital <= 0) {
+                maxPeriodEnd = periodStart + monthsToPayOff - 1;
+                break;
+            }
+            // Uwzględnij spłatę kapitału w ratach
+            let tempRemaining = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, month);
+            if (tempRemaining <= 0) {
                 maxPeriodEnd = month;
                 break;
             }
+            tempCapital = tempRemaining;
             month++;
         }
 
         // Ustaw limity dla "DO"
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
-        periodEndInput.max = maxPeriodEnd;
-        periodEndRange.max = maxPeriodEnd;
+        periodEndInput.max = Math.max(periodStart, maxPeriodEnd);
+        periodEndRange.max = Math.max(periodStart, maxPeriodEnd);
         if (periodEnd < periodStart) {
             periodEnd = periodStart;
             periodEndInput.value = periodEnd;
