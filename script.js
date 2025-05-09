@@ -2140,13 +2140,13 @@ function updateResults(data) {
 
 function toggleHarmonogram(contentId) {
     const content = document.getElementById(contentId);
-    const toggleText = document.querySelector('.btn-toggle');
+    const toggleBtn = content.previousElementSibling.querySelector('.btn-toggle');
     if (content.style.display === 'none' || content.style.display === '') {
         content.style.display = 'block';
-        toggleText.textContent = 'Harmonogram spłat ▼'; // Strzałka w dół
+        toggleBtn.textContent = 'Harmonogram spłat ▼';
     } else {
         content.style.display = 'none';
-        toggleText.textContent = 'Harmonogram spłat ▲'; // Strzałka w górę
+        toggleBtn.textContent = 'Harmonogram spłat ►';
     }
 }
 
