@@ -121,9 +121,6 @@ function toggleMainFormLock() {
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const shouldLock = isNadplataActive || isZmienneOprocentowanieActive;
 
-    // Znajdź nadrzędny kontener formularza
-    const formContainer = document.querySelector('#creditForm')?.parentElement;
-
     // Elementy formularza do zablokowania/odblokowania
     const mainFormInputs = [
         { input: elements.kwota, group: elements.kwota.closest('.form-group') },
@@ -138,16 +135,6 @@ function toggleMainFormLock() {
         { input: elements.jednostkaProwizji, group: elements.jednostkaProwizji.closest('.form-group') }
     ];
 
-    // Zablokuj/odblokuj cały formularz na poziomie nadrzędnym
-    if (formContainer) {
-        if (shouldLock) {
-            formContainer.classList.add("locked");
-        } else {
-            formContainer.classList.remove("locked");
-        }
-    }
-
-    // Zablokuj/odblokuj poszczególne pola
     mainFormInputs.forEach(({ input, group }) => {
         if (input && group) {
             input.disabled = shouldLock;
