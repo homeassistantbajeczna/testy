@@ -116,7 +116,33 @@ function updateProwizjaInfo() {
 
 // F U N K C J E    B L O K A D Y   B O X Ó W
 
+function toggleMainFormLock() {
+    const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
+    const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
+    const shouldLock = isNadplataActive || isZmienneOprocentowanieActive;
 
+    // Elementy formularza do zablokowania/odblokowania
+    const mainFormInputs = [
+        elements.kwota,
+        elements.kwotaRange,
+        elements.iloscRat,
+        elements.iloscRatRange,
+        elements.oprocentowanie,
+        elements.oprocentowanieRange,
+        elements.rodzajRat,
+        elements.prowizja,
+        elements.prowizjaRange,
+        elements.jednostkaProwizji
+    ];
+
+    mainFormInputs.forEach(input => {
+        if (input) {
+            input.disabled = shouldLock;
+            // Opcjonalnie: dodaj styl wizualny dla zablokowanych elementów
+            input.style.opacity = shouldLock ? "0.5" : "1";
+        }
+    });
+}
 
 
 
@@ -1491,6 +1517,7 @@ function initializeNadplataKredytuToggle() {
             } else {
                 resetNadplataKredytuSection();
             }
+            toggleMainFormLock();
         });
     }
 }
@@ -1847,6 +1874,7 @@ function initializeZmienneOprocentowanieToggle() {
                 updateVariableOprocentowanieRemoveButtons();
             }
             updateKwotaInfo();
+            toggleMainFormLock();
         });
 
         elements.oprocentowanie.addEventListener("change", () => {
@@ -1906,6 +1934,7 @@ function initializePorownajKredytToggle() {
                     elements.variableOprocentowanieContainer.style.display = "block";
                 }
             }
+            toggleMainFormLock();
         });
     }
 }
