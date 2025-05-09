@@ -120,7 +120,6 @@ function toggleMainFormLock() {
     const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const shouldLock = isNadplataActive || isZmienneOprocentowanieActive;
-    const isDarkMode = document.body.classList.contains("dark-mode");
 
     // Elementy formularza do zablokowania/odblokowania
     const mainFormInputs = [
@@ -138,15 +137,21 @@ function toggleMainFormLock() {
 
     mainFormInputs.forEach(({ input, group }) => {
         if (input && group) {
+            // Ustaw atrybut disabled na inputach
             input.disabled = shouldLock;
+
+            // Dodaj/usuń klasę locked na nadrzędnym div.form-group
             if (shouldLock) {
                 group.classList.add("locked");
+                // Resetuj style inline, aby CSS przejęło kontrolę
                 input.style.opacity = "";
                 input.style.cursor = "";
+                input.style.backgroundColor = ""; // Resetuj wbudowane style
             } else {
                 group.classList.remove("locked");
                 input.style.opacity = "";
                 input.style.cursor = "";
+                input.style.backgroundColor = ""; // Resetuj wbudowane style
             }
         }
     });
