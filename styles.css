@@ -776,8 +776,8 @@ body {
 .range-slider::before {
     content: '';
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     background: var(--range-border-light);
     top: 50%;
     left: 0;
@@ -794,8 +794,8 @@ body {
 .range-slider::after {
     content: '';
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     background: var(--range-border-light);
     top: 50%;
     right: 0;
