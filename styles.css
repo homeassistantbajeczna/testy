@@ -611,8 +611,7 @@ body {
 /* Styl dla zablokowanych inputów i selectów w głównym formularzu (w tym RODZAJ RAT) */
 .form-group.locked .form-control,
 .form-group.locked .form-select,
-.form-group.locked .input-group .form-select,
-.form-group.locked .input-group .jednostka-select {
+.box-select.locked .form-select {
     background-color: var(--select-bg-locked) !important;
     color: var(--locked-text-color) !important;
     opacity: var(--select-opacity-locked) !important;
@@ -624,11 +623,12 @@ body {
     background-image: none !important;
 }
 
-.form-group.locked .form-select {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
-    background-image: none !important; /* Usunięcie strzałki przy zablokowaniu */
+.form-group.locked .form-select:disabled,
+.box-select.locked .form-select:disabled {
+    background-color: var(--select-bg-locked) !important;
+    color: var(--locked-text-color) !important;
+    opacity: var(--select-opacity-locked) !important;
+    cursor: not-allowed;
 }
 
 .form-group.locked .input-group-text {
@@ -1331,8 +1331,13 @@ body {
 
 .dark-mode .form-group.locked .form-control,
 .dark-mode .form-group.locked .form-select,
-.dark-mode .form-group.locked .input-group .form-select,
-.dark-mode .form-group.locked .input-group .jednostka-select {
+.dark-mode .box-select.locked .form-select {
+    background-color: var(--select-bg-locked) !important;
+    color: var(--locked-text-color) !important; 
+}
+
+.dark-mode .form-group.locked .form-select:disabled,
+.dark-mode .box-select.locked .form-select:disabled {
     background-color: var(--select-bg-locked) !important;
     color: var(--locked-text-color) !important;
 }
