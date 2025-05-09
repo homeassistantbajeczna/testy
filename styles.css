@@ -910,24 +910,20 @@ body {
 }
 
 .harmonogram-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    argin: 20px 0;
     text-align: center;
 }
 
 .btn-toggle {
-    background-color: #ffffff; /* Domyślny kolor tła */
-    border: 1px solid #ccc; /* Ramka dla widoczności */
-    padding: 5px 10px; /* Wypełnienie */
     cursor: pointer; /* Kursor wskazujący */
-    display: inline-block; /* Zachowanie jako przycisk */
-    transition: background-color 0.3s; /* Płynne przejście koloru */
+    transition: color 0.3s; /* Płynne przejście koloru */
+    display: inline; /* Zapewnia, że tekst nie zachowuje się jak blok */
+    font-size: 1.2em; /* Większy tekst dla widoczności */
+    color: #000;
 }
 
 .btn-toggle:hover {
-    background-color: #007bff; /* Kolor przycisku Oblicz przy hover */
-    color: #ffffff; /* Biały tekst przy hover */
+    color: #007bff;
 }
 
 #harmonogramContent {
