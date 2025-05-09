@@ -914,6 +914,19 @@ body {
     margin: 20px 0;
 }
 
+.harmonogram .btn-toggle {
+    cursor: pointer;
+    font-size: 10px;
+    color: var(--primary-text);
+    text-decoration: none;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.harmonogram .btn-toggle:hover {
+    color: var(--accent-color);
+}
+
 .btn-toggle {
     cursor: pointer;
     font-size: 10px;
