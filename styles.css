@@ -918,12 +918,12 @@ body {
     cursor: pointer; /* Kursor wskazujący */
     transition: color 0.3s; /* Płynne przejście koloru */
     display: inline; /* Zapewnia, że tekst nie zachowuje się jak blok */
-    font-size: 1.2em; /* Większy tekst dla widoczności */
+    font-size: 1em; /* Większy tekst dla widoczności */
     color: #000;
 }
 
 .btn-toggle:hover {
-    color: #007bff;
+    color: #007bff !important;
 }
 
 #harmonogramContent {
