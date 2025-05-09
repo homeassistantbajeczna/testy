@@ -910,24 +910,24 @@ body {
 }
 
 .harmonogram-header {
-    argin: 20px 0;
     text-align: center;
+    margin: 20px 0;
 }
 
 .btn-toggle {
-    cursor: pointer; /* Kursor wskazujący */
-    transition: color 0.3s; /* Płynne przejście koloru */
-    display: inline; /* Zapewnia, że tekst nie zachowuje się jak blok */
-    font-size: 1em; /* Większy tekst dla widoczności */
-    color: #000;
+    cursor: pointer;
+    font-size: 0.8em;
+    color: var(--primary-text);
+    text-decoration: underline;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
 }
 
 .btn-toggle:hover {
-    color: #007bff !important;
+    color: var(--accent-color);
 }
 
 #harmonogramContent {
-    margin-top: 10px;
     display: block;
 }
 
