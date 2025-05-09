@@ -743,7 +743,7 @@ function updateOverpaymentLimit(input, range, group) {
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
         periodStartInput.max = maxPeriodStart;
-        periodStartRange.max = maxPeriodStart;
+        periodStartRange.max = maxPeriodStart; // Ustawienie max dla suwaka od razu
         if (periodStart < minPeriodStart) {
             periodStart = minPeriodStart;
             periodStartInput.value = periodStart;
@@ -1007,8 +1007,8 @@ function initializeNadplataKredytuGroup(group) {
             if (periodStartInput && periodStartRange) {
                 periodStartInput.min = minPeriodStart;
                 periodStartRange.min = minPeriodStart;
-                periodStartInput.max = maxValue;
-                periodStartRange.max = maxValue;
+                periodStartInput.max = maxValue; // Początkowa wartość, zostanie zaktualizowana
+                periodStartRange.max = maxValue; // Początkowa wartość, zostanie zaktualizowana
                 periodStartInput.step = stepValue;
                 periodStartRange.step = stepValue;
 
@@ -1249,15 +1249,15 @@ function initializeNadplataKredytuGroup(group) {
                 }
             };
 
-            // Ogranicz suwak w czasie przesuwania
+            // Ogranicz suwak w czasie przesuwania z użyciem aktualnego max
             range.addEventListener("input", () => {
                 let maxAllowed = parseInt(range.max); // Użyj aktualnego max z updateOverpaymentLimit
                 let value = parseInt(range.value);
                 if (value > maxAllowed) {
                     value = maxAllowed;
                     range.value = value;
+                    input.value = value;
                 }
-                input.value = value;
                 updateEndPeriod();
                 debouncedUpdate();
             });
