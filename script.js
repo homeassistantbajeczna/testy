@@ -719,7 +719,7 @@ function updateOverpaymentLimit(input, range, group) {
 
         // Oblicz maksymalny okres "OD" na podstawie pozostałego kapitału i kwoty nadpłaty
         let tempCapital = remainingCapital;
-        let maxPeriodStart = totalMonths;
+        let maxPeriodStart = minPeriodStart;
         let month = minPeriodStart;
         let monthsToPayOff = 0;
         while (tempCapital > 0 && month <= totalMonths) {
@@ -739,11 +739,11 @@ function updateOverpaymentLimit(input, range, group) {
             month++;
         }
 
-        // Ustaw limity dla "OD"
+        // Ustaw limity dla "OD" w czasie rzeczywistym
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = Math.max(minPeriodStart, maxPeriodStart);
-        periodStartRange.max = Math.max(minPeriodStart, maxPeriodStart);
+        periodStartInput.max = maxPeriodStart;
+        periodStartRange.max = maxPeriodStart;
         if (periodStart < minPeriodStart) {
             periodStart = minPeriodStart;
             periodStartInput.value = periodStart;
@@ -758,7 +758,7 @@ function updateOverpaymentLimit(input, range, group) {
         // Oblicz maksymalny okres "DO" na podstawie okresu "OD", kwoty nadpłaty i pozostałego kapitału
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
         tempCapital = remainingCapital;
-        let maxPeriodEnd = totalMonths;
+        let maxPeriodEnd = periodStart;
         monthsToPayOff = 0;
         month = periodStart;
         while (tempCapital > 0 && month <= totalMonths) {
@@ -778,7 +778,7 @@ function updateOverpaymentLimit(input, range, group) {
             month++;
         }
 
-        // Ustaw limity dla "DO"
+        // Ustaw limity dla "DO" w czasie rzeczywistym
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
         periodEndInput.max = Math.max(periodStart, maxPeriodEnd);
@@ -802,7 +802,7 @@ function updateOverpaymentLimit(input, range, group) {
         if (rateValue > maxAllowed) {
             rateValue = Math.floor(maxAllowed);
             rateInput.value = rateValue;
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
 
         let maxPeriod = totalMonths;
@@ -1208,9 +1208,9 @@ function initializeNadplataKredytuGroup(group) {
             }
 
             input.min = minPeriodStart;
-            input.max = iloscRat;
+            input.max = iloscRat; // Początkowa wartość, zostanie zaktualizowana
             range.min = minPeriodStart;
-            range.max = iloscRat;
+            range.max = iloscRat; // Początkowa wartość, zostanie zaktualizowana
 
             let value = Math.max(minPeriodStart, Math.min(defaultPeriodStart, iloscRat));
             input.value = value;
@@ -1220,7 +1220,7 @@ function initializeNadplataKredytuGroup(group) {
                 const rateInput = group.querySelector(".variable-rate");
                 const rateRange = group.querySelector(".variable-rate-range");
                 if (rateInput && rateRange) {
-                    updateOverpaymentLimit(rateInput, rateRange, group);
+                    updateOverpaymentLimit(rateInput, range, group);
                     updateRatesArray("nadplata");
                     updateNadplataKredytuRemoveButtons();
                 }
@@ -1249,21 +1249,38 @@ function initializeNadplataKredytuGroup(group) {
                 }
             };
 
+            // Ogranicz suwak w czasie przesuwania
+            range.addEventListener("input", () => {
+                let maxAllowed = parseInt(range.max); // Użyj aktualnego max z updateOverpaymentLimit
+                let value = parseInt(range.value);
+                if (value > maxAllowed) {
+                    value = maxAllowed;
+                    range.value = value;
+                }
+                input.value = value;
+                updateEndPeriod();
+                debouncedUpdate();
+            });
+
             input.addEventListener("input", () => {
                 let value = parseInt(input.value.replace(/[^0-9]/g, "")) || minPeriodStart;
+                let maxAllowed = parseInt(input.max); // Użyj aktualnego max z updateOverpaymentLimit
                 if (value < minPeriodStart) value = minPeriodStart;
-                if (value > parseInt(input.max)) value = parseInt(input.max);
+                if (value > maxAllowed) value = maxAllowed;
                 input.value = value;
                 range.value = value;
                 updateEndPeriod();
                 debouncedUpdate();
             });
 
-            range.addEventListener("input", () => {
+            range.addEventListener("change", () => {
+                let maxAllowed = parseInt(range.max); // Użyj aktualnego max z updateOverpaymentLimit
                 let value = parseInt(range.value);
-                if (value < minPeriodStart) value = minPeriodStart;
-                if (value > parseInt(range.max)) value = parseInt(range.max);
-                input.value = value;
+                if (value > maxAllowed) {
+                    value = maxAllowed;
+                    range.value = value;
+                    input.value = value;
+                }
                 updateEndPeriod();
                 debouncedUpdate();
             });
