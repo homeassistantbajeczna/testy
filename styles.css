@@ -671,6 +671,28 @@ body {
     background: linear-gradient(135deg, var(--accent-gradient-start), var(--accent-gradient-end));
 }
 
+/* Styl dla zablokowanych selectów w głównym formularzu (w tym RODZAJ RAT) */
+.locked .form-group .form-select,
+.locked .box-select .form-select {
+    background-color: var(--select-bg-locked) !important;
+    color: var(--locked-text-color) !important;
+    opacity: var(--select-opacity-locked) !important;
+    cursor: not-allowed;
+    border-color: var(--border-color) !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: none !important;
+}
+
+.locked .form-group .form-select:disabled,
+.locked .box-select .form-select:disabled {
+    background-color: var(--select-bg-locked) !important;
+    color: var(--locked-text-color) !important;
+    opacity: var(--select-opacity-locked) !important;
+    cursor: not-allowed;
+}
+
 /* Style dla :focus */
 .box-select .form-select:focus,
 .box-amount .form-control:focus,
