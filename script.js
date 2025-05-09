@@ -120,26 +120,34 @@ function toggleMainFormLock() {
     const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const shouldLock = isNadplataActive || isZmienneOprocentowanieActive;
+    const isDarkMode = document.body.classList.contains("dark-mode");
 
     // Elementy formularza do zablokowania/odblokowania
     const mainFormInputs = [
-        elements.kwota,
-        elements.kwotaRange,
-        elements.iloscRat,
-        elements.iloscRatRange,
-        elements.oprocentowanie,
-        elements.oprocentowanieRange,
-        elements.rodzajRat,
-        elements.prowizja,
-        elements.prowizjaRange,
-        elements.jednostkaProwizji
+        { input: elements.kwota, group: elements.kwota.parentElement.parentElement },
+        { input: elements.kwotaRange, group: elements.kwotaRange.parentElement.parentElement },
+        { input: elements.iloscRat, group: elements.iloscRat.parentElement.parentElement },
+        { input: elements.iloscRatRange, group: elements.iloscRatRange.parentElement.parentElement },
+        { input: elements.oprocentowanie, group: elements.oprocentowanie.parentElement.parentElement },
+        { input: elements.oprocentowanieRange, group: elements.oprocentowanieRange.parentElement.parentElement },
+        { input: elements.rodzajRat, group: elements.rodzajRat.parentElement.parentElement },
+        { input: elements.prowizja, group: elements.prowizja.parentElement.parentElement },
+        { input: elements.prowizjaRange, group: elements.prowizjaRange.parentElement.parentElement },
+        { input: elements.jednostkaProwizji, group: elements.jednostkaProwizji.parentElement.parentElement }
     ];
 
-    mainFormInputs.forEach(input => {
-        if (input) {
+    mainFormInputs.forEach(({ input, group }) => {
+        if (input && group) {
             input.disabled = shouldLock;
-            // Opcjonalnie: dodaj styl wizualny dla zablokowanych elementów
-            input.style.opacity = shouldLock ? "0.5" : "1";
+            if (shouldLock) {
+                group.classList.add("locked");
+                input.style.opacity = "";
+                input.style.cursor = "";
+            } else {
+                group.classList.remove("locked");
+                input.style.opacity = "";
+                input.style.cursor = "";
+            }
         }
     });
 }
