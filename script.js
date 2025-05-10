@@ -885,7 +885,7 @@ function updateAllOverpaymentLimits() {
         const rateInput = g.querySelector(".variable-rate");
         const rateRange = g.querySelector(".variable-rate-range");
         if (rateInput && rateRange) {
-            updateOverpaymentLimit(rateInput, rateRange, g);
+            updateOverpaymentLimit(rateInput, range, g);
         }
     });
 
@@ -1512,8 +1512,7 @@ function updateNadplataKredytuRemoveButtons() {
         updateNadplataKredytuRemoveButtons();
     });
 
-    // Aktualizujemy limity i pobieramy dane
-    const { remainingCapital, lastMonthWithCapital } = updateAllOverpaymentLimits();
+    const { remainingCapital } = updateAllOverpaymentLimits();
     const lastGroupData = groups[groups.length - 1];
     const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
@@ -1530,35 +1529,16 @@ function updateNadplataKredytuRemoveButtons() {
     const currentPeriodStart = parseInt(periodStartInput?.value) || 1;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || currentPeriodStart : currentPeriodStart;
 
-    const isMaxRateReached = currentRate >= maxRate;
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
+    const isMaxRateReached = currentRate >= maxRate;
     const isCapitalDepleted = remainingCapital <= 0;
-    const totalMonths = parseInt(elements.iloscRat?.value) || 360;
-    const isBeyondLoanTerm = lastMonthWithCapital !== null && lastMonthWithCapital < totalMonths && currentPeriodStart >= lastMonthWithCapital;
 
-    if (isCapitalDepleted || isMaxRateReached || isMaxPeriodStartReached || isMaxPeriodEndReached || isBeyondLoanTerm) {
+    if (isCapitalDepleted || isMaxRateReached || isMaxPeriodStartReached || isMaxPeriodEndReached) {
         addBtn.style.display = "none";
     } else {
         addBtn.style.display = "block";
     }
-
-    console.log({
-        remainingCapital,
-        lastMonthWithCapital,
-        currentRate,
-        maxRate,
-        currentPeriodStart,
-        maxPeriodStart,
-        currentPeriodEnd,
-        maxPeriodEnd,
-        isMaxRateReached,
-        isMaxPeriodStartReached,
-        isMaxPeriodEndReached,
-        isCapitalDepleted,
-        isBeyondLoanTerm,
-        addBtnDisplay: addBtn.style.display
-    });
 }
 
 function initializeNadplataKredytuToggle() {
@@ -1582,7 +1562,7 @@ function initializeNadplataKredytuToggle() {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
-            updateNadplataKredytuRemoveButtons(); // Wywołanie aktualizacji przycisków
+            updateNadplataKredytuRemoveButtons(); // Wywołanie aktualizacji przycisków od razu po włączeniu
         } else {
             resetNadplataKredytuSection();
         }
