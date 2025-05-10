@@ -772,9 +772,7 @@ function updateOverpaymentLimit(input, range, group) {
         minPeriodStart = prevPeriodEnd + 1;
     }
 
-    // Oblicz miesiąc spłaty kapitału na podstawie poprzednich nadpłat
     let maxPeriod = calculatePayoffMonth(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments);
-    // Odejmujemy 1, aby zablokować nadpłatę w ostatnim miesiącu spłaty, ale nie dla pierwszej raty
     maxPeriod = maxPeriod > 1 ? maxPeriod - 1 : maxPeriod;
 
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
@@ -792,7 +790,6 @@ function updateOverpaymentLimit(input, range, group) {
     overpaymentAmount = rateValue;
 
     if (type === "Miesięczna" && periodEndInput) {
-        // Box "OD"
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
         let tempCapital = remainingCapital;
         let maxPeriodStart = minPeriodStart;
@@ -832,7 +829,6 @@ function updateOverpaymentLimit(input, range, group) {
         periodStartInput.value = currentStartValue;
         syncInputWithRange(periodStartInput, periodStartRange);
 
-        // Box "DO"
         let tempOverpayments = [...previousOverpayments];
         tempOverpayments.push({ type: "Miesięczna", start: periodStart, end: periodStart, amount: overpaymentAmount, effect: effect });
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, tempOverpayments, periodStart);
@@ -870,6 +866,13 @@ function updateOverpaymentLimit(input, range, group) {
             maxPeriodEnd = periodStart;
         }
 
+        // Dla boxa "DO": jeśli maxPeriodEnd > 10, ustawiamy max - 2, w przeciwnym razie max - 1
+        if (maxPeriodEnd > 10) {
+            maxPeriodEnd = maxPeriodEnd - 2;
+        } else if (maxPeriodEnd > 1) {
+            maxPeriodEnd = maxPeriodEnd - 1;
+        }
+
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
         periodEndInput.max = Math.max(periodStart, maxPeriodEnd);
@@ -880,10 +883,9 @@ function updateOverpaymentLimit(input, range, group) {
         periodEndInput.value = currentEndValue;
         syncInputWithRange(periodEndInput, periodEndRange);
     } else {
-        // Box "W" dla nadpłaty jednorazowej
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = maxPeriod; // Ograniczamy do miesiąca przed spłatą kapitału
+        periodStartInput.max = maxPeriod;
         periodStartRange.max = maxPeriod;
         let currentStartValue = parseInt(periodStartRange.value) || minPeriodStart;
         if (currentStartValue > maxPeriod) currentStartValue = maxPeriod;
@@ -991,7 +993,7 @@ function initializeNadplataKredytuGroup(group) {
             return;
         }
 
-        let maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat; // Odejmujemy 1, jeśli iloscRat > 1
+        let maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
         let stepValue = 1;
         let minValue;
         let defaultValue;
@@ -1018,7 +1020,7 @@ function initializeNadplataKredytuGroup(group) {
         } else {
             periodLabel.textContent = "OD";
             periodUnit.textContent = "miesiąca";
-            maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat; // Odejmujemy 1, jeśli iloscRat > 1
+            maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
             stepValue = 1;
 
             let minPeriodStart = 1;
@@ -1057,7 +1059,7 @@ function initializeNadplataKredytuGroup(group) {
                 const endRange = existingEndBox.querySelector(".variable-cykl-end-range");
                 if (endInput && endRange) {
                     minValue = parseInt(periodStartInput.value) || minPeriodStart;
-                    maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat; // Odejmujemy 1, jeśli iloscRat > 1
+                    maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
                     stepValue = 1;
 
                     endInput.min = minValue;
@@ -1077,7 +1079,7 @@ function initializeNadplataKredytuGroup(group) {
             } else {
                 minValue = parseInt(periodStartInput.value) || minPeriodStart;
                 defaultValue = minValue;
-                maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat; // Odejmujemy 1, jeśli iloscRat > 1
+                maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
                 if (defaultValue > maxValue) defaultValue = maxValue;
                 if (minValue > maxValue) minValue = maxValue;
                 const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type);
