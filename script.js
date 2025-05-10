@@ -773,7 +773,7 @@ function updateOverpaymentLimit(input, range, group) {
     }
 
     let maxPeriod = calculatePayoffMonth(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments);
-    maxPeriod = maxPeriod > 2 ? maxPeriod - 1 : maxPeriod;
+    maxPeriod = maxPeriod > 1 ? maxPeriod - 1 : maxPeriod;
 
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
     let maxAllowed = Math.max(100, remainingCapital);
@@ -868,7 +868,7 @@ function updateOverpaymentLimit(input, range, group) {
             maxPeriodEnd = periodStart;
         }
 
-        maxPeriodEnd = maxPeriodEnd > 2 ? maxPeriodEnd - 1 : maxPeriodEnd;
+        maxPeriodEnd = maxPeriodEnd > 1 ? maxPeriodEnd - 1 : maxPeriodEnd;
 
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
@@ -994,7 +994,7 @@ function initializeNadplataKredytuGroup(group) {
             return;
         }
 
-        let maxValue = iloscRat > 2 ? iloscRat - 1 : iloscRat;
+        let maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
         let stepValue = 1;
         let minValue;
         let defaultValue;
@@ -1021,7 +1021,7 @@ function initializeNadplataKredytuGroup(group) {
         } else {
             periodLabel.textContent = "OD";
             periodUnit.textContent = "miesiąca";
-            maxValue = iloscRat > 2 ? iloscRat - 1 : iloscRat;
+            maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
             stepValue = 1;
 
             let minPeriodStart = 1;
@@ -1052,7 +1052,18 @@ function initializeNadplataKredytuGroup(group) {
             periodStartRange.value = periodStartValue;
             syncInputWithRange(periodStartInput, periodStartRange);
 
-            if (existingEndBox) {
+            if (!existingEndBox) {
+                minValue = parseInt(periodStartInput.value) || minPeriodStart;
+                defaultValue = minValue;
+                maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
+                if (defaultValue > maxValue) defaultValue = maxValue;
+                if (minValue > maxValue) minValue = maxValue;
+                const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type);
+                formRow.appendChild(endBox);
+                const newInputs = endBox.querySelectorAll(".form-control");
+                const newRanges = endBox.querySelectorAll(".form-range");
+                initializeInputsAndRanges(newInputs, newRanges, group);
+            } else {
                 const endUnit = existingEndBox.querySelector(".unit-period");
                 if (endUnit) endUnit.textContent = "miesiąca";
 
@@ -1060,7 +1071,7 @@ function initializeNadplataKredytuGroup(group) {
                 const endRange = existingEndBox.querySelector(".variable-cykl-end-range");
                 if (endInput && endRange) {
                     minValue = parseInt(periodStartInput.value) || minPeriodStart;
-                    maxValue = iloscRat > 2 ? iloscRat - 1 : iloscRat;
+                    maxValue = iloscRat > 1 ? iloscRat - 1 : iloscRat;
                     stepValue = 1;
 
                     endInput.min = minValue;
@@ -1077,24 +1088,13 @@ function initializeNadplataKredytuGroup(group) {
                     endRange.value = periodEndValue;
                     syncInputWithRange(endInput, endRange);
                 }
-            } else {
-                minValue = parseInt(periodStartInput.value) || minPeriodStart;
-                defaultValue = minValue;
-                maxValue = iloscRat > 2 ? iloscRat - 1 : iloscRat;
-                if (defaultValue > maxValue) defaultValue = maxValue;
-                if (minValue > maxValue) minValue = maxValue;
-                const endBox = createNadplataKredytuEndPeriodBox(minValue, maxValue, defaultValue, stepValue, type);
-                formRow.appendChild(endBox);
-                const newInputs = endBox.querySelectorAll(".form-control");
-                const newRanges = endBox.querySelectorAll(".form-range");
-                initializeInputsAndRanges(newInputs, newRanges, group);
             }
         }
 
         const rateInput = group.querySelector(".variable-rate");
         const rateRange = group.querySelector(".variable-rate-range");
         if (rateInput && rateRange) {
-            updateOverpaymentLimit(rateInput, range, group);
+            updateOverpaymentLimit(rateInput, rateRange, group);
         }
 
         state.isUpdating = false;
@@ -1602,7 +1602,7 @@ function updateNadplataKredytuRemoveButtons() {
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
 
     const { remainingCapital, lastMonthWithCapital } = updateAllOverpaymentLimits();
-    const isCapitalDepleted = remainingCapital <= 0;
+    const isCapitalDepleted = remainingCapital <= 0 || remainingCapital < currentRate;
     const isLastMonthReached = lastMonthWithCapital !== null && (type === "Miesięczna" ? currentPeriodEnd >= lastMonthWithCapital : currentPeriodStart >= lastMonthWithCapital);
 
     if (state.hasUserInteracted && (isCapitalDepleted || isLastMonthReached || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached)))) {
