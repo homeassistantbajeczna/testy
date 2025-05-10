@@ -732,21 +732,33 @@ function updateOverpaymentLimit(input, range, group) {
         let tempCapital = remainingCapital;
         let maxPeriodStart = minPeriodStart;
         let month = minPeriodStart;
-        let monthsToPayOff = 0;
+        const monthlyRate = interestRate / 100 / 12;
+        let rata = paymentType === "rowne"
+            ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+            : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+
         while (tempCapital > 0 && month <= totalMonths) {
+            const odsetki = tempCapital * monthlyRate;
+            let kapital = rata - odsetki;
+            if (kapital > tempCapital) kapital = tempCapital;
+            tempCapital -= kapital;
             tempCapital -= overpaymentAmount;
-            monthsToPayOff++;
             if (tempCapital <= 0) {
-                maxPeriodStart = minPeriodStart + monthsToPayOff - 1;
-                break;
-            }
-            let tempRemaining = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, month);
-            if (tempRemaining <= 0) {
                 maxPeriodStart = month;
                 break;
             }
-            tempCapital = tempRemaining;
+            if (effect === "Zmniejsz ratę" && tempCapital > 0) {
+                const remainingMonths = totalMonths - month;
+                if (remainingMonths > 0) {
+                    rata = paymentType === "rowne"
+                        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                        : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                }
+            }
             month++;
+        }
+        if (month > totalMonths && tempCapital > 0) {
+            maxPeriodStart = totalMonths;
         }
 
         periodStartInput.min = minPeriodStart;
@@ -762,22 +774,33 @@ function updateOverpaymentLimit(input, range, group) {
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart - 1);
         tempCapital = remainingCapital;
         let maxPeriodEnd = periodStart;
-        monthsToPayOff = 0;
         month = periodStart;
+        rata = paymentType === "rowne"
+            ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+            : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+
         while (tempCapital > 0 && month <= totalMonths) {
+            const odsetki = tempCapital * monthlyRate;
+            let kapital = rata - odsetki;
+            if (kapital > tempCapital) kapital = tempCapital;
+            tempCapital -= kapital;
             tempCapital -= overpaymentAmount;
-            monthsToPayOff++;
             if (tempCapital <= 0) {
-                maxPeriodEnd = periodStart + monthsToPayOff - 1;
-                break;
-            }
-            let tempRemaining = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, month);
-            if (tempRemaining <= 0) {
                 maxPeriodEnd = month;
                 break;
             }
-            tempCapital = tempRemaining;
+            if (effect === "Zmniejsz ratę" && tempCapital > 0) {
+                const remainingMonths = totalMonths - month;
+                if (remainingMonths > 0) {
+                    rata = paymentType === "rowne"
+                        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                        : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                }
+            }
             month++;
+        }
+        if (month > totalMonths && tempCapital > 0) {
+            maxPeriodEnd = totalMonths;
         }
 
         periodEndInput.min = periodStart;
@@ -803,18 +826,37 @@ function updateOverpaymentLimit(input, range, group) {
         let maxPeriod = minPeriodStart;
         let tempCapital = remainingCapital;
         let month = minPeriodStart;
+        const monthlyRate = interestRate / 100 / 12;
+        let rata = paymentType === "rowne"
+            ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+            : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+
         while (tempCapital > 0 && month <= totalMonths) {
+            const odsetki = tempCapital * monthlyRate;
+            let kapital = rata - odsetki;
+            if (kapital > tempCapital) kapital = tempCapital;
+            tempCapital -= kapital;
             if (tempCapital <= rateValue) {
                 maxPeriod = month;
                 break;
             }
-            let tempRemaining = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, month);
-            if (tempRemaining <= 0) {
+            tempCapital -= rateValue;
+            if (tempCapital <= 0) {
                 maxPeriod = month;
                 break;
             }
-            tempCapital = tempRemaining;
+            if (effect === "Zmniejsz ratę" && tempCapital > 0) {
+                const remainingMonths = totalMonths - month;
+                if (remainingMonths > 0) {
+                    rata = paymentType === "rowne"
+                        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                        : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                }
+            }
             month++;
+        }
+        if (month > totalMonths && tempCapital > 0) {
+            maxPeriod = totalMonths;
         }
 
         periodStartInput.min = minPeriodStart;
