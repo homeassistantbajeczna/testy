@@ -729,7 +729,7 @@ function updateOverpaymentLimit(input, range, group) {
     overpaymentAmount = rateValue;
 
     if (type === "Miesięczna" && periodEndInput) {
-        // Box "OD" - podobny do "W", dostosowany do kwoty nadpłaty
+        // Box "OD" - dostosowany do kwoty nadpłaty
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
         let tempCapital = remainingCapital;
         let maxPeriodStart = minPeriodStart;
@@ -773,28 +773,41 @@ function updateOverpaymentLimit(input, range, group) {
             ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
             : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
 
-        while (tempCapital > 0 && month <= totalMonths) {
-            const odsetki = tempCapital * monthlyRate;
-            let kapital = rata - odsetki;
-            if (kapital > tempCapital) kapital = tempCapital;
-            tempCapital -= kapital;
+        // Sprawdzenie, czy w pierwszej racie nadpłata pokrywa cały kapitał
+        const odsetkiFirstMonth = tempCapital * monthlyRate;
+        let kapitalFirstMonth = rata - odsetkiFirstMonth;
+        if (kapitalFirstMonth > tempCapital) kapitalFirstMonth = tempCapital;
+        tempCapital -= kapitalFirstMonth;
+        if (tempCapital <= overpaymentAmount) {
+            // Jeśli nadpłata w pierwszej racie pokrywa pozostały kapitał, maxPeriodEnd to tylko periodStart
+            maxPeriodEnd = periodStart;
+        } else {
+            // Kontynuuj obliczanie, jeśli kapitał nie został spłacony w pierwszej racie
             tempCapital -= overpaymentAmount;
-            if (tempCapital <= 0) {
-                maxPeriodEnd = month;
-                break;
-            }
-            if (effect === "Zmniejsz ratę" && tempCapital > 0) {
-                const remainingMonths = totalMonths - month;
-                if (remainingMonths > 0) {
-                    rata = paymentType === "rowne"
-                        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
-                        : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
-                }
-            }
             month++;
-        }
-        if (month > totalMonths && tempCapital > 0) {
-            maxPeriodEnd = totalMonths;
+            while (tempCapital > 0 && month <= totalMonths) {
+                const odsetki = tempCapital * monthlyRate;
+                let kapital = rata - odsetki;
+                if (kapital > tempCapital) kapital = tempCapital;
+                tempCapital -= kapital;
+                tempCapital -= overpaymentAmount;
+                if (tempCapital <= 0) {
+                    maxPeriodEnd = month;
+                    break;
+                }
+                if (effect === "Zmniejsz ratę" && tempCapital > 0) {
+                    const remainingMonths = totalMonths - month;
+                    if (remainingMonths > 0) {
+                        rata = paymentType === "rowne"
+                            ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                            : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                    }
+                }
+                month++;
+            }
+            if (month > totalMonths && tempCapital > 0) {
+                maxPeriodEnd = totalMonths;
+            }
         }
 
         periodEndInput.min = periodStart;
@@ -1553,8 +1566,8 @@ function updateNadplataKredytuRemoveButtons() {
     const { remainingCapital } = updateAllOverpaymentLimits();
     const isCapitalDepleted = remainingCapital <= 0;
 
-    // Nie ukrywaj przycisku, jeśli kwota jest minimalna (100 zł), chyba że osiągnięto maksimum okresu
-    if (state.hasUserInteracted && (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached))) && currentRate > 100) {
+    // Nie ukrywaj przycisku, jeśli kwota jest minimalna (100 zł) i kapitał nie jest w pełni spłacony
+    if (state.hasUserInteracted && (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached))) && currentRate > 100 && remainingCapital <= 0) {
         addBtn.style.display = "none";
     }
 }
