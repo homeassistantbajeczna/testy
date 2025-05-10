@@ -627,7 +627,6 @@ function syncInputWithRange(input, range) {
     const min = parseInt(range.min) || 1;
     const max = parseInt(range.max) || 360;
 
-    // Tylko jeśli wartość jest poprawna (nie pusta i w zakresie), synchronizuj
     if (!isNaN(value)) {
         if (value < min) value = min;
         if (value > max) value = max;
@@ -740,14 +739,42 @@ function updateOverpaymentLimit(input, range, group) {
     }
     overpaymentAmount = rateValue;
 
+    // Oblicz maksymalny miesiąc, w którym kapitał zostanie spłacony
+    let tempCapital = remainingCapital;
+    let maxPeriod = minPeriodStart;
+    let month = minPeriodStart;
+    const monthlyRate = interestRate / 100 / 12;
+    let rata = paymentType === "rowne"
+        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+        : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+
+    while (tempCapital > 0 && month <= totalMonths) {
+        const odsetki = tempCapital * monthlyRate;
+        let kapital = rata - odsetki;
+        if (kapital > tempCapital) kapital = tempCapital;
+        tempCapital -= kapital;
+        if (tempCapital <= 0) {
+            maxPeriod = month;
+            break;
+        }
+        month++;
+        // Po każdej iteracji oblicz nową ratę, jeśli pozostały kapitał
+        if (tempCapital > 0) {
+            rata = paymentType === "rowne"
+                ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+                : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+        }
+    }
+    if (month > totalMonths && tempCapital > 0) {
+        maxPeriod = totalMonths;
+    }
+
     if (type === "Miesięczna" && periodEndInput) {
-        // Box "OD" - dostosowany do kwoty nadpłaty
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
-        let tempCapital = remainingCapital;
+        // Box "OD"
+        tempCapital = remainingCapital;
         let maxPeriodStart = minPeriodStart;
-        let month = minPeriodStart;
-        const monthlyRate = interestRate / 100 / 12;
-        let rata = paymentType === "rowne"
+        month = minPeriodStart;
+        rata = paymentType === "rowne"
             ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
             : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
 
@@ -761,6 +788,11 @@ function updateOverpaymentLimit(input, range, group) {
                 break;
             }
             month++;
+            if (tempCapital > 0) {
+                rata = paymentType === "rowne"
+                    ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+                    : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+            }
         }
         if (month > totalMonths && tempCapital > 0) {
             maxPeriodStart = totalMonths;
@@ -768,24 +800,24 @@ function updateOverpaymentLimit(input, range, group) {
 
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = maxPeriodStart;
-        periodStartRange.max = maxPeriodStart;
+        periodStartInput.max = Math.min(maxPeriodStart, maxPeriod); // Ograniczamy do miesiąca spłaty kapitału
+        periodStartRange.max = Math.min(maxPeriodStart, maxPeriod);
         let currentStartValue = parseInt(periodStartRange.value) || minPeriodStart;
-        if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
+        if (currentStartValue > Math.min(maxPeriodStart, maxPeriod)) currentStartValue = Math.min(maxPeriodStart, maxPeriod);
         periodStartRange.value = currentStartValue;
         periodStartInput.value = currentStartValue;
         syncInputWithRange(periodStartInput, periodStartRange);
 
-        // Box "DO" - dynamiczne dostosowanie z ograniczeniem
+        // Box "DO"
         let tempOverpayments = [...previousOverpayments];
         tempOverpayments.push({ type: "Miesięczna", start: periodStart, end: periodStart, amount: overpaymentAmount, effect: effect });
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, tempOverpayments, periodStart);
         let maxPeriodEnd = periodStart;
 
         if (remainingCapital > 0) {
-            let month = periodStart + 1;
-            let tempCapital = remainingCapital;
-            let rata = paymentType === "rowne"
+            tempCapital = remainingCapital;
+            month = periodStart + 1;
+            rata = paymentType === "rowne"
                 ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
                 : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
 
@@ -799,55 +831,35 @@ function updateOverpaymentLimit(input, range, group) {
                     break;
                 }
                 month++;
+                if (tempCapital > 0) {
+                    rata = paymentType === "rowne"
+                        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+                        : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+                }
             }
             if (month > totalMonths && tempCapital > 0) {
                 maxPeriodEnd = totalMonths;
             }
         }
 
-        // Ograniczenie "DO" do "OD", jeśli nadpłata w miesiącu "OD" pokrywa kapitał
         if (overpaymentAmount >= remainingCapital + (remainingCapital * monthlyRate)) {
             maxPeriodEnd = periodStart;
         }
 
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
-        periodEndInput.max = Math.max(periodStart, maxPeriodEnd);
-        periodEndRange.max = Math.max(periodStart, maxPeriodEnd);
+        periodEndInput.max = Math.max(periodStart, Math.min(maxPeriodEnd, maxPeriod)); // Ograniczamy do miesiąca spłaty kapitału
+        periodEndRange.max = Math.max(periodStart, Math.min(maxPeriodEnd, maxPeriod));
         let currentEndValue = parseInt(periodEndRange.value) || periodStart;
-        if (currentEndValue > Math.max(periodStart, maxPeriodEnd)) currentEndValue = Math.max(periodStart, maxPeriodEnd);
+        if (currentEndValue > Math.max(periodStart, Math.min(maxPeriodEnd, maxPeriod))) currentEndValue = Math.max(periodStart, Math.min(maxPeriodEnd, maxPeriod));
         periodEndRange.value = currentEndValue;
         periodEndInput.value = currentEndValue;
         syncInputWithRange(periodEndInput, periodEndRange);
     } else {
         // Box "W" dla nadpłaty jednorazowej
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
-        let tempCapital = remainingCapital;
-        let maxPeriod = minPeriodStart;
-        let month = minPeriodStart;
-        const monthlyRate = interestRate / 100 / 12;
-        let rata = paymentType === "rowne"
-            ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
-            : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
-
-        while (tempCapital > 0 && month <= totalMonths) {
-            const odsetki = tempCapital * monthlyRate;
-            let kapital = rata - odsetki;
-            if (kapital > tempCapital) kapital = tempCapital;
-            tempCapital -= kapital;
-            if (tempCapital <= overpaymentAmount) {
-                maxPeriod = month;
-                break;
-            }
-            month++;
-        }
-        if (month > totalMonths && tempCapital > 0) {
-            maxPeriod = totalMonths;
-        }
-
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = maxPeriod;
+        periodStartInput.max = maxPeriod; // Ograniczamy do miesiąca spłaty kapitału
         periodStartRange.max = maxPeriod;
         let currentStartValue = parseInt(periodStartRange.value) || minPeriodStart;
         if (currentStartValue > maxPeriod) currentStartValue = maxPeriod;
@@ -898,14 +910,59 @@ function updateAllOverpaymentLimits() {
     const totalMonths = parseInt(elements.iloscRat?.value) || 360;
     const paymentType = elements.rodzajRat?.value || "rowne";
 
-    remainingCapital = calculateRemainingCapital(remainingCapital, interestRate, totalMonths, paymentType, overpayments, lastOverpaymentMonth);
+    // Oblicz miesiąc, w którym kapitał zostanie spłacony
+    let tempCapital = remainingCapital;
+    let month = 1;
+    const monthlyRate = interestRate / 100 / 12;
+    let rata = paymentType === "rowne"
+        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -totalMonths))
+        : (tempCapital / totalMonths) + (tempCapital * monthlyRate);
 
-    lastRemainingCapital = remainingCapital;
-    let maxPeriodLimit = lastMonthWithCapital !== null ? Math.min(lastMonthWithCapital, totalMonths) : totalMonths;
-    if (lastRemainingCapital > 0) {
-        let monthsToPayOff = Math.ceil(lastRemainingCapital / 100);
-        maxPeriodLimit = Math.min(maxPeriodLimit, lastOverpaymentMonth + monthsToPayOff);
+    while (tempCapital > 0 && month <= totalMonths) {
+        const odsetki = tempCapital * monthlyRate;
+        let kapital = rata - odsetki;
+        if (kapital > tempCapital) kapital = tempCapital;
+        tempCapital -= kapital;
+
+        overpayments.forEach((overpayment) => {
+            let applyOverpayment = false;
+            if (overpayment.type === "Jednorazowa" && overpayment.start === month) {
+                applyOverpayment = true;
+            } else if (overpayment.type === "Miesięczna" && month >= overpayment.start && month <= overpayment.end) {
+                applyOverpayment = true;
+            }
+            if (applyOverpayment && tempCapital > 0) {
+                let overpaymentAmount = overpayment.amount;
+                if (overpaymentAmount > tempCapital) overpaymentAmount = tempCapital;
+                tempCapital -= overpaymentAmount;
+                if (overpayment.effect === "Zmniejsz ratę" && tempCapital > 0) {
+                    const remainingMonths = totalMonths - month;
+                    if (remainingMonths > 0) {
+                        rata = paymentType === "rowne"
+                            ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                            : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                    }
+                }
+            }
+        });
+
+        if (tempCapital <= 0) {
+            lastMonthWithCapital = month;
+            break;
+        }
+        month++;
+        if (tempCapital > 0) {
+            rata = paymentType === "rowne"
+                ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
+                : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
+        }
     }
+    if (month > totalMonths && tempCapital > 0) {
+        lastMonthWithCapital = totalMonths;
+    }
+
+    remainingCapital = calculateRemainingCapital(remainingCapital, interestRate, totalMonths, paymentType, overpayments, lastOverpaymentMonth);
+    lastRemainingCapital = remainingCapital;
 
     groups.forEach((g) => {
         if (!g || !g.parentElement) return;
@@ -918,7 +975,7 @@ function updateAllOverpaymentLimits() {
     });
 
     state.isUpdating = false;
-    return { remainingCapital: lastRemainingCapital, lastMonthWithCapital: maxPeriodLimit };
+    return { remainingCapital: lastRemainingCapital, lastMonthWithCapital };
 }
 
 function initializeNadplataKredytuGroup(group) {
@@ -1549,7 +1606,6 @@ function updateNadplataKredytuRemoveButtons() {
         updateNadplataKredytuRemoveButtons();
     });
 
-    // Sprawdzanie warunków ukrycia przycisku "Dodaj kolejną nadpłatę"
     const lastGroupData = groups[groups.length - 1];
     const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
@@ -1568,12 +1624,10 @@ function updateNadplataKredytuRemoveButtons() {
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
 
-    // Sprawdzanie pozostałego kapitału i okresu
     const { remainingCapital, lastMonthWithCapital } = updateAllOverpaymentLimits();
     const isCapitalDepleted = remainingCapital <= 0;
     const isLastMonthReached = lastMonthWithCapital !== null && (type === "Miesięczna" ? currentPeriodEnd >= lastMonthWithCapital : currentPeriodStart >= lastMonthWithCapital);
 
-    // Ukryj przycisk, jeśli kapitał jest spłacony lub osiągnięto maksymalny okres
     if (state.hasUserInteracted && (isCapitalDepleted || isLastMonthReached || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached)))) {
         addBtn.style.display = "none";
     } else {
@@ -1602,7 +1656,7 @@ function initializeNadplataKredytuToggle() {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
-            state.hasUserInteracted = false; // Reset flagi przy włączeniu sekcji
+            state.hasUserInteracted = false;
             updateNadplataKredytuRemoveButtons();
         } else {
             resetNadplataKredytuSection();
@@ -1611,10 +1665,8 @@ function initializeNadplataKredytuToggle() {
     });
 }
 
-// Dodajemy flagę śledzącą interakcje użytkownika
 state.hasUserInteracted = false;
 
-// Nasłuchiwanie na interakcje użytkownika z polami
 document.addEventListener("DOMContentLoaded", () => {
     initializeNadplataKredytuToggle();
 
