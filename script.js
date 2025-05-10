@@ -519,16 +519,6 @@ function initializeInputHandling() {
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
-const elements = {
-    nadplataKredytuBtn: document.querySelector("#nadplataKredytuBtn"),
-    nadplataKredytuInputs: document.querySelector("#nadplataKredytuInputs"),
-    nadplataKredytuWrapper: document.querySelector("#nadplataKredytuWrapper"),
-    kwota: document.querySelector("#kwota"),
-    oprocentowanie: document.querySelector("#oprocentowanie"),
-    iloscRat: document.querySelector("#iloscRat"),
-    rodzajRat: document.querySelector("#rodzajRat"),
-};
-
 // Sprawdzanie, czy wszystkie elementy istnieją
 if (!elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements.nadplataKredytuWrapper || !elements.kwota || !elements.oprocentowanie || !elements.iloscRat || !elements.rodzajRat) {
     console.error("Niektóre elementy DOM nie zostały znalezione:", {
@@ -541,12 +531,6 @@ if (!elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements
         rodzajRat: elements.rodzajRat
     });
 }
-
-const state = {
-    isUpdating: false,
-    isEditing: new Map(),
-    overpaymentRates: [],
-};
 
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
