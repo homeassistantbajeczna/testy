@@ -613,15 +613,17 @@ function debounce(func, wait) {
 function syncInputWithRange(input, range) {
     if (!input || !range) return;
 
-    let value = parseInt(input.value) || parseInt(range.value);
+    let value = parseInt(input.value);
     const min = parseInt(range.min) || 1;
     const max = parseInt(range.max) || 360;
 
-    if (isNaN(value) || value < min) value = min;
-    if (value > max) value = max;
-
-    if (parseInt(input.value) !== value) input.value = value;
-    if (parseInt(range.value) !== value) range.value = value;
+    // Tylko jeśli wartość jest poprawna (nie pusta i w zakresie), synchronizuj
+    if (!isNaN(value)) {
+        if (value < min) value = min;
+        if (value > max) value = max;
+        input.value = value;
+        range.value = value;
+    }
 }
 
 function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth) {
@@ -773,41 +775,30 @@ function updateOverpaymentLimit(input, range, group) {
             ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
             : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
 
-        // Sprawdzenie, czy w pierwszej racie nadpłata pokrywa cały kapitał
-        const odsetkiFirstMonth = tempCapital * monthlyRate;
-        let kapitalFirstMonth = rata - odsetkiFirstMonth;
-        if (kapitalFirstMonth > tempCapital) kapitalFirstMonth = tempCapital;
-        tempCapital -= kapitalFirstMonth;
-        if (tempCapital <= overpaymentAmount) {
-            // Jeśli nadpłata w pierwszej racie pokrywa pozostały kapitał, maxPeriodEnd to tylko periodStart
-            maxPeriodEnd = periodStart;
-        } else {
-            // Kontynuuj obliczanie, jeśli kapitał nie został spłacony w pierwszej racie
-            tempCapital -= overpaymentAmount;
+        // Liczenie nadpłat w kolejnych miesiącach
+        let cumulativeOverpayment = 0;
+        while (tempCapital > 0 && month <= totalMonths) {
+            const odsetki = tempCapital * monthlyRate;
+            let kapital = rata - odsetki;
+            if (kapital > tempCapital) kapital = tempCapital;
+            tempCapital -= kapital;
+            cumulativeOverpayment += overpaymentAmount;
+            if (tempCapital <= 0 || cumulativeOverpayment > remainingCapital) {
+                maxPeriodEnd = month;
+                break;
+            }
+            if (effect === "Zmniejsz ratę" && tempCapital > 0) {
+                const remainingMonths = totalMonths - month;
+                if (remainingMonths > 0) {
+                    rata = paymentType === "rowne"
+                        ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                        : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
+                }
+            }
             month++;
-            while (tempCapital > 0 && month <= totalMonths) {
-                const odsetki = tempCapital * monthlyRate;
-                let kapital = rata - odsetki;
-                if (kapital > tempCapital) kapital = tempCapital;
-                tempCapital -= kapital;
-                tempCapital -= overpaymentAmount;
-                if (tempCapital <= 0) {
-                    maxPeriodEnd = month;
-                    break;
-                }
-                if (effect === "Zmniejsz ratę" && tempCapital > 0) {
-                    const remainingMonths = totalMonths - month;
-                    if (remainingMonths > 0) {
-                        rata = paymentType === "rowne"
-                            ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
-                            : (tempCapital / remainingMonths) + (tempCapital * monthlyRate);
-                    }
-                }
-                month++;
-            }
-            if (month > totalMonths && tempCapital > 0) {
-                maxPeriodEnd = totalMonths;
-            }
+        }
+        if (month > totalMonths && tempCapital > 0) {
+            maxPeriodEnd = totalMonths;
         }
 
         periodEndInput.min = periodStart;
@@ -1105,22 +1096,25 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("focus", () => {
                     state.isEditing.set(input, true);
+                    input.select();
                 });
 
                 input.addEventListener("input", () => {
-                    let value = input.value;
-                    value = value.replace(/[^0-9]/g, "");
-                    if (value !== input.value) {
-                        const cursorPosition = input.selectionStart;
-                        input.value = value;
-                        input.setSelectionRange(cursorPosition, cursorPosition);
+                    let value = input.value.replace(/[^0-9]/g, "");
+                    input.value = value;
+                    if (value !== "") {
+                        let parsedValue = parseInt(value);
+                        let minValue = parseInt(input.min) || 1;
+                        let maxValue = parseInt(input.max) || 360;
+                        if (parsedValue < minValue) parsedValue = minValue;
+                        if (parsedValue > maxValue) parsedValue = maxValue;
+                        periodEndRange.value = parsedValue;
                     }
-                    syncInputWithRange(input, periodEndRange);
                     debouncedUpdate();
                 });
 
                 input.addEventListener("change", () => {
-                    let value = parseInt(input.value) || 0;
+                    let value = parseInt(input.value);
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1140,7 +1134,7 @@ function initializeNadplataKredytuGroup(group) {
                 });
 
                 input.addEventListener("blur", () => {
-                    let value = parseInt(input.value) || 0;
+                    let value = parseInt(input.value);
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1200,22 +1194,25 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("focus", () => {
                     state.isEditing.set(input, true);
+                    input.select();
                 });
 
                 input.addEventListener("input", () => {
-                    let value = input.value;
-                    value = value.replace(/[^0-9]/g, "");
-                    if (value !== input.value) {
-                        const cursorPosition = input.selectionStart;
-                        input.value = value;
-                        input.setSelectionRange(cursorPosition, cursorPosition);
+                    let value = input.value.replace(/[^0-9]/g, "");
+                    input.value = value;
+                    if (value !== "") {
+                        let parsedValue = parseInt(value);
+                        let minValue = parseInt(input.min) || 1;
+                        let maxValue = parseInt(input.max) || 360;
+                        if (parsedValue < minValue) parsedValue = minValue;
+                        if (parsedValue > maxValue) parsedValue = maxValue;
+                        periodStartRange.value = parsedValue;
                     }
-                    syncInputWithRange(input, periodStartRange);
                     debouncedUpdate();
                 });
 
                 input.addEventListener("change", () => {
-                    let value = parseInt(input.value) || 0;
+                    let value = parseInt(input.value);
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1235,7 +1232,7 @@ function initializeNadplataKredytuGroup(group) {
                 });
 
                 input.addEventListener("blur", () => {
-                    let value = parseInt(input.value) || 0;
+                    let value = parseInt(input.value);
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1283,22 +1280,25 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("focus", () => {
                     state.isEditing.set(input, true);
+                    input.select();
                 });
 
-                input.addEventListener("input", (e) => {
-                    let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, "");
-                    if (value !== e.target.value) {
-                        const cursorPosition = e.target.selectionStart;
-                        e.target.value = value;
-                        e.target.setSelectionRange(cursorPosition, cursorPosition);
+                input.addEventListener("input", () => {
+                    let value = input.value.replace(/[^0-9]/g, "");
+                    input.value = value;
+                    if (value !== "") {
+                        let parsedValue = parseInt(value);
+                        let minValue = parseInt(input.min) || 100;
+                        let maxValue = parseInt(input.max) || 5000000;
+                        if (parsedValue < minValue) parsedValue = minValue;
+                        if (parsedValue > maxValue) parsedValue = maxValue;
+                        range.value = parsedValue;
                     }
-                    syncInputWithRange(input, range);
                     debouncedUpdate();
                 });
 
                 input.addEventListener("change", () => {
-                    let value = parseInt(input.value) || 0;
+                    let value = parseInt(input.value);
                     let minValue = parseInt(input.min) || 100;
                     let maxValue = parseInt(input.max) || 5000000;
 
@@ -1316,7 +1316,7 @@ function initializeNadplataKredytuGroup(group) {
                 });
 
                 input.addEventListener("blur", () => {
-                    let value = parseInt(input.value) || 0;
+                    let value = parseInt(input.value);
                     let minValue = parseInt(input.min) || 100;
                     let maxValue = parseInt(input.max) || 5000000;
 
