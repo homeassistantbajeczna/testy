@@ -1649,7 +1649,7 @@ document.addEventListener("DOMContentLoaded", () => {
             updateNadplataKredytuRemoveButtons();
         });
     }
-});
+}
 
 
 
