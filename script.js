@@ -1593,20 +1593,10 @@ function updateNadplataKredytuRemoveButtons() {
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
 
     const { remainingCapital, lastMonthWithCapital } = updateAllOverpaymentLimits();
-    const loanAmount = parseInt(elements.kwota?.value) || 500000;
-    const interestRate = parseFloat(elements.oprocentowanie?.value) || 7;
-    const totalMonths = parseInt(elements.iloscRat?.value) || 360;
-    const paymentType = elements.rodzajRat?.value || "rowne";
-    const monthlyRate = interestRate / 100 / 12;
-    let rata = paymentType === "rowne"
-        ? (remainingCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - lastMonthWithCapital + 1)))
-        : (remainingCapital / (totalMonths - lastMonthWithCapital + 1)) + (remainingCapital * monthlyRate);
-
-    const isCapitalFullyPaidByLastRate = remainingCapital > 0 && remainingCapital <= rata;
     const isCapitalDepleted = remainingCapital <= 0;
     const isLastMonthReached = lastMonthWithCapital !== null && (type === "Miesięczna" ? currentPeriodEnd >= lastMonthWithCapital : currentPeriodStart >= lastMonthWithCapital);
 
-    if (state.hasUserInteracted && (isCapitalDepleted || isLastMonthReached || isMaxPeriodStartReached || isMaxPeriodEndReached || isCapitalFullyPaidByLastRate)) {
+    if (state.hasUserInteracted && (isCapitalDepleted || isLastMonthReached || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached)))) {
         addBtn.style.display = "none";
     } else {
         addBtn.style.display = "block";
