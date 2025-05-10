@@ -1540,10 +1540,7 @@ function updateNadplataKredytuRemoveButtons() {
         updateNadplataKredytuRemoveButtons();
     });
 
-    // Początkowo przycisk zawsze widoczny
-    addBtn.style.display = "block";
-
-    // Sprawdzanie warunków ukrycia przycisku
+    // Sprawdzanie warunków ukrycia przycisku "Dodaj kolejną nadpłatę"
     const lastGroupData = groups[groups.length - 1];
     const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
@@ -1562,13 +1559,16 @@ function updateNadplataKredytuRemoveButtons() {
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
 
-    // Sprawdzanie pozostałego kapitału
-    const { remainingCapital } = updateAllOverpaymentLimits();
+    // Sprawdzanie pozostałego kapitału i okresu
+    const { remainingCapital, lastMonthWithCapital } = updateAllOverpaymentLimits();
     const isCapitalDepleted = remainingCapital <= 0;
+    const isLastMonthReached = lastMonthWithCapital !== null && (type === "Miesięczna" ? currentPeriodEnd >= lastMonthWithCapital : currentPeriodStart >= lastMonthWithCapital);
 
-    // Nie ukrywaj przycisku, jeśli kwota jest minimalna (100 zł) i kapitał nie jest w pełni spłacony
-    if (state.hasUserInteracted && (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached))) && currentRate > 100 && remainingCapital <= 0) {
+    // Ukryj przycisk, jeśli kapitał jest spłacony lub osiągnięto maksymalny okres
+    if (state.hasUserInteracted && (isCapitalDepleted || isLastMonthReached || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached)))) {
         addBtn.style.display = "none";
+    } else {
+        addBtn.style.display = "block";
     }
 }
 
