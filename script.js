@@ -783,7 +783,8 @@ function updateOverpaymentLimit(input, range, group) {
             minPeriodStart = prevPeriodStart + 1;
         }
         defaultAmount = 100;
-        maxAmount = loanAmount;
+        const targetMonthForRemaining = periodStart - 1;
+        maxAmount = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, targetMonthForRemaining);
     } else if (type === "Miesięczna") {
         minAmount = 100;
         defaultAmount = 100;
@@ -808,14 +809,10 @@ function updateOverpaymentLimit(input, range, group) {
         }
     }
 
-    const targetMonth = type === "Jednorazowa" ? periodStart - 1 : (type === "Kwartalna" ? (periodStart * 3) - 1 : (type === "Roczna" ? (periodStart * 12) - 1 : periodStart - 1));
-    let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, targetMonth);
-    maxAmount = Math.max(minAmount, remainingCapital);
-
     rateInput.min = minAmount;
     rateRange.min = minAmount;
-    rateInput.max = maxAmount;
-    rateRange.max = maxAmount;
+    rateInput.max = maxAmount > minAmount ? maxAmount : minAmount;
+    rateRange.max = maxAmount > minAmount ? maxAmount : minAmount;
 
     let rateValue = parseInt(rateInput.value) || defaultAmount;
     if (rateValue < minAmount) rateValue = minAmount;
@@ -1034,6 +1031,7 @@ function initializeNadplataKredytuGroup(group) {
             }
         }
 
+        // Ustawienie KWOTA NADPŁATY jako nadrzędne
         rateInput.min = minAmount;
         rateRange.min = minAmount;
         rateInput.max = maxAmount;
@@ -1043,6 +1041,18 @@ function initializeNadplataKredytuGroup(group) {
         if (rateValue > maxAmount) rateValue = maxAmount;
         rateInput.value = rateValue;
         rateRange.value = rateValue;
+
+        // Dynamiczne dostosowanie W/OD na podstawie KWOTA NADPŁATY
+        const targetMonth = type === "Jednorazowa" ? periodStart - 1 : (type === "Kwartalna" ? (periodStart * 3) - 1 : (type === "Roczna" ? (periodStart * 12) - 1 : periodStart - 1));
+        let remainingCapital = calculateRemainingCapital(parseInt(elements.kwota?.value) || 500000, parseFloat(elements.oprocentowanie?.value) || 7, iloscRat, elements.rodzajRat?.value || "rowne", [], targetMonth);
+        if (rateValue > remainingCapital) {
+            periodStartInput.max = Math.max(1, calculatePayoffMonth(parseInt(elements.kwota?.value) || 500000, parseFloat(elements.oprocentowanie?.value) || 7, iloscRat, elements.rodzajRat?.value || "rowne", [{ type, start: periodStart, amount: remainingCapital, effect: effect }]) - 1);
+            periodStartRange.max = periodStartInput.max;
+            if (parseInt(periodStartInput.value) > periodStartInput.max) {
+                periodStartInput.value = periodStartInput.max;
+                periodStartRange.value = periodStartInput.max;
+            }
+        }
 
         periodStartInput.min = minValue;
         periodStartRange.min = minValue;
@@ -1078,11 +1088,6 @@ function initializeNadplataKredytuGroup(group) {
                 const periodStartRange = range;
                 const debouncedUpdate = debounce(() => {
                     if (!state.isEditing.get(input)) {
-                        const rateInput = group.querySelector(".variable-rate");
-                        const rateRange = group.querySelector(".variable-rate-range");
-                        if (rateInput && rateRange) {
-                            updateOverpaymentLimit(rateInput, rateRange, group);
-                        }
                         updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
                     }
@@ -1170,6 +1175,7 @@ function initializeNadplataKredytuGroup(group) {
             } else if (input.classList.contains("variable-rate")) {
                 const debouncedUpdate = debounce(() => {
                     updateOverpaymentLimit(input, range, group);
+                    updatePeriodBox(); // Aktualizacja W/OD po zmianie KWOTA NADPŁATY
                     updateRatesArray("nadplata");
                     updateNadplataKredytuRemoveButtons();
                 }, 50);
