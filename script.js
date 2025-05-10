@@ -1051,7 +1051,6 @@ function initializeNadplataKredytuGroup(group) {
             syncInputWithRange(input, range);
 
             if (input.classList.contains("variable-cykl-end")) {
-                const periodStartInput = group.querySelector(".variable-cykl-start");
                 const periodEndRange = range;
 
                 const updateLimits = () => {
@@ -1513,7 +1512,7 @@ function updateNadplataKredytuRemoveButtons() {
         updateNadplataKredytuRemoveButtons();
     });
 
-    // Aktualizujemy limity nadpłaty i pobieramy remainingCapital
+    // Aktualizujemy limity i pobieramy dane
     const { remainingCapital, lastMonthWithCapital } = updateAllOverpaymentLimits();
     const lastGroupData = groups[groups.length - 1];
     const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
@@ -1524,32 +1523,26 @@ function updateNadplataKredytuRemoveButtons() {
     const periodStartRange = lastGroupData.querySelector(".variable-cykl-start-range");
     const periodEndRange = lastGroupData.querySelector(".variable-cykl-end-range");
 
-    // Pobieramy maksymalne wartości po aktualizacji
     const maxRate = parseInt(rateInput?.max) || 5000000;
-    const maxPeriodStart = parseInt(periodStartInput?.max) || 360;
-    const maxPeriodEnd = periodEndInput ? parseInt(periodEndInput?.max) || 360 : maxPeriodStart;
+    const maxPeriodStart = parseInt(periodStartRange?.max) || 360;
+    const maxPeriodEnd = periodEndRange ? parseInt(periodEndRange?.max) || 360 : maxPeriodStart;
     const currentRate = parseInt(rateInput?.value) || 100;
     const currentPeriodStart = parseInt(periodStartInput?.value) || 1;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || currentPeriodStart : currentPeriodStart;
 
-    // Sprawdzamy, czy osiągnięto maksymalne wartości
     const isMaxRateReached = currentRate >= maxRate;
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
     const isCapitalDepleted = remainingCapital <= 0;
-
-    // Sprawdzamy, czy ostatnia nadpłata spłaca cały kredyt
     const totalMonths = parseInt(elements.iloscRat?.value) || 360;
     const isBeyondLoanTerm = lastMonthWithCapital !== null && lastMonthWithCapital < totalMonths && currentPeriodStart >= lastMonthWithCapital;
 
-    // Ukrywamy przycisk "DODAJ KOLEJNĄ NADPŁATĘ", jeśli spełniony jest którykolwiek z warunków
     if (isCapitalDepleted || isMaxRateReached || isMaxPeriodStartReached || isMaxPeriodEndReached || isBeyondLoanTerm) {
         addBtn.style.display = "none";
     } else {
         addBtn.style.display = "block";
     }
 
-    // Logowanie dla debugowania
     console.log({
         remainingCapital,
         lastMonthWithCapital,
@@ -1589,35 +1582,7 @@ function initializeNadplataKredytuToggle() {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
-            updateNadplataKredytuRemoveButtons();
-            // Upewniamy się, że przycisk jest widoczny po włączeniu sekcji (o ile warunki na to pozwalają)
-            const addBtn = elements.nadplataKredytuWrapper.querySelector("#addNadplataKredytuBtn");
-            if (addBtn) {
-                const { remainingCapital } = updateAllOverpaymentLimits();
-                const lastGroup = elements.nadplataKredytuWrapper.querySelector(".variable-input-group:last-child");
-                const rateInput = lastGroup.querySelector(".variable-rate");
-                const periodStartInput = lastGroup.querySelector(".variable-cykl-start");
-                const periodEndInput = lastGroup.querySelector(".variable-cykl-end");
-                const type = lastGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
-
-                const maxRate = parseInt(rateInput?.max) || 5000000;
-                const maxPeriodStart = parseInt(periodStartInput?.max) || 360;
-                const maxPeriodEnd = periodEndInput ? parseInt(periodEndInput?.max) || 360 : maxPeriodStart;
-                const currentRate = parseInt(rateInput?.value) || 100;
-                const currentPeriodStart = parseInt(periodStartInput?.value) || 1;
-                const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || currentPeriodStart : currentPeriodStart;
-
-                const isMaxRateReached = currentRate >= maxRate;
-                const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
-                const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
-                const isCapitalDepleted = remainingCapital <= 0;
-
-                if (isCapitalDepleted || isMaxRateReached || isMaxPeriodStartReached || isMaxPeriodEndReached) {
-                    addBtn.style.display = "none";
-                } else {
-                    addBtn.style.display = "block";
-                }
-            }
+            updateNadplataKredytuRemoveButtons(); // Wywołanie aktualizacji przycisków
         } else {
             resetNadplataKredytuSection();
         }
