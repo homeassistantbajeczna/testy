@@ -1515,6 +1515,8 @@ function updateNadplataKredytuRemoveButtons() {
 
     const { remainingCapital } = updateAllOverpaymentLimits();
     const lastGroupData = groups[groups.length - 1];
+    const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
+    const type = typeSelect?.value || "Jednorazowa";
     const rateInput = lastGroupData.querySelector(".variable-rate");
     const periodStartInput = lastGroupData.querySelector(".variable-cykl-start");
     const periodEndInput = lastGroupData.querySelector(".variable-cykl-end");
@@ -1526,7 +1528,14 @@ function updateNadplataKredytuRemoveButtons() {
     const currentPeriodStart = parseInt(periodStartInput?.value) || 0;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || 0 : 0;
 
-    if (remainingCapital <= 0 || currentRate >= maxRate || currentPeriodStart >= maxPeriodStart || (periodEndInput && currentPeriodEnd >= maxPeriodEnd)) {
+    // Sprawdzamy, czy osiągnięto maksymalne wartości
+    const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
+    const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
+    const isMaxRateReached = currentRate >= maxRate;
+    const isCapitalDepleted = remainingCapital <= 0;
+
+    // Ukrywamy przycisk "DODAJ KOLEJNĄ NADPŁATĘ", jeśli którykolwiek z warunków jest spełniony
+    if (isCapitalDepleted || isMaxRateReached || isMaxPeriodStartReached || isMaxPeriodEndReached) {
         addBtn.style.display = "none";
     } else {
         addBtn.style.display = "block";
