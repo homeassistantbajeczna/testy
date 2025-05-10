@@ -1512,7 +1512,10 @@ function updateNadplataKredytuRemoveButtons() {
         updateNadplataKredytuRemoveButtons();
     });
 
-    const { remainingCapital } = updateAllOverpaymentLimits();
+    // Początkowo przycisk "DODAJ KOLEJNĄ NADPŁATĘ" zawsze widoczny po włączeniu sekcji
+    addBtn.style.display = "block";
+
+    // Sprawdzanie warunków ukrycia przycisku tylko jeśli użytkownik zmienił wartości
     const lastGroupData = groups[groups.length - 1];
     const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
@@ -1525,16 +1528,17 @@ function updateNadplataKredytuRemoveButtons() {
     const maxPeriodEnd = periodEndRange ? parseInt(periodEndRange?.max) || 360 : maxPeriodStart;
     const currentPeriodStart = parseInt(periodStartInput?.value) || 1;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || currentPeriodStart : currentPeriodStart;
-    const isCapitalDepleted = remainingCapital <= 0;
 
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
 
-    // Ukrywamy przycisk tylko, gdy osiągnięto maksymalny okres lub kapitał jest wyczerpany
-    if (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached))) {
+    // Sprawdzanie pozostałego kapitału
+    const { remainingCapital } = updateAllOverpaymentLimits();
+    const isCapitalDepleted = remainingCapital <= 0;
+
+    // Ukrywanie przycisku tylko jeśli użytkownik zmienił wartości i warunki są spełnione
+    if (state.hasUserInteracted && (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached)))) {
         addBtn.style.display = "none";
-    } else {
-        addBtn.style.display = "block";
     }
 }
 
@@ -1559,6 +1563,7 @@ function initializeNadplataKredytuToggle() {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
+            state.hasUserInteracted = false; // Reset flagi przy włączeniu sekcji
             updateNadplataKredytuRemoveButtons();
         } else {
             resetNadplataKredytuSection();
@@ -1571,8 +1576,25 @@ function toggleMainFormLock() {
     // Placeholder - zdefiniuj tę funkcję w innym miejscu kodu, jeśli jest potrzebna
 }
 
+// Dodajemy flagę śledzącą interakcje użytkownika
+state.hasUserInteracted = false;
+
+// Dodajemy nasłuchiwanie na interakcje użytkownika z polami
 document.addEventListener("DOMContentLoaded", () => {
     initializeNadplataKredytuToggle();
+
+    // Nasłuchiwanie na zmiany w polach, aby ustawić flagę hasUserInteracted
+    const wrapper = elements.nadplataKredytuWrapper;
+    if (wrapper) {
+        wrapper.addEventListener("input", () => {
+            state.hasUserInteracted = true;
+            updateNadplataKredytuRemoveButtons();
+        });
+        wrapper.addEventListener("change", () => {
+            state.hasUserInteracted = true;
+            updateNadplataKredytuRemoveButtons();
+        });
+    }
 });
 
 
