@@ -1528,28 +1528,29 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("input", () => {
                     let value = input.value.replace(/[^0-9]/g, "");
-                    input.value = value;
                     if (value !== "") {
                         let parsedValue = parseInt(value);
-                        let minValue = parseInt(input.min) || 100;
-                        let maxValue = parseInt(input.max) || 5000000;
+                        const minValue = parseInt(input.min) || 100;
+                        const maxAllowed = parseInt(input.max) || 5000000; // Pobranie aktualnego max z inputu
                         if (parsedValue < minValue) parsedValue = minValue;
-                        if (parsedValue > maxValue) parsedValue = maxValue;
+                        if (parsedValue > maxAllowed) parsedValue = maxAllowed; // Natychmiastowa korekta
+                        input.value = parsedValue;
                         range.value = parsedValue;
+                        syncInputWithRange(input, range);
                     }
                     debouncedUpdate();
                 });
 
                 input.addEventListener("change", () => {
                     let value = parseInt(input.value);
-                    let minValue = parseInt(input.min) || 100;
-                    let maxValue = parseInt(input.max) || 5000000;
+                    const minValue = parseInt(input.min) || 100;
+                    const maxAllowed = parseInt(input.max) || 5000000;
 
                     if (isNaN(value) || input.value === "") {
                         value = minValue;
                     } else {
                         if (value < minValue) value = minValue;
-                        if (value > maxValue) value = maxValue;
+                        if (value > maxAllowed) value = maxAllowed;
                     }
 
                     input.value = value;
@@ -1560,14 +1561,14 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("blur", () => {
                     let value = parseInt(input.value);
-                    let minValue = parseInt(input.min) || 100;
-                    let maxValue = parseInt(input.max) || 5000000;
+                    const minValue = parseInt(input.min) || 100;
+                    const maxAllowed = parseInt(input.max) || 5000000;
 
                     if (isNaN(value) || input.value === "") {
                         value = minValue;
                     } else {
                         if (value < minValue) value = minValue;
-                        if (value > maxValue) value = maxValue;
+                        if (value > maxAllowed) value = maxAllowed;
                     }
 
                     input.value = value;
