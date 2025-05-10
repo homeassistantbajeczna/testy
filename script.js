@@ -138,12 +138,25 @@ function toggleMainFormLock() {
 
     mainFormInputs.forEach(({ input, group }) => {
         if (input && group) {
+            // Zablokuj/odblokuj input
             input.disabled = shouldLock;
+
+            // Dodaj/usuń klasę locked
             if (shouldLock) {
                 group.classList.add("locked");
+                // Dodaj style inline, jeśli brak CSS dla klasy locked
+                input.style.backgroundColor = "#e9ecef";
+                input.style.opacity = "0.6";
+                input.style.cursor = "not-allowed";
             } else {
                 group.classList.remove("locked");
+                // Przywróć domyślne style
+                input.style.backgroundColor = "";
+                input.style.opacity = "";
+                input.style.cursor = "";
             }
+        } else {
+            console.warn("Nie znaleziono elementu lub grupy:", { input, group });
         }
     });
 }
