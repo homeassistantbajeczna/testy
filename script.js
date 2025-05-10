@@ -1512,10 +1512,10 @@ function updateNadplataKredytuRemoveButtons() {
         updateNadplataKredytuRemoveButtons();
     });
 
-    // Początkowo przycisk "DODAJ KOLEJNĄ NADPŁATĘ" zawsze widoczny po włączeniu sekcji
+    // Początkowo przycisk zawsze widoczny
     addBtn.style.display = "block";
 
-    // Sprawdzanie warunków ukrycia przycisku tylko jeśli użytkownik zmienił wartości
+    // Sprawdzanie warunków ukrycia przycisku
     const lastGroupData = groups[groups.length - 1];
     const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
@@ -1523,11 +1523,13 @@ function updateNadplataKredytuRemoveButtons() {
     const periodEndInput = lastGroupData.querySelector(".variable-cykl-end");
     const periodStartRange = lastGroupData.querySelector(".variable-cykl-start-range");
     const periodEndRange = lastGroupData.querySelector(".variable-cykl-end-range");
+    const rateInput = lastGroupData.querySelector(".variable-rate");
 
     const maxPeriodStart = parseInt(periodStartRange?.max) || 360;
     const maxPeriodEnd = periodEndRange ? parseInt(periodEndRange?.max) || 360 : maxPeriodStart;
     const currentPeriodStart = parseInt(periodStartInput?.value) || 1;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || currentPeriodStart : currentPeriodStart;
+    const currentRate = parseInt(rateInput?.value) || 100;
 
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
@@ -1536,8 +1538,8 @@ function updateNadplataKredytuRemoveButtons() {
     const { remainingCapital } = updateAllOverpaymentLimits();
     const isCapitalDepleted = remainingCapital <= 0;
 
-    // Ukrywanie przycisku tylko jeśli użytkownik zmienił wartości i warunki są spełnione
-    if (state.hasUserInteracted && (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached)))) {
+    // Nie ukrywaj przycisku, jeśli kwota jest minimalna (100 zł), chyba że osiągnięto maksimum okresu
+    if (state.hasUserInteracted && (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached))) && currentRate > 100) {
         addBtn.style.display = "none";
     }
 }
@@ -1579,11 +1581,10 @@ function toggleMainFormLock() {
 // Dodajemy flagę śledzącą interakcje użytkownika
 state.hasUserInteracted = false;
 
-// Dodajemy nasłuchiwanie na interakcje użytkownika z polami
+// Nasłuchiwanie na interakcje użytkownika z polami
 document.addEventListener("DOMContentLoaded", () => {
     initializeNadplataKredytuToggle();
 
-    // Nasłuchiwanie na zmiany w polach, aby ustawić flagę hasUserInteracted
     const wrapper = elements.nadplataKredytuWrapper;
     if (wrapper) {
         wrapper.addEventListener("input", () => {
