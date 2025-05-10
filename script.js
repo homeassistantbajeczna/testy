@@ -1611,10 +1611,6 @@ function initializeNadplataKredytuToggle() {
     });
 }
 
-function toggleMainFormLock() {
-    // Placeholder - zdefiniuj tę funkcję w innym miejscu kodu, jeśli jest potrzebna
-}
-
 // Dodajemy flagę śledzącą interakcje użytkownika
 state.hasUserInteracted = false;
 
