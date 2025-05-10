@@ -1105,19 +1105,22 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("focus", () => {
                     state.isEditing.set(input, true);
-                    input.select(); // Zaznacz całą wartość przy kliknięciu, aby ułatwić edycję
                 });
 
                 input.addEventListener("input", () => {
                     let value = input.value;
-                    value = value.replace(/[^0-9]/g, ""); // Pozwalaj tylko na cyfry
-                    input.value = value; // Aktualizuj wartość w polu
+                    value = value.replace(/[^0-9]/g, "");
+                    if (value !== input.value) {
+                        const cursorPosition = input.selectionStart;
+                        input.value = value;
+                        input.setSelectionRange(cursorPosition, cursorPosition);
+                    }
                     syncInputWithRange(input, periodEndRange);
                     debouncedUpdate();
                 });
 
                 input.addEventListener("change", () => {
-                    let value = parseInt(input.value);
+                    let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1137,7 +1140,7 @@ function initializeNadplataKredytuGroup(group) {
                 });
 
                 input.addEventListener("blur", () => {
-                    let value = parseInt(input.value);
+                    let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1197,19 +1200,22 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("focus", () => {
                     state.isEditing.set(input, true);
-                    input.select(); // Zaznacz całą wartość przy kliknięciu
                 });
 
                 input.addEventListener("input", () => {
                     let value = input.value;
-                    value = value.replace(/[^0-9]/g, ""); // Pozwalaj tylko na cyfry
-                    input.value = value; // Aktualizuj wartość w polu
+                    value = value.replace(/[^0-9]/g, "");
+                    if (value !== input.value) {
+                        const cursorPosition = input.selectionStart;
+                        input.value = value;
+                        input.setSelectionRange(cursorPosition, cursorPosition);
+                    }
                     syncInputWithRange(input, periodStartRange);
                     debouncedUpdate();
                 });
 
                 input.addEventListener("change", () => {
-                    let value = parseInt(input.value);
+                    let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1229,7 +1235,7 @@ function initializeNadplataKredytuGroup(group) {
                 });
 
                 input.addEventListener("blur", () => {
-                    let value = parseInt(input.value);
+                    let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 1;
                     let maxValue = parseInt(input.max) || 360;
 
@@ -1277,19 +1283,22 @@ function initializeNadplataKredytuGroup(group) {
 
                 input.addEventListener("focus", () => {
                     state.isEditing.set(input, true);
-                    input.select(); // Zaznacz całą wartość przy kliknięciu
                 });
 
                 input.addEventListener("input", (e) => {
                     let value = e.target.value;
-                    value = value.replace(/[^0-9]/g, ""); // Pozwalaj tylko na cyfry
-                    e.target.value = value; // Aktualizuj wartość w polu
+                    value = value.replace(/[^0-9]/g, "");
+                    if (value !== e.target.value) {
+                        const cursorPosition = e.target.selectionStart;
+                        e.target.value = value;
+                        e.target.setSelectionRange(cursorPosition, cursorPosition);
+                    }
                     syncInputWithRange(input, range);
                     debouncedUpdate();
                 });
 
                 input.addEventListener("change", () => {
-                    let value = parseInt(input.value);
+                    let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 100;
                     let maxValue = parseInt(input.max) || 5000000;
 
@@ -1307,7 +1316,7 @@ function initializeNadplataKredytuGroup(group) {
                 });
 
                 input.addEventListener("blur", () => {
-                    let value = parseInt(input.value);
+                    let value = parseInt(input.value) || 0;
                     let minValue = parseInt(input.min) || 100;
                     let maxValue = parseInt(input.max) || 5000000;
 
