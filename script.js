@@ -1602,7 +1602,7 @@ function updateNadplataKredytuRemoveButtons() {
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
 
     const { remainingCapital, lastMonthWithCapital } = updateAllOverpaymentLimits();
-    const isCapitalDepleted = remainingCapital <= 0 || remainingCapital < currentRate;
+    const isCapitalDepleted = remainingCapital <= 0;
     const isLastMonthReached = lastMonthWithCapital !== null && (type === "Miesięczna" ? currentPeriodEnd >= lastMonthWithCapital : currentPeriodStart >= lastMonthWithCapital);
 
     if (state.hasUserInteracted && (isCapitalDepleted || isLastMonthReached || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached)))) {
