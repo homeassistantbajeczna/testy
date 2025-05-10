@@ -789,6 +789,11 @@ function updateOverpaymentLimit(input, range, group) {
     }
     overpaymentAmount = rateValue;
 
+    // Oblicz maxPeriod z uwzględnieniem bieżącej nadpłaty
+    let currentOverpayments = [...previousOverpayments, { type, start: periodStart, end: periodEnd, amount: overpaymentAmount, effect }];
+    let lastMonthWithCapital = calculatePayoffMonth(loanAmount, interestRate, totalMonths, paymentType, currentOverpayments);
+    let finalMaxPeriod = lastMonthWithCapital > 1 ? lastMonthWithCapital - 1 : lastMonthWithCapital;
+
     if (type === "Miesięczna" && periodEndInput) {
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
         let tempCapital = remainingCapital;
@@ -821,11 +826,11 @@ function updateOverpaymentLimit(input, range, group) {
 
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = Math.min(maxPeriodStart, maxPeriod);
-        periodStartRange.max = Math.min(maxPeriodStart, maxPeriod);
+        periodStartInput.max = Math.min(maxPeriodStart, finalMaxPeriod);
+        periodStartRange.max = Math.min(maxPeriodStart, finalMaxPeriod);
         let currentStartValue = parseInt(periodStartRange.value) || minPeriodStart;
-        if (currentStartValue > Math.min(maxPeriodStart, maxPeriod)) {
-            currentStartValue = Math.min(maxPeriodStart, maxPeriod);
+        if (currentStartValue > Math.min(maxPeriodStart, finalMaxPeriod)) {
+            currentStartValue = Math.min(maxPeriodStart, finalMaxPeriod);
             periodStartInput.value = currentStartValue;
             periodStartRange.value = currentStartValue;
         }
@@ -868,7 +873,7 @@ function updateOverpaymentLimit(input, range, group) {
             maxPeriodEnd = periodStart;
         }
 
-        maxPeriodEnd = maxPeriodEnd > 1 ? maxPeriodEnd - 1 : maxPeriodEnd;
+        maxPeriodEnd = Math.min(maxPeriodEnd, finalMaxPeriod);
 
         periodEndInput.min = periodStart;
         periodEndRange.min = periodStart;
@@ -884,15 +889,35 @@ function updateOverpaymentLimit(input, range, group) {
     } else {
         periodStartInput.min = minPeriodStart;
         periodStartRange.min = minPeriodStart;
-        periodStartInput.max = maxPeriod;
-        periodStartRange.max = maxPeriod;
+        periodStartInput.max = finalMaxPeriod;
+        periodStartRange.max = finalMaxPeriod;
         let currentStartValue = parseInt(periodStartRange.value) || minPeriodStart;
-        if (currentStartValue > maxPeriod) {
-            currentStartValue = maxPeriod;
+        if (currentStartValue > finalMaxPeriod) {
+            currentStartValue = finalMaxPeriod;
             periodStartInput.value = currentStartValue;
             periodStartRange.value = currentStartValue;
         }
         syncInputWithRange(periodStartInput, periodStartRange);
+    }
+
+    // Oblicz pozostały kapitał po uwzględnieniu bieżącej nadpłaty
+    remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, currentOverpayments, type === "Miesięczna" ? periodEnd : periodStart);
+
+    // Zablokuj edytowanie boxów W/OD/DO, jeśli kapitał jest spłacony
+    if (remainingCapital <= 0) {
+        periodStartInput.disabled = true;
+        periodStartRange.disabled = true;
+        if (periodEndInput && periodEndRange) {
+            periodEndInput.disabled = true;
+            periodEndRange.disabled = true;
+        }
+    } else {
+        periodStartInput.disabled = false;
+        periodStartRange.disabled = false;
+        if (periodEndInput && periodEndRange) {
+            periodEndInput.disabled = false;
+            periodEndRange.disabled = false;
+        }
     }
 
     updateRatesArray("nadplata");
@@ -1596,7 +1621,6 @@ function updateNadplataKredytuRemoveButtons() {
     const maxPeriodEnd = periodEndRange ? parseInt(periodEndRange?.max) || 360 : maxPeriodStart;
     const currentPeriodStart = parseInt(periodStartInput?.value) || 1;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || currentPeriodStart : currentPeriodStart;
-    const currentRate = parseInt(rateInput?.value) || 100;
 
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
