@@ -836,7 +836,7 @@ function updateOverpaymentLimit(input, range, group) {
             let kapital = rata - odsetki;
             if (kapital > tempCapital) kapital = tempCapital;
             tempCapital -= kapital;
-            if (tempCapital <= rateValue) {
+            if (tempCapital <= 0) {
                 maxPeriod = month;
                 break;
             }
