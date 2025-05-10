@@ -775,7 +775,6 @@ function updateOverpaymentLimit(input, range, group) {
             ? (tempCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - month + 1)))
             : (tempCapital / (totalMonths - month + 1)) + (tempCapital * monthlyRate);
 
-        // Liczenie nadpłat w kolejnych miesiącach
         let cumulativeOverpayment = 0;
         while (tempCapital > 0 && month <= totalMonths) {
             const odsetki = tempCapital * monthlyRate;
@@ -801,8 +800,8 @@ function updateOverpaymentLimit(input, range, group) {
             maxPeriodEnd = totalMonths;
         }
 
-        // Ograniczenie "DO" do "OD", jeśli nadpłata przekracza pozostały kapitał w jednym miesiącu
-        if (overpaymentAmount >= remainingCapital) {
+        // Ograniczenie "DO" do "OD", jeśli nadpłata w jednym miesiącu pokrywa kapitał
+        if (overpaymentAmount >= remainingCapital && remainingCapital > 0) {
             maxPeriodEnd = periodStart;
         }
 
@@ -909,7 +908,7 @@ function updateAllOverpaymentLimits() {
         const rateInput = g.querySelector(".variable-rate");
         const rateRange = g.querySelector(".variable-rate-range");
         if (rateInput && rateRange) {
-            updateOverpaymentLimit(rateInput, range, g);
+            updateOverpaymentLimit(rateInput, rateRange, g);
         }
     });
 
