@@ -119,20 +119,21 @@ function updateProwizjaInfo() {
 function toggleMainFormLock() {
     const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
-    const shouldLock = isNadplataActive || isZmienneOprocentowanieActive;
+    const isPorownajKredytActive = elements.porownajKredytBtn?.checked || false;
+    const shouldLock = isNadplataActive || isZmienneOprocentowanieActive || isPorownajKredytActive;
 
     // Elementy formularza do zablokowania/odblokowania
     const mainFormInputs = [
-        { input: elements.kwota, group: elements.kwota.closest('.form-group') },
-        { input: elements.kwotaRange, group: elements.kwotaRange.closest('.form-group') },
-        { input: elements.iloscRat, group: elements.iloscRat.closest('.form-group') },
-        { input: elements.iloscRatRange, group: elements.iloscRatRange.closest('.form-group') },
-        { input: elements.oprocentowanie, group: elements.oprocentowanie.closest('.form-group') },
-        { input: elements.oprocentowanieRange, group: elements.oprocentowanieRange.closest('.form-group') },
-        { input: elements.rodzajRat, group: elements.rodzajRat.closest('.form-group') },
-        { input: elements.prowizja, group: elements.prowizja.closest('.form-group') },
-        { input: elements.prowizjaRange, group: elements.prowizjaRange.closest('.form-group') },
-        { input: elements.jednostkaProwizji, group: elements.jednostkaProwizji.closest('.form-group') }
+        { input: elements.kwota, group: elements.kwota?.closest('.form-group') },
+        { input: elements.kwotaRange, group: elements.kwotaRange?.closest('.form-group') },
+        { input: elements.iloscRat, group: elements.iloscRat?.closest('.form-group') },
+        { input: elements.iloscRatRange, group: elements.iloscRatRange?.closest('.form-group') },
+        { input: elements.oprocentowanie, group: elements.oprocentowanie?.closest('.form-group') },
+        { input: elements.oprocentowanieRange, group: elements.oprocentowanieRange?.closest('.form-group') },
+        { input: elements.rodzajRat, group: elements.rodzajRat?.closest('.form-group') },
+        { input: elements.prowizja, group: elements.prowizja?.closest('.form-group') },
+        { input: elements.prowizjaRange, group: elements.prowizjaRange?.closest('.form-group') },
+        { input: elements.jednostkaProwizji, group: elements.jednostkaProwizji?.closest('.form-group') }
     ];
 
     mainFormInputs.forEach(({ input, group }) => {
@@ -140,14 +141,8 @@ function toggleMainFormLock() {
             input.disabled = shouldLock;
             if (shouldLock) {
                 group.classList.add("locked");
-                input.style.opacity = "";
-                input.style.cursor = "";
-                input.style.backgroundColor = "";
             } else {
                 group.classList.remove("locked");
-                input.style.opacity = "";
-                input.style.cursor = "";
-                input.style.backgroundColor = "";
             }
         }
     });
