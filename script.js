@@ -903,22 +903,12 @@ function updateOverpaymentLimit(input, range, group) {
     // Oblicz pozostały kapitał po uwzględnieniu bieżącej nadpłaty
     remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, currentOverpayments, type === "Miesięczna" ? periodEnd : periodStart);
 
-    // Dynamiczne zarządzanie stanem boxów
-    const isAtMaxPeriod = (type === "Miesięczna" && periodEndInput && periodEnd >= finalMaxPeriod) || periodStart >= finalMaxPeriod;
-    if (remainingCapital <= 0 && isAtMaxPeriod) {
-        periodStartInput.disabled = true;
-        periodStartRange.disabled = true;
-        if (periodEndInput && periodEndRange) {
-            periodEndInput.disabled = true;
-            periodEndRange.disabled = true;
-        }
-    } else {
-        periodStartInput.disabled = false;
-        periodStartRange.disabled = false;
-        if (periodEndInput && periodEndRange) {
-            periodEndInput.disabled = false;
-            periodEndRange.disabled = false;
-        }
+    // Nie blokuj boxów, tylko ustaw max wartości
+    periodStartInput.disabled = false;
+    periodStartRange.disabled = false;
+    if (periodEndInput && periodEndRange) {
+        periodEndInput.disabled = false;
+        periodEndRange.disabled = false;
     }
 
     updateRatesArray("nadplata");
