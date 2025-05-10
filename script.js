@@ -117,10 +117,14 @@ function updateProwizjaInfo() {
 // F U N K C J E    B L O K A D Y   B O X Ó W
 
 function toggleMainFormLock() {
+    console.log("toggleMainFormLock called"); // Debugowanie
+
     const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const isPorownajKredytActive = elements.porownajKredytBtn?.checked || false;
     const shouldLock = isNadplataActive || isZmienneOprocentowanieActive || isPorownajKredytActive;
+
+    console.log("shouldLock:", shouldLock); // Debugowanie
 
     // Elementy formularza do zablokowania/odblokowania
     const mainFormInputs = [
@@ -136,27 +140,25 @@ function toggleMainFormLock() {
         { input: elements.jednostkaProwizji, group: elements.jednostkaProwizji?.closest('.form-group') }
     ];
 
-    mainFormInputs.forEach(({ input, group }) => {
+    mainFormInputs.forEach(({ input, group }, index) => {
         if (input && group) {
             // Zablokuj/odblokuj input
             input.disabled = shouldLock;
 
-            // Dodaj/usuń klasę locked
+            // Dodaj/usuń klasę locked i style inline
             if (shouldLock) {
                 group.classList.add("locked");
-                // Dodaj style inline, jeśli brak CSS dla klasy locked
                 input.style.backgroundColor = "#e9ecef";
                 input.style.opacity = "0.6";
                 input.style.cursor = "not-allowed";
             } else {
                 group.classList.remove("locked");
-                // Przywróć domyślne style
                 input.style.backgroundColor = "";
                 input.style.opacity = "";
                 input.style.cursor = "";
             }
         } else {
-            console.warn("Nie znaleziono elementu lub grupy:", { input, group });
+            console.warn(`Element ${index} nie znaleziony:`, { input, group }); // Debugowanie
         }
     });
 }
