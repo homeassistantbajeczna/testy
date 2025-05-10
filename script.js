@@ -903,8 +903,9 @@ function updateOverpaymentLimit(input, range, group) {
     // Oblicz pozostały kapitał po uwzględnieniu bieżącej nadpłaty
     remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, currentOverpayments, type === "Miesięczna" ? periodEnd : periodStart);
 
-    // Zablokuj edytowanie boxów W/OD/DO, jeśli kapitał jest spłacony
-    if (remainingCapital <= 0) {
+    // Dynamiczne zarządzanie stanem boxów
+    const isAtMaxPeriod = (type === "Miesięczna" && periodEndInput && periodEnd >= finalMaxPeriod) || periodStart >= finalMaxPeriod;
+    if (remainingCapital <= 0 && isAtMaxPeriod) {
         periodStartInput.disabled = true;
         periodStartRange.disabled = true;
         if (periodEndInput && periodEndRange) {
@@ -1242,7 +1243,7 @@ function initializeNadplataKredytuGroup(group) {
                     const rateInput = group.querySelector(".variable-rate");
                     const rateRange = group.querySelector(".variable-rate-range");
                     if (rateInput && rateRange) {
-                        updateOverpaymentLimit(rateInput, rateRange, group);
+                        updateOverpaymentLimit(rateInput, range, group);
                     }
                 };
 
