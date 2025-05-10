@@ -885,7 +885,7 @@ function updateAllOverpaymentLimits() {
         const rateInput = g.querySelector(".variable-rate");
         const rateRange = g.querySelector(".variable-rate-range");
         if (rateInput && rateRange) {
-            updateOverpaymentLimit(rateInput, range, g);
+            updateOverpaymentLimit(rateInput, rateRange, g);
         }
     });
 
@@ -1516,25 +1516,22 @@ function updateNadplataKredytuRemoveButtons() {
     const lastGroupData = groups[groups.length - 1];
     const typeSelect = lastGroupData.querySelector(".nadplata-type-select");
     const type = typeSelect?.value || "Jednorazowa";
-    const rateInput = lastGroupData.querySelector(".variable-rate");
     const periodStartInput = lastGroupData.querySelector(".variable-cykl-start");
     const periodEndInput = lastGroupData.querySelector(".variable-cykl-end");
     const periodStartRange = lastGroupData.querySelector(".variable-cykl-start-range");
     const periodEndRange = lastGroupData.querySelector(".variable-cykl-end-range");
 
-    const maxRate = parseInt(rateInput?.max) || 5000000;
     const maxPeriodStart = parseInt(periodStartRange?.max) || 360;
     const maxPeriodEnd = periodEndRange ? parseInt(periodEndRange?.max) || 360 : maxPeriodStart;
-    const currentRate = parseInt(rateInput?.value) || 100;
     const currentPeriodStart = parseInt(periodStartInput?.value) || 1;
     const currentPeriodEnd = periodEndInput ? parseInt(periodEndInput?.value) || currentPeriodStart : currentPeriodStart;
+    const isCapitalDepleted = remainingCapital <= 0;
 
     const isMaxPeriodStartReached = currentPeriodStart >= maxPeriodStart;
     const isMaxPeriodEndReached = type === "Miesięczna" && periodEndInput && currentPeriodEnd >= maxPeriodEnd;
-    const isMaxRateReached = currentRate >= maxRate;
-    const isCapitalDepleted = remainingCapital <= 0;
 
-    if (isCapitalDepleted || isMaxRateReached || isMaxPeriodStartReached || isMaxPeriodEndReached) {
+    // Ukrywamy przycisk tylko, gdy osiągnięto maksymalny okres lub kapitał jest wyczerpany
+    if (isCapitalDepleted || (isMaxPeriodStartReached && (!periodEndInput || isMaxPeriodEndReached))) {
         addBtn.style.display = "none";
     } else {
         addBtn.style.display = "block";
@@ -1562,7 +1559,7 @@ function initializeNadplataKredytuToggle() {
             const newGroup = createNadplataKredytuGroup();
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
-            updateNadplataKredytuRemoveButtons(); // Wywołanie aktualizacji przycisków od razu po włączeniu
+            updateNadplataKredytuRemoveButtons();
         } else {
             resetNadplataKredytuSection();
         }
