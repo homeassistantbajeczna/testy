@@ -664,7 +664,8 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     }
 
     let periodStart = parseInt(periodStartInput.value) || 1;
-    let adjustedPeriod = Math.max(1, periodStart - 1);
+    // Poprawka: Ustawiamy adjustedPeriod na periodStart, aby uwzględnić nadpłatę w bieżącym okresie
+    let adjustedPeriod = periodStart;
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, adjustedPeriod);
     let maxAllowed = Math.max(100, remainingCapital);
 
@@ -700,8 +701,6 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     if (loanDetails) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
-    } else {
-        maxPeriodStart = totalMonths; // Fallback na pełny okres, jeśli obliczenia się nie powiodły
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -727,7 +726,6 @@ function updateAllOverpaymentLimits() {
     state.isUpdating = true;
     try {
         const allGroups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group:not(.locked)");
         let lastRemainingCapital = 0;
         let lastRemainingMonths = 0;
 
@@ -736,7 +734,6 @@ function updateAllOverpaymentLimits() {
         const totalMonths = parseInt(elements.iloscRat?.value) || 360;
         const paymentType = elements.rodzajRat?.value || "rowne";
 
-        let lastOverpaymentMonth = 1;
         const overpayments = [];
         allGroups.forEach((g, index) => {
             if (!g) return;
@@ -744,7 +741,6 @@ function updateAllOverpaymentLimits() {
             const amount = parseInt(g.querySelector(".variable-rate")?.value) || 0;
             const effect = g.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
             overpayments.push({ type: "Jednorazowa", start: periodStart, amount, effect });
-            if (periodStart > lastOverpaymentMonth) lastOverpaymentMonth = periodStart;
 
             // Zaktualizuj limity dla każdej grupy
             const rateInput = g.querySelector(".variable-rate");
@@ -769,8 +765,18 @@ function updateAllOverpaymentLimits() {
             lastRemainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
             lastRemainingMonths = loanDetails.pozostaleRaty;
         } else {
-            lastRemainingCapital = loanAmount; // Fallback na pełną kwotę, jeśli obliczenia się nie powiodły
+            lastRemainingCapital = loanAmount;
             lastRemainingMonths = totalMonths;
+        }
+
+        // Dodatkowa aktualizacja dla pierwszej grupy, aby upewnić się, że limity są poprawne
+        if (allGroups.length > 0) {
+            const firstGroup = allGroups[0];
+            const rateInput = firstGroup.querySelector(".variable-rate");
+            const rateRange = firstGroup.querySelector(".variable-rate-range");
+            if (rateInput && rateRange && !firstGroup.classList.contains("locked")) {
+                updateOverpaymentLimit(rateInput, rateRange, firstGroup, true);
+            }
         }
 
         return { remainingCapital: lastRemainingCapital, remainingMonths: lastRemainingMonths };
@@ -1055,9 +1061,7 @@ function updateNadplataKredytuRemoveButtons() {
         const remainingMonths = loanDetails.pozostaleRaty;
 
         const lastGroup = groups[groups.length - 1];
-        const currentOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.value) || 0;
         const currentPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.value) || 1;
-        const maxOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.max) || 0;
         const maxPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.max) || totalMonths;
 
         if (remainingCapital <= 0 && currentPeriodStart >= maxPeriodStart) {
