@@ -422,37 +422,37 @@ function initializeInputHandling() {
     elements.rodzajRat.addEventListener("change", () => {
         updateLoanDetails();
     });
+}
 
-    // Funkcja do synchronizacji prowizji z kwotą
-    function syncProwizjaWithKwota(reset = false) {
-        if (!checkElements(elements.jednostkaProwizji, elements.kwota, elements.prowizja, elements.prowizjaRange)) return;
-        const jednostka = elements.jednostkaProwizji.value;
-        const kwota = parseInt(elements.kwota.value) || 0;
-        let prowizjaValue = parseFloat(elements.prowizja.value) || 0;
-        const minValue = parseFloat(elements.prowizja.min) || 0;
-        const maxValue = parseFloat(elements.prowizja.max) || Infinity;
+// Funkcja do synchronizacji prowizji z kwotą (przeniesiona na poziom globalny)
+function syncProwizjaWithKwota(reset = false) {
+    if (!checkElements(elements.jednostkaProwizji, elements.kwota, elements.prowizja, elements.prowizjaRange)) return;
+    const jednostka = elements.jednostkaProwizji.value;
+    const kwota = parseInt(elements.kwota.value) || 0;
+    let prowizjaValue = parseFloat(elements.prowizja.value) || 0;
+    const minValue = parseFloat(elements.prowizja.min) || 0;
+    const maxValue = parseFloat(elements.prowizja.max) || Infinity;
 
-        if (reset) {
-            delete elements.prowizja.dataset.manual;
-        }
-
-        if (jednostka === "zl" && (reset || !elements.prowizja.dataset.manual)) {
-            const defaultProwizja = (kwota * 0.02);
-            prowizjaValue = Math.max(defaultProwizja, minValue);
-            if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-            elements.prowizja.value = prowizjaValue.toFixed(2);
-            elements.prowizjaRange.value = prowizjaValue;
-            delete elements.prowizja.dataset.manual;
-        } else if (jednostka === "procent" && reset) {
-            prowizjaValue = 2;
-            if (prowizjaValue < minValue) prowizjaValue = minValue;
-            if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-            elements.prowizja.value = prowizjaValue.toFixed(2);
-            elements.prowizjaRange.value = prowizjaValue;
-            delete elements.prowizja.dataset.manual;
-        }
-        updateProwizjaInfo();
+    if (reset) {
+        delete elements.prowizja.dataset.manual;
     }
+
+    if (jednostka === "zl" && (reset || !elements.prowizja.dataset.manual)) {
+        const defaultProwizja = (kwota * 0.02);
+        prowizjaValue = Math.max(defaultProwizja, minValue);
+        if (prowizjaValue > maxValue) prowizjaValue = maxValue;
+        elements.prowizja.value = prowizjaValue.toFixed(2);
+        elements.prowizjaRange.value = prowizjaValue;
+        delete elements.prowizja.dataset.manual;
+    } else if (jednostka === "procent" && reset) {
+        prowizjaValue = 2;
+        if (prowizjaValue < minValue) prowizjaValue = minValue;
+        if (prowizjaValue > maxValue) prowizjaValue = maxValue;
+        elements.prowizja.value = prowizjaValue.toFixed(2);
+        elements.prowizjaRange.value = prowizjaValue;
+        delete elements.prowizja.dataset.manual;
+    }
+    updateProwizjaInfo();
 }
 
 
