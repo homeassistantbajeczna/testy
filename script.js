@@ -227,7 +227,8 @@ function formatNumber(value) {
 function updateLata() {
     if (!checkElements(elements.iloscRat, elements.lata)) return;
     const iloscRat = parseInt(elements.iloscRat.value) || 0;
-    elements.lata.textContent = `Okres kredytowania: ${iloscRat} miesięcy (${(iloscRat / 12).toFixed(1)} lat)`;
+    const lata = (iloscRat / 12).toFixed(0); // Obliczamy lata i zaokrąglamy do liczby całkowitej
+    elements.lata.textContent = `Okres kredytowania: ${lata} lat`;
 }
 
 
