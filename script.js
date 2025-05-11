@@ -467,7 +467,6 @@ function initializeInputHandling() {
 
 
 
-
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
 if (!elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements.nadplataKredytuWrapper || !elements.kwota || !elements.oprocentowanie || !elements.iloscRat || !elements.rodzajRat) {
