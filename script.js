@@ -920,9 +920,14 @@ function resetNadplataKredytuSection() {
     elements.nadplataKredytuWrapper.innerHTML = "";
     state.overpaymentRates = [];
     if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.checked = false;
         elements.nadplataKredytuBtn.disabled = false;
         elements.nadplataKredytuBtn.parentElement?.classList.remove("disabled");
     }
+    if (elements.nadplataKredytuInputs) {
+        elements.nadplataKredytuInputs.classList.remove("active");
+    }
+    toggleMainFormLock(); // Wywołaj blokadę po zresetowaniu sekcji
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -994,10 +999,8 @@ function updateNadplataKredytuRemoveButtons() {
     removeBtn.addEventListener("click", () => {
         const groups = wrapper.querySelectorAll(".variable-input-group");
         if (groups.length === 1) {
-            if (elements.nadplataKredytuBtn) {
-                elements.nadplataKredytuBtn.checked = false;
-                elements.nadplataKredytuInputs?.classList.remove("active");
-            }
+            elements.nadplataKredytuBtn.checked = false;
+            elements.nadplataKredytuInputs?.classList.remove("active");
             resetNadplataKredytuSection();
         } else {
             groups[groups.length - 1].remove();
@@ -1032,14 +1035,13 @@ function updateNadplataKredytuRemoveButtons() {
         updateLoanDetails();
     });
 
-    // Sprawdź, czy można dodać kolejną nadpłatę
     const loanDetails = calculateLoan(
         parseInt(elements.kwota?.value) || 500000,
         parseFloat(elements.oprocentowanie?.value) || 7,
         parseInt(elements.iloscRat?.value) || 360,
         elements.rodzajRat?.value || "rowne",
         parseFloat(elements.prowizja?.value) || 0,
-        elements.prowizjaJednostka?.value || "procent",
+        elements.jednostkaProwizji?.value || "procent",
         state.variableRates,
         state.overpaymentRates
     );
@@ -1048,14 +1050,12 @@ function updateNadplataKredytuRemoveButtons() {
         const remainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
         const remainingMonths = loanDetails.pozostaleRaty;
 
-        // Sprawdź aktualną nadpłatę i okres w ostatniej grupie
         const lastGroup = groups[groups.length - 1];
         const currentOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.value) || 0;
         const currentPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.value) || 1;
         const maxOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.max) || 0;
         const maxPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.max) || totalMonths;
 
-        // Przycisk znika tylko, jeśli kapitał = 0 i nie ma więcej miesięcy
         if (remainingCapital <= 0 && currentPeriodStart >= maxPeriodStart) {
             addBtn.style.display = "none";
         } else {
@@ -1321,7 +1321,9 @@ function resetVariableOprocentowanieSection() {
     elements.oprocentowanieRange.value = oprocentowanieValue;
     
     delete elements.oprocentowanie.dataset.lastManualValue;
-    updateVariableOprocentowanieRemoveButtons(); // Upewnij się, że przyciski są odpowiednio zaktualizowane
+    elements.zmienneOprocentowanieBtn.checked = false;
+    elements.variableOprocentowanieInputs.classList.remove("active");
+    toggleMainFormLock(); // Wywołaj blokadę po zresetowaniu sekcji
 }
 
 function updateVariableOprocentowanieRemoveButtons() {
@@ -1333,26 +1335,23 @@ function updateVariableOprocentowanieRemoveButtons() {
         existingRemoveBtnWrapper.remove();
     }
 
-    // Blokuj boxy we wszystkich wierszach poza ostatnim i dodaj/usuń klasę locked
     groups.forEach((group, index) => {
         const inputs = group.querySelectorAll(".form-control");
         const ranges = group.querySelectorAll(".form-range");
         const isLastGroup = index === groups.length - 1;
 
         if (!isLastGroup) {
-            // Dodaj klasę locked do zablokowanych wierszy
             group.classList.add("locked");
         } else {
-            // Usuń klasę locked z ostatniego wiersza
             group.classList.remove("locked");
         }
 
         inputs.forEach(input => {
-            input.disabled = !isLastGroup; // Blokuj, jeśli nie jest to ostatni wiersz
+            input.disabled = !isLastGroup;
         });
 
         ranges.forEach(range => {
-            range.disabled = !isLastGroup; // Blokuj, jeśli nie jest to ostatni wiersz
+            range.disabled = !isLastGroup;
         });
     });
 
@@ -1387,11 +1386,9 @@ function updateVariableOprocentowanieRemoveButtons() {
             lastGroup.remove();
             updateRatesArray("oprocentowanie");
             if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
-                elements.zmienneOprocentowanieBtn.checked = false;
-                elements.variableOprocentowanieInputs.classList.remove("active");
                 resetVariableOprocentowanieSection();
             }
-            updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski i odblokuj boxy w poprzednim wierszu
+            updateVariableOprocentowanieRemoveButtons();
         });
 
         addBtn.addEventListener("click", () => {
@@ -1407,11 +1404,10 @@ function updateVariableOprocentowanieRemoveButtons() {
                 elements.variableOprocentowanieWrapper.appendChild(newGroup);
                 initializeVariableOprocentowanieGroup(newGroup);
                 updateRatesArray("oprocentowanie");
-                updateVariableOprocentowanieRemoveButtons(); // Aktualizuj przyciski i zablokuj boxy w poprzednich wierszach
+                updateVariableOprocentowanieRemoveButtons();
             }
         });
 
-        // Ustaw widoczność przycisku "Dodaj kolejną zmianę" na podstawie okresu
         const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
         const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
         const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
