@@ -720,7 +720,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
     if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
 
-    // Zablokuj box "W" na 1, jeśli kwota nadpłaty osiąga maksimum
+    // Ogranicz wartość boxa "W" do 1, jeśli kwota nadpłaty osiąga maksimum, ale nie wyłączaj inputu ani suwaka
     const currentOverpayment = parseInt(rateInput.value) || 0;
     if (currentOverpayment >= maxAllowed) {
         currentStartValue = 1; // Ustaw na 1, bo nadpłata spłaca cały kapitał
@@ -728,20 +728,13 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         periodStartRange.value = currentStartValue;
         periodStartInput.max = 1; // Maksymalna wartość to 1
         periodStartRange.max = 1;
-        periodStartInput.disabled = true; // Wyłącz input
-        periodStartRange.disabled = true; // Wyłącz suwak
-        periodStartInput.style.backgroundColor = "#e9ecef"; // Styl dla zablokowanego pola
-        periodStartInput.style.opacity = "0.6";
-        periodStartRange.style.opacity = "0.6";
+        // Nie zmieniamy disabled ani stylów, aby box wyglądał normalnie
     } else {
-        // Odblokuj box "W", jeśli kwota nie osiąga maksimum
+        // Przywróć normalne wartości i limity, jeśli kwota nie osiąga maksimum
         periodStartInput.value = currentStartValue;
         periodStartRange.value = currentStartValue;
-        periodStartInput.disabled = false;
-        periodStartRange.disabled = false;
-        periodStartInput.style.backgroundColor = "";
-        periodStartInput.style.opacity = "";
-        periodStartRange.style.opacity = "";
+        periodStartInput.max = maxPeriodStart;
+        periodStartRange.max = maxPeriodStart;
     }
 
     syncInputWithRange(periodStartInput, periodStartRange);
