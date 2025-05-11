@@ -135,7 +135,7 @@ function toggleMainFormLock() {
     const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const isPorownajKredytActive = elements.porownajKredytBtn?.checked || false;
-    const shouldLock = isNadplataActive || isZmienneOprocentowanieActive || isPorownajKredytActive;
+    const shouldLock = isNadplataActive || isZmienneOprocentowanieActive; // Porównaj Kredyt nie blokuje
 
     console.log("shouldLock:", shouldLock);
 
@@ -1083,6 +1083,7 @@ function initializeNadplataKredytuToggle() {
         } else {
             resetNadplataKredytuSection();
         }
+        toggleMainFormLock(); // Wywołaj blokadę po zmianie stanu
     });
 }
 
@@ -1454,9 +1455,7 @@ function initializeZmienneOprocentowanieToggle() {
                 resetVariableOprocentowanieSection();
                 updateVariableOprocentowanieRemoveButtons();
             }
-            updateKwotaInfo();
-            toggleMainFormLock();
-            updateLoanDetails(); // Dodane
+            toggleMainFormLock(); // Wywołaj blokadę po zmianie stanu
         });
 
         elements.oprocentowanie.addEventListener("change", () => {
@@ -1508,6 +1507,7 @@ function initializePorownajKredytToggle() {
                     elements.variableOprocentowanieContainer.style.display = "none";
                     resetVariableOprocentowanieSection();
                 }
+                // Nie wywołuj toggleMainFormLock, tylko ukryj sekcje
             } else {
                 if (elements.nadplataKredytuContainer) {
                     elements.nadplataKredytuContainer.style.display = "block";
@@ -1516,7 +1516,6 @@ function initializePorownajKredytToggle() {
                     elements.variableOprocentowanieContainer.style.display = "block";
                 }
             }
-            toggleMainFormLock();
         });
     }
 }
