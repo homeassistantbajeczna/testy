@@ -77,12 +77,14 @@ function syncInputWithRange(input, range, onChange = null) {
         return;
     }
     let value;
-    if (input.id === "iloscRat" || input.classList.contains("variable-cykl")) {
-        value = parseInt(input.value) || parseInt(range.value);
+    const isIntegerInput = input.id === "iloscRat" || input.classList.contains("variable-cykl") || input.classList.contains("variable-cykl-start");
+    
+    if (isIntegerInput) {
+        value = parseInt(input.value) || parseInt(range.value) || parseInt(input.min) || 0;
         value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
         input.value = value;
     } else {
-        value = parseFloat(input.value) || parseFloat(range.value);
+        value = parseFloat(input.value) || parseFloat(range.value) || parseFloat(input.min) || 0;
         value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
         input.value = value.toFixed(2);
     }
@@ -121,18 +123,24 @@ function updateProwizjaInfo() {
 
 
 // F U N K C J E    B L O K A D Y   B O X Ó W
+function setInputLockStyles(input, lock) {
+    if (!input) return;
+    input.disabled = lock;
+    input.style.backgroundColor = lock ? "#e9ecef" : "";
+    input.style.opacity = lock ? "0.6" : "";
+    input.style.cursor = lock ? "not-allowed" : "";
+}
 
 function toggleMainFormLock() {
-    console.log("toggleMainFormLock called"); // Debugowanie
+    console.log("toggleMainFormLock called");
 
     const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
     const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
     const isPorownajKredytActive = elements.porownajKredytBtn?.checked || false;
     const shouldLock = isNadplataActive || isZmienneOprocentowanieActive || isPorownajKredytActive;
 
-    console.log("shouldLock:", shouldLock); // Debugowanie
+    console.log("shouldLock:", shouldLock);
 
-    // Elementy formularza do zablokowania/odblokowania
     const mainFormInputs = [
         { input: elements.kwota, group: elements.kwota?.closest('.form-group') },
         { input: elements.kwotaRange, group: elements.kwotaRange?.closest('.form-group') },
@@ -147,25 +155,12 @@ function toggleMainFormLock() {
     ];
 
     mainFormInputs.forEach(({ input, group }, index) => {
-        if (input && group) {
-            // Zablokuj/odblokuj input
-            input.disabled = shouldLock;
-
-            // Dodaj/usuń klasę locked i style inline
-            if (shouldLock) {
-                group.classList.add("locked");
-                input.style.backgroundColor = "#e9ecef";
-                input.style.opacity = "0.6";
-                input.style.cursor = "not-allowed";
-            } else {
-                group.classList.remove("locked");
-                input.style.backgroundColor = "";
-                input.style.opacity = "";
-                input.style.cursor = "";
-            }
-        } else {
-            console.warn(`Element ${index} nie znaleziony:`, { input, group }); // Debugowanie
+        if (!input || !group) {
+            console.warn(`Element ${index} nie znaleziony:`, { input, group });
+            return;
         }
+        group.classList.toggle("locked", shouldLock);
+        setInputLockStyles(input, shouldLock);
     });
 }
 
@@ -218,6 +213,18 @@ function updateRatesArray(type) {
     }
 }
 
+function checkElements(...requiredElements) {
+    const missing = requiredElements.filter(el => !el);
+    if (missing.length > 0) {
+        console.warn("Brak wymaganych elementów DOM:", missing);
+        return false;
+    }
+    return true;
+}
+
+function formatNumber(value) {
+    return value.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
 
 
@@ -908,25 +915,6 @@ function resetNadplataKredytuSection() {
     if (elements.nadplataKredytuBtn) {
         elements.nadplataKredytuBtn.disabled = false;
         elements.nadplataKredytuBtn.parentElement?.classList.remove("disabled");
-    }
-}
-
-function updateRatesArray(type) {
-    if (type === "nadplata") {
-        state.overpaymentRates = [];
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach((group) => {
-            const periodStartInput = group.querySelector(".variable-cykl-start");
-            const rateInput = group.querySelector(".variable-rate");
-            const effectSelect = group.querySelector(".nadplata-effect-select");
-            if (!periodStartInput || !rateInput) return;
-            state.overpaymentRates.push({
-                type: "Jednorazowa",
-                start: parseInt(periodStartInput.value) || 1,
-                amount: parseInt(rateInput.value) || 100,
-                effect: effectSelect.value || "Skróć okres"
-            });
-        });
     }
 }
 
@@ -1781,15 +1769,17 @@ function updateLoanDetails() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    const debouncedUpdateLoanDetails = debounce(updateLoanDetails, 300); // Opóźnienie 300ms
+
     const inputs = document.querySelectorAll(".form-control, .form-select");
     inputs.forEach(input => {
-        input.addEventListener("input", updateLoanDetails);
-        input.addEventListener("change", updateLoanDetails);
+        input.addEventListener("input", debouncedUpdateLoanDetails);
+        input.addEventListener("change", debouncedUpdateLoanDetails);
     });
 
     if (elements.nadplataKredytuWrapper) {
-        elements.nadplataKredytuWrapper.addEventListener("input", updateLoanDetails);
-        elements.nadplataKredytuWrapper.addEventListener("change", updateLoanDetails);
+        elements.nadplataKredytuWrapper.addEventListener("input", debouncedUpdateLoanDetails);
+        elements.nadplataKredytuWrapper.addEventListener("change", debouncedUpdateLoanDetails);
     }
 
     updateLoanDetails();
