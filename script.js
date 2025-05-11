@@ -686,14 +686,13 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
 
     let maxPeriodStart = totalMonths;
     let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: parseInt(rateInput.value) || 0, effect }];
-
     const loanDetails = calculateLoan(
         loanAmount,
         interestRate,
         totalMonths,
         paymentType,
         parseFloat(elements.prowizja?.value) || 0,
-        elements.jednostkaProwizji?.value || "procent", // Poprawione
+        elements.jednostkaProwizji?.value || "procent",
         state.variableRates,
         currentOverpayments
     );
@@ -701,6 +700,8 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     if (loanDetails) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
+    } else {
+        maxPeriodStart = totalMonths; // Fallback na pełny okres, jeśli obliczenia się nie powiodły
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -737,13 +738,20 @@ function updateAllOverpaymentLimits() {
 
         let lastOverpaymentMonth = 1;
         const overpayments = [];
-        allGroups.forEach((g) => {
+        allGroups.forEach((g, index) => {
             if (!g) return;
             const periodStart = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
             const amount = parseInt(g.querySelector(".variable-rate")?.value) || 0;
             const effect = g.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
             overpayments.push({ type: "Jednorazowa", start: periodStart, amount, effect });
             if (periodStart > lastOverpaymentMonth) lastOverpaymentMonth = periodStart;
+
+            // Zaktualizuj limity dla każdej grupy
+            const rateInput = g.querySelector(".variable-rate");
+            const rateRange = g.querySelector(".variable-rate-range");
+            if (rateInput && rateRange && !g.classList.contains("locked")) {
+                updateOverpaymentLimit(rateInput, rateRange, g, true);
+            }
         });
 
         const loanDetails = calculateLoan(
@@ -752,7 +760,7 @@ function updateAllOverpaymentLimits() {
             totalMonths,
             paymentType,
             parseFloat(elements.prowizja?.value) || 0,
-            elements.jednostkaProwizji?.value || "procent", // Poprawione
+            elements.jednostkaProwizji?.value || "procent",
             state.variableRates,
             overpayments
         );
@@ -760,14 +768,10 @@ function updateAllOverpaymentLimits() {
         if (loanDetails) {
             lastRemainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
             lastRemainingMonths = loanDetails.pozostaleRaty;
+        } else {
+            lastRemainingCapital = loanAmount; // Fallback na pełną kwotę, jeśli obliczenia się nie powiodły
+            lastRemainingMonths = totalMonths;
         }
-
-        groups.forEach((g) => {
-            if (!g) return;
-            const rateInput = g.querySelector(".variable-rate");
-            const rateRange = g.querySelector(".variable-rate-range");
-            if (rateInput && rateRange) updateOverpaymentLimit(rateInput, rateRange, g, true);
-        });
 
         return { remainingCapital: lastRemainingCapital, remainingMonths: lastRemainingMonths };
     } finally {
