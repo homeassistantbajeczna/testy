@@ -1618,67 +1618,54 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 currentOprocentowanie = activeRate.value / 100 / 12;
             }
 
-            let nadplata = 0;
-            let activeOverpayment = activeOverpaymentRates.find(over => i >= over.start && (over.type === "Jednorazowa" ? i === over.start : i <= over.end));
-            if (activeOverpayment) {
-                if (activeOverpayment.type === "Jednorazowa" && i === activeOverpayment.start) {
-                    nadplata = activeOverpayment.amount;
-                    if (activeOverpayment.effect === "Zmniejsz ratę") lastNadplataMonth = i;
-                } else if (activeOverpayment.type === "Miesięczna") {
-                    nadplata = activeOverpayment.amount;
-                    if (activeOverpayment.effect === "Zmniejsz ratę") lastNadplataMonth = i;
-                }
-
-                if (nadplata > 0 && activeOverpayment.effect === "Skróć okres") {
-                    calkowiteNadplaty += nadplata;
-                    pozostalyKapital -= nadplata;
-                    if (pozostalyKapital <= 0) {
-                        pozostalyKapital = 0;
-                        pozostaleRaty = i;
-                        harmonogram.push({
-                            miesiac: i,
-                            rata: parseFloat((0).toFixed(2)),
-                            oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
-                            nadplata: parseFloat(nadplata.toFixed(2)),
-                            kapital: parseFloat((0).toFixed(2)),
-                            odsetki: parseFloat((0).toFixed(2)),
-                            kapitalDoSplaty: parseFloat((0).toFixed(2)),
-                        });
-                        break;
-                    }
-                }
-            }
-
-            // Przelicz ratę całkowitą, jeśli minęliśmy miesiąc nadpłaty z efektem "Zmniejsz ratę"
-            if (lastNadplataMonth > 0 && i > lastNadplataMonth && rodzajRat === "rowne") {
-                const remainingMonths = iloscRat - i + 1;
-                const q = 1 + currentOprocentowanie;
-                if (remainingMonths > 0) {
-                    const newRataCalkowita = pozostalyKapital * (q ** remainingMonths) * (q - 1) / ((q ** remainingMonths) - 1);
-                    if (!isNaN(newRataCalkowita) && newRataCalkowita > 0) {
-                        kwota = pozostalyKapital; // Aktualizujemy kwotę do pozostałego kapitału
-                        iloscRat = remainingMonths; // Aktualizujemy ilość rat
-                    }
-                }
-            }
-
+            // Oblicz ratę dla bieżącego miesiąca przed uwzględnieniem nadpłaty
             const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
                 kwota,
                 iloscRat,
                 pozostalyKapital,
                 currentOprocentowanie,
-                nadplata,
-                activeOverpayment,
+                0, // Nadpłata jeszcze nie uwzględniona
+                null,
                 rodzajRat,
                 i
             );
 
-            if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę" && nadplata > 0) {
-                calkowiteNadplaty += nadplata;
-            }
-
             pozostalyKapital -= rataKapitalowa;
             calkowiteOdsetki += odsetki;
+
+            // Uwzględnij nadpłatę PO zapłacie raty (dla następnego miesiąca)
+            let nadplata = 0;
+            let activeOverpayment = activeOverpaymentRates.find(over => over.start === i && over.type === "Jednorazowa");
+            if (activeOverpayment) {
+                nadplata = activeOverpayment.amount;
+                if (nadplata > pozostalyKapital) nadplata = pozostalyKapital;
+                calkowiteNadplaty += nadplata;
+                if (activeOverpayment.effect === "Zmniejsz ratę") lastNadplataMonth = i;
+                pozostalyKapital -= nadplata;
+            }
+
+            // Przelicz ratę dla następnego miesiąca, jeśli była nadpłata z efektem "Zmniejsz ratę"
+            if (lastNadplataMonth > 0 && i > lastNadplataMonth && rodzajRat === "rowne" && pozostalyKapital > 0) {
+                const remainingMonths = iloscRat - i;
+                const q = 1 + currentOprocentowanie;
+                if (remainingMonths > 0) {
+                    const newRataCalkowita = pozostalyKapital * (q ** remainingMonths) * (q - 1) / ((q ** remainingMonths) - 1);
+                    if (!isNaN(newRataCalkowita) && newRataCalkowita > 0) {
+                        kwota = pozostalyKapital; // Aktualizuj kwotę do pozostałego kapitału
+                        iloscRat = remainingMonths; // Aktualizuj ilość rat
+                    }
+                }
+            } else if (lastNadplataMonth > 0 && i === lastNadplataMonth + 1 && rodzajRat === "rowne" && pozostalyKapital > 0) {
+                // Przelicz ratę od następnego miesiąca po nadpłacie
+                const remainingMonths = iloscRat - i + 1;
+                const q = 1 + currentOprocentowanie;
+                const newRataCalkowita = pozostalyKapital * (q ** remainingMonths) * (q - 1) / ((q ** remainingMonths) - 1);
+                if (!isNaN(newRataCalkowita) && newRataCalkowita > 0) {
+                    // Aktualizacja raty dla przyszłych miesięcy, ale nie dla bieżącego
+                    kwota = pozostalyKapital;
+                    iloscRat = remainingMonths;
+                }
+            }
 
             harmonogram.push({
                 miesiac: i,
