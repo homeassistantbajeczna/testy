@@ -645,7 +645,7 @@ function syncInputWithRange(input, range) {
     }
 }
 
-function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth) {
+function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth, applyOverpaymentInTargetMonth = true) {
     let remainingCapital = loanAmount;
     const monthlyRate = interestRate / 100 / 12;
     let rata = paymentType === "rowne"
@@ -653,44 +653,61 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
         : (remainingCapital / totalMonths) + (remainingCapital * monthlyRate);
 
     for (let month = 1; month <= targetMonth; month++) {
+        // Oblicz odsetki i kapitał dla bieżącej raty
         const odsetki = remainingCapital * monthlyRate;
-        let kapital = rata - odsetki;
+        let kapital = paymentType === "rowne" ? rata - odsetki : remainingCapital / (totalMonths - month + 1);
         if (kapital > remainingCapital) kapital = remainingCapital;
+
+        // Odejmij najpierw kapitał spłacany w racie
         remainingCapital -= kapital;
 
-        overpayments.forEach((overpayment) => {
-            let applyOverpayment = false;
-            if (overpayment.type === "Jednorazowa" && overpayment.start === month) {
-                applyOverpayment = true;
-            } else if (overpayment.type === "Miesięczna" && month >= overpayment.start && month <= overpayment.end) {
-                applyOverpayment = true;
-            } else if (overpayment.type === "Kwartalna") {
-                const quarter = Math.ceil(month / 3);
-                if (quarter >= overpayment.start && quarter <= overpayment.end && month % 3 === 0) {
+        // Jeśli kapitał już się wyczerpał, przerwij
+        if (remainingCapital <= 0) {
+            remainingCapital = 0;
+            break;
+        }
+
+        // Zastosuj nadpłaty, ale tylko jeśli nie jesteśmy w targetMonth i applyOverpaymentInTargetMonth jest false
+        if (month < targetMonth || applyOverpaymentInTargetMonth) {
+            overpayments.forEach((overpayment) => {
+                let applyOverpayment = false;
+                if (overpayment.type === "Jednorazowa" && overpayment.start === month) {
                     applyOverpayment = true;
-                }
-            } else if (overpayment.type === "Roczna") {
-                const year = Math.ceil(month / 12);
-                if (year >= overpayment.start && year <= overpayment.end && month % 12 === 0) {
+                } else if (overpayment.type === "Miesięczna" && month >= overpayment.start && month <= overpayment.end) {
                     applyOverpayment = true;
-                }
-            }
-            if (applyOverpayment && remainingCapital > 0) {
-                let overpaymentAmount = overpayment.amount;
-                if (overpaymentAmount > remainingCapital) overpaymentAmount = remainingCapital;
-                remainingCapital -= overpaymentAmount;
-                if (overpayment.effect === "Zmniejsz ratę" && remainingCapital > 0) {
-                    const remainingMonths = totalMonths - month;
-                    if (remainingMonths > 0) {
-                        rata = paymentType === "rowne"
-                            ? (remainingCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
-                            : (remainingCapital / remainingMonths) + (remainingCapital * monthlyRate);
+                } else if (overpayment.type === "Kwartalna") {
+                    const quarter = Math.ceil(month / 3);
+                    if (quarter >= overpayment.start && quarter <= overpayment.end && month % 3 === 0) {
+                        applyOverpayment = true;
+                    }
+                } else if (overpayment.type === "Roczna") {
+                    const year = Math.ceil(month / 12);
+                    if (year >= overpayment.start && year <= overpayment.end && month % 12 === 0) {
+                        applyOverpayment = true;
                     }
                 }
-            }
-        });
+
+                if (applyOverpayment && remainingCapital > 0) {
+                    let overpaymentAmount = overpayment.amount;
+                    if (overpaymentAmount > remainingCapital) overpaymentAmount = remainingCapital;
+                    remainingCapital -= overpaymentAmount;
+
+                    // Jeśli efekt to "Zmniejsz ratę", przelicz ratę dla pozostałych miesięcy
+                    if (overpayment.effect === "Zmniejsz ratę" && remainingCapital > 0) {
+                        const remainingMonths = totalMonths - month;
+                        if (remainingMonths > 0) {
+                            rata = paymentType === "rowne"
+                                ? (remainingCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -remainingMonths))
+                                : (remainingCapital / remainingMonths) + (remainingCapital * monthlyRate);
+                        }
+                    }
+                }
+            });
+        }
+
         if (remainingCapital <= 0) break;
     }
+
     return remainingCapital;
 }
 
@@ -746,17 +763,38 @@ function updateOverpaymentLimit(input, range, group) {
     }
 
     let remainingCapital;
+    let startMonth;
+
+    // Oblicz miesiąc startowy w zależności od typu nadpłaty
     if (type === "Jednorazowa") {
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
+        startMonth = minPeriodStart;
     } else if (type === "Miesięczna") {
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
+        startMonth = minPeriodStart;
     } else if (type === "Kwartalna") {
-        const startMonth = (minPeriodStart * 3) - 2;
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, startMonth - 1);
+        startMonth = (minPeriodStart * 3) - 2;
     } else if (type === "Roczna") {
-        const startMonth = (minPeriodStart * 12) - 11;
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, startMonth - 1);
+        startMonth = (minPeriodStart * 12) - 11;
     }
+
+    // Oblicz pozostały kapitał do miesiąca przed nadpłatą
+    remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, startMonth - 1);
+
+    // Jeśli jesteśmy w miesiącu nadpłaty, oblicz, ile kapitału zostanie spłacone w tej racie
+    if (remainingCapital > 0 && startMonth <= totalMonths) {
+        const monthlyRate = interestRate / 100 / 12;
+        let rata = paymentType === "rowne"
+            ? (remainingCapital * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -(totalMonths - startMonth + 1)))
+            : (remainingCapital / (totalMonths - startMonth + 1)) + (remainingCapital * monthlyRate);
+
+        const odsetki = remainingCapital * monthlyRate;
+        let kapital = paymentType === "rowne" ? rata - odsetki : remainingCapital / (totalMonths - startMonth + 1);
+        if (kapital > remainingCapital) kapital = remainingCapital;
+
+        // Odejmij kapitał spłacany w racie w miesiącu nadpłaty
+        remainingCapital -= kapital;
+    }
+
+    // Ustaw maksymalną dozwoloną kwotę nadpłaty
     let maxAllowed = Math.max(100, remainingCapital);
 
     rateInput.max = Math.floor(maxAllowed);
@@ -770,6 +808,7 @@ function updateOverpaymentLimit(input, range, group) {
     }
     overpaymentAmount = rateValue;
 
+    // Aktualizuj limity dla okresów (Miesięczna, Kwartalna, Roczna)
     if (type === "Miesięczna" && periodEndInput) {
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, minPeriodStart - 1);
         let tempCapital = remainingCapital;
