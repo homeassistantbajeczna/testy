@@ -906,12 +906,24 @@ function initializeNadplataKredytuGroup(group) {
 
 function resetNadplataKredytuSection() {
     if (!elements.nadplataKredytuWrapper) return;
+    
+    // Czyść wrapper nadpłat w DOM
     elements.nadplataKredytuWrapper.innerHTML = "";
+    
+    // Czyść stan nadpłat
     state.overpaymentRates = [];
+    
+    // Odblokuj przycisk nadpłaty
     if (elements.nadplataKredytuBtn) {
         elements.nadplataKredytuBtn.disabled = false;
         elements.nadplataKredytuBtn.parentElement?.classList.remove("disabled");
     }
+    
+    // Aktualizuj harmonogram, aby uwzględnić brak nadpłat
+    updateLoanDetails();
+    
+    // Aktualizuj przyciski nadpłaty
+    updateNadplataKredytuRemoveButtons();
 }
 
 function updateRatesArray(type) {
@@ -1088,8 +1100,10 @@ function initializeNadplataKredytuToggle() {
             elements.nadplataKredytuWrapper.appendChild(newGroup);
             initializeNadplataKredytuGroup(newGroup);
             updateNadplataKredytuRemoveButtons();
+            updateLoanDetails(); // Aktualizuj harmonogram po dodaniu nadpłaty
         } else {
             resetNadplataKredytuSection();
+            toggleMainFormLock(); // Aktualizuj blokady formularza
         }
     });
 }
@@ -1873,6 +1887,12 @@ function showForm() {
         elements.resultSection.classList.remove("active");
         currentZoom = 1; // Reset zoomu
         updateZoom();
+        
+        // Jeśli nadpłaty są wyłączone, upewnij się, że stan jest zresetowany
+        if (!elements.nadplataKredytuBtn.checked) {
+            resetNadplataKredytuSection();
+        }
+        
         console.log("Powrót do edycji wykonany, zoom zresetowany do 1");
     } else {
         console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
@@ -1889,7 +1909,8 @@ function initializeButtons() {
         const prowizjaJednostka = elements.jednostkaProwizji.value || "procent";
 
         const variableRates = Array.isArray(state.variableRates) ? state.variableRates : [];
-        const overpaymentRates = Array.isArray(state.overpaymentRates) ? state.overpaymentRates : [];
+        // Upewnij się, że nadpłaty są pobierane tylko, jeśli opcja jest włączona
+        const overpaymentRates = elements.nadplataKredytuBtn.checked && Array.isArray(state.overpaymentRates) ? state.overpaymentRates : [];
 
         const data = calculateLoan(
             kwota,
@@ -1908,6 +1929,8 @@ function initializeButtons() {
             elements.resultSection.style.display = "block";
             elements.resultSection.classList.add("active");
             updateResults(data);
+            updateSummaryTable(data); // Aktualizuj tabelę podsumowania
+            updateScheduleTable(data.harmonogram); // Aktualizuj harmonogram
             updateZoom();
         } else {
             elements.resultSection.style.display = "none";
