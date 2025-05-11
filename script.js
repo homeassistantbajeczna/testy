@@ -683,32 +683,39 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         previousOverpayments.push({ type: "Jednorazowa", start: prevPeriodStart, amount: prevAmount });
     }
 
-    let periodStart = parseInt(periodStartInput.value) || 1;
-
-    // Oblicz dostępną kwotę do nadpłaty po spłacie raty w periodStart
-    const remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, periodStart);
+    // Oblicz pozostały kapitał na podstawie wszystkich poprzednich nadpłat i rat
+    const remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, 1); // Początkowa wartość, niezależna od periodStart
     let dostepnaKwota = remainingCapital;
 
-    // Ustaw maksymalną kwotę nadpłaty
+    // Ustaw maksymalną kwotę nadpłaty na podstawie pozostałego kapitału
     rateInput.max = Math.floor(dostepnaKwota);
     rateRange.max = Math.floor(dostepnaKwota);
 
     if (!preserveValue) {
         let rateValue = Math.min(parseInt(rateInput.value) || 100, dostepnaKwota);
         rateInput.value = rateValue;
-        rateRange.value = rateValue;
+        range.value = rateValue;
     } else {
         let rateValue = parseInt(rateInput.value) || 100;
         if (rateValue > dostepnaKwota) {
             rateValue = dostepnaKwota;
             rateInput.value = rateValue;
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
     }
 
-    // Dynamicznie ogranicz box "W" na podstawie pozostałego okresu
+    // Dynamiczne ograniczenie boxa "W" na podstawie harmonogramu
     let maxPeriodStart = totalMonths;
-    const loanDetails = calculateLoan(loanAmount, interestRate, totalMonths, paymentType, parseFloat(elements.prowizja?.value) || 0, elements.prowizjaJednostka?.value || "procent", state.variableRates, previousOverpayments);
+    const loanDetails = calculateLoan(
+        loanAmount,
+        interestRate,
+        totalMonths,
+        paymentType,
+        parseFloat(elements.prowizja?.value) || 0,
+        elements.prowizjaJednostka?.value || "procent",
+        state.variableRates,
+        previousOverpayments
+    );
     if (loanDetails) {
         maxPeriodStart = loanDetails.pozostaleRaty;
     }
@@ -1063,20 +1070,32 @@ function updateNadplataKredytuRemoveButtons() {
     });
 
     // Sprawdź, czy można dodać kolejną nadpłatę
-    const limits = updateAllOverpaymentLimits();
-    const remainingCapital = limits.remainingCapital || 0;
-    const remainingMonths = limits.remainingMonths || 0;
+    const loanDetails = calculateLoan(
+        parseInt(elements.kwota?.value) || 500000,
+        parseFloat(elements.oprocentowanie?.value) || 7,
+        parseInt(elements.iloscRat?.value) || 360,
+        elements.rodzajRat?.value || "rowne",
+        parseFloat(elements.prowizja?.value) || 0,
+        elements.prowizjaJednostka?.value || "procent",
+        state.variableRates,
+        state.overpaymentRates
+    );
 
-    let lastPossibleMonth = 1;
-    allGroups.forEach((g) => {
-        const periodStart = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
-        if (periodStart > lastPossibleMonth) lastPossibleMonth = periodStart;
-    });
+    if (loanDetails) {
+        const remainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
+        const remainingMonths = loanDetails.pozostaleRaty;
 
-    if (remainingCapital <= 0 || lastPossibleMonth >= remainingMonths) {
-        addBtn.style.display = "none";
-    } else {
-        addBtn.style.display = "block";
+        let lastPossibleMonth = 1;
+        groups.forEach((g) => {
+            const periodStart = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
+            if (periodStart > lastPossibleMonth) lastPossibleMonth = periodStart;
+        });
+
+        if (remainingCapital <= 0 || lastPossibleMonth >= remainingMonths) {
+            addBtn.style.display = "none";
+        } else {
+            addBtn.style.display = "block";
+        }
     }
 }
 
@@ -1697,9 +1716,9 @@ function updateSummaryTable(summary) {
 }
 
 function updateScheduleTable(schedule) {
-    const scheduleTableBody = document.querySelector("#scheduleTable tbody");
+    const scheduleTableBody = document.querySelector("#harmonogramTabela"); // Poprawione ID
     if (!scheduleTableBody) {
-        console.error("Element #scheduleTable tbody nie istnieje. Upewnij się, że HTML zawiera element <table id='scheduleTable'><tbody></tbody></table>.");
+        console.error("Element #harmonogramTabela nie istnieje. Sprawdź HTML.");
         return;
     }
     if (!schedule || schedule.length === 0) {
@@ -1723,10 +1742,30 @@ function updateScheduleTable(schedule) {
         scheduleTableBody.appendChild(tr);
     });
 
-    const table = document.querySelector("#scheduleTable");
-    const tableWrapper = document.querySelector(".table-wrapper");
+    const table = document.querySelector("table.table-striped");
+    const tableWrapper = document.querySelector(".harmonogram-header").nextElementSibling; // Poprawiony selektor
     if (table && tableWrapper) {
         tableWrapper.scrollTop = table.offsetTop;
+    }
+}
+
+function updateLoanDetails() {
+    const kwota = parseFloat(elements.kwota?.value) || 500000;
+    const oprocentowanie = parseFloat(elements.oprocentowanie?.value) || 7;
+    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
+    const rodzajRat = elements.rodzajRat?.value || "rowne";
+    const prowizja = parseFloat(elements.prowizja?.value) || 0;
+    const prowizjaJednostka = elements.prowizjaJednostka?.value || "procent";
+
+    const loanDetails = calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, state.variableRates, state.overpaymentRates);
+
+    if (loanDetails) {
+        updateSummaryTable(loanDetails);
+        updateScheduleTable(loanDetails.harmonogram); // Upewnij się, że tabelka jest aktualizowana
+        updateResults(loanDetails);
+    }
+    if (elements.nadplataKredytuWrapper) {
+        updateNadplataKredytuRemoveButtons();
     }
 }
 
@@ -2192,7 +2231,7 @@ function initializeApp() {
         elements.resultSection.classList.add("active");
         updateResults(defaultData);
         updateSummaryTable(defaultData);
-        updateScheduleTable(defaultData.harmonogram);
+        updateScheduleTable(defaultData.harmonogram); // Generuj tabelkę przy starcie
     }
 }
 
