@@ -571,7 +571,7 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
         }
     });
 
-    for (let month = 1; month <= targetMonth + 1; month++) {
+    for (let month = 1; month <= targetMonth + 1 && remainingCapital > 0; month++) {
         let interest = remainingCapital * monthlyRate;
         let capitalPayment = 0;
 
@@ -582,14 +582,15 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
             monthlyPayment = capitalPayment + interest;
         }
 
+        if (capitalPayment > remainingCapital) capitalPayment = remainingCapital;
+
         // Odejmij spłatę kapitału w danej racie
-        if (month <= targetMonth + 1) {
-            remainingCapital -= capitalPayment;
-        }
+        remainingCapital -= capitalPayment;
 
         // Uwzględnij nadpłaty w danym miesiącu
         if (overpaymentMap.has(month)) {
             let overpaymentAmount = overpaymentMap.get(month);
+            if (overpaymentAmount > remainingCapital) overpaymentAmount = remainingCapital;
             remainingCapital -= overpaymentAmount;
         }
 
@@ -632,11 +633,11 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     }
 
     let periodStart = parseInt(periodStartInput.value) || 1;
-    let adjustedPeriod = Math.max(0, periodStart - 1); // adjustedPeriod na 0, jeśli periodStart = 1
+    let adjustedPeriod = Math.max(0, periodStart - 1); // Uwzględniamy spłatę raty w wybranym okresie
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, adjustedPeriod);
     let maxAllowed = Math.max(100, remainingCapital);
 
-    // Dla pierwszej nadpłaty upewnij się, że remainingCapital jest obliczane od pełnej kwoty
+    // Dla pierwszej nadpłaty w racie 1 obliczamy od pełnej kwoty kredytu
     if (currentIndex === 0 && periodStart === 1) {
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, [], 0);
         maxAllowed = Math.max(100, remainingCapital);
