@@ -224,6 +224,12 @@ function formatNumber(value) {
     return value.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function updateLata() {
+    if (!checkElements(elements.iloscRat, elements.lata)) return;
+    const iloscRat = parseInt(elements.iloscRat.value) || 0;
+    elements.lata.textContent = `Okres kredytowania: ${iloscRat} miesięcy (${(iloscRat / 12).toFixed(1)} lat)`;
+}
+
 
 
 
