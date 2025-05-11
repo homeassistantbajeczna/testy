@@ -416,37 +416,6 @@ function initializeInputHandling() {
         syncProwizjaWithKwota(true); // Wymuś reset wartości przy zmianie jednostki
         updateProwizjaInfo();
     });
-
-    // Funkcja do synchronizacji prowizji z kwotą
-    function syncProwizjaWithKwota(reset = false) {
-        const jednostka = elements.jednostkaProwizji.value;
-        const kwota = parseInt(elements.kwota.value) || 0;
-        let prowizjaValue = parseFloat(elements.prowizja.value) || 0;
-        const minValue = parseFloat(elements.prowizja.min) || 0;
-        const maxValue = parseFloat(elements.prowizja.max) || Infinity;
-
-        if (reset) {
-            delete elements.prowizja.dataset.manual; // Wymuś reset flagi przy zmianie jednostki
-        }
-
-        if (jednostka === "zl" && (reset || !elements.prowizja.dataset.manual)) {
-            // Ustaw prowizję na 2% kwoty przy zmianie jednostki lub jeśli wartość jest domyślna
-            const defaultProwizja = (kwota * 0.02);
-            prowizjaValue = Math.max(defaultProwizja, minValue);
-            if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-            elements.prowizja.value = prowizjaValue.toFixed(2);
-            elements.prowizjaRange.value = prowizjaValue;
-            delete elements.prowizja.dataset.manual; // Resetuj flagę po automatycznej zmianie
-        } else if (jednostka === "procent" && reset) {
-            // Ustaw domyślną wartość 2 dla procentów przy zmianie jednostki
-            prowizjaValue = 2;
-            if (prowizjaValue < minValue) prowizjaValue = minValue;
-            if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-            elements.prowizja.value = prowizjaValue.toFixed(2);
-            elements.prowizjaRange.value = prowizjaValue;
-            delete elements.prowizja.dataset.manual; // Resetuj flagę po automatycznej zmianie
-        }
-    }
 }
 
 
@@ -532,19 +501,6 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func(...args), wait);
     };
-}
-
-function syncInputWithRange(input, range) {
-    if (!input || !range) return;
-    let value = parseInt(input.value);
-    if (!isNaN(value)) {
-        const min = parseInt(range.min) || 1;
-        const max = parseInt(range.max) || 360;
-        if (value < min) value = min;
-        if (value > max) value = max;
-        input.value = value;
-        range.value = value;
-    }
 }
 
 function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth) {
@@ -765,6 +721,26 @@ function updateAllOverpaymentLimits() {
 
     state.isUpdating = false;
     return { remainingCapital: lastRemainingCapital, remainingMonths: lastRemainingMonths };
+}
+
+function initializeNadplataKredytuToggle() {
+    if (elements.nadplataKredytuBtn) {
+        elements.nadplataKredytuBtn.addEventListener("change", () => {
+            if (elements.nadplataKredytuBtn.checked) {
+                elements.nadplataKredytuInputs.classList.add("active");
+                const newGroup = createNadplataKredytuGroup();
+                elements.nadplataKredytuWrapper.appendChild(newGroup);
+                initializeNadplataKredytuGroup(newGroup);
+                updateRatesArray("nadplata");
+                updateNadplataKredytuRemoveButtons();
+            } else {
+                elements.nadplataKredytuInputs.classList.remove("active");
+                resetNadplataKredytuSection();
+            }
+            updateLoanDetails();
+            toggleMainFormLock();
+        });
+    }
 }
 
 function initializeNadplataKredytuGroup(group) {
@@ -1581,7 +1557,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
         let harmonogram = [];
         let calkowiteOdsetki = 0;
         let calkowiteNadplaty = 0;
-        let prowizjaKwota = prowizjaJednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
+        let prowizjaKwota = elements.jednostkaProwizji?.value === "procent" ? (prowizja / 100) * kwota : prowizja;        
         let pozostaleRaty = iloscRat;
         let oprocentowanieMiesieczne = oprocentowanie / 100 / 12;
 
@@ -1689,7 +1665,10 @@ function updateSummaryTable(summary) {
     if (!summary) return;
 
     const summaryTableBody = document.querySelector("#summaryTable tbody");
-    if (!summaryTableBody) return;
+    if (!summaryTableBody) {
+        console.error("Element #summaryTable tbody nie istnieje. Sprawdź HTML.");
+        return;
+    }
 
     summaryTableBody.innerHTML = "";
 
@@ -1712,9 +1691,9 @@ function updateSummaryTable(summary) {
 }
 
 function updateScheduleTable(schedule) {
-    const scheduleTableBody = document.querySelector("#harmonogramTabela"); // Poprawione ID
+    const scheduleTableBody = document.querySelector("#harmonogramTabela tbody"); // Upewnij się, że selektor jest poprawny
     if (!scheduleTableBody) {
-        console.error("Element #harmonogramTabela nie istnieje. Sprawdź HTML.");
+        console.error("Element #harmonogramTabela tbody nie istnieje. Sprawdź HTML.");
         return;
     }
     if (!schedule || schedule.length === 0) {
@@ -1739,7 +1718,7 @@ function updateScheduleTable(schedule) {
     });
 
     const table = document.querySelector("table.table-striped");
-    const tableWrapper = document.querySelector(".harmonogram-header").nextElementSibling; // Poprawiony selektor
+    const tableWrapper = document.querySelector(".harmonogram-header")?.nextElementSibling;
     if (table && tableWrapper) {
         tableWrapper.scrollTop = table.offsetTop;
     }
@@ -1758,26 +1737,6 @@ function updateLoanDetails() {
     if (loanDetails) {
         updateSummaryTable(loanDetails);
         updateScheduleTable(loanDetails.harmonogram); // Upewnij się, że tabelka jest aktualizowana
-        updateResults(loanDetails);
-    }
-    if (elements.nadplataKredytuWrapper) {
-        updateNadplataKredytuRemoveButtons();
-    }
-}
-
-function updateLoanDetails() {
-    const kwota = parseFloat(elements.kwota?.value) || 500000;
-    const oprocentowanie = parseFloat(elements.oprocentowanie?.value) || 7;
-    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
-    const rodzajRat = elements.rodzajRat?.value || "rowne";
-    const prowizja = parseFloat(elements.prowizja?.value) || 0;
-    const prowizjaJednostka = elements.prowizjaJednostka?.value || "procent";
-
-    const loanDetails = calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, state.variableRates, state.overpaymentRates);
-
-    if (loanDetails) {
-        updateSummaryTable(loanDetails);
-        updateScheduleTable(loanDetails.harmonogram);
         updateResults(loanDetails);
     }
     if (elements.nadplataKredytuWrapper) {
