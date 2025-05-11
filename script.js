@@ -668,19 +668,25 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, adjustedPeriod);
     let maxAllowed = Math.max(100, remainingCapital);
 
+    // Dla pierwszej nadpłaty upewnij się, że remainingCapital jest obliczane od pełnej kwoty
+    if (currentIndex === 0) {
+        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, [], 0); // Początkowy kapitał
+        maxAllowed = Math.max(100, remainingCapital);
+    }
+
     rateInput.max = Math.floor(maxAllowed);
     rateRange.max = Math.floor(maxAllowed);
 
     if (!preserveValue) {
         let rateValue = Math.min(parseInt(rateInput.value) || 100, maxAllowed);
         rateInput.value = rateValue;
-        rateRange.value = rateValue;
+        range.value = rateValue;
     } else {
         let rateValue = parseInt(rateInput.value) || 100;
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
             rateInput.value = rateValue;
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
     }
 
@@ -714,21 +720,21 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
     if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
 
-    // Jeśli kwota nadpłaty osiąga maksimum, zablokuj box "W" na wartości 1
+    // Zablokuj box "W" na 1, jeśli kwota nadpłaty osiąga maksimum
     const currentOverpayment = parseInt(rateInput.value) || 0;
     if (currentOverpayment >= maxAllowed) {
-        currentStartValue = 1; // Ustawiamy na 1, bo nadpłata spłaca cały kapitał w pierwszym miesiącu
+        currentStartValue = 1; // Ustaw na 1, bo nadpłata spłaca cały kapitał
         periodStartInput.value = currentStartValue;
         periodStartRange.value = currentStartValue;
         periodStartInput.max = 1; // Maksymalna wartość to 1
         periodStartRange.max = 1;
-        periodStartInput.disabled = true; // Wyłączamy input
-        periodStartRange.disabled = true; // Wyłączamy suwak
+        periodStartInput.disabled = true; // Wyłącz input
+        periodStartRange.disabled = true; // Wyłącz suwak
         periodStartInput.style.backgroundColor = "#e9ecef"; // Styl dla zablokowanego pola
         periodStartInput.style.opacity = "0.6";
         periodStartRange.style.opacity = "0.6";
     } else {
-        // Jeśli kwota nadpłaty nie osiąga maksimum, odblokuj box "W"
+        // Odblokuj box "W", jeśli kwota nie osiąga maksimum
         periodStartInput.value = currentStartValue;
         periodStartRange.value = currentStartValue;
         periodStartInput.disabled = false;
@@ -742,6 +748,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     updateRatesArray("nadplata");
     return remainingCapital;
 }
+
 function updateAllOverpaymentLimits() {
     if (state.isUpdating) return { remainingCapital: 0, remainingMonths: 0 };
 
@@ -834,8 +841,8 @@ function initializeNadplataKredytuGroup(group) {
         periodStartInput.min = minValue;
         periodStartRange.min = minValue;
 
+        // Natychmiastowa aktualizacja limitów po inicjalizacji
         updateOverpaymentLimit(rateInput, rateRange, group, true);
-        updateNadplataKredytuRemoveButtons(); // Aktualizuj przycisk po każdej zmianie
 
         state.isUpdating = false;
     };
