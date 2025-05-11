@@ -674,7 +674,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         if (rateValue > maxAllowed) {
             rateValue = maxAllowed;
             rateInput.value = rateValue;
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
     }
 
@@ -694,13 +694,13 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     );
 
     if (loanDetails) {
-        maxPeriodStart = loanDetails.pozostaleRaty;
+        maxPeriodStart = loanDetails.pozostaleRaty || totalMonths; // Użyj totalMonths jako fallback
         const finalCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
         if (finalCapital <= 0) {
-            maxPeriodStart = periodStart; // Ogranicz do okresu ostatniej nadpłaty
-        } else {
-            maxPeriodStart = totalMonths; // Jeśli kapitał nie jest spłacony, pozwól na pełny okres
+            maxPeriodStart = Math.min(maxPeriodStart, periodStart); // Ogranicz do bieżącego okresu
         }
+    } else {
+        maxPeriodStart = totalMonths; // Domyślnie pełny okres, jeśli obliczenia się nie powiodły
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -709,17 +709,15 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     periodStartInput.max = maxPeriodStart;
     periodStartRange.max = maxPeriodStart;
 
-    // Nie nadpisz wartości, jeśli jest w dozwolonym zakresie
+    // Zachowaj wartość wprowadzoną przez użytkownika, jeśli jest w zakresie
     let currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
     if (currentStartValue < minPeriodStart) {
         currentStartValue = minPeriodStart;
-        periodStartInput.value = currentStartValue;
-        periodStartRange.value = currentStartValue;
     } else if (currentStartValue > maxPeriodStart) {
         currentStartValue = maxPeriodStart;
-        periodStartInput.value = currentStartValue;
-        periodStartRange.value = currentStartValue;
     }
+    periodStartInput.value = currentStartValue;
+    periodStartRange.value = currentStartValue;
     syncInputWithRange(periodStartInput, periodStartRange);
 
     updateRatesArray("nadplata");
@@ -1045,6 +1043,14 @@ function updateNadplataKredytuRemoveButtons() {
         const currentOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.value) || 0;
         const remainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
 
+        // Debugowanie
+        console.log("Debug - updateNadplataKredytuRemoveButtons:", {
+            remainingCapital: remainingCapital,
+            currentPeriodStart: currentPeriodStart,
+            totalMonths: totalMonths,
+            currentOverpayment: currentOverpayment
+        });
+
         // Przycisk jest widoczny, jeśli:
         // 1. Jest jeszcze kapitał do spłaty
         // 2. Nie osiągnęliśmy maksymalnej liczby grup (5)
@@ -1055,34 +1061,22 @@ function updateNadplataKredytuRemoveButtons() {
 
         shouldShowAddButton = remainingCapital > 0 && canAddMoreGroups && canAddMorePeriods;
 
-        // Debugowanie – usuń w wersji produkcyjnej
-        console.log("remainingCapital:", remainingCapital, "canAddMoreGroups:", canAddMoreGroups, "canAddMorePeriods:", canAddMorePeriods);
+        // Jeśli remainingCapital jest 0, ale kredyt nie jest w pełni spłacony, przelicz ręcznie
+        if (!shouldShowAddButton && remainingCapital === 0 && currentOverpayment > 0) {
+            const adjustedCapital = calculateRemainingCapital(
+                loanAmount,
+                parseFloat(elements.oprocentowanie?.value) || 7,
+                totalMonths,
+                elements.rodzajRat?.value || "rowne",
+                state.overpaymentRates,
+                currentPeriodStart
+            );
+            shouldShowAddButton = adjustedCapital > 0 && canAddMoreGroups && canAddMorePeriods;
+            console.log("Adjusted remainingCapital:", adjustedCapital);
+        }
     }
 
     addBtn.style.display = shouldShowAddButton ? "block" : "none";
-}
-
-function initializeNadplataKredytuToggle() {
-    if (!elements.nadplataKredytuBtn) return;
-
-    elements.nadplataKredytuBtn.addEventListener("change", () => {
-        const isChecked = elements.nadplataKredytuBtn.checked;
-        if (elements.nadplataKredytuInputs) {
-            elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
-        }
-
-        if (isChecked) {
-            if (!elements.nadplataKredytuWrapper) return;
-            elements.nadplataKredytuWrapper.innerHTML = "";
-            const newGroup = createNadplataKredytuGroup();
-            elements.nadplataKredytuWrapper.appendChild(newGroup);
-            initializeNadplataKredytuGroup(newGroup);
-            updateNadplataKredytuRemoveButtons();
-        } else {
-            resetNadplataKredytuSection(); // To zaktualizuje harmonogram
-        }
-        toggleMainFormLock();
-    });
 }
 
 state.isUpdating = false;
