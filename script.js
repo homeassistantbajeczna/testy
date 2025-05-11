@@ -520,6 +520,8 @@ function createNadplataKredytuGroup() {
             </div>
         </div>
     `;
+
+    updateAllOverpaymentLimits(); // Upewniamy się, że limity są ustawione po utworzeniu grupy
     return group;
 }
 
@@ -902,6 +904,7 @@ function initializeNadplataKredytuGroup(group) {
     initializeInputsAndRanges(inputs, ranges);
 
     updatePeriodBox();
+    updateAllOverpaymentLimits(); // Upewniamy się, że limity są ustawione
 }
 
 function resetNadplataKredytuSection() {
@@ -1041,8 +1044,36 @@ function updateNadplataKredytuRemoveButtons() {
         updateLoanDetails(); // Zaktualizuj harmonogram po dodaniu
     });
 
-    // Uprość widoczność przycisku "Dodaj kolejną nadpłatę" – ogranicz do 5 grup
-    addBtn.style.display = groups.length < 5 ? "block" : "none";
+    // Sprawdź, czy można dodać kolejną nadpłatę
+    const loanDetails = calculateLoan(
+        parseInt(elements.kwota?.value) || 500000,
+        parseFloat(elements.oprocentowanie?.value) || 7,
+        parseInt(elements.iloscRat?.value) || 360,
+        elements.rodzajRat?.value || "rowne",
+        parseFloat(elements.prowizja?.value) || 0,
+        elements.prowizjaJednostka?.value || "procent",
+        state.variableRates,
+        state.overpaymentRates
+    );
+
+    if (loanDetails) {
+        const remainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
+        const remainingMonths = loanDetails.pozostaleRaty;
+
+        // Sprawdź aktualną nadpłatę i okres w ostatniej grupie
+        const lastGroup = groups[groups.length - 1];
+        const currentOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.value) || 0;
+        const currentPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.value) || 1;
+        const maxOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.max) || 0;
+        const maxPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.max) || elements.iloscRat?.value || 360;
+
+        // Przycisk znika, jeśli kapitał = 0 lub nie ma więcej miesięcy
+        if (remainingCapital <= 0 || currentPeriodStart >= maxPeriodStart) {
+            addBtn.style.display = "none";
+        } else {
+            addBtn.style.display = "block";
+        }
+    }
 }
 
 function initializeNadplataKredytuToggle() {
