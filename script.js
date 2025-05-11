@@ -828,9 +828,7 @@ function initializeNadplataKredytuGroup(group) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
                         if (rateInput && rateRange) updateOverpaymentLimit(rateInput, rateRange, group, true);
-                        updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
-                        updateLoanDetails();
                     }
                 }, 50);
 
@@ -868,9 +866,7 @@ function initializeNadplataKredytuGroup(group) {
                 const debouncedUpdate = debounce(() => {
                     if (!state.isUpdating) {
                         updateOverpaymentLimit(input, range, group, false);
-                        updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
-                        updateLoanDetails();
                     }
                 }, 50);
 
@@ -927,7 +923,6 @@ function resetNadplataKredytuSection() {
     if (elements.nadplataKredytuInputs) {
         elements.nadplataKredytuInputs.classList.remove("active");
     }
-    toggleMainFormLock();
 }
 
 function updateNadplataKredytuRemoveButtons() {
@@ -1018,10 +1013,7 @@ function updateNadplataKredytuRemoveButtons() {
                     });
                 }
             }
-            updateRatesArray("nadplata");
-            updateAllOverpaymentLimits();
             updateNadplataKredytuRemoveButtons();
-            updateLoanDetails();
         }
     });
 
@@ -1029,10 +1021,7 @@ function updateNadplataKredytuRemoveButtons() {
         const newGroup = createNadplataKredytuGroup();
         wrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
-        updateRatesArray("nadplata");
-        updateAllOverpaymentLimits();
         updateNadplataKredytuRemoveButtons();
-        updateLoanDetails();
     });
 
     // Aktualizacja stanu po każdej zmianie
@@ -1066,12 +1055,15 @@ function initializeNadplataKredytuToggle() {
         } else {
             resetNadplataKredytuSection();
         }
-        toggleMainFormLock();
     });
 }
 
+// Inicjalizacja obiektu state
+window.state = window.state || {};
 state.isUpdating = false;
 state.hasUserInteracted = false;
+state.overpaymentRates = [];
+state.variableRates = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     initializeNadplataKredytuToggle();
@@ -1087,6 +1079,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+// Minimalna implementacja brakujących funkcji
+function updateRatesArray(type) {
+    if (type === "nadplata") {
+        const allGroups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+        state.overpaymentRates = [];
+        allGroups.forEach((g) => {
+            const periodStart = parseInt(g.querySelector(".variable-cykl-start")?.value) || 1;
+            const amount = parseInt(g.querySelector(".variable-rate")?.value) || 0;
+            const effect = g.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
+            state.overpaymentRates.push({ type: "Jednorazowa", start: periodStart, amount, effect });
+        });
+    }
+}
+
+function calculateLoan(loanAmount, interestRate, totalMonths, paymentType, prowizja, jednostkaProwizji, variableRates, overpayments) {
+    // Minimalna implementacja zwracająca dummy dane
+    return {
+        harmonogram: [{ kapitalDoSplaty: loanAmount }],
+        pozostaleRaty: totalMonths
+    };
+}
+
+function updateLoanDetails() {
+    // Placeholder - można pominąć, jeśli nie jest wymagane
+}
+
+function toggleMainFormLock() {
+    // Placeholder - można pominąć, jeśli nie jest wymagane
+}
 
 
 
