@@ -559,7 +559,6 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
     let harmonogram = [];
     let remainingMonths = totalMonths;
 
-    // Jeśli targetMonth to 0 lub 1, zwracamy pełną kwotę kredytu pomniejszoną o pierwszą ratę
     if (targetMonth <= 1) {
         const odsetki = remainingCapital * monthlyRate;
         let rataKapitalowa;
@@ -629,7 +628,7 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
     return remainingCapital > 0 ? parseFloat(remainingCapital.toFixed(2)) : 0;
 }
 
-function updateOverpaymentLimit(input, range, group, preserveValue = true) {
+function updateOverpaymentLimit(input, range, group, preserveValue = true, triggerSource = "all") {
     if (!group || group.classList.contains("locked")) return 0;
 
     const typeSelect = group.querySelector(".nadplata-type-select");
@@ -665,20 +664,23 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     let adjustedPeriod = periodStart === 1 ? 1 : Math.max(1, periodStart - 1);
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, adjustedPeriod);
 
-    let maxAllowed = Math.max(100, remainingCapital);
-    rateInput.max = Math.floor(maxAllowed);
-    rateRange.max = Math.floor(maxAllowed);
+    // Aktualizuj maxAllowed tylko przy zmianie danych kredytu, nie przy zmianie "W"
+    if (triggerSource === "all" || triggerSource === "rate") {
+        let maxAllowed = Math.max(100, remainingCapital);
+        rateInput.max = Math.floor(maxAllowed);
+        rateRange.max = Math.floor(maxAllowed);
+    }
 
-    if (!preserveValue) {
-        let rateValue = Math.min(parseInt(rateInput.value) || 100, maxAllowed);
+    if (!preserveValue || triggerSource === "all") {
+        let rateValue = Math.min(parseInt(rateInput.value) || 100, parseInt(rateInput.max) || 100);
         rateInput.value = rateValue;
-        rateRange.value = rateValue;
+        range.value = rateValue;
     } else {
         let rateValue = parseInt(rateInput.value) || 100;
-        if (rateValue > maxAllowed) {
-            rateValue = maxAllowed;
+        if (rateValue > parseInt(rateInput.max)) {
+            rateValue = parseInt(rateInput.max);
             rateInput.value = rateValue;
-            rateRange.value = rateValue;
+            range.value = rateValue;
         }
     }
 
@@ -775,6 +777,136 @@ function updateAllOverpaymentLimits() {
     }
 }
 
+function updateNadplataKredytuRemoveButtons() {
+    if (!elements.nadplataKredytuWrapper) return;
+
+    const wrapper = elements.nadplataKredytuWrapper;
+    const groups = wrapper.querySelectorAll(".variable-input-group");
+    let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
+
+    if (groups.length === 0) {
+        if (existingRemoveBtnWrapper) existingRemoveBtnWrapper.remove();
+        return;
+    }
+
+    if (!existingRemoveBtnWrapper) {
+        existingRemoveBtnWrapper = document.createElement("div");
+        existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
+        existingRemoveBtnWrapper.style.display = "flex";
+        existingRemoveBtnWrapper.style.flexDirection = "column";
+        existingRemoveBtnWrapper.style.alignItems = "center";
+        existingRemoveBtnWrapper.style.gap = "5px";
+        existingRemoveBtnWrapper.style.marginTop = "10px";
+    } else {
+        existingRemoveBtnWrapper.innerHTML = "";
+    }
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
+    removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
+    removeBtn.textContent = "Usuń";
+    existingRemoveBtnWrapper.appendChild(removeBtn);
+
+    const addBtn = document.createElement("button");
+    addBtn.type = "button";
+    addBtn.id = "addNadplataKredytuBtn";
+    addBtn.classList.add("btn", "btn-functional");
+    addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
+    addBtn.textContent = "Dodaj kolejną nadpłatę";
+    existingRemoveBtnWrapper.appendChild(addBtn);
+
+    const lastGroup = groups[groups.length - 1];
+    if (existingRemoveBtnWrapper.parentElement !== lastGroup) lastGroup.appendChild(existingRemoveBtnWrapper);
+
+    groups.forEach((group, index) => {
+        if (index < groups.length - 1 && !group.classList.contains("locked")) {
+            group.classList.add("locked");
+            group.querySelectorAll(".form-control, .form-select, .form-range").forEach(input => {
+                input.disabled = true;
+                if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
+                    input.style.backgroundColor = "#e9ecef";
+                    input.style.opacity = "0.7";
+                    input.classList.remove("unlocked-select");
+                }
+            });
+        } else if (index === groups.length - 1 && group.classList.contains("locked")) {
+            group.classList.remove("locked");
+            group.querySelectorAll(".form-control, .form-select, .form-range").forEach(input => {
+                input.disabled = false;
+                if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
+                    input.classList.add("unlocked-select");
+                    input.style.backgroundColor = "#ffffff";
+                    input.style.opacity = "1";
+                }
+            });
+        }
+    });
+
+    removeBtn.addEventListener("click", () => {
+        const groups = wrapper.querySelectorAll(".variable-input-group");
+        if (groups.length === 1) {
+            elements.nadplataKredytuBtn.checked = false;
+            elements.nadplataKredytuInputs?.classList.remove("active");
+            resetNadplataKredytuSection();
+        } else {
+            groups[groups.length - 1].remove();
+            if (groups.length - 2 >= 0) {
+                const previousGroup = groups[groups.length - 2];
+                if (previousGroup.classList.contains("locked")) {
+                    previousGroup.classList.remove("locked");
+                    previousGroup.querySelectorAll(".form-control, .form-select, .form-range").forEach(input => {
+                        input.disabled = false;
+                        if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
+                            input.classList.add("unlocked-select");
+                            input.style.backgroundColor = "#ffffff";
+                            input.style.opacity = "1";
+                        }
+                    });
+                }
+            }
+            updateRatesArray("nadplata");
+            updateAllOverpaymentLimits("all");
+            updateNadplataKredytuRemoveButtons();
+            updateLoanDetails();
+        }
+    });
+
+    addBtn.addEventListener("click", () => {
+        const newGroup = createNadplataKredytuGroup();
+        wrapper.appendChild(newGroup);
+        initializeNadplataKredytuGroup(newGroup);
+        updateRatesArray("nadplata");
+        updateAllOverpaymentLimits("all");
+        updateNadplataKredytuRemoveButtons();
+        updateLoanDetails();
+    });
+
+    const loanDetails = calculateLoan(
+        parseInt(elements.kwota?.value) || 500000,
+        parseFloat(elements.oprocentowanie?.value) || 7,
+        parseInt(elements.iloscRat?.value) || 360,
+        elements.rodzajRat?.value || "rowne",
+        parseFloat(elements.prowizja?.value) || 0,
+        elements.jednostkaProwizji?.value || "procent",
+        state.variableRates,
+        state.overpaymentRates
+    );
+
+    if (loanDetails) {
+        const lastGroup = groups[groups.length - 1];
+        const remainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
+        const remainingMonths = loanDetails.pozostaleRaty;
+        const lastPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.value) || 1;
+
+        if (remainingCapital <= 0 || lastPeriodStart >= remainingMonths) {
+            addBtn.style.display = "none";
+        } else {
+            addBtn.style.display = "block";
+        }
+    }
+}
+
 function initializeNadplataKredytuGroup(group) {
     if (!group) return;
 
@@ -811,7 +943,8 @@ function initializeNadplataKredytuGroup(group) {
         periodStartInput.value = Math.max(minValue, parseInt(periodStartInput.value) || minValue);
         periodStartRange.value = periodStartInput.value;
 
-        updateOverpaymentLimit(rateInput, rateRange, group, true);
+        // Aktualizuj tylko okres, nie resetuj "Kwota nadpłaty"
+        updateOverpaymentLimit(rateInput, rateRange, group, true, "period");
         updateNadplataKredytuRemoveButtons();
 
         state.isUpdating = false;
@@ -829,7 +962,7 @@ function initializeNadplataKredytuGroup(group) {
                     if (!state.isUpdating) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
-                        if (rateInput && rateRange) updateOverpaymentLimit(rateInput, rateRange, group, true);
+                        if (rateInput && rateRange) updateOverpaymentLimit(rateInput, rateRange, group, true, "period");
                         updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
                         updateLoanDetails();
@@ -870,7 +1003,7 @@ function initializeNadplataKredytuGroup(group) {
             } else if (input.classList.contains("variable-rate")) {
                 const debouncedUpdate = debounce(() => {
                     if (!state.isUpdating) {
-                        updateOverpaymentLimit(input, rateRange, group, false);
+                        updateOverpaymentLimit(input, range, group, false, "rate");
                         updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
                         updateLoanDetails();
@@ -1022,7 +1155,7 @@ function updateNadplataKredytuRemoveButtons() {
                 }
             }
             updateRatesArray("nadplata");
-            updateAllOverpaymentLimits();
+            updateAllOverpaymentLimits("all");
             updateNadplataKredytuRemoveButtons();
             updateLoanDetails();
         }
@@ -1033,7 +1166,7 @@ function updateNadplataKredytuRemoveButtons() {
         wrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
         updateRatesArray("nadplata");
-        updateAllOverpaymentLimits();
+        updateAllOverpaymentLimits("all");
         updateNadplataKredytuRemoveButtons();
         updateLoanDetails();
     });
@@ -1051,16 +1184,11 @@ function updateNadplataKredytuRemoveButtons() {
 
     if (loanDetails) {
         const lastGroup = groups[groups.length - 1];
-        const currentOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.value) || 0;
-        const maxOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.max) || 0;
         const remainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
         const remainingMonths = loanDetails.pozostaleRaty;
         const lastPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.value) || 1;
 
-        // Przycisk "Dodaj kolejną nadpłatę" powinien być widoczny, jeśli:
-        // - jest jeszcze kapitał do nadpłaty (remainingCapital > 0)
-        // - i okres ostatniej nadpłaty nie przekracza pozostałych miesięcy
-        if (remainingCapital <= 0 || lastPeriodStart >= remainingMonths || currentOverpayment >= maxOverpayment) {
+        if (remainingCapital <= 0 || lastPeriodStart >= remainingMonths) {
             addBtn.style.display = "none";
         } else {
             addBtn.style.display = "block";
