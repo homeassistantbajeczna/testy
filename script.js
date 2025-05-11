@@ -521,7 +521,6 @@ function createNadplataKredytuGroup() {
         </div>
     `;
 
-    updateAllOverpaymentLimits(); // Upewniamy się, że limity są ustawione po utworzeniu grupy
     return group;
 }
 
@@ -687,14 +686,18 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         totalMonths,
         paymentType,
         parseFloat(elements.prowizja?.value) || 0,
-        elements.prowizjaJednostka?.value || "procent",
+        elements.jednostkaProwizji?.value || "procent",
         state.variableRates,
         currentOverpayments
     );
 
     if (loanDetails) {
+        // Ustawiamy maxPeriodStart na podstawie pozostałych rat, ale uwzględniamy, że po maksymalnej nadpłacie okres może wynosić 1
         maxPeriodStart = loanDetails.pozostaleRaty;
-        if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
+        if (loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty <= 0) {
+            // Jeśli kapitał jest spłacony, ograniczamy maxPeriodStart do okresu ostatniej nadpłaty
+            maxPeriodStart = Math.max(1, periodStart);
+        }
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -745,7 +748,7 @@ function updateAllOverpaymentLimits() {
         totalMonths,
         paymentType,
         parseFloat(elements.prowizja?.value) || 0,
-        elements.prowizjaJednostka?.value || "procent",
+        elements.jednostkaProwizji?.value || "procent",
         state.variableRates,
         overpayments
     );
@@ -753,6 +756,10 @@ function updateAllOverpaymentLimits() {
     if (loanDetails) {
         lastRemainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
         lastRemainingMonths = loanDetails.pozostaleRaty;
+        // Jeśli kapitał wynosi 0, upewniamy się, że okres jest odpowiednio ograniczony
+        if (lastRemainingCapital <= 0) {
+            lastRemainingMonths = Math.min(lastRemainingMonths, lastOverpaymentMonth);
+        }
     }
 
     groups.forEach((g) => {
@@ -1045,13 +1052,14 @@ function updateNadplataKredytuRemoveButtons() {
     });
 
     // Sprawdź, czy można dodać kolejną nadpłatę
+    const totalMonths = parseInt(elements.iloscRat?.value) || 360;
     const loanDetails = calculateLoan(
         parseInt(elements.kwota?.value) || 500000,
         parseFloat(elements.oprocentowanie?.value) || 7,
-        parseInt(elements.iloscRat?.value) || 360,
+        totalMonths,
         elements.rodzajRat?.value || "rowne",
         parseFloat(elements.prowizja?.value) || 0,
-        elements.prowizjaJednostka?.value || "procent",
+        elements.jednostkaProwizji?.value || "procent",
         state.variableRates,
         state.overpaymentRates
     );
@@ -1060,19 +1068,20 @@ function updateNadplataKredytuRemoveButtons() {
         const remainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
         const remainingMonths = loanDetails.pozostaleRaty;
 
-        // Sprawdź aktualną nadpłatę i okres w ostatniej grupie
+        // Sprawdź aktualny okres w ostatniej grupie
         const lastGroup = groups[groups.length - 1];
-        const currentOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.value) || 0;
         const currentPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.value) || 1;
-        const maxOverpayment = parseInt(lastGroup.querySelector(".variable-rate")?.max) || 0;
-        const maxPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.max) || elements.iloscRat?.value || 360;
+        const maxPeriodStart = remainingMonths; // Ustawiamy maksymalny okres na podstawie pozostałych rat
 
-        // Przycisk znika, jeśli kapitał = 0 lub nie ma więcej miesięcy
-        if (remainingCapital <= 0 || currentPeriodStart >= maxPeriodStart) {
-            addBtn.style.display = "none";
-        } else {
+        // Przycisk jest widoczny, jeśli jest jeszcze kapitał do spłaty i są dostępne miesiące
+        if (remainingCapital > 0 && currentPeriodStart < maxPeriodStart) {
             addBtn.style.display = "block";
+        } else {
+            addBtn.style.display = "none";
         }
+    } else {
+        // W przypadku błędu w obliczeniach, domyślnie ukrywamy przycisk
+        addBtn.style.display = "none";
     }
 }
 
