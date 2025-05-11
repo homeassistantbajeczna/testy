@@ -645,18 +645,13 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     rateInput.max = Math.floor(maxAllowed);
     rateRange.max = Math.floor(maxAllowed);
 
+    // Aktualizuj wartość "KWOTA NADPŁATY" tylko, gdy preserveValue = false (zmiana w boxie "KWOTA NADPŁATY")
     if (!preserveValue) {
         let rateValue = Math.min(parseInt(rateInput.value) || 100, maxAllowed);
         rateInput.value = rateValue;
         rateRange.value = rateValue;
-    } else {
-        let rateValue = parseInt(rateInput.value) || 100;
-        if (rateValue > maxAllowed) {
-            rateValue = maxAllowed;
-            rateInput.value = rateValue;
-            rateRange.value = rateValue;
-        }
     }
+    // Jeśli preserveValue = true (zmiana w boxie "W"), nie zmieniaj wartości "KWOTA NADPŁATY", tylko limity
 
     let maxPeriodStart = totalMonths;
     let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: parseInt(rateInput.value) || 0, effect }];
