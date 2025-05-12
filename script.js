@@ -1619,9 +1619,11 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
         if (remainingMonths <= 0) remainingMonths = 1;
 
         if (activeOverpayment && activeOverpayment.effect === "Zmniejsz ratę" && nadplata > 0) {
-            rataCalkowita = pozostalyKapital * (q ** remainingMonths) * (q - 1) / ((q ** remainingMonths) - 1);
+            const numerator = Math.round(pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths)));
+            const denominator = Math.round(Math.pow(q, remainingMonths) - 1);
+            rataCalkowita = Math.round(numerator / denominator) || 100;
         } else {
-            rataCalkowita = kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1);
+            rataCalkowita = Math.round(kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1)) || 100;
         }
 
         if (isNaN(rataCalkowita) || rataCalkowita <= 0) {
@@ -1724,7 +1726,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 iloscRat,
                 pozostalyKapital,
                 currentOprocentowanie,
-                0,
+                nadplata,
                 activeOverpayment,
                 rodzajRat,
                 i
@@ -1749,7 +1751,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            if (pozostalyKapital <= 0) {
+            if (pozostalyKapital <= 0 && activeOverpayment?.effect !== "Zmniejsz ratę") {
                 pozostaleRaty = i;
                 break;
             }
