@@ -638,6 +638,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
 
     let periodStart = parseInt(periodStartInput.value) || 1;
     let adjustedPeriod = Math.max(0, periodStart - 1);
+    let overpaymentAmount = parseInt(rateInput.value) || 0;
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, adjustedPeriod);
     let maxAllowed = Math.max(100, remainingCapital);
 
@@ -656,7 +657,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
     }
 
     let maxPeriodStart = totalMonths;
-    let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: parseInt(rateInput.value) || 0, effect }];
+    let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: overpaymentAmount, effect }];
     const loanDetails = calculateLoan(
         loanAmount,
         interestRate,
@@ -692,9 +693,9 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         periodStartRange.max = maxPeriodStart;
     }
 
-    // Logi dla pierwszej nadpłaty
+    // Logi dla pierwszej nadpłaty z kwotą nadpłaty
     if (currentIndex === 0) {
-        console.log(`First Overpayment: MinPeriodStart=${minPeriodStart}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, HasUserInteracted=${state.hasUserInteracted}, IsChangeEvent=${isChangeEvent}`);
+        console.log(`First Overpayment: MinPeriodStart=${minPeriodStart}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, OverpaymentAmount=${overpaymentAmount}, HasUserInteracted=${state.hasUserInteracted}, IsChangeEvent=${isChangeEvent}`);
     }
 
     // Ograniczamy wartość po zakończeniu interakcji
@@ -865,7 +866,7 @@ function initializeNadplataKredytuGroup(group) {
 
                 range.addEventListener("change", () => {
                     let value = parseInt(range.value);
-                    if (value < parseInt(range.min)) value = parseInt(range.min);
+                    if (value < parseInt(range.min)) value = parseInt(input.min);
                     input.value = value;
                     range.value = value;
                     debouncedChangeUpdate();
