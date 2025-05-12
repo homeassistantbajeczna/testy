@@ -542,23 +542,24 @@ function debounce(func, wait) {
     };
 }
 
-function syncInputWithRange(input, range, enforceLimits = false) {
-    if (state.isUserInteracting) return; // Nie synchronizujemy podczas aktywnego przesuwania
-
-    let inputValue = parseInt(input.value) || parseInt(input.min);
-    let rangeValue = parseInt(range.value) || parseInt(range.min);
-
-    if (enforceLimits) {
-        if (inputValue < parseInt(input.min)) inputValue = parseInt(input.min);
-        if (inputValue > parseInt(input.max)) inputValue = parseInt(input.max);
-        if (rangeValue < parseInt(range.min)) rangeValue = parseInt(range.min);
-        if (rangeValue > parseInt(range.max)) rangeValue = parseInt(range.max);
+function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null) {
+    if (!input || !range) return;
+    let value = parseInt(input.value);
+    if (!isNaN(value)) {
+        const min = parseInt(range.min) || 1;
+        let max = maxLimit !== null ? maxLimit : parseInt(range.max) || 360;
+        if (enforceLimits) {
+            if (value < min) value = min;
+            if (value > max) value = max;
+            if (input.value !== value.toString()) {
+                input.value = value;
+            }
+        }
+        if (parseInt(range.value) !== value) {
+            range.value = value;
+        }
+        console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${min}, Max=${max}, EnforceLimits=${enforceLimits}`);
     }
-
-    input.value = inputValue;
-    range.value = rangeValue;
-
-    console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${input.min}, Max=${input.max}, EnforceLimits=${enforceLimits}`);
 }
 
 function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth) {
@@ -606,40 +607,121 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
     return Math.max(0, Math.round(remainingCapital));
 }
 
-function updateOverpaymentLimit(rateInput, rateRange, group, isPeriodStart = false, isChangeEvent = false) {
-    if (!rateInput || !rateRange || !group) return;
+function updateOverpaymentLimit(input, range, group, preserveValue = true, isChangeEvent = false) {
+    if (!group || group.classList.contains("locked")) return 0;
 
+    const typeSelect = group.querySelector(".nadplata-type-select");
+    const type = typeSelect?.value || "Jednorazowa";
+    const effectSelect = group.querySelector(".nadplata-effect-select");
+    const effect = effectSelect?.value || "Skróć okres";
     const periodStartInput = group.querySelector(".variable-cykl-start");
     const periodStartRange = group.querySelector(".variable-cykl-start-range");
-    const overpaymentAmountInput = group.querySelector(".variable-rate");
-    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-    const currentIndex = Array.from(groups).indexOf(group);
+    const rateInput = input.classList.contains("variable-rate") ? input : group.querySelector(".variable-rate");
+    const rateRange = range.classList.contains("variable-rate-range") ? range : group.querySelector(".variable-rate-range");
 
-    let periodStartValue = parseInt(periodStartInput.value) || parseInt(periodStartInput.min);
-    let overpaymentAmount = parseInt(overpaymentAmountInput.value) || 0;
+    if (!rateInput || !rateRange || !periodStartInput || !periodStartRange) return 0;
 
-    // Używamy cache dla calculateRemainingCapital
-    const cacheKey = `${loanAmount}_${interestRate}_${totalMonths}_${paymentType}_${currentIndex}_${overpaymentAmount}_${periodStartValue}`;
-    let remainingCapital = state.calculateRemainingCapitalCache.get(cacheKey);
+    const loanAmount = parseInt(elements.kwota?.value) || 500000;
+    const interestRate = parseFloat(elements.oprocentowanie?.value) || 7;
+    const totalMonths = parseInt(elements.iloscRat?.value) || 360;
+    const paymentType = elements.rodzajRat?.value || "rowne";
 
-    if (!remainingCapital) {
-        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, 
-            currentIndex > 0 ? getOverpaymentHistory(currentIndex) : [], 
-            periodStartValue - 1);
-        state.calculateRemainingCapitalCache.set(cacheKey, remainingCapital);
+    const allGroups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+    const currentIndex = Array.from(allGroups).indexOf(group);
+    const previousOverpayments = [];
+    for (let i = 0; i < currentIndex; i++) {
+        const prevGroup = allGroups[i];
+        if (!prevGroup) continue;
+        const prevType = prevGroup.querySelector(".nadplata-type-select")?.value || "Jednorazowa";
+        const prevPeriodStart = parseInt(prevGroup.querySelector(".variable-cykl-start")?.value) || 1;
+        const prevAmount = parseInt(prevGroup.querySelector(".variable-rate")?.value) || 0;
+        const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
+        previousOverpayments.push({ type: prevType, start: prevPeriodStart, amount: prevAmount, effect: prevEffect });
     }
 
-    let maxPeriodStart = Math.min(totalMonths, Math.floor(remainingCapital / (overpaymentAmount || 1)) + periodStartValue);
-    maxPeriodStart = Math.max(periodStartValue, Math.min(maxPeriodStart, totalMonths));
+    let periodStart = parseInt(periodStartInput.value) || 1;
+    let adjustedPeriod = Math.max(0, periodStart - 1);
+    let overpaymentAmount = parseInt(rateInput.value) || 0;
+    let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, adjustedPeriod);
+    let maxAllowed = Math.max(100, remainingCapital);
 
-    periodStartInput.max = maxPeriodStart;
-    periodStartRange.max = maxPeriodStart;
-
-    if (isPeriodStart) {
-        syncInputWithRange(periodStartInput, periodStartRange, true);
+    if (currentIndex === 0) {
+        remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, [], adjustedPeriod);
+        maxAllowed = Math.max(100, remainingCapital);
     }
 
-    console.log(`First Overpayment: MinPeriodStart=${periodStartInput.min}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, OverpaymentAmount=${overpaymentAmount}, HasUserInteracted=${state.isUserInteracting}, IsChangeEvent=${isChangeEvent}`);
+    rateInput.max = Math.floor(maxAllowed);
+    rateRange.max = Math.floor(maxAllowed);
+
+    if (!preserveValue) {
+        let rateValue = Math.min(parseInt(rateInput.value) || 100, maxAllowed);
+        rateInput.value = rateValue;
+        rateRange.value = rateValue;
+    }
+
+    let maxPeriodStart = totalMonths; // Początkowa wartość domyślna
+    let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: overpaymentAmount, effect }];
+    let loanDetails = calculateLoan(
+        loanAmount,
+        interestRate,
+        totalMonths,
+        paymentType,
+        parseFloat(elements.prowizja?.value) || 0,
+        elements.jednostkaProwizji?.value || "procent",
+        state.variableRates,
+        currentOverpayments
+    );
+
+    // Sprawdź poprawność loanDetails.pozostaleRaty
+    if (loanDetails && loanDetails.pozostaleRaty > 0) {
+        maxPeriodStart = loanDetails.pozostaleRaty;
+        if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
+    }
+
+    // Jeśli MaxPeriodStart jest za duży lub błędny, wykonaj testowe obliczenie z periodStart=1
+    if (overpaymentAmount > 0 && (maxPeriodStart > totalMonths / 2 || !loanDetails || loanDetails.pozostaleRaty <= 0)) {
+        let testOverpayments = [...previousOverpayments, { type, start: 1, amount: overpaymentAmount, effect }];
+        const testLoanDetails = calculateLoan(
+            loanAmount,
+            interestRate,
+            totalMonths,
+            paymentType,
+            parseFloat(elements.prowizja?.value) || 0,
+            elements.jednostkaProwizji?.value || "procent",
+            state.variableRates,
+            testOverpayments
+        );
+        if (testLoanDetails && testLoanDetails.pozostaleRaty > 0) {
+            maxPeriodStart = testLoanDetails.pozostaleRaty;
+        }
+    }
+
+    let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
+    if (minPeriodStart > maxPeriodStart) minPeriodStart = 1; // Zapobiega ujemnemu zakresowi
+
+    // Ustawiamy zakres suwaka dynamicznie
+    periodStartInput.min = minPeriodStart;
+    periodStartRange.min = minPeriodStart;
+    periodStartInput.max = maxPeriodStart; // Natychmiastowa aktualizacja max dla input
+    periodStartRange.max = maxPeriodStart; // Natychmiastowa aktualizacja max dla range
+
+    // Logi dla pierwszej nadpłaty z kwotą nadpłaty
+    if (currentIndex === 0) {
+        console.log(`First Overpayment: MinPeriodStart=${minPeriodStart}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, OverpaymentAmount=${overpaymentAmount}, HasUserInteracted=${state.hasUserInteracted}, IsChangeEvent=${isChangeEvent}`);
+    }
+
+    // Ograniczamy wartość natychmiastowo
+    let currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
+    if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
+    if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
+
+    // Aktualizujemy wartości i wymuszamy synchronizację
+    periodStartInput.value = currentStartValue;
+    periodStartRange.value = currentStartValue;
+    syncInputWithRange(periodStartInput, periodStartRange, true, maxPeriodStart);
+
+    updateRatesArray("nadplata");
+    return remainingCapital;
 }
 
 function updateAllOverpaymentLimits() {
@@ -698,151 +780,6 @@ function updateAllOverpaymentLimits() {
     }
 }
 
-function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) {
-    inputs.forEach((input, index) => {
-        const range = ranges[index];
-        if (!input || !range) return;
-
-        syncInputWithRange(input, range);
-
-        if (input.classList.contains("variable-cykl-start")) {
-            const periodStartInput = input;
-            const debouncedUpdate = debounce(() => {
-                if (!state.isUpdating) {
-                    const rateInput = group.querySelector(".variable-rate");
-                    const rateRange = group.querySelector(".variable-rate-range");
-                    if (rateInput && rateRange) {
-                        updateOverpaymentLimit(rateInput, rateRange, group, true, false);
-                        updateRatesArray("nadplata");
-                        updateNadplataKredytuRemoveButtons();
-                        updateLoanDetails();
-                    }
-                }
-            }, isFirstGroup ? 50 : 10); // Zwiększamy do 50 ms dla pierwszego wiersza
-
-            const throttledInput = throttle(() => {
-                let value = input.value.replace(/[^0-9]/g, "");
-                if (value) {
-                    let parsedValue = parseInt(value);
-                    if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
-                    if (parsedValue > parseInt(input.max)) parsedValue = parseInt(input.max);
-                    range.value = parsedValue;
-                    input.value = parsedValue;
-                }
-                state.isUserInteracting = true;
-                debouncedUpdate();
-            }, isFirstGroup ? 30 : 16); // Zwiększamy do 30 ms dla pierwszego wiersza
-
-            const throttledRangeInput = throttle(() => {
-                let value = parseInt(range.value);
-                console.log(`ThrottledRangeInput: Value=${value}, Input=${input.value}, Range=${range.value}`);
-                if (value < parseInt(range.min)) value = parseInt(range.min);
-                if (value > parseInt(range.max)) value = parseInt(range.max);
-                input.value = value;
-                range.value = value;
-                state.isUserInteracting = true;
-                debouncedUpdate();
-            }, isFirstGroup ? 30 : 16);
-
-            input.addEventListener("input", throttledInput);
-            input.addEventListener("change", () => {
-                let value = parseInt(input.value) || parseInt(input.min);
-                if (value < parseInt(input.min)) value = parseInt(input.min);
-                if (value > parseInt(input.max)) value = parseInt(input.max);
-                input.value = value;
-                range.value = value;
-                state.isUserInteracting = false;
-                debouncedUpdate();
-            });
-
-            range.addEventListener("input", throttledRangeInput);
-            range.addEventListener("change", () => {
-                let value = parseInt(range.value);
-                if (value < parseInt(range.min)) value = parseInt(range.min);
-                if (value > parseInt(range.max)) value = parseInt(range.max);
-                input.value = value;
-                range.value = value;
-                state.isUserInteracting = false;
-                debouncedUpdate();
-            });
-        } else if (input.classList.contains("variable-rate")) {
-            // Pozostawiamy bez zmian dla .variable-rate
-            const debouncedUpdate = debounce(() => {
-                if (!state.isUpdating) {
-                    updateOverpaymentLimit(input, range, group, false, false);
-                    updateRatesArray("nadplata");
-                    updateNadplataKredytuRemoveButtons();
-                    updateLoanDetails();
-                }
-            }, 50);
-
-            const debouncedChangeUpdate = debounce(() => {
-                if (!state.isUpdating) {
-                    updateOverpaymentLimit(input, range, group, false, true);
-                    updateRatesArray("nadplata");
-                    updateNadplataKredytuRemoveButtons();
-                    updateLoanDetails();
-                }
-            }, 50);
-
-            input.addEventListener("input", () => {
-                let value = input.value.replace(/[^0-9]/g, "");
-                if (value) {
-                    let parsedValue = parseInt(value);
-                    if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
-                    if (parsedValue > parseInt(input.max)) parsedValue = parseInt(input.max);
-                    range.value = parsedValue;
-                    input.value = parsedValue;
-                }
-                state.isUserInteracting = true;
-                debouncedUpdate();
-            });
-
-            input.addEventListener("change", () => {
-                let value = parseInt(input.value) || parseInt(input.min);
-                if (value < parseInt(input.min)) value = parseInt(input.min);
-                if (value > parseInt(input.max)) value = parseInt(input.max);
-                input.value = value;
-                range.value = value;
-                state.isUserInteracting = false;
-                debouncedChangeUpdate();
-            });
-
-            range.addEventListener("input", () => {
-                let value = parseInt(range.value);
-                if (value < parseInt(range.min)) value = parseInt(range.min);
-                if (value > parseInt(range.max)) value = parseInt(range.max);
-                input.value = value;
-                range.value = value;
-                state.isUserInteracting = true;
-                debouncedUpdate();
-            });
-
-            range.addEventListener("change", () => {
-                let value = parseInt(range.value);
-                if (value < parseInt(range.min)) value = parseInt(range.min);
-                if (value > parseInt(range.max)) value = parseInt(range.max);
-                input.value = value;
-                range.value = value;
-                state.isUserInteracting = false;
-                debouncedChangeUpdate();
-            });
-        }
-    });
-}
-
-// Funkcja throttling (dodajemy do kodu)
-function throttle(func, limit) {
-    let inThrottle;
-    return function (...args) {
-        if (!inThrottle) {
-            func(...args);
-            inThrottle = true;
-            setTimeout(() => (inThrottle = false), limit);
-        }
-    };
-}
-
 function initializeNadplataKredytuGroup(group) {
     if (!group) return;
 
@@ -851,9 +788,6 @@ function initializeNadplataKredytuGroup(group) {
     const periodUnit = periodStartBox?.querySelector(".unit-period");
 
     if (!periodStartBox || !periodLabel || !periodUnit) return;
-
-    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-    const currentIndex = Array.from(groups).indexOf(group);
 
     const updatePeriodBox = () => {
         if (state.isUpdating) return;
@@ -870,6 +804,9 @@ function initializeNadplataKredytuGroup(group) {
         }
 
         let minValue;
+        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+        const currentIndex = Array.from(groups).indexOf(group);
+
         periodLabel.textContent = "W";
         periodUnit.textContent = "miesiącu";
         minValue = currentIndex > 0 ? (parseInt(groups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -878,14 +815,129 @@ function initializeNadplataKredytuGroup(group) {
         periodStartRange.min = minValue;
 
         updateOverpaymentLimit(rateInput, rateRange, group, true);
-        updateLoanDetails();
+        updateLoanDetails(); // Aktualizacja szczegółów kredytu
 
         state.isUpdating = false;
     };
 
+    const initializeInputsAndRanges = (inputs, ranges) => {
+        inputs.forEach((input, index) => {
+            const range = ranges[index];
+            if (!input || !range) return;
+
+            syncInputWithRange(input, range);
+
+            if (input.classList.contains("variable-cykl-start")) {
+                const periodStartInput = input; // Poprawka: Definiujemy periodStartInput lokalnie
+                const debouncedUpdate = debounce(() => {
+                    if (!state.isUpdating) {
+                        const rateInput = group.querySelector(".variable-rate");
+                        const rateRange = group.querySelector(".variable-rate-range");
+                        if (rateInput && rateRange) {
+                            updateOverpaymentLimit(rateInput, rateRange, group, true, false);
+                            updateRatesArray("nadplata");
+                            updateNadplataKredytuRemoveButtons();
+                            updateLoanDetails();
+                        }
+                    }
+                }, 10); // Lekki debouncing dla płynności
+
+                input.addEventListener("input", () => {
+                    let value = input.value.replace(/[^0-9]/g, "");
+                    if (value) {
+                        let parsedValue = parseInt(value);
+                        if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
+                        range.value = parsedValue;
+                    }
+                    debouncedUpdate();
+                });
+
+                input.addEventListener("change", () => {
+                    let value = parseInt(input.value) || parseInt(input.min);
+                    if (value < parseInt(input.min)) value = parseInt(input.min);
+                    input.value = value;
+                    range.value = value;
+                    debouncedUpdate();
+                });
+
+                range.addEventListener("input", () => {
+                    let value = parseInt(range.value);
+                    if (value < parseInt(range.min)) value = parseInt(range.min);
+                    input.value = value;
+                    range.value = value;
+                    debouncedUpdate();
+                });
+
+                range.addEventListener("change", () => {
+                    let value = parseInt(range.value);
+                    if (value < parseInt(range.min)) value = parseInt(input.min);
+                    input.value = value;
+                    range.value = value;
+                    debouncedUpdate();
+                });
+            } else if (input.classList.contains("variable-rate")) {
+                const debouncedUpdate = debounce(() => {
+                    if (!state.isUpdating) {
+                        updateOverpaymentLimit(input, range, group, false, false);
+                        updateRatesArray("nadplata");
+                        updateNadplataKredytuRemoveButtons();
+                        updateLoanDetails();
+                    }
+                }, 50);
+
+                const debouncedChangeUpdate = debounce(() => {
+                    if (!state.isUpdating) {
+                        updateOverpaymentLimit(input, range, group, false, true);
+                        updateRatesArray("nadplata");
+                        updateNadplataKredytuRemoveButtons();
+                        updateLoanDetails();
+                    }
+                }, 50);
+
+                input.addEventListener("input", () => {
+                    let value = input.value.replace(/[^0-9]/g, "");
+                    if (value) {
+                        let parsedValue = parseInt(value);
+                        if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
+                        if (parsedValue > parseInt(input.max)) parsedValue = parseInt(input.max);
+                        range.value = parsedValue;
+                    }
+                    debouncedUpdate();
+                });
+
+                input.addEventListener("change", () => {
+                    let value = parseInt(input.value) || parseInt(input.min);
+                    if (value < parseInt(input.min)) value = parseInt(input.min);
+                    if (value > parseInt(input.max)) value = parseInt(input.max);
+                    input.value = value;
+                    range.value = value;
+                    debouncedChangeUpdate();
+                });
+
+                range.addEventListener("input", () => {
+                    let value = parseInt(range.value);
+                    if (value < parseInt(range.min)) value = parseInt(range.min);
+                    if (value > parseInt(range.max)) value = parseInt(range.max);
+                    input.value = value;
+                    range.value = value;
+                    debouncedUpdate();
+                });
+
+                range.addEventListener("change", () => {
+                    let value = parseInt(range.value);
+                    if (value < parseInt(range.min)) value = parseInt(range.min);
+                    if (value > parseInt(range.max)) value = parseInt(range.max);
+                    input.value = value;
+                    range.value = value;
+                    debouncedChangeUpdate();
+                });
+            }
+        });
+    };
+
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
-    initializeInputsAndRanges(inputs, ranges, currentIndex === 0, group); // Przekazujemy group
+    initializeInputsAndRanges(inputs, ranges);
 
     updatePeriodBox();
 }
