@@ -549,7 +549,9 @@ function syncInputWithRange(input, range) {
         const max = parseInt(range.max) || 360;
         if (value < min) value = min;
         if (value > max) value = max;
-        if (parseInt(range.value) !== value) range.value = value; // Synchronizuj tylko, jeśli się różnią
+        if (parseInt(range.value) !== value) {
+            range.value = value; // Synchronizuj tylko, jeśli wartości się różnią
+        }
     }
 }
 
@@ -662,26 +664,32 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         currentOverpayments
     );
 
-    if (loanDetails) {
+    if (loanDetails && loanDetails.pozostaleRaty > 0) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
     } else {
-        maxPeriodStart = totalMonths;
+        maxPeriodStart = totalMonths; // Fallback
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
     if (minPeriodStart > maxPeriodStart) minPeriodStart = 1; // Zapobiega ujemnemu zakresowi
+
     periodStartInput.min = minPeriodStart;
     periodStartRange.min = minPeriodStart;
     periodStartInput.max = maxPeriodStart;
     periodStartRange.max = maxPeriodStart;
 
-    let currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
-    if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
-    if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
-
-    periodStartInput.value = currentStartValue;
-    periodStartRange.value = currentStartValue;
+    // Dla pierwszego wiersza upewniamy się, że wartość początkowa jest stabilna
+    if (currentIndex === 0 && !state.hasUserInteracted) {
+        periodStartInput.value = 1;
+        periodStartRange.value = 1;
+    } else {
+        let currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
+        if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
+        if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
+        periodStartInput.value = currentStartValue;
+        periodStartRange.value = currentStartValue;
+    }
 
     syncInputWithRange(periodStartInput, periodStartRange);
     updateRatesArray("nadplata");
@@ -694,7 +702,6 @@ function updateAllOverpaymentLimits() {
     state.isUpdating = true;
     try {
         const allGroups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group:not(.locked)");
         let lastRemainingCapital = 0;
         let lastRemainingMonths = 0;
 
