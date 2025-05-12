@@ -661,8 +661,38 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         rateRange.value = rateValue;
     }
 
-    let maxPeriodStart = totalMonths; // Początkowa wartość domyślna
-    let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: overpaymentAmount, effect }];
+    // Obliczamy wstępny maxPeriodStart na podstawie periodStart=1, aby uniknąć wpływu dużej wartości
+    let maxPeriodStart = totalMonths;
+    let testOverpayments = [...previousOverpayments, { type, start: 1, amount: overpaymentAmount, effect }];
+    let testLoanDetails = calculateLoan(
+        loanAmount,
+        interestRate,
+        totalMonths,
+        paymentType,
+        parseFloat(elements.prowizja?.value) || 0,
+        elements.jednostkaProwizji?.value || "procent",
+        state.variableRates,
+        testOverpayments
+    );
+
+    if (testLoanDetails && testLoanDetails.pozostaleRaty > 0) {
+        maxPeriodStart = testLoanDetails.pozostaleRaty;
+    }
+
+    // Ograniczamy periodStart przed dalszymi obliczeniami
+    let currentStartValue = periodStart;
+    let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
+    if (minPeriodStart > maxPeriodStart) minPeriodStart = 1;
+    if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
+    if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
+
+    // Ustawiamy wartości po wstępnym ograniczeniu
+    periodStartInput.value = currentStartValue;
+    periodStartRange.value = currentStartValue;
+    syncInputWithRange(periodStartInput, periodStartRange, true, maxPeriodStart);
+
+    // Obliczamy maxPeriodStart jeszcze raz na podstawie ograniczonej wartości
+    let currentOverpayments = [...previousOverpayments, { type, start: currentStartValue, amount: overpaymentAmount, effect }];
     let loanDetails = calculateLoan(
         loanAmount,
         interestRate,
@@ -674,38 +704,15 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         currentOverpayments
     );
 
-    // Sprawdź poprawność loanDetails.pozostaleRaty
     if (loanDetails && loanDetails.pozostaleRaty > 0) {
         maxPeriodStart = loanDetails.pozostaleRaty;
-        if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
+        if (maxPeriodStart < currentStartValue) maxPeriodStart = currentStartValue;
     }
-
-    // Jeśli MaxPeriodStart jest za duży lub błędny, wykonaj testowe obliczenie z periodStart=1
-    if (overpaymentAmount > 0 && (maxPeriodStart > totalMonths / 2 || !loanDetails || loanDetails.pozostaleRaty <= 0)) {
-        let testOverpayments = [...previousOverpayments, { type, start: 1, amount: overpaymentAmount, effect }];
-        const testLoanDetails = calculateLoan(
-            loanAmount,
-            interestRate,
-            totalMonths,
-            paymentType,
-            parseFloat(elements.prowizja?.value) || 0,
-            elements.jednostkaProwizji?.value || "procent",
-            state.variableRates,
-            testOverpayments
-        );
-        if (testLoanDetails && testLoanDetails.pozostaleRaty > 0) {
-            maxPeriodStart = testLoanDetails.pozostaleRaty;
-        }
-    }
-
-    let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
-    if (minPeriodStart > maxPeriodStart) minPeriodStart = 1; // Zapobiega ujemnemu zakresowi
 
     // Ustawiamy zakres suwaka
     periodStartInput.min = minPeriodStart;
     periodStartRange.min = minPeriodStart;
 
-    // Dla pierwszej nadpłaty ustawiamy tymczasowy zakres podczas interakcji (input)
     if (currentIndex === 0 && !isChangeEvent) {
         periodStartInput.max = totalMonths; // Tymczasowy zakres podczas przesuwania
         periodStartRange.max = totalMonths; // Tymczasowy zakres podczas przesuwania
@@ -719,12 +726,11 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         console.log(`First Overpayment: MinPeriodStart=${minPeriodStart}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, OverpaymentAmount=${overpaymentAmount}, HasUserInteracted=${state.hasUserInteracted}, IsChangeEvent=${isChangeEvent}`);
     }
 
-    // Ograniczamy wartość
-    let currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
+    // Końcowe ograniczenie wartości
+    currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
     if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
     if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
 
-    // Aktualizujemy wartości i wymuszamy synchronizację
     periodStartInput.value = currentStartValue;
     periodStartRange.value = currentStartValue;
     syncInputWithRange(periodStartInput, periodStartRange, true, maxPeriodStart);
