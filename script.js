@@ -1762,11 +1762,16 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
             if (pozostalyKapital <= 0 && activeOverpayment?.effect === "Skróć okres") {
                 pozostaleRaty = i;
-                console.log(`Pętla przerwana w miesiącu ${i}`);
-                break;
+                break; // Zakończ pętle bez dodawania zer
             }
         }
 
+        // Usuń zbędne zera dla "Skróć okres"
+        if (activeOverpayment?.effect === "Skróć okres" && harmonogram.length < iloscRat) {
+            harmonogram = harmonogram.slice(0, pozostaleRaty);
+        }
+
+        // Uzupełnij zera tylko dla "Zmniejsz ratę", jeśli harmonogram jest krótszy
         if (hasRateReductionEffect && activeOverpayment?.effect === "Zmniejsz ratę" && harmonogram.length < iloscRat) {
             for (let i = harmonogram.length + 1; i <= iloscRat; i++) {
                 let currentOprocentowanie = oprocentowanieMiesieczne;
@@ -1815,7 +1820,7 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
     let rataKapitalowa = 0;
     let rataCalkowita = 0;
 
-    let remainingMonths = iloscRat - (miesiac - 1); // Poprawiona kalkulacja pozostałych rat
+    let remainingMonths = iloscRat - (miesiac - 1);
     if (remainingMonths <= 0) remainingMonths = 1;
 
     if (rodzajRat === "rowne") {
@@ -1824,7 +1829,7 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
             // Oblicz nową ratę na podstawie pozostałego kapitału i pozostałych miesięcy
             const numerator = pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths));
             const denominator = Math.pow(q, remainingMonths) - 1;
-            rataCalkowita = denominator > 0 ? numerator / denominator : pozostalyKapital / remainingMonths + odsetki; // Fallback, jeśli denominator = 0
+            rataCalkowita = denominator > 0 ? numerator / denominator : pozostalyKapital / remainingMonths + odsetki;
             console.log(`Miesiąc ${miesiac}: Raty równe, obniżono ratę: rataCalkowita=${rataCalkowita}, remainingMonths=${remainingMonths}`);
         } else {
             // Standardowa rata równa
