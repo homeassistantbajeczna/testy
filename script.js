@@ -628,6 +628,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         const prevAmount = parseInt(prevGroup.querySelector(".variable-rate")?.value) || 0;
         const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
         previousOverpayments.push({ type: prevType, start: prevPeriodStart, amount: prevAmount, effect: prevEffect });
+    console.log("Rate Input Value:", rateInput.value, "Rate Range Value:", rateRange.value, "Max Allowed:", maxAllowed, "Preserve Value:", preserveValue);
     }
 
     let periodStart = parseInt(periodStartInput.value) || 1;
