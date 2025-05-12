@@ -672,10 +672,9 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
     if (loanDetails && loanDetails.pozostaleRaty > 0) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
-    } else if (overpaymentAmount > 0 && currentIndex === 0) {
-        // Wymuś ponowne obliczenie dla pierwszej nadpłaty, jeśli wartość jest za duża
-        let adjustedOverpayment = { type, start: 1, amount: overpaymentAmount, effect }; // Test z pierwszą ratą
-        let testOverpayments = [adjustedOverpayment];
+    } else if (overpaymentAmount > 0 && currentIndex === 0 && isChangeEvent) {
+        // Wymuś ponowne obliczenie dla pierwszej nadpłaty z minimalnym periodStart (1) po zakończeniu interakcji
+        let testOverpayments = [{ type, start: 1, amount: overpaymentAmount, effect }];
         const testLoanDetails = calculateLoan(
             loanAmount,
             interestRate,
@@ -753,9 +752,9 @@ function updateAllOverpaymentLimits() {
             if (periodStart > lastOverpaymentMonth) lastOverpaymentMonth = periodStart;
 
             const rateInput = g.querySelector(".variable-rate");
-            const rateRange = g.querySelector(".variable-rate-range");
+            const rateRange = g.querySelector(".variable-rate-range"); // Poprawiono literówkę
             if (rateInput && rateRange && !g.classList.contains("locked")) {
-                updateOverpaymentLimit(rateInput, range, g, true);
+                updateOverpaymentLimit(rateInput, rateRange, g, true);
             }
         });
 
