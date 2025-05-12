@@ -818,11 +818,12 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) 
                 let value = parseInt(range.value);
                 if (value < parseInt(range.min)) value = parseInt(range.min);
                 if (value > parseInt(range.max)) value = parseInt(range.max);
-                input.value = value; // Aktualizujemy input podczas przesuwania suwaka
+                console.log(`ThrottledRangeInput: Value=${value}, Input=${input.value}, Range=${range.value}`);
+                input.value = value;
                 range.value = value;
-                state.isUserInteracting = true; // Flaga wskazująca, że użytkownik przesuwa suwak
+                state.isUserInteracting = true;
                 debouncedUpdate();
-            }, 16);
+            }, 30);
 
             input.addEventListener("input", throttledInput);
             input.addEventListener("change", () => {
