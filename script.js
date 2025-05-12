@@ -549,7 +549,7 @@ function syncInputWithRange(input, range) {
         const max = parseInt(range.max) || 360;
         if (value < min) value = min;
         if (value > max) value = max;
-        if (range.value !== value.toString()) range.value = value; // Synchronizuj tylko, jeśli się różnią
+        if (parseInt(range.value) !== value) range.value = value; // Synchronizuj tylko, jeśli się różnią
     }
 }
 
@@ -628,7 +628,6 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         const prevAmount = parseInt(prevGroup.querySelector(".variable-rate")?.value) || 0;
         const prevEffect = prevGroup.querySelector(".nadplata-effect-select")?.value || "Skróć okres";
         previousOverpayments.push({ type: prevType, start: prevPeriodStart, amount: prevAmount, effect: prevEffect });
-    console.log("Rate Input Value:", rateInput.value, "Rate Range Value:", rateRange.value, "Max Allowed:", maxAllowed, "Preserve Value:", preserveValue);
     }
 
     let periodStart = parseInt(periodStartInput.value) || 1;
@@ -641,7 +640,6 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         maxAllowed = Math.max(100, remainingCapital);
     }
 
-    // Ustawiamy tylko max, nie zmieniamy wartości przy preserveValue = true
     rateInput.max = Math.floor(maxAllowed);
     rateRange.max = Math.floor(maxAllowed);
 
@@ -649,9 +647,6 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         let rateValue = Math.min(parseInt(rateInput.value) || 100, maxAllowed);
         rateInput.value = rateValue;
         rateRange.value = rateValue;
-    } else {
-        // Upewniamy się, że suwak nie przeskakuje, synchronizując tylko w jedną stronę
-        syncInputWithRange(rateInput, rateRange);
     }
 
     let maxPeriodStart = totalMonths;
@@ -675,6 +670,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
+    if (minPeriodStart > maxPeriodStart) minPeriodStart = 1; // Zapobiega ujemnemu zakresowi
     periodStartInput.min = minPeriodStart;
     periodStartRange.min = minPeriodStart;
     periodStartInput.max = maxPeriodStart;
