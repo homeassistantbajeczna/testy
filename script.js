@@ -665,7 +665,10 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         currentOverpayments
     );
 
-    if (loanDetails && loanDetails.pozostaleRaty > 0) {
+    // Dla pierwszej nadpłaty ustawiamy stały MaxPeriodStart na totalMonths
+    if (currentIndex === 0) {
+        maxPeriodStart = totalMonths; // Stały zakres dla pierwszej nadpłaty
+    } else if (loanDetails && loanDetails.pozostaleRaty > 0) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
     } else {
