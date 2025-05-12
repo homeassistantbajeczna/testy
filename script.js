@@ -618,7 +618,10 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
     const rateInput = input.classList.contains("variable-rate") ? input : group.querySelector(".variable-rate");
     const rateRange = range.classList.contains("variable-rate-range") ? range : group.querySelector(".variable-rate-range");
 
-    if (!rateInput || !rateRange || !periodStartInput || !periodStartRange) return 0;
+    if (!rateInput || !rateRange || !periodStartInput || !periodStartRange) {
+        console.warn("Brak wymaganych elementów w updateOverpaymentLimit:", { rateInput, rateRange, periodStartInput, periodStartRange });
+        return 0;
+    }
 
     const loanAmount = parseInt(elements.kwota?.value) || 500000;
     const interestRate = parseFloat(elements.oprocentowanie?.value) || 7;
@@ -806,6 +809,7 @@ function initializeNadplataKredytuGroup(group) {
 
         if (!periodStartInput || !periodStartRange || !rateInput || !rateRange) {
             state.isUpdating = false;
+            console.warn("Brak wymaganych elementów w updatePeriodBox:", { periodStartInput, periodStartRange, rateInput, rateRange });
             return;
         }
 
@@ -833,11 +837,12 @@ function initializeNadplataKredytuGroup(group) {
             syncInputWithRange(input, range);
 
             if (input.classList.contains("variable-cykl-start")) {
+                const periodStartInput = input; // Lokalna referencja
                 const debouncedUpdate = debounce(() => {
                     if (!state.isUpdating) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
-                        if (rateInput && rateRange) {
+                        if (rateInput && rateRange && periodStartInput) {
                             const oldValue = parseInt(periodStartInput.value);
                             updateOverpaymentLimit(rateInput, rateRange, group, true, false);
                             const newValue = parseInt(periodStartInput.value);
@@ -854,7 +859,7 @@ function initializeNadplataKredytuGroup(group) {
                     if (!state.isUpdating) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
-                        if (rateInput && rateRange) {
+                        if (rateInput && rateRange && periodStartInput) {
                             const oldValue = parseInt(periodStartInput.value);
                             updateOverpaymentLimit(rateInput, rateRange, group, true, true);
                             const newValue = parseInt(periodStartInput.value);
