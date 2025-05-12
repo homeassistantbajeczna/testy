@@ -1632,10 +1632,6 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
     } else { // malejące
         rataKapitalowa = pozostalyKapital / remainingMonths;
         rataCalkowita = rataKapitalowa + odsetki;
-        if (applyRateReduction) {
-            rataKapitalowa = pozostalyKapital / remainingMonths; // Dynamicznie dostosuj na podstawie pozostałego kapitału
-            rataCalkowita = rataKapitalowa + odsetki;
-        }
     }
 
     if (rataKapitalowa > pozostalyKapital) {
@@ -1741,7 +1737,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            if (pozostalyKapital <= 0 && activeOverpayment?.effect !== "Zmniejsz ratę") {
+            if (pozostalyKapital <= 0 && (!activeOverpayment || activeOverpayment.effect === "Skróć okres")) {
                 pozostaleRaty = i;
                 break;
             }
