@@ -550,9 +550,13 @@ function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null
         if (enforceLimits) {
             if (value < min) value = min;
             if (value > max) value = max;
-            input.value = value;
+            if (input.value !== value.toString()) {
+                input.value = value;
+            }
         }
-        range.value = value;
+        if (parseInt(range.value) !== value) {
+            range.value = value;
+        }
         console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${min}, Max=${max}, EnforceLimits=${enforceLimits}`);
     }
 }
@@ -703,7 +707,6 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         periodStartInput.max = totalMonths; // Tymczasowy zakres podczas przesuwania
         periodStartRange.max = totalMonths; // Tymczasowy zakres podczas przesuwania
     } else {
-        // Dla kolejnych nadpłat lub po zakończeniu interakcji (change) ustawiamy zakres dynamicznie
         periodStartInput.max = maxPeriodStart;
         periodStartRange.max = maxPeriodStart;
     }
@@ -834,10 +837,16 @@ function initializeNadplataKredytuGroup(group) {
                     if (!state.isUpdating) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
-                        if (rateInput && rateRange) updateOverpaymentLimit(rateInput, rateRange, group, true, false);
-                        updateRatesArray("nadplata");
-                        updateNadplataKredytuRemoveButtons();
-                        updateLoanDetails();
+                        if (rateInput && rateRange) {
+                            const oldValue = parseInt(periodStartInput.value);
+                            updateOverpaymentLimit(rateInput, rateRange, group, true, false);
+                            const newValue = parseInt(periodStartInput.value);
+                            if (oldValue !== newValue) {
+                                updateRatesArray("nadplata");
+                                updateNadplataKredytuRemoveButtons();
+                                updateLoanDetails();
+                            }
+                        }
                     }
                 }, 50);
 
@@ -845,10 +854,16 @@ function initializeNadplataKredytuGroup(group) {
                     if (!state.isUpdating) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
-                        if (rateInput && rateRange) updateOverpaymentLimit(rateInput, rateRange, group, true, true);
-                        updateRatesArray("nadplata");
-                        updateNadplataKredytuRemoveButtons();
-                        updateLoanDetails();
+                        if (rateInput && rateRange) {
+                            const oldValue = parseInt(periodStartInput.value);
+                            updateOverpaymentLimit(rateInput, rateRange, group, true, true);
+                            const newValue = parseInt(periodStartInput.value);
+                            if (oldValue !== newValue) {
+                                updateRatesArray("nadplata");
+                                updateNadplataKredytuRemoveButtons();
+                                updateLoanDetails();
+                            }
+                        }
                     }
                 }, 50);
 
