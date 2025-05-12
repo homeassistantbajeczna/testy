@@ -1661,7 +1661,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
         let harmonogram = [];
         let calkowiteOdsetki = 0;
         let calkowiteNadplaty = 0;
-        let nadplatyJednorazowe = 0; // Nowa zmienna dla nadpłat jednorazowych
+        let nadplatyJednorazowe = 0;
         let nadplatyMiesieczne = 0;
         let nadplatyKwartalne = 0;
         let nadplatyRoczne = 0;
@@ -1689,18 +1689,16 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
             let nadplata = 0;
             let activeOverpayment = null;
 
-            // Przetwarzamy wszystkie nadpłaty, które mogą być aktywne w danym miesiącu
             activeOverpaymentRates.forEach(over => {
-                // Sprawdzamy, czy nadpłata dotyczy bieżącego miesiąca
                 let applies = false;
                 if (over.type === "Jednorazowa" && over.start === i) {
-                    applies = true; // Jednorazowa tylko w wybranym miesiącu
+                    applies = true;
                 } else if (over.type === "Miesięczne" && i >= over.start) {
-                    applies = true; // Miesięczna co miesiąc od startu
+                    applies = true;
                 } else if (over.type === "Kwartalne" && i >= over.start && (i - over.start) % 3 === 0) {
-                    applies = true; // Kwartalna co 3 miesiące od startu
+                    applies = true;
                 } else if (over.type === "Roczne" && i >= over.start && (i - over.start) % 12 === 0) {
-                    applies = true; // Roczna co 12 miesięcy od startu
+                    applies = true;
                 }
 
                 if (applies) {
@@ -1709,7 +1707,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
                     nadplata += currentNadplata;
 
-                    // Sumowanie nadpłat według typu
                     if (over.type === "Jednorazowa") nadplatyJednorazowe += currentNadplata;
                     else if (over.type === "Miesięczne") nadplatyMiesieczne += currentNadplata;
                     else if (over.type === "Kwartalne") nadplatyKwartalne += currentNadplata;
@@ -1718,25 +1715,28 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     calkowiteNadplaty += currentNadplata;
                     if (over.effect === "Zmniejsz ratę") lastNadplataMonth = i;
 
-                    activeOverpayment = over; // Ustawiamy ostatnią aktywną nadpłatę do użycia w calculateInstallment
+                    activeOverpayment = over;
                 }
             });
-
-            // Odejmujemy nadpłatę od pozostałego kapitału
-            pozostalyKapital -= nadplata;
 
             const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
                 kwota,
                 iloscRat,
                 pozostalyKapital,
                 currentOprocentowanie,
-                nadplata,
+                0,
                 activeOverpayment,
                 rodzajRat,
                 i
             );
 
             pozostalyKapital -= rataKapitalowa;
+
+            if (nadplata > 0) {
+                if (nadplata > pozostalyKapital) nadplata = pozostalyKapital;
+                pozostalyKapital -= nadplata;
+            }
+
             calkowiteOdsetki += odsetki;
 
             harmonogram.push({
