@@ -550,7 +550,8 @@ function syncInputWithRange(input, range) {
         if (value < min) value = min;
         if (value > max) value = max;
         if (parseInt(range.value) !== value) {
-            range.value = value; // Synchronizuj tylko, jeśli wartości się różnią
+            range.value = value;
+            console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${min}, Max=${max}`);
         }
     }
 }
@@ -679,7 +680,12 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     periodStartInput.max = maxPeriodStart;
     periodStartRange.max = maxPeriodStart;
 
-    // Dla pierwszego wiersza upewniamy się, że wartość początkowa jest stabilna
+    // Logi dla pierwszej nadpłaty
+    if (currentIndex === 0) {
+        console.log(`First Overpayment: MinPeriodStart=${minPeriodStart}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, HasUserInteracted=${state.hasUserInteracted}`);
+    }
+
+    // Dla pierwszej nadpłaty wymuszamy stabilność, jeśli użytkownik jeszcze nie interagował
     if (currentIndex === 0 && !state.hasUserInteracted) {
         periodStartInput.value = 1;
         periodStartRange.value = 1;
