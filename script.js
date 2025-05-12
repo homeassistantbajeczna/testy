@@ -779,7 +779,7 @@ function updateAllOverpaymentLimits() {
     }
 }
 
-function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false) {
+function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) { // Dodajemy group jako argument
     inputs.forEach((input, index) => {
         const range = ranges[index];
         if (!input || !range) return;
@@ -909,7 +909,6 @@ function initializeNadplataKredytuGroup(group) {
 
     if (!periodStartBox || !periodLabel || !periodUnit) return;
 
-    // Przenieśmy obliczanie currentIndex na poziom funkcji
     const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
     const currentIndex = Array.from(groups).indexOf(group);
 
@@ -943,7 +942,7 @@ function initializeNadplataKredytuGroup(group) {
 
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
-    initializeInputsAndRanges(inputs, ranges, currentIndex === 0); // Używamy currentIndex, które jest teraz zdefiniowane
+    initializeInputsAndRanges(inputs, ranges, currentIndex === 0, group); // Przekazujemy group
 
     updatePeriodBox();
 }
