@@ -698,14 +698,14 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
     if (minPeriodStart > maxPeriodStart) minPeriodStart = 1; // Zapobiega ujemnemu zakresowi
 
-    // Ustawiamy zakres suwaka
+    // Ustawiamy zakres suwaka dynamicznie, używając maxPeriodStart również dla input
     periodStartInput.min = minPeriodStart;
     periodStartRange.min = minPeriodStart;
 
-    // Dla pierwszej nadpłaty ustawiamy tymczasowy zakres podczas interakcji (input)
-    if (currentIndex === 0 && !isChangeEvent) {
-        periodStartInput.max = totalMonths; // Tymczasowy zakres podczas przesuwania
-        periodStartRange.max = totalMonths; // Tymczasowy zakres podczas przesuwania
+    // Zmieniamy logikę: zawsze używamy maxPeriodStart, chyba że to pierwsza inicjalizacja
+    if (currentIndex === 0 && !state.hasUserInteracted && !isChangeEvent) {
+        periodStartInput.max = totalMonths; // Tylko przy pierwszej inicjalizacji
+        periodStartRange.max = totalMonths;
     } else {
         periodStartInput.max = maxPeriodStart;
         periodStartRange.max = maxPeriodStart;
@@ -821,7 +821,7 @@ function initializeNadplataKredytuGroup(group) {
         periodStartRange.min = minValue;
 
         updateOverpaymentLimit(rateInput, rateRange, group, true);
-        updateLoanDetails(); // Dodajemy aktualizację szczegółów kredytu
+        updateLoanDetails(); // Aktualizacja szczegółów kredytu
 
         state.isUpdating = false;
     };
