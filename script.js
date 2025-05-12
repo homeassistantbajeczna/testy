@@ -1613,11 +1613,11 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
     let rataKapitalowa = 0;
     let rataCalkowita = 0;
 
+    let remainingMonths = iloscRat - miesiac + 1;
+    if (remainingMonths <= 0) remainingMonths = 1;
+
     if (rodzajRat === "rowne") {
         let q = 1 + currentOprocentowanie;
-        let remainingMonths = iloscRat - miesiac + 1;
-        if (remainingMonths <= 0) remainingMonths = 1;
-
         if (applyRateReduction) {
             const numerator = Math.round(pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths)));
             const denominator = Math.round(Math.pow(q, remainingMonths) - 1);
@@ -1625,25 +1625,22 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
         } else {
             rataCalkowita = Math.round(kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1)) || 100;
         }
-
         if (isNaN(rataCalkowita) || rataCalkowita <= 0) {
             rataCalkowita = 0;
         }
-
         rataKapitalowa = rataCalkowita - odsetki;
-
-        if (rataKapitalowa > pozostalyKapital) {
-            rataKapitalowa = pozostalyKapital;
-            rataCalkowita = rataKapitalowa + odsetki;
-        }
-    } else {
-        rataKapitalowa = kwota / iloscRat;
+    } else { // malejące
+        rataKapitalowa = pozostalyKapital / remainingMonths;
         rataCalkowita = rataKapitalowa + odsetki;
-
-        if (rataKapitalowa > pozostalyKapital) {
-            rataKapitalowa = pozostalyKapital;
+        if (applyRateReduction) {
+            rataKapitalowa = pozostalyKapital / remainingMonths; // Dynamicznie dostosuj na podstawie pozostałego kapitału
             rataCalkowita = rataKapitalowa + odsetki;
         }
+    }
+
+    if (rataKapitalowa > pozostalyKapital) {
+        rataKapitalowa = pozostalyKapital;
+        rataCalkowita = rataKapitalowa + odsetki;
     }
 
     return { rataCalkowita, rataKapitalowa, odsetki };
@@ -1673,7 +1670,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
         let lastNadplataMonth = 0;
         let applyRateReduction = false;
-        let lastOverpaymentEffect = null;
 
         for (let i = 1; i <= iloscRat; i++) {
             let currentOprocentowanie = oprocentowanieMiesieczne;
@@ -1700,7 +1696,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 if (applies) {
                     let currentNadplata = over.amount;
                     if (currentNadplata > pozostalyKapital) currentNadplata = pozostalyKapital;
-
                     nadplata += currentNadplata;
 
                     if (over.type === "Jednorazowa") nadplatyJednorazowe += currentNadplata;
@@ -1712,11 +1707,10 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     if (over.effect === "Zmniejsz ratę") lastNadplataMonth = i;
 
                     activeOverpayment = over;
-                    lastOverpaymentEffect = over.effect;
                 }
             });
 
-            applyRateReduction = (lastNadplataMonth > 0 && i > lastNadplataMonth && lastOverpaymentEffect === "Zmniejsz ratę");
+            applyRateReduction = (lastNadplataMonth > 0 && i > lastNadplataMonth && activeOverpayment?.effect === "Zmniejsz ratę");
 
             const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
                 kwota,
@@ -1747,7 +1741,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            if (pozostalyKapital <= 0 && lastOverpaymentEffect !== "Zmniejsz ratę") {
+            if (pozostalyKapital <= 0 && activeOverpayment?.effect !== "Zmniejsz ratę") {
                 pozostaleRaty = i;
                 break;
             }
