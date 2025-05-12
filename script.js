@@ -1608,7 +1608,7 @@ function initializePorownajKredytToggle() {
 
 // F U N K C J E     W Y N I K I   T A B E L I    I     W Y K R E S U
 
-function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac) {
+function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac, hasRateReductionEffect) {
     let odsetki = pozostalyKapital * currentOprocentowanie;
     let rataKapitalowa = 0;
     let rataCalkowita = 0;
@@ -1618,15 +1618,16 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
 
     if (rodzajRat === "rowne") {
         let q = 1 + currentOprocentowanie;
-        if (applyRateReduction) {
+        if (applyRateReduction && hasRateReductionEffect) {
             // Obniż ratę proporcjonalnie do pozostałego kapitału
             const numerator = Math.round(pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths)));
             const denominator = Math.round(Math.pow(q, remainingMonths) - 1);
-            rataCalkowita = Math.round(numerator / denominator) || 0;
-            console.log(`Miesiąc ${miesiac}: Obniżono ratę do ${rataCalkowita} (applyRateReduction: true)`);
+            rataCalkowita = denominator > 0 ? Math.round(numerator / denominator) : 0;
         } else {
             // Standardowa rata równa
-            rataCalkowita = Math.round(kwota * (q ** iloscRat) * (q - 1) / ((q ** iloscRat) - 1)) || 0;
+            const numerator = Math.round(kwota * (currentOprocentowanie * Math.pow(q, iloscRat)));
+            const denominator = Math.round(Math.pow(q, iloscRat) - 1);
+            rataCalkowita = denominator > 0 ? Math.round(numerator / denominator) : 0;
         }
         if (isNaN(rataCalkowita) || rataCalkowita <= 0) {
             rataCalkowita = 0;
@@ -1634,6 +1635,10 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
         rataKapitalowa = rataCalkowita - odsetki;
     } else { // malejące
         rataKapitalowa = pozostalyKapital / remainingMonths;
+        if (applyRateReduction && hasRateReductionEffect) {
+            // Obniż ratę proporcjonalnie do pozostałego kapitału
+            rataKapitalowa = pozostalyKapital / remainingMonths;
+        }
         rataCalkowita = rataKapitalowa + odsetki;
     }
 
@@ -1671,7 +1676,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
         let lastNadplataMonth = 0;
         let applyRateReduction = false;
-        let hasRateReductionEffect = false; // Nowa flaga do śledzenia efektu "Zmniejsz ratę"
+        let hasRateReductionEffect = false;
 
         // Sprawdź, czy istnieje jakakolwiek nadpłata z efektem "Zmniejsz ratę"
         activeOverpaymentRates.forEach(over => {
@@ -1715,7 +1720,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     calkowiteNadplaty += currentNadplata;
                     if (over.effect === "Zmniejsz ratę") {
                         lastNadplataMonth = i;
-                        console.log(`Nadpłata w miesiącu ${i} z efektem: ${over.effect}`);
                     }
 
                     activeOverpayment = over;
@@ -1732,7 +1736,8 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 currentOprocentowanie,
                 applyRateReduction,
                 rodzajRat,
-                i
+                i,
+                hasRateReductionEffect
             );
 
             pozostalyKapital -= rataKapitalowa;
@@ -1754,10 +1759,9 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            // Przerwij pętlę tylko dla "Skróć okres" lub braku efektu "Zmniejsz ratę"
-            if (pozostalyKapital <= 0 && (!activeOverpayment || activeOverpayment.effect === "Skróć okres")) {
+            // Przerwij pętlę tylko dla "Skróć okres" i jeśli nie ma efektu "Zmniejsz ratę"
+            if (pozostalyKapital <= 0 && (!hasRateReductionEffect || (activeOverpayment && activeOverpayment.effect === "Skróć okres"))) {
                 pozostaleRaty = i;
-                console.log(`Pętla przerwana w miesiącu ${i} (kapitał spłacony, efekt: ${activeOverpayment?.effect || 'brak'})`);
                 break;
             }
         }
@@ -1771,7 +1775,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     currentOprocentowanie = activeRate.value / 100 / 12;
                 }
 
-                // Dla pozostałych miesięcy po spłacie kapitału
                 harmonogram.push({
                     miesiac: i,
                     rata: 0,
@@ -1782,7 +1785,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     kapitalDoSplaty: 0,
                 });
             }
-            pozostaleRaty = iloscRat; // Ustaw pełny okres, bo zmniejszamy ratę, a nie skracamy okresu
+            pozostaleRaty = iloscRat;
         }
 
         let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowiteNadplaty;
