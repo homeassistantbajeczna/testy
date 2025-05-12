@@ -1767,7 +1767,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
             }
         }
 
-        if (hasRateReductionEffect && harmonogram.length < iloscRat && activeOverpayment?.effect === "Zmniejsz ratę") {
+        if (hasRateReductionEffect && activeOverpayment?.effect === "Zmniejsz ratę" && harmonogram.length < iloscRat) {
             for (let i = harmonogram.length + 1; i <= iloscRat; i++) {
                 let currentOprocentowanie = oprocentowanieMiesieczne;
                 let activeRate = activeVariableRates.find(rate => rate.period === i);
@@ -1815,7 +1815,7 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
     let rataKapitalowa = 0;
     let rataCalkowita = 0;
 
-    let remainingMonths = iloscRat - miesiac + 1;
+    let remainingMonths = iloscRat - (miesiac - 1); // Poprawiona kalkulacja pozostałych rat
     if (remainingMonths <= 0) remainingMonths = 1;
 
     if (rodzajRat === "rowne") {
@@ -1824,8 +1824,8 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
             // Oblicz nową ratę na podstawie pozostałego kapitału i pozostałych miesięcy
             const numerator = pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths));
             const denominator = Math.pow(q, remainingMonths) - 1;
-            rataCalkowita = denominator > 0 ? numerator / denominator : 0;
-            console.log(`Miesiąc ${miesiac}: Raty równe, obniżono ratę: rataCalkowita=${rataCalkowita}`);
+            rataCalkowita = denominator > 0 ? numerator / denominator : pozostalyKapital / remainingMonths + odsetki; // Fallback, jeśli denominator = 0
+            console.log(`Miesiąc ${miesiac}: Raty równe, obniżono ratę: rataCalkowita=${rataCalkowita}, remainingMonths=${remainingMonths}`);
         } else {
             // Standardowa rata równa
             const numerator = kwota * (currentOprocentowanie * Math.pow(q, iloscRat));
@@ -1837,11 +1837,12 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
             rataCalkowita = 0;
         }
         rataKapitalowa = rataCalkowita - odsetki;
+        if (rataKapitalowa < 0) rataKapitalowa = 0; // Zapobiega ujemnym wartościom
     } else { // malejące
         if (applyRateReduction && hasRateReductionEffect) {
             // Obniż ratę proporcjonalnie do pozostałego kapitału
             rataKapitalowa = pozostalyKapital / remainingMonths;
-            console.log(`Miesiąc ${miesiac}: Raty malejące, obniżono ratę: rataKapitalowa=${rataKapitalowa}`);
+            console.log(`Miesiąc ${miesiac}: Raty malejące, obniżono ratę: rataKapitalowa=${rataKapitalowa}, remainingMonths=${remainingMonths}`);
         } else {
             // Standardowa część kapitałowa dla rat malejących
             rataKapitalowa = kwota / iloscRat;
@@ -1985,6 +1986,9 @@ function toggleHarmonogram(contentId) {
         toggleBtn.textContent = 'Harmonogram spłat ►';
     }
 }
+
+
+
 
 
 
