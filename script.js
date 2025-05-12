@@ -799,9 +799,8 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false) {
                         updateLoanDetails();
                     }
                 }
-            }, isFirstGroup ? 20 : 10); // 20 ms dla pierwszej grupy, 10 ms dla reszty
+            }, isFirstGroup ? 20 : 10);
 
-            // Throttling dla suwaka
             const throttledInput = throttle(() => {
                 let value = input.value.replace(/[^0-9]/g, "");
                 if (value) {
@@ -810,7 +809,7 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false) {
                     range.value = parsedValue;
                 }
                 debouncedUpdate();
-            }, 16); // ~60 FPS
+            }, 16);
 
             input.addEventListener("input", throttledInput);
             input.addEventListener("change", () => {
@@ -910,6 +909,10 @@ function initializeNadplataKredytuGroup(group) {
 
     if (!periodStartBox || !periodLabel || !periodUnit) return;
 
+    // Przenieśmy obliczanie currentIndex na poziom funkcji
+    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+    const currentIndex = Array.from(groups).indexOf(group);
+
     const updatePeriodBox = () => {
         if (state.isUpdating) return;
 
@@ -925,9 +928,6 @@ function initializeNadplataKredytuGroup(group) {
         }
 
         let minValue;
-        const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        const currentIndex = Array.from(groups).indexOf(group);
-
         periodLabel.textContent = "W";
         periodUnit.textContent = "miesiącu";
         minValue = currentIndex > 0 ? (parseInt(groups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -943,7 +943,7 @@ function initializeNadplataKredytuGroup(group) {
 
     const inputs = group.querySelectorAll(".form-control");
     const ranges = group.querySelectorAll(".form-range");
-    initializeInputsAndRanges(inputs, ranges, currentIndex === 0); // Przekazujemy, czy to pierwsza grupa
+    initializeInputsAndRanges(inputs, ranges, currentIndex === 0); // Używamy currentIndex, które jest teraz zdefiniowane
 
     updatePeriodBox();
 }
