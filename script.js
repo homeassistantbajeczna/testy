@@ -53,6 +53,7 @@ const state = {
     zoomLevel: 1,
     isDarkMode: false,
     isUpdating: false,
+    sUserInteracting: false
 };
 
 let creditChart = null;
@@ -541,24 +542,23 @@ function debounce(func, wait) {
     };
 }
 
-function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null) {
-    if (!input || !range) return;
-    let value = parseInt(input.value);
-    if (!isNaN(value)) {
-        const min = parseInt(range.min) || 1;
-        let max = maxLimit !== null ? maxLimit : parseInt(range.max) || 360;
-        if (enforceLimits) {
-            if (value < min) value = min;
-            if (value > max) value = max;
-            if (input.value !== value.toString()) {
-                input.value = value;
-            }
-        }
-        if (parseInt(range.value) !== value) {
-            range.value = value;
-        }
-        console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${min}, Max=${max}, EnforceLimits=${enforceLimits}`);
+function syncInputWithRange(input, range, enforceLimits = false) {
+    if (state.isUserInteracting) return; // Nie synchronizujemy podczas aktywnego przesuwania
+
+    let inputValue = parseInt(input.value) || parseInt(input.min);
+    let rangeValue = parseInt(range.value) || parseInt(range.min);
+
+    if (enforceLimits) {
+        if (inputValue < parseInt(input.min)) inputValue = parseInt(input.min);
+        if (inputValue > parseInt(input.max)) inputValue = parseInt(input.max);
+        if (rangeValue < parseInt(range.min)) rangeValue = parseInt(range.min);
+        if (rangeValue > parseInt(range.max)) rangeValue = parseInt(range.max);
     }
+
+    input.value = inputValue;
+    range.value = rangeValue;
+
+    console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${input.min}, Max=${input.max}, EnforceLimits=${enforceLimits}`);
 }
 
 function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth) {
@@ -779,7 +779,7 @@ function updateAllOverpaymentLimits() {
     }
 }
 
-function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) { // Dodajemy group jako argument
+function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) {
     inputs.forEach((input, index) => {
         const range = ranges[index];
         if (!input || !range) return;
@@ -806,8 +806,21 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) 
                 if (value) {
                     let parsedValue = parseInt(value);
                     if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
+                    if (parsedValue > parseInt(input.max)) parsedValue = parseInt(input.max);
                     range.value = parsedValue;
+                    input.value = parsedValue; // Upewniamy się, że input jest aktualizowany
                 }
+                state.isUserInteracting = true; // Flaga wskazująca, że użytkownik przesuwa suwak
+                debouncedUpdate();
+            }, 16);
+
+            const throttledRangeInput = throttle(() => {
+                let value = parseInt(range.value);
+                if (value < parseInt(range.min)) value = parseInt(range.min);
+                if (value > parseInt(range.max)) value = parseInt(range.max);
+                input.value = value; // Aktualizujemy input podczas przesuwania suwaka
+                range.value = value;
+                state.isUserInteracting = true; // Flaga wskazująca, że użytkownik przesuwa suwak
                 debouncedUpdate();
             }, 16);
 
@@ -815,17 +828,21 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) 
             input.addEventListener("change", () => {
                 let value = parseInt(input.value) || parseInt(input.min);
                 if (value < parseInt(input.min)) value = parseInt(input.min);
+                if (value > parseInt(input.max)) value = parseInt(input.max);
                 input.value = value;
                 range.value = value;
+                state.isUserInteracting = false; // Użytkownik zakończył interakcję
                 debouncedUpdate();
             });
 
-            range.addEventListener("input", throttledInput);
+            range.addEventListener("input", throttledRangeInput);
             range.addEventListener("change", () => {
                 let value = parseInt(range.value);
-                if (value < parseInt(range.min)) value = parseInt(input.min);
+                if (value < parseInt(range.min)) value = parseInt(range.min);
+                if (value > parseInt(range.max)) value = parseInt(range.max);
                 input.value = value;
                 range.value = value;
+                state.isUserInteracting = false; // Użytkownik zakończył interakcję
                 debouncedUpdate();
             });
         } else if (input.classList.contains("variable-rate")) {
@@ -854,7 +871,9 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) 
                     if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
                     if (parsedValue > parseInt(input.max)) parsedValue = parseInt(input.max);
                     range.value = parsedValue;
+                    input.value = parsedValue;
                 }
+                state.isUserInteracting = true;
                 debouncedUpdate();
             });
 
@@ -864,6 +883,7 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) 
                 if (value > parseInt(input.max)) value = parseInt(input.max);
                 input.value = value;
                 range.value = value;
+                state.isUserInteracting = false;
                 debouncedChangeUpdate();
             });
 
@@ -873,6 +893,7 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) 
                 if (value > parseInt(range.max)) value = parseInt(range.max);
                 input.value = value;
                 range.value = value;
+                state.isUserInteracting = true;
                 debouncedUpdate();
             });
 
@@ -882,6 +903,7 @@ function initializeInputsAndRanges(inputs, ranges, isFirstGroup = false, group) 
                 if (value > parseInt(range.max)) value = parseInt(range.max);
                 input.value = value;
                 range.value = value;
+                state.isUserInteracting = false;
                 debouncedChangeUpdate();
             });
         }
