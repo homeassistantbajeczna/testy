@@ -585,10 +585,8 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
 
         if (capitalPayment > remainingCapital) capitalPayment = remainingCapital;
 
-        // Odejmij spłatę kapitału w danej racie
         remainingCapital -= capitalPayment;
 
-        // Uwzględnij nadpłaty w danym miesiącu
         if (overpaymentMap.has(month)) {
             let overpaymentAmount = overpaymentMap.get(month);
             if (overpaymentAmount > remainingCapital) overpaymentAmount = remainingCapital;
@@ -644,17 +642,18 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         maxAllowed = Math.max(100, remainingCapital);
     }
 
+    // Ustawiamy maksymalną wartość dla "KWOTA NADPŁATY", ale nie zmieniamy wartości użytkownika
     rateInput.max = Math.floor(maxAllowed);
     rateRange.max = Math.floor(maxAllowed);
 
-    // Aktualizuj wartość "KWOTA NADPŁATY" tylko, gdy preserveValue = false (zmiana w boxie "KWOTA NADPŁATY")
+    // Zachowujemy wartość "KWOTA NADPŁATY" niezależnie od zmiany w "W"
     if (!preserveValue) {
         let rateValue = Math.min(parseInt(rateInput.value) || 100, maxAllowed);
         rateInput.value = rateValue;
         rateRange.value = rateValue;
     }
-    // Jeśli preserveValue = true (zmiana w boxie "W"), nie zmieniaj wartości "KWOTA NADPŁATY", tylko limity
 
+    // Obliczamy zakres dla boxa "W" na podstawie pozostałego okresu
     let maxPeriodStart = totalMonths;
     let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: parseInt(rateInput.value) || 0, effect }];
     const loanDetails = calculateLoan(
@@ -672,7 +671,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
     } else {
-        maxPeriodStart = totalMonths; // Fallback na pełny okres, jeśli obliczenia się nie powiodły
+        maxPeriodStart = totalMonths; // Fallback
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -685,20 +684,8 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
     if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
 
-    // Ogranicz wartość boxa "W" tylko, jeśli nadpłata spłaca cały kapitał
-    const currentOverpayment = parseInt(rateInput.value) || 0;
-    if (currentOverpayment >= maxAllowed && maxAllowed === 0) {
-        currentStartValue = 1;
-        periodStartInput.value = currentStartValue;
-        periodStartRange.value = currentStartValue;
-        periodStartInput.max = 1;
-        periodStartRange.max = 1;
-    } else {
-        periodStartInput.value = currentStartValue;
-        periodStartRange.value = currentStartValue;
-        periodStartInput.max = maxPeriodStart;
-        periodStartRange.max = maxPeriodStart;
-    }
+    periodStartInput.value = currentStartValue;
+    periodStartRange.value = currentStartValue;
 
     syncInputWithRange(periodStartInput, periodStartRange);
     updateRatesArray("nadplata");
@@ -753,7 +740,7 @@ function updateAllOverpaymentLimits() {
             lastRemainingCapital = loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty || 0;
             lastRemainingMonths = loanDetails.pozostaleRaty;
         } else {
-            lastRemainingCapital = loanAmount; // Fallback na pełną kwotę, jeśli obliczenia się nie powiodły
+            lastRemainingCapital = loanAmount; // Fallback
             lastRemainingMonths = totalMonths;
         }
 
