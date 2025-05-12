@@ -658,7 +658,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
 
     let maxPeriodStart = totalMonths; // Początkowa wartość domyślna
     let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: overpaymentAmount, effect }];
-    const loanDetails = calculateLoan(
+    let loanDetails = calculateLoan(
         loanAmount,
         interestRate,
         totalMonths,
@@ -669,12 +669,15 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         currentOverpayments
     );
 
+    // Sprawdź poprawność loanDetails.pozostaleRaty
     if (loanDetails && loanDetails.pozostaleRaty > 0) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
-    } else if (overpaymentAmount > 0 && currentIndex === 0 && isChangeEvent) {
-        // Wymuś ponowne obliczenie dla pierwszej nadpłaty z minimalnym periodStart (1) po zakończeniu interakcji
-        let testOverpayments = [{ type, start: 1, amount: overpaymentAmount, effect }];
+    }
+
+    // Jeśli MaxPeriodStart jest za duży lub błędny, wykonaj testowe obliczenie z periodStart=1
+    if (overpaymentAmount > 0 && (maxPeriodStart > totalMonths / 2 || !loanDetails || loanDetails.pozostaleRaty <= 0)) {
+        let testOverpayments = [...previousOverpayments, { type, start: 1, amount: overpaymentAmount, effect }];
         const testLoanDetails = calculateLoan(
             loanAmount,
             interestRate,
@@ -752,7 +755,7 @@ function updateAllOverpaymentLimits() {
             if (periodStart > lastOverpaymentMonth) lastOverpaymentMonth = periodStart;
 
             const rateInput = g.querySelector(".variable-rate");
-            const rateRange = g.querySelector(".variable-rate-range"); // Poprawiono literówkę
+            const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange && !g.classList.contains("locked")) {
                 updateOverpaymentLimit(rateInput, rateRange, g, true);
             }
