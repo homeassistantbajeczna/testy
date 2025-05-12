@@ -54,7 +54,6 @@ const state = {
     isDarkMode: false,
     isUpdating: false,
     sUserInteracting: false
-    calculateRemainingCapitalCache: new Map()
 };
 
 let creditChart = null;
