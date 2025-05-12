@@ -821,6 +821,7 @@ function initializeNadplataKredytuGroup(group) {
         periodStartRange.min = minValue;
 
         updateOverpaymentLimit(rateInput, rateRange, group, true);
+        updateLoanDetails(); // Dodajemy aktualizację szczegółów kredytu
 
         state.isUpdating = false;
     };
