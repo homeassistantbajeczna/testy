@@ -552,10 +552,8 @@ function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null
             if (value > max) value = max;
             input.value = value;
         }
-        if (parseInt(range.value) !== value) {
-            range.value = value;
-            console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${min}, Max=${max}, EnforceLimits=${enforceLimits}`);
-        }
+        range.value = value;
+        console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${min}, Max=${max}, EnforceLimits=${enforceLimits}`);
     }
 }
 
@@ -715,17 +713,16 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         console.log(`First Overpayment: MinPeriodStart=${minPeriodStart}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, OverpaymentAmount=${overpaymentAmount}, HasUserInteracted=${state.hasUserInteracted}, IsChangeEvent=${isChangeEvent}`);
     }
 
-    // Ograniczamy wartość po zakończeniu interakcji
+    // Ograniczamy wartość
     let currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
     if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
     if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
-    
-    if (isChangeEvent) {
-        periodStartInput.value = currentStartValue;
-        periodStartRange.value = currentStartValue;
-    }
 
-    syncInputWithRange(periodStartInput, periodStartRange, isChangeEvent, maxPeriodStart);
+    // Aktualizujemy wartości i wymuszamy synchronizację
+    periodStartInput.value = currentStartValue;
+    periodStartRange.value = currentStartValue;
+    syncInputWithRange(periodStartInput, periodStartRange, true, maxPeriodStart);
+
     updateRatesArray("nadplata");
     return remainingCapital;
 }
