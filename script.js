@@ -180,35 +180,33 @@ function updateRatesArray(type) {
     if (type === "nadplata") {
         state.overpaymentRates = [];
         const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach(group => {
+        groups.forEach((group, index) => {
             const typeSelect = group.querySelector(".nadplata-type-select");
             const effectSelect = group.querySelector(".nadplata-effect-select");
             const rateInput = group.querySelector(".variable-rate");
             const periodStartInput = group.querySelector(".variable-cykl-start");
             const periodEndInput = group.querySelector(".variable-cykl-end");
 
+            // Logowanie wartości dla debugowania
+            console.log(`Grupa ${index + 1}: typeSelect.value=${typeSelect?.value}, effectSelect.value=${effectSelect?.value}, rateInput.value=${rateInput?.value}, periodStartInput.value=${periodStartInput?.value}, periodEndInput?.value=${periodEndInput?.value}`);
+
+            if (!typeSelect || !effectSelect || !rateInput || !periodStartInput) {
+                console.error(`Błąd w grupie ${index + 1}: brak wymaganego elementu`, { typeSelect, effectSelect, rateInput, periodStartInput });
+                return;
+            }
+
             const overpayment = {
-                type: typeSelect.value,
-                effect: effectSelect.value,
+                type: typeSelect.value || "Jednorazowa", // Domyślna wartość w razie błędu
+                effect: effectSelect.value || "Skróć okres", // Domyślna wartość w razie błędu
                 amount: parseFloat(rateInput.value) || 0,
                 start: parseInt(periodStartInput.value) || 2,
                 end: periodEndInput ? parseInt(periodEndInput.value) || 2 : null
             };
+
+            console.log(`Grupa ${index + 1}: Dodano nadpłatę do state.overpaymentRates`, overpayment);
             state.overpaymentRates.push(overpayment);
         });
-    } else if (type === "oprocentowanie") {
-        state.variableRates = [];
-        const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-        groups.forEach(group => {
-            const periodInput = group.querySelector(".variable-cykl");
-            const rateInput = group.querySelector(".variable-rate");
-
-            const variableRate = {
-                period: parseInt(periodInput.value) || 2,
-                value: parseFloat(rateInput.value) || 0
-            };
-            state.variableRates.push(variableRate);
-        });
+        console.log("Zaktualizowano state.overpaymentRates:", state.overpaymentRates);
     }
 }
 
@@ -1148,6 +1146,53 @@ function updateNadplataKredytuRemoveButtons() {
     }
 }
 
+function attachEventListenersToNadplataInputs() {
+    const nadplataWrapper = elements.nadplataKredytuWrapper;
+    if (!nadplataWrapper) {
+        console.error("Brak elementu nadplataKredytuWrapper");
+        return;
+    }
+
+    nadplataWrapper.addEventListener("change", (event) => {
+        const target = event.target;
+        if (target.classList.contains("nadplata-type-select") ||
+            target.classList.contains("nadplata-effect-select") ||
+            target.classList.contains("variable-rate") ||
+            target.classList.contains("variable-cykl-start") ||
+            target.classList.contains("variable-cykl-end")) {
+            console.log("Zmiana w polu nadpłaty:", target.className, target.value);
+            updateRatesArray("nadplata");
+            // Opcjonalnie: od razu przelicz harmonogram
+            const kwota = parseFloat(elements.kwota.value) || 0;
+            const oprocentowanie = parseFloat(elements.oprocentowanie.value) || 0;
+            const iloscRat = parseInt(elements.iloscRat.value) || 0;
+            const rodzajRat = elements.rodzajRat.value || "rowne";
+            const prowizja = parseFloat(elements.prowizja.value) || 0;
+            const prowizjaJednostka = elements.jednostkaProwizji.value || "procent";
+            const result = calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, state.variableRates, state.overpaymentRates);
+            console.log("Po zmianie w formularzu - wynik calculateLoan:", result);
+        }
+    });
+}
+
+// Wywołaj funkcję przy inicjalizacji
+document.addEventListener("DOMContentLoaded", () => {
+    initializeNadplataKredytuToggle();
+    const wrapper = elements.nadplataKredytuWrapper;
+    if (wrapper) {
+        wrapper.addEventListener("input", () => {
+            state.hasUserInteracted = true;
+            updateNadplataKredytuRemoveButtons();
+        });
+        wrapper.addEventListener("change", () => {
+            state.hasUserInteracted = true;
+            updateNadplataKredytuRemoveButtons();
+        });
+    }
+    attachEventListenersToNadplataInputs(); // Dodaj tutaj
+    console.log("Zainicjalizowano nasłuchiwanie zdarzeń na polach nadpłaty");
+});
+
 function initializeNadplataKredytuToggle() {
     if (!elements.nadplataKredytuBtn) return;
 
@@ -1608,60 +1653,6 @@ function initializePorownajKredytToggle() {
 
 // F U N K C J E     W Y N I K I   T A B E L I    I     W Y K R E S U
 
-function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac, hasRateReductionEffect) {
-    let odsetki = pozostalyKapital * currentOprocentowanie;
-    let rataKapitalowa = 0;
-    let rataCalkowita = 0;
-
-    let remainingMonths = iloscRat - miesiac + 1;
-    if (remainingMonths <= 0) remainingMonths = 1;
-    console.log(`Miesiac ${miesiac}: Start calculateInstallment - pozostalyKapital=${pozostalyKapital}, remainingMonths=${remainingMonths}, applyRateReduction=${applyRateReduction}, rodzajRat=${rodzajRat}`);
-
-    if (rodzajRat === "rowne") {
-        let q = 1 + currentOprocentowanie;
-        if (applyRateReduction && hasRateReductionEffect) {
-            // Obniż ratę proporcjonalnie do pozostałego kapitału
-            const numerator = Math.round(pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths)));
-            const denominator = Math.round(Math.pow(q, remainingMonths) - 1);
-            rataCalkowita = denominator > 0 ? Math.round(numerator / denominator) : 0;
-            console.log(`Raty równe, applyRateReduction: numerator=${numerator}, denominator=${denominator}, rataCalkowita=${rataCalkowita}`);
-        } else {
-            // Standardowa rata równa
-            const numerator = Math.round(kwota * (currentOprocentowanie * Math.pow(q, iloscRat)));
-            const denominator = Math.round(Math.pow(q, iloscRat) - 1);
-            rataCalkowita = denominator > 0 ? Math.round(numerator / denominator) : 0;
-            console.log(`Raty równe, standardowa: numerator=${numerator}, denominator=${denominator}, rataCalkowita=${rataCalkowita}`);
-        }
-        if (isNaN(rataCalkowita) || rataCalkowita <= 0) {
-            rataCalkowita = 0;
-            console.warn(`Miesiąc ${miesiac}: rataCalkowita poprawiona na 0 z powodu NaN lub <= 0`);
-        }
-        rataKapitalowa = rataCalkowita - odsetki;
-    } else { // malejące
-        rataKapitalowa = pozostalyKapital / remainingMonths;
-        if (applyRateReduction && hasRateReductionEffect) {
-            // Obniż ratę proporcjonalnie do pozostałego kapitału
-            rataKapitalowa = pozostalyKapital / remainingMonths; // Tutaj można dostosować logikę obniżania
-            console.log(`Raty malejące, applyRateReduction: rataKapitalowa=${rataKapitalowa}`);
-        }
-        rataCalkowita = rataKapitalowa + odsetki;
-    }
-
-    if (rataKapitalowa > pozostalyKapital || rataKapitalowa < 0) {
-        rataKapitalowa = Math.max(0, Math.min(rataKapitalowa, pozostalyKapital));
-        rataCalkowita = rataKapitalowa + odsetki;
-        console.log(`Miesiąc ${miesiac}: Korekta raty - rataKapitalowa=${rataKapitalowa}, rataCalkowita=${rataCalkowita}`);
-    }
-
-    if (rataCalkowita < 0) {
-        rataCalkowita = 0;
-        console.warn(`Miesiąc ${miesiac}: rataCalkowita ustawiona na 0 z powodu ujemnej wartości`);
-    }
-
-    console.log(`Miesiąc ${miesiac}: Koniec calculateInstallment - rataCalkowita=${rataCalkowita}, rataKapitalowa=${rataKapitalowa}, odsetki=${odsetki}`);
-    return { rataCalkowita, rataKapitalowa, odsetki };
-}
-
 function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, variableRates = [], overpaymentRates = []) {
     try {
         let pozostalyKapital = kwota;
@@ -1674,7 +1665,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
         let nadplatyRoczne = 0;
         let jednostka = prowizjaJednostka;
         if (!jednostka && elements.jednostkaProwizji) {
-            console.warn("Brak jednostki prowizji w parametrze, używam wartości z elements.jednostkaProwizji.");
             jednostka = elements.jednostkaProwizji.value || "procent";
         }
         let prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
@@ -1684,17 +1674,15 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
         let activeVariableRates = Array.isArray(variableRates) ? [...variableRates].sort((a, b) => a.period - b.period) : [];
         let activeOverpaymentRates = Array.isArray(overpaymentRates) ? [...overpaymentRates].sort((a, b) => a.start - b.start) : [];
 
-        console.log("Start calculateLoan:", { kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, variableRates, overpaymentRates });
+        console.log("calculateLoan - overpaymentRates:", activeOverpaymentRates);
 
         let lastNadplataMonth = 0;
         let applyRateReduction = false;
         let hasRateReductionEffect = false;
 
-        // Sprawdź, czy istnieje jakakolwiek nadpłata z efektem "Zmniejsz ratę"
         activeOverpaymentRates.forEach(over => {
             if (over.effect === "Zmniejsz ratę") {
                 hasRateReductionEffect = true;
-                console.log("Znaleziono efekt Zmniejsz ratę:", over);
             }
         });
 
@@ -1703,7 +1691,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
             let activeRate = activeVariableRates.find(rate => rate.period === i);
             if (activeRate && !isNaN(activeRate.value)) {
                 currentOprocentowanie = activeRate.value / 100 / 12;
-                console.log(`Miesiąc ${i}: zmieniono oprocentowanie na ${currentOprocentowanie * 12 * 100}% z activeRate`, activeRate);
             }
 
             let nadplata = 0;
@@ -1734,18 +1721,13 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     calkowiteNadplaty += currentNadplata;
                     if (over.effect === "Zmniejsz ratę") {
                         lastNadplataMonth = i;
-                        console.log(`Miesiąc ${i}: nadpłata ${currentNadplata} z efektem Zmniejsz ratę`);
-                    } else if (over.effect === "Skróć okres") {
-                        console.log(`Miesiąc ${i}: nadpłata ${currentNadplata} z efektem Skróć okres`);
                     }
-
                     activeOverpayment = over;
                 }
             });
 
-            // Ustaw applyRateReduction dla miesięcy po nadpłacie z efektem "Zmniejsz ratę"
             applyRateReduction = (lastNadplataMonth > 0 && i > lastNadplataMonth && activeOverpayment?.effect === "Zmniejsz ratę");
-            console.log(`Miesiąc ${i}: applyRateReduction=${applyRateReduction}, hasRateReductionEffect=${hasRateReductionEffect}, pozostalyKapital=${pozostalyKapital}, activeOverpayment=${JSON.stringify(activeOverpayment)}`);
+            console.log(`Miesiąc ${i}: applyRateReduction=${applyRateReduction}, hasRateReductionEffect=${hasRateReductionEffect}, efekt=${activeOverpayment?.effect || 'brak'}`);
 
             const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
                 kwota,
@@ -1755,17 +1737,15 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 applyRateReduction,
                 rodzajRat,
                 i,
-                hasRateReductionEffect
+                hasRateReductionEffect,
+                lastNadplataMonth
             );
-
-            console.log(`Miesiąc ${i}: przed nadpłata - rataCalkowita=${rataCalkowita}, rataKapitalowa=${rataKapitalowa}, odsetki=${odsetki}`);
 
             pozostalyKapital -= rataKapitalowa;
 
             if (nadplata > 0) {
                 if (nadplata > pozostalyKapital) nadplata = pozostalyKapital;
                 pozostalyKapital -= nadplata;
-                console.log(`Miesiąc ${i}: zastosowano nadpłatę ${nadplata}, nowy pozostalyKapital=${pozostalyKapital}`);
             }
 
             calkowiteOdsetki += odsetki;
@@ -1780,17 +1760,14 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            // Przerwij pętlę tylko dla "Skróć okres" i jeśli nie ma efektu "Zmniejsz ratę"
             if (pozostalyKapital <= 0 && (!hasRateReductionEffect || (activeOverpayment && activeOverpayment.effect === "Skróć okres"))) {
                 pozostaleRaty = i;
-                console.log(`Pętla przerwana w miesiącu ${i} (kapitalDoSplaty=${pozostalyKapital}, efekt: ${activeOverpayment?.effect || 'brak'})`);
+                console.log(`Pętla przerwana w miesiącu ${i}`);
                 break;
             }
         }
 
-        // Jeśli mamy efekt "Zmniejsz ratę", upewnijmy się, że harmonogram obejmuje pełny okres
         if (hasRateReductionEffect && harmonogram.length < iloscRat) {
-            console.log("Wypełnianie pozostałych miesięcy z efektem Zmniejsz ratę");
             for (let i = harmonogram.length + 1; i <= iloscRat; i++) {
                 let currentOprocentowanie = oprocentowanieMiesieczne;
                 let activeRate = activeVariableRates.find(rate => rate.period === i);
@@ -1812,7 +1789,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
         }
 
         let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowiteNadplaty;
-        console.log("Koniec calculateLoan:", { harmonogramLength: harmonogram.length, pozostaleRaty, calkowityKoszt });
 
         return {
             harmonogram,
@@ -1828,11 +1804,58 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
         };
     } catch (error) {
         console.error("Błąd podczas obliczania kredytu:", error.message);
-        alert(`Wystąpił błąd podczas obliczania kredytu: ${error.message}`);
         return null;
     }
 }
 
+function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac, hasRateReductionEffect, lastNadplataMonth) {
+    let odsetki = pozostalyKapital * currentOprocentowanie;
+    let rataKapitalowa = 0;
+    let rataCalkowita = 0;
+
+    let remainingMonths = iloscRat - miesiac + 1;
+    if (remainingMonths <= 0) remainingMonths = 1;
+
+    if (rodzajRat === "rowne") {
+        let q = 1 + currentOprocentowanie;
+        if (applyRateReduction && hasRateReductionEffect) {
+            // Obniż ratę na podstawie pozostałego kapitału i pozostałych miesięcy
+            const numerator = pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths));
+            const denominator = Math.pow(q, remainingMonths) - 1;
+            rataCalkowita = denominator > 0 ? numerator / denominator : 0;
+            console.log(`Miesiąc ${miesiac}: Raty równe, obniżono ratę: rataCalkowita=${rataCalkowita}`);
+        } else {
+            // Standardowa rata równa
+            const numerator = kwota * (currentOprocentowanie * Math.pow(q, iloscRat));
+            const denominator = Math.pow(q, iloscRat) - 1;
+            rataCalkowita = denominator > 0 ? numerator / denominator : 0;
+            console.log(`Miesiąc ${miesiac}: Raty równe, standardowa: rataCalkowita=${rataCalkowita}`);
+        }
+        if (isNaN(rataCalkowita) || rataCalkowita <= 0) {
+            rataCalkowita = 0;
+        }
+        rataKapitalowa = rataCalkowita - odsetki;
+    } else { // malejące
+        if (applyRateReduction && hasRateReductionEffect) {
+            // Obniż ratę proporcjonalnie do pozostałego kapitału
+            rataKapitalowa = pozostalyKapital / remainingMonths;
+            console.log(`Miesiąc ${miesiac}: Raty malejące, obniżono ratę: rataKapitalowa=${rataKapitalowa}`);
+        } else {
+            rataKapitalowa = kwota / iloscRat;
+            console.log(`Miesiąc ${miesiac}: Raty malejące, standardowa: rataKapitalowa=${rataKapitalowa}`);
+        }
+        rataCalkowita = rataKapitalowa + odsetki;
+    }
+
+    if (rataKapitalowa > pozostalyKapital || rataKapitalowa < 0) {
+        rataKapitalowa = Math.max(0, Math.min(rataKapitalowa, pozostalyKapital));
+        rataCalkowita = rataKapitalowa + odsetki;
+    }
+
+    if (rataCalkowita < 0) rataCalkowita = 0;
+
+    return { rataCalkowita, rataKapitalowa, odsetki };
+}
 function updateSummaryTable(summary) {
     if (!summary) return;
 
