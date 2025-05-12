@@ -1760,14 +1760,14 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            if (pozostalyKapital <= 0 && (!hasRateReductionEffect || (activeOverpayment && activeOverpayment.effect === "Skróć okres"))) {
+            if (pozostalyKapital <= 0 && activeOverpayment?.effect === "Skróć okres") {
                 pozostaleRaty = i;
                 console.log(`Pętla przerwana w miesiącu ${i}`);
                 break;
             }
         }
 
-        if (hasRateReductionEffect && harmonogram.length < iloscRat) {
+        if (hasRateReductionEffect && harmonogram.length < iloscRat && activeOverpayment?.effect === "Zmniejsz ratę") {
             for (let i = harmonogram.length + 1; i <= iloscRat; i++) {
                 let currentOprocentowanie = oprocentowanieMiesieczne;
                 let activeRate = activeVariableRates.find(rate => rate.period === i);
@@ -1786,6 +1786,8 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 });
             }
             pozostaleRaty = iloscRat;
+        } else {
+            pozostaleRaty = harmonogram.length;
         }
 
         let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowiteNadplaty;
@@ -1819,7 +1821,7 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
     if (rodzajRat === "rowne") {
         let q = 1 + currentOprocentowanie;
         if (applyRateReduction && hasRateReductionEffect) {
-            // Obniż ratę na podstawie pozostałego kapitału i pozostałych miesięcy
+            // Oblicz nową ratę na podstawie pozostałego kapitału i pozostałych miesięcy
             const numerator = pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths));
             const denominator = Math.pow(q, remainingMonths) - 1;
             rataCalkowita = denominator > 0 ? numerator / denominator : 0;
@@ -1841,6 +1843,7 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
             rataKapitalowa = pozostalyKapital / remainingMonths;
             console.log(`Miesiąc ${miesiac}: Raty malejące, obniżono ratę: rataKapitalowa=${rataKapitalowa}`);
         } else {
+            // Standardowa część kapitałowa dla rat malejących
             rataKapitalowa = kwota / iloscRat;
             console.log(`Miesiąc ${miesiac}: Raty malejące, standardowa: rataKapitalowa=${rataKapitalowa}`);
         }
@@ -1856,6 +1859,7 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
 
     return { rataCalkowita, rataKapitalowa, odsetki };
 }
+
 function updateSummaryTable(summary) {
     if (!summary) return;
 
