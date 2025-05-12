@@ -750,7 +750,7 @@ function updateAllOverpaymentLimits() {
             const rateInput = g.querySelector(".variable-rate");
             const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange && !g.classList.contains("locked")) {
-                updateOverpaymentLimit(rateInput, range, g, true);
+                updateOverpaymentLimit(rateInput, rateRange, g, true);
             }
         });
 
@@ -828,33 +828,43 @@ function initializeNadplataKredytuGroup(group) {
 
             if (input.classList.contains("variable-cykl-start")) {
                 const periodStartInput = input; // Poprawka: Definiujemy periodStartInput lokalnie
-                const updateHandler = () => {
+                const debouncedUpdate = debounce(() => {
                     if (!state.isUpdating) {
                         const rateInput = group.querySelector(".variable-rate");
                         const rateRange = group.querySelector(".variable-rate-range");
                         if (rateInput && rateRange) {
-                            const oldValue = parseInt(periodStartInput.value);
                             updateOverpaymentLimit(rateInput, rateRange, group, true, false);
-                            const newValue = parseInt(periodStartInput.value);
-                            if (oldValue !== newValue) {
-                                updateRatesArray("nadplata");
-                                updateNadplataKredytuRemoveButtons();
-                                updateLoanDetails();
-                            }
+                            updateRatesArray("nadplata");
+                            updateNadplataKredytuRemoveButtons();
+                            updateLoanDetails();
                         }
                     }
-                };
+                }, 10); // Lekki debouncing dla płynności
 
-                // Usunięcie debouncing dla natychmiastowej aktualizacji
-                input.addEventListener("input", updateHandler);
-                input.addEventListener("change", updateHandler);
+                input.addEventListener("input", () => {
+                    let value = input.value.replace(/[^0-9]/g, "");
+                    if (value) {
+                        let parsedValue = parseInt(value);
+                        if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
+                        range.value = parsedValue;
+                    }
+                    debouncedUpdate();
+                });
+
+                input.addEventListener("change", () => {
+                    let value = parseInt(input.value) || parseInt(input.min);
+                    if (value < parseInt(input.min)) value = parseInt(input.min);
+                    input.value = value;
+                    range.value = value;
+                    debouncedUpdate();
+                });
 
                 range.addEventListener("input", () => {
                     let value = parseInt(range.value);
                     if (value < parseInt(range.min)) value = parseInt(range.min);
                     input.value = value;
                     range.value = value;
-                    updateHandler();
+                    debouncedUpdate();
                 });
 
                 range.addEventListener("change", () => {
@@ -862,7 +872,7 @@ function initializeNadplataKredytuGroup(group) {
                     if (value < parseInt(range.min)) value = parseInt(input.min);
                     input.value = value;
                     range.value = value;
-                    updateHandler();
+                    debouncedUpdate();
                 });
             } else if (input.classList.contains("variable-rate")) {
                 const debouncedUpdate = debounce(() => {
