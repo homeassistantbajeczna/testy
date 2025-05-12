@@ -549,8 +549,7 @@ function syncInputWithRange(input, range) {
         const max = parseInt(range.max) || 360;
         if (value < min) value = min;
         if (value > max) value = max;
-        input.value = value;
-        range.value = value;
+        if (range.value !== value.toString()) range.value = value; // Synchronizuj tylko, jeśli się różnią
     }
 }
 
@@ -636,12 +635,12 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
     let remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, previousOverpayments, adjustedPeriod);
     let maxAllowed = Math.max(100, remainingCapital);
 
-    // Poprawa dla pierwszej nadpłaty: upewniamy się, że poprawnie obliczamy remainingCapital
     if (currentIndex === 0) {
         remainingCapital = calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, [], adjustedPeriod);
         maxAllowed = Math.max(100, remainingCapital);
     }
 
+    // Ustawiamy tylko max, nie zmieniamy wartości przy preserveValue = true
     rateInput.max = Math.floor(maxAllowed);
     rateRange.max = Math.floor(maxAllowed);
 
@@ -649,6 +648,9 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true) {
         let rateValue = Math.min(parseInt(rateInput.value) || 100, maxAllowed);
         rateInput.value = rateValue;
         rateRange.value = rateValue;
+    } else {
+        // Upewniamy się, że suwak nie przeskakuje, synchronizując tylko w jedną stronę
+        syncInputWithRange(rateInput, rateRange);
     }
 
     let maxPeriodStart = totalMonths;
