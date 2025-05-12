@@ -656,7 +656,7 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         rateRange.value = rateValue;
     }
 
-    let maxPeriodStart = totalMonths;
+    let maxPeriodStart = totalMonths; // Początkowa wartość domyślna
     let currentOverpayments = [...previousOverpayments, { type, start: periodStart, amount: overpaymentAmount, effect }];
     const loanDetails = calculateLoan(
         loanAmount,
@@ -672,8 +672,23 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
     if (loanDetails && loanDetails.pozostaleRaty > 0) {
         maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
-    } else {
-        maxPeriodStart = totalMonths; // Fallback
+    } else if (overpaymentAmount > 0 && currentIndex === 0) {
+        // Wymuś ponowne obliczenie dla pierwszej nadpłaty, jeśli wartość jest za duża
+        let adjustedOverpayment = { type, start: 1, amount: overpaymentAmount, effect }; // Test z pierwszą ratą
+        let testOverpayments = [adjustedOverpayment];
+        const testLoanDetails = calculateLoan(
+            loanAmount,
+            interestRate,
+            totalMonths,
+            paymentType,
+            parseFloat(elements.prowizja?.value) || 0,
+            elements.jednostkaProwizji?.value || "procent",
+            state.variableRates,
+            testOverpayments
+        );
+        if (testLoanDetails && testLoanDetails.pozostaleRaty > 0) {
+            maxPeriodStart = testLoanDetails.pozostaleRaty;
+        }
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
@@ -740,7 +755,7 @@ function updateAllOverpaymentLimits() {
             const rateInput = g.querySelector(".variable-rate");
             const rateRange = g.querySelector(".variable-rate-range");
             if (rateInput && rateRange && !g.classList.contains("locked")) {
-                updateOverpaymentLimit(rateInput, rateRange, g, true);
+                updateOverpaymentLimit(rateInput, range, g, true);
             }
         });
 
