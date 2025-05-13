@@ -1670,6 +1670,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
         let lastNadplataMonth = 0;
         let applyRateReduction = false;
+        let lastEffect = null; // Przechowujemy ostatni efekt nadpłaty
 
         for (let i = 1; i <= iloscRat; i++) {
             let currentOprocentowanie = oprocentowanieMiesieczne;
@@ -1707,6 +1708,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     if (over.effect === "Zmniejsz ratę") lastNadplataMonth = i;
 
                     activeOverpayment = over;
+                    lastEffect = over.effect; // Zapamiętujemy ostatni efekt nadpłaty
                 }
             });
 
@@ -1742,14 +1744,14 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            if (pozostalyKapital <= 0 && (!activeOverpayment || activeOverpayment.effect === "Skróć okres")) {
+            if (pozostalyKapital <= 0 && (!activeOverpayment || activeOverpayment?.effect === "Skróć okres")) {
                 pozostaleRaty = i;
                 break;
             }
         }
 
         // Dla "Zmniejsz ratę" upewniamy się, że harmonogram ma pełne 360 rat
-        if (activeOverpayment?.effect === "Zmniejsz ratę" && harmonogram.length < iloscRat) {
+        if (lastEffect === "Zmniejsz ratę" && harmonogram.length < iloscRat) {
             for (let i = harmonogram.length + 1; i <= iloscRat; i++) {
                 let currentOprocentowanie = oprocentowanieMiesieczne;
                 let activeRate = activeVariableRates.find(rate => rate.period === i);
