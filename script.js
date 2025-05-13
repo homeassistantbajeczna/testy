@@ -1608,7 +1608,7 @@ function initializePorownajKredytToggle() {
 
 // F U N K C J E     W Y N I K I   T A B E L I    I     W Y K R E S U
 
-function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac) {
+function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac, activeOverpaymentEffect) {
     let odsetki = pozostalyKapital * currentOprocentowanie;
     let rataKapitalowa = 0;
     let rataCalkowita = 0;
@@ -1618,7 +1618,7 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
 
     if (rodzajRat === "rowne") {
         let q = 1 + currentOprocentowanie;
-        if (applyRateReduction) {
+        if (applyRateReduction && activeOverpaymentEffect === "Zmniejsz ratę") {
             const numerator = Math.round(pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths)));
             const denominator = Math.round(Math.pow(q, remainingMonths) - 1);
             rataCalkowita = Math.round(numerator / denominator) || 100;
@@ -1630,7 +1630,11 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
         }
         rataKapitalowa = rataCalkowita - odsetki;
     } else { // malejące
-        rataKapitalowa = pozostalyKapital / remainingMonths;
+        if (applyRateReduction && activeOverpaymentEffect === "Zmniejsz ratę") {
+            rataKapitalowa = pozostalyKapital / remainingMonths;
+        } else {
+            rataKapitalowa = kwota / iloscRat; // Używamy oryginalnej części kapitałowej dla "Skróć okres"
+        }
         rataCalkowita = rataKapitalowa + odsetki;
     }
 
@@ -1715,7 +1719,8 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 currentOprocentowanie,
                 applyRateReduction,
                 rodzajRat,
-                i
+                i,
+                activeOverpayment?.effect
             );
 
             pozostalyKapital -= rataKapitalowa;
@@ -1741,6 +1746,28 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 pozostaleRaty = i;
                 break;
             }
+        }
+
+        // Dla "Zmniejsz ratę" upewniamy się, że harmonogram ma pełne 360 rat
+        if (activeOverpayment?.effect === "Zmniejsz ratę" && harmonogram.length < iloscRat) {
+            for (let i = harmonogram.length + 1; i <= iloscRat; i++) {
+                let currentOprocentowanie = oprocentowanieMiesieczne;
+                let activeRate = activeVariableRates.find(rate => rate.period === i);
+                if (activeRate && !isNaN(activeRate.value)) {
+                    currentOprocentowanie = activeRate.value / 100 / 12;
+                }
+
+                harmonogram.push({
+                    miesiac: i,
+                    rata: 0,
+                    oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
+                    nadplata: 0,
+                    kapital: 0,
+                    odsetki: 0,
+                    kapitalDoSplaty: 0,
+                });
+            }
+            pozostaleRaty = iloscRat;
         }
 
         let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowiteNadplaty;
@@ -1889,6 +1916,8 @@ function toggleHarmonogram(contentId) {
         toggleBtn.textContent = 'Harmonogram spłat ►';
     }
 }
+
+
 
 
 
