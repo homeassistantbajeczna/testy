@@ -1,4 +1,18 @@
-const APP_TITLE = "Kalkulator Kredytu Hipotecznego";
+const APP_CONSTANTS = {
+    KWOTA_MIN: 10000,
+    KWOTA_MAX: 5000000,
+    ILOSC_RAT_MIN: 12,
+    ILOSC_RAT_MAX: 420,
+    OPROCENTOWANIE_MIN: 0.1,
+    OPROCENTOWANIE_MAX: 25,
+    PROWIZJA_MIN: 0,
+    PROWIZJA_MAX: 10,
+    NADPLATA_MIN: 100,
+    NADPLATA_MAX: 5000000,
+    ZOOM_MIN: 0.5,
+    ZOOM_MAX: 2,
+    ZOOM_STEP: 0.1,
+};
 
 const elements = {
     formSection: document.getElementById("formSection"),
@@ -37,6 +51,7 @@ const elements = {
     zoomOutBtn: document.getElementById("zoomOutBtn"),
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
     porownajKredytBtn: document.getElementById("porownajKredytBtn"),
+    calculatorBox: document.querySelector(".calculator-box"),
 };
 
 const state = {
@@ -53,10 +68,7 @@ const state = {
     zoomLevel: 1,
     isDarkMode: false,
     isUpdating: false,
-    sUserInteracting: false
 };
-
-let creditChart = null;
 
 
 
@@ -72,24 +84,34 @@ let creditChart = null;
 
 // F U N K C J E    O G Ó L N E
 
-function syncInputWithRange(input, range, onChange = null) {
+function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null, onChange = null) {
     if (!input || !range) {
         console.warn("Brak input lub range w syncInputWithRange.");
         return;
     }
     let value;
     const isIntegerInput = input.id === "iloscRat" || input.classList.contains("variable-cykl") || input.classList.contains("variable-cykl-start");
-    
+
     if (isIntegerInput) {
         value = parseInt(input.value) || parseInt(range.value) || parseInt(input.min) || 0;
-        value = Math.max(parseInt(input.min) || 0, Math.min(parseInt(input.max) || Infinity, value));
+        const min = parseInt(range.min) || parseInt(input.min) || 0;
+        let max = maxLimit !== null ? maxLimit : parseInt(range.max) || parseInt(input.max) || Infinity;
+        if (enforceLimits) {
+            value = Math.max(min, Math.min(max, value));
+        }
         input.value = value;
+        range.value = value;
     } else {
         value = parseFloat(input.value) || parseFloat(range.value) || parseFloat(input.min) || 0;
-        value = Math.max(parseFloat(input.min) || 0, Math.min(parseFloat(input.max) || Infinity, value));
+        const min = parseFloat(range.min) || parseFloat(input.min) || 0;
+        let max = maxLimit !== null ? maxLimit : parseFloat(range.max) || parseFloat(input.max) || Infinity;
+        if (enforceLimits) {
+            value = Math.max(min, Math.min(max, value));
+        }
         input.value = value.toFixed(2);
+        range.value = value;
     }
-    range.value = value;
+
     if (onChange) onChange(value);
 }
 
@@ -176,6 +198,45 @@ function toggleMainFormLock() {
 
 // F U N K C J E    P O M O C N I C Z E
 
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null, onChange = null) {
+    if (!input || !range) {
+        console.warn("Brak input lub range w syncInputWithRange.");
+        return;
+    }
+    let value;
+    const isIntegerInput = input.id === "iloscRat" || input.classList.contains("variable-cykl") || input.classList.contains("variable-cykl-start");
+
+    if (isIntegerInput) {
+        value = parseInt(input.value) || parseInt(range.value) || parseInt(input.min) || 0;
+        const min = parseInt(range.min) || parseInt(input.min) || 0;
+        let max = maxLimit !== null ? maxLimit : parseInt(range.max) || parseInt(input.max) || Infinity;
+        if (enforceLimits) {
+            value = Math.max(min, Math.min(max, value));
+        }
+        input.value = value;
+        range.value = value;
+    } else {
+        value = parseFloat(input.value) || parseFloat(range.value) || parseFloat(input.min) || 0;
+        const min = parseFloat(range.min) || parseFloat(input.min) || 0;
+        let max = maxLimit !== null ? maxLimit : parseFloat(range.max) || parseFloat(input.max) || Infinity;
+        if (enforceLimits) {
+            value = Math.max(min, Math.min(max, value));
+        }
+        input.value = value.toFixed(2);
+        range.value = value;
+    }
+
+    if (onChange) onChange(value);
+}
+
 function updateRatesArray(type) {
     if (type === "nadplata") {
         state.overpaymentRates = [];
@@ -185,14 +246,12 @@ function updateRatesArray(type) {
             const effectSelect = group.querySelector(".nadplata-effect-select");
             const rateInput = group.querySelector(".variable-rate");
             const periodStartInput = group.querySelector(".variable-cykl-start");
-            const periodEndInput = group.querySelector(".variable-cykl-end");
 
             const overpayment = {
                 type: typeSelect.value,
                 effect: effectSelect.value,
                 amount: parseFloat(rateInput.value) || 0,
                 start: parseInt(periodStartInput.value) || 2,
-                end: periodEndInput ? parseInt(periodEndInput.value) || 2 : null
             };
             state.overpaymentRates.push(overpayment);
         });
@@ -212,24 +271,50 @@ function updateRatesArray(type) {
     }
 }
 
-function checkElements(...requiredElements) {
-    const missing = requiredElements.filter(el => !el);
-    if (missing.length > 0) {
-        console.warn("Brak wymaganych elementów DOM:", missing);
-        return false;
-    }
-    return true;
-}
-
-function formatNumber(value) {
-    return value.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function updateKwotaInfo() {
+    const kwota = parseFloat(elements.kwota.value) || 0;
+    elements.kwotaInfo.textContent = kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
 }
 
 function updateLata() {
-    if (!checkElements(elements.iloscRat, elements.lata)) return;
     const iloscRat = parseInt(elements.iloscRat.value) || 0;
-    const lata = (iloscRat / 12).toFixed(0); // Obliczamy lata i zaokrąglamy do liczby całkowitej
-    elements.lata.textContent = `Okres kredytowania: ${lata} lat`;
+    const lata = Math.floor(iloscRat / 12);
+    const resztaMiesiecy = iloscRat % 12;
+    elements.lata.textContent = lata + " lat" + (resztaMiesiecy > 0 ? " i " + resztaMiesiecy + " miesięcy" : "");
+}
+
+function updateProwizjaInfo() {
+    const prowizja = parseFloat(elements.prowizja.value) || 0;
+    const jednostka = elements.jednostkaProwizji.value;
+    elements.prowizjaInfo.textContent = prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (jednostka === "procent" ? " %" : " zł");
+}
+
+function syncProwizjaWithKwota(force = false) {
+    if (!elements.prowizja || !elements.kwota || !elements.jednostkaProwizji) return;
+
+    const kwota = parseFloat(elements.kwota.value) || 0;
+    const prowizja = parseFloat(elements.prowizja.value) || 0;
+    const jednostka = elements.jednostkaProwizji.value;
+
+    if (jednostka === "zl" && (!elements.prowizja.dataset.manual || force)) {
+        const newProwizja = (kwota * (prowizja / 100)).toFixed(2);
+        elements.prowizja.value = newProwizja;
+        elements.prowizjaRange.value = newProwizja;
+        delete elements.prowizja.dataset.manual;
+    } else if (jednostka === "procent" && (!elements.prowizja.dataset.manual || force)) {
+        const newProwizja = ((prowizja / kwota) * 100).toFixed(2);
+        elements.prowizja.value = newProwizja;
+        elements.prowizjaRange.value = newProwizja;
+        delete elements.prowizja.dataset.manual;
+    }
+    updateProwizjaInfo();
+}
+
+function setInputLockStyles(input, isLocked) {
+    if (!input) return;
+    input.disabled = isLocked;
+    input.style.backgroundColor = isLocked ? "#f0f0f0" : "";
+    input.style.cursor = isLocked ? "not-allowed" : "text";
 }
 
 
@@ -243,12 +328,16 @@ function updateLata() {
 // F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
 
 function initializeInputHandling() {
+    if (!elements.kwota || !elements.kwotaRange || !elements.iloscRat || !elements.iloscRatRange || 
+        !elements.oprocentowanie || !elements.oprocentowanieRange || !elements.prowizja || 
+        !elements.prowizjaRange || !elements.jednostkaProwizji || !elements.rodzajRat) {
+        console.error("Brak wymaganych elementów formularza. Sprawdź HTML.");
+        return;
+    }
+
     // Kwota Kredytu
-    elements.kwota.addEventListener("keypress", (e) => {
-        if (e.key === "." || e.key === ",") {
-            e.preventDefault();
-        }
-        if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+    elements.kwota.addEventListener("beforeinput", (e) => {
+        if (e.data && !/[0-9]/.test(e.data)) {
             e.preventDefault();
         }
     });
@@ -256,8 +345,8 @@ function initializeInputHandling() {
     elements.kwota.addEventListener("blur", () => {
         let value = elements.kwota.value;
         let parsedValue = parseInt(value) || 0;
-        let minValue = parseInt(elements.kwota.min) || 0;
-        let maxValue = parseInt(elements.kwota.max) || Infinity;
+        let minValue = APP_CONSTANTS.KWOTA_MIN;
+        let maxValue = APP_CONSTANTS.KWOTA_MAX;
 
         if (isNaN(parsedValue) || value === "") {
             parsedValue = minValue;
@@ -284,11 +373,8 @@ function initializeInputHandling() {
     });
 
     // Ilość Rat
-    elements.iloscRat.addEventListener("keypress", (e) => {
-        if (e.key === "." || e.key === ",") {
-            e.preventDefault();
-        }
-        if (!/[0-9]/.test(e.key) && e.key !== "Backspace" && e.key !== "Delete" && e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Tab") {
+    elements.iloscRat.addEventListener("beforeinput", (e) => {
+        if (e.data && !/[0-9]/.test(e.data)) {
             e.preventDefault();
         }
     });
@@ -296,8 +382,8 @@ function initializeInputHandling() {
     elements.iloscRat.addEventListener("blur", () => {
         let value = elements.iloscRat.value;
         let parsedValue = parseInt(value) || 0;
-        let minValue = parseInt(elements.iloscRat.min) || 0;
-        let maxValue = parseInt(elements.iloscRat.max) || Infinity;
+        let minValue = APP_CONSTANTS.ILOSC_RAT_MIN;
+        let maxValue = APP_CONSTANTS.ILOSC_RAT_MAX;
 
         if (isNaN(parsedValue) || value === "") {
             parsedValue = minValue;
@@ -320,9 +406,14 @@ function initializeInputHandling() {
     });
 
     // Oprocentowanie
+    elements.oprocentowanie.addEventListener("beforeinput", (e) => {
+        if (e.data && !/[0-9.]/.test(e.data)) {
+            e.preventDefault();
+        }
+    });
+
     elements.oprocentowanie.addEventListener("input", (e) => {
         let value = e.target.value;
-
         if (value.includes(",")) {
             value = value.replace(",", ".");
             e.target.value = value;
@@ -344,8 +435,8 @@ function initializeInputHandling() {
     elements.oprocentowanie.addEventListener("blur", () => {
         let value = elements.oprocentowanie.value;
         let parsedValue = parseFloat(value) || 0;
-        let minValue = parseFloat(elements.oprocentowanie.min) || 0;
-        let maxValue = parseFloat(elements.oprocentowanie.max) || Infinity;
+        let minValue = APP_CONSTANTS.OPROCENTOWANIE_MIN;
+        let maxValue = APP_CONSTANTS.OPROCENTOWANIE_MAX;
 
         if (isNaN(parsedValue) || value === "") {
             parsedValue = minValue;
@@ -365,9 +456,14 @@ function initializeInputHandling() {
     });
 
     // Prowizja
+    elements.prowizja.addEventListener("beforeinput", (e) => {
+        if (e.data && !/[0-9.]/.test(e.data)) {
+            e.preventDefault();
+        }
+    });
+
     elements.prowizja.addEventListener("input", (e) => {
         let value = e.target.value;
-
         if (value.includes(",")) {
             value = value.replace(",", ".");
             e.target.value = value;
@@ -391,8 +487,8 @@ function initializeInputHandling() {
     elements.prowizja.addEventListener("blur", () => {
         let value = elements.prowizja.value;
         let parsedValue = parseFloat(value) || 0;
-        let minValue = parseFloat(elements.prowizja.min) || 0;
-        let maxValue = parseFloat(elements.prowizja.max) || Infinity;
+        let minValue = APP_CONSTANTS.PROWIZJA_MIN;
+        let maxValue = APP_CONSTANTS.PROWIZJA_MAX;
         const jednostka = elements.jednostkaProwizji.value;
 
         if (isNaN(parsedValue) || value === "") {
@@ -427,37 +523,6 @@ function initializeInputHandling() {
     });
 }
 
-// Funkcja do synchronizacji prowizji z kwotą (przeniesiona na poziom globalny)
-function syncProwizjaWithKwota(reset = false) {
-    if (!checkElements(elements.jednostkaProwizji, elements.kwota, elements.prowizja, elements.prowizjaRange)) return;
-    const jednostka = elements.jednostkaProwizji.value;
-    const kwota = parseInt(elements.kwota.value) || 0;
-    let prowizjaValue = parseFloat(elements.prowizja.value) || 0;
-    const minValue = parseFloat(elements.prowizja.min) || 0;
-    const maxValue = parseFloat(elements.prowizja.max) || Infinity;
-
-    if (reset) {
-        delete elements.prowizja.dataset.manual;
-    }
-
-    if (jednostka === "zl" && (reset || !elements.prowizja.dataset.manual)) {
-        const defaultProwizja = (kwota * 0.02);
-        prowizjaValue = Math.max(defaultProwizja, minValue);
-        if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-        elements.prowizja.value = prowizjaValue.toFixed(2);
-        elements.prowizjaRange.value = prowizjaValue;
-        delete elements.prowizja.dataset.manual;
-    } else if (jednostka === "procent" && reset) {
-        prowizjaValue = 2;
-        if (prowizjaValue < minValue) prowizjaValue = minValue;
-        if (prowizjaValue > maxValue) prowizjaValue = maxValue;
-        elements.prowizja.value = prowizjaValue.toFixed(2);
-        elements.prowizjaRange.value = prowizjaValue;
-        delete elements.prowizja.dataset.manual;
-    }
-    updateProwizjaInfo();
-}
-
 
 
 
@@ -472,18 +537,6 @@ function syncProwizjaWithKwota(reset = false) {
 
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
-
-if (!elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements.nadplataKredytuWrapper || !elements.kwota || !elements.oprocentowanie || !elements.iloscRat || !elements.rodzajRat) {
-    console.error("Niektóre elementy DOM nie zostały znalezione:", {
-        nadplataKredytuBtn: elements.nadplataKredytuBtn,
-        nadplataKredytuInputs: elements.nadplataKredytuInputs,
-        nadplataKredytuWrapper: elements.nadplataKredytuWrapper,
-        kwota: elements.kwota,
-        oprocentowanie: elements.oprocentowanie,
-        iloscRat: elements.iloscRat,
-        rodzajRat: elements.rodzajRat
-    });
-}
 
 function createNadplataKredytuGroup() {
     const group = document.createElement("div");
@@ -519,51 +572,23 @@ function createNadplataKredytuGroup() {
                 <div class="form-group box-amount">
                     <label class="form-label">Kwota nadpłaty</label>
                     <div class="input-group">
-                        <input type="number" inputmode="numeric" class="form-control variable-rate" min="100" max="5000000" step="1" value="100">
+                        <input type="number" inputmode="numeric" class="form-control variable-rate" min="${APP_CONSTANTS.NADPLATA_MIN}" max="${APP_CONSTANTS.NADPLATA_MAX}" step="1" value="100">
                         <span class="input-group-text unit-zl">zł</span>
                     </div>
-                    <input type="range" class="form-range range-slider variable-rate-range" min="100" max="5000000" step="1" value="100">
+                    <input type="range" class="form-range range-slider variable-rate-range" min="${APP_CONSTANTS.NADPLATA_MIN}" max="${APP_CONSTANTS.NADPLATA_MAX}" step="1" value="100">
                 </div>
                 <div class="form-group box-period box-period-start">
                     <label class="form-label">W</label>
                     <div class="input-group">
-                        <input type="number" class="form-control variable-cykl variable-cykl-start" min="1" max="360" step="1" value="1">
+                        <input type="number" class="form-control variable-cykl variable-cykl-start" min="1" max="${APP_CONSTANTS.ILOSC_RAT_MAX}" step="1" value="1">
                         <span class="input-group-text unit-period">miesiącu</span>
                     </div>
-                    <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-start-range" min="1" max="360" step="1" value="1">
+                    <input type="range" class="form-range range-slider variable-cykl-range variable-cykl-start-range" min="1" max="${APP_CONSTANTS.ILOSC_RAT_MAX}" step="1" value="1">
                 </div>
             </div>
         </div>
     `;
     return group;
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-    };
-}
-
-function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null) {
-    if (!input || !range) return;
-    let value = parseInt(input.value);
-    if (!isNaN(value)) {
-        const min = parseInt(range.min) || 1;
-        let max = maxLimit !== null ? maxLimit : parseInt(range.max) || 360;
-        if (enforceLimits) {
-            if (value < min) value = min;
-            if (value > max) value = max;
-            if (input.value !== value.toString()) {
-                input.value = value;
-            }
-        }
-        if (parseInt(range.value) !== value) {
-            range.value = value;
-        }
-        console.log(`SyncInputWithRange: Input=${input.value}, Range=${range.value}, Min=${min}, Max=${max}, EnforceLimits=${enforceLimits}`);
-    }
 }
 
 function initializeNadplataKredytuGroup(group) {
@@ -574,7 +599,10 @@ function initializeNadplataKredytuGroup(group) {
     const periodUnit = periodStartBox?.querySelector(".unit-period");
     const typeSelect = group.querySelector(".nadplata-type-select");
 
-    if (!periodStartBox || !periodLabel || !periodUnit || !typeSelect) return;
+    if (!periodStartBox || !periodLabel || !periodUnit || !typeSelect) {
+        console.error("Brak wymaganych elementów w grupie nadpłaty:", { periodStartBox, periodLabel, periodUnit, typeSelect });
+        return;
+    }
 
     const updatePeriodBox = () => {
         if (state.isUpdating) return;
@@ -614,14 +642,20 @@ function initializeNadplataKredytuGroup(group) {
             const range = ranges[index];
             if (!input || !range) return;
 
-            syncInputWithRange(input, range);
+            syncInputWithRange(input, range, false, null);
 
             if (input.classList.contains("variable-cykl-start")) {
-                const periodStartInput = input;
+                input.addEventListener("beforeinput", (e) => {
+                    if (e.data && !/[0-9]/.test(e.data)) {
+                        e.preventDefault();
+                    }
+                });
+
                 const debouncedUpdate = debounce(() => {
                     if (!state.isUpdating) {
                         updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
+                        updateLoanDetails();
                     }
                 }, 10);
 
@@ -659,10 +693,17 @@ function initializeNadplataKredytuGroup(group) {
                     debouncedUpdate();
                 });
             } else if (input.classList.contains("variable-rate")) {
+                input.addEventListener("beforeinput", (e) => {
+                    if (e.data && !/[0-9]/.test(e.data)) {
+                        e.preventDefault();
+                    }
+                });
+
                 const debouncedUpdate = debounce(() => {
                     if (!state.isUpdating) {
                         updateRatesArray("nadplata");
                         updateNadplataKredytuRemoveButtons();
+                        updateLoanDetails();
                     }
                 }, 50);
 
@@ -713,169 +754,69 @@ function initializeNadplataKredytuGroup(group) {
 
     typeSelect.addEventListener("change", () => {
         updatePeriodBox();
+        updateRatesArray("nadplata");
+        updateLoanDetails();
     });
 
     updatePeriodBox();
 }
 
-function resetNadplataKredytuSection() {
-    if (!elements.nadplataKredytuWrapper) return;
-    elements.nadplataKredytuWrapper.innerHTML = "";
-    state.overpaymentRates = [];
-    if (elements.nadplataKredytuBtn) {
-        elements.nadplataKredytuBtn.checked = false;
-        elements.nadplataKredytuBtn.disabled = false;
-        elements.nadplataKredytuBtn.parentElement?.classList.remove("disabled");
-    }
-    if (elements.nadplataKredytuInputs) {
-        elements.nadplataKredytuInputs.classList.remove("active");
-    }
-    toggleMainFormLock();
-}
-
 function updateNadplataKredytuRemoveButtons() {
-    if (!elements.nadplataKredytuWrapper) return;
-
-    const wrapper = elements.nadplataKredytuWrapper;
-    const groups = wrapper.querySelectorAll(".variable-input-group");
-    let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
-
-    if (groups.length === 0) {
-        if (existingRemoveBtnWrapper) existingRemoveBtnWrapper.remove();
-        return;
-    }
-
-    if (!existingRemoveBtnWrapper) {
-        existingRemoveBtnWrapper = document.createElement("div");
-        existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
-        existingRemoveBtnWrapper.style.display = "flex";
-        existingRemoveBtnWrapper.style.flexDirection = "column";
-        existingRemoveBtnWrapper.style.alignItems = "center";
-        existingRemoveBtnWrapper.style.gap = "5px";
-        existingRemoveBtnWrapper.style.marginTop = "10px";
-    } else {
-        existingRemoveBtnWrapper.innerHTML = "";
-    }
-
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
-    removeBtn.setAttribute("aria-label", "Usuń nadpłatę");
-    removeBtn.textContent = "Usuń";
-    existingRemoveBtnWrapper.appendChild(removeBtn);
-
-    const addBtn = document.createElement("button");
-    addBtn.type = "button";
-    addBtn.id = "addNadplataKredytuBtn";
-    addBtn.classList.add("btn", "btn-functional");
-    addBtn.setAttribute("aria-label", "Dodaj kolejną nadpłatę");
-    addBtn.textContent = "Dodaj kolejną nadpłatę";
-    existingRemoveBtnWrapper.appendChild(addBtn);
-
-    const lastGroup = groups[groups.length - 1];
-    if (existingRemoveBtnWrapper.parentElement !== lastGroup) lastGroup.appendChild(existingRemoveBtnWrapper);
-
-    groups.forEach((group, index) => {
-        if (index < groups.length - 1 && !group.classList.contains("locked")) {
-            group.classList.add("locked");
-            group.querySelectorAll(".form-control, .form-select, .form-range").forEach(input => {
-                input.disabled = true;
-                if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.style.backgroundColor = "#e9ecef";
-                    input.style.opacity = "0.7";
-                    input.classList.remove("unlocked-select");
-                }
-            });
-        } else if (index === groups.length - 1 && group.classList.contains("locked")) {
-            group.classList.remove("locked");
-            group.querySelectorAll(".form-control, .form-select, .form-range").forEach(input => {
-                input.disabled = false;
-                if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                    input.classList.add("unlocked-select");
-                    input.style.backgroundColor = "#ffffff";
-                    input.style.opacity = "1";
-                }
-            });
-        }
-    });
-
-    removeBtn.addEventListener("click", () => {
-        const groups = wrapper.querySelectorAll(".variable-input-group");
-        if (groups.length === 1) {
-            elements.nadplataKredytuBtn.checked = false;
-            elements.nadplataKredytuInputs?.classList.remove("active");
-            resetNadplataKredytuSection();
-        } else {
-            groups[groups.length - 1].remove();
-            if (groups.length - 2 >= 0) {
-                const previousGroup = groups[groups.length - 2];
-                if (previousGroup.classList.contains("locked")) {
-                    previousGroup.classList.remove("locked");
-                    previousGroup.querySelectorAll(".form-control, .form-select, .form-range").forEach(input => {
-                        input.disabled = false;
-                        if (input.classList.contains("nadplata-type-select") || input.classList.contains("nadplata-effect-select")) {
-                            input.classList.add("unlocked-select");
-                            input.style.backgroundColor = "#ffffff";
-                            input.style.opacity = "1";
-                        }
-                    });
-                }
+    const groups = elements.nadplataKredytuWrapper.querySelectorAll(".variable-input-group");
+    groups.forEach(group => {
+        let removeBtn = group.querySelector(".remove-btn");
+        if (groups.length > 1) {
+            if (!removeBtn) {
+                removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.classList.add("remove-btn");
+                removeBtn.innerHTML = "&times;";
+                group.appendChild(removeBtn);
             }
-            updateRatesArray("nadplata");
-            updateNadplataKredytuRemoveButtons();
+            removeBtn.onclick = () => {
+                group.remove();
+                updateRatesArray("nadplata");
+                updateNadplataKredytuRemoveButtons();
+                updateLoanDetails();
+            };
+        } else if (removeBtn) {
+            removeBtn.remove();
         }
-    });
-
-    addBtn.addEventListener("click", () => {
-        const newGroup = createNadplataKredytuGroup();
-        wrapper.appendChild(newGroup);
-        initializeNadplataKredytuGroup(newGroup);
-
-        updateRatesArray("nadplata");
-        updateNadplataKredytuRemoveButtons();
     });
 }
 
 function initializeNadplataKredytuToggle() {
-    if (!elements.nadplataKredytuBtn) return;
+    if (!elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements.nadplataKredytuWrapper) {
+        console.error("Brak elementów do nadpłaty kredytu. Sprawdź HTML.");
+        return;
+    }
 
     elements.nadplataKredytuBtn.addEventListener("change", () => {
         const isChecked = elements.nadplataKredytuBtn.checked;
-        if (elements.nadplataKredytuInputs) {
-            elements.nadplataKredytuInputs.classList.toggle("active", isChecked);
-        }
-
+        elements.nadplataKredytuInputs.style.display = isChecked ? "block" : "none";
         if (isChecked) {
-            if (!elements.nadplataKredytuWrapper) return;
-            elements.nadplataKredytuWrapper.innerHTML = "";
-            const newGroup = createNadplataKredytuGroup();
-            elements.nadplataKredytuWrapper.appendChild(newGroup);
-            initializeNadplataKredytuGroup(newGroup);
+            const group = createNadplataKredytuGroup();
+            elements.nadplataKredytuWrapper.appendChild(group);
+            initializeNadplataKredytuGroup(group);
+            updateRatesArray("nadplata");
             updateNadplataKredytuRemoveButtons();
         } else {
-            resetNadplataKredytuSection();
+            elements.nadplataKredytuWrapper.innerHTML = "";
+            state.overpaymentRates = [];
         }
         toggleMainFormLock();
+        updateLoanDetails();
+    });
+
+    elements.nadplataKredytuInputs.querySelector(".variable-add-btn").addEventListener("click", () => {
+        const group = createNadplataKredytuGroup();
+        elements.nadplataKredytuWrapper.appendChild(group);
+        initializeNadplataKredytuGroup(group);
+        updateRatesArray("nadplata");
+        updateNadplataKredytuRemoveButtons();
+        updateLoanDetails();
     });
 }
-
-state.isUpdating = false;
-state.hasUserInteracted = false;
-
-document.addEventListener("DOMContentLoaded", () => {
-    initializeNadplataKredytuToggle();
-    const wrapper = elements.nadplataKredytuWrapper;
-    if (wrapper) {
-        wrapper.addEventListener("input", () => {
-            state.hasUserInteracted = true;
-            updateNadplataKredytuRemoveButtons();
-        });
-        wrapper.addEventListener("change", () => {
-            state.hasUserInteracted = true;
-            updateNadplataKredytuRemoveButtons();
-        });
-    }
-});
 
 
 
@@ -889,28 +830,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
-function createVariableOprocentowanieGroup(startPeriod = 2) {
-    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
+function createVariableOprocentowanieGroup() {
     const group = document.createElement("div");
     group.classList.add("variable-input-group");
     group.setAttribute("data-type", "oprocentowanie");
+    group.style.marginBottom = "10px";
+
     group.innerHTML = `
         <div class="fields-wrapper">
-            <div class="form-group box-period">
-                <label class="form-label">Od</label>
-                <div class="input-group">
-                    <input type="number" class="form-control variable-cykl" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}" inputmode="numeric" pattern="[0-9]*">
-                    <span class="input-group-text unit-miesiaca">miesiąca</span>
+            <div class="form-row">
+                <div class="form-group box-amount">
+                    <label class="form-label">Oprocentowanie</label>
+                    <div class="input-group">
+                        <input type="number" inputmode="decimal" class="form-control variable-rate" min="${APP_CONSTANTS.OPROCENTOWANIE_MIN}" max="${APP_CONSTANTS.OPROCENTOWANIE_MAX}" step="0.01" value="7">
+                        <span class="input-group-text unit-percent">%</span>
+                    </div>
+                    <input type="range" class="form-range range-slider variable-rate-range" min="${APP_CONSTANTS.OPROCENTOWANIE_MIN}" max="${APP_CONSTANTS.OPROCENTOWANIE_MAX}" step="0.01" value="7">
                 </div>
-                <input type="range" class="form-range range-slider variable-cykl-range" min="${startPeriod}" max="${iloscRat}" step="1" value="${startPeriod}">
-            </div>
-            <div class="form-group box-rate">
-                <label class="form-label">Oprocentowanie</label>
-                <div class="input-group">
-                    <input type="number" class="form-control variable-rate" min="0.1" max="25" step="0.01" value="7.00">
-                    <span class="input-group-text">%</span>
+                <div class="form-group box-period">
+                    <label class="form-label">Od okresu</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control variable-cykl" min="2" max="${APP_CONSTANTS.ILOSC_RAT_MAX}" step="1" value="2">
+                        <span class="input-group-text unit-period">miesiąc</span>
+                    </div>
+                    <input type="range" class="form-range range-slider variable-cykl-range" min="2" max="${APP_CONSTANTS.ILOSC_RAT_MAX}" step="1" value="2">
                 </div>
-                <input type="range" class="form-range range-slider variable-rate-range" min="0.1" max="25" step="0.01" value="7.00">
             </div>
         </div>
     `;
@@ -918,17 +862,19 @@ function createVariableOprocentowanieGroup(startPeriod = 2) {
 }
 
 function initializeVariableOprocentowanieGroup(group) {
-    const iloscRat = parseInt(elements.iloscRat?.value) || 420;
+    if (!group) return;
 
-    // Ustaw dynamiczne min dla boxa "Od" na podstawie poprzedniej grupy
+    const iloscRat = parseInt(elements.iloscRat?.value) || APP_CONSTANTS.ILOSC_RAT_MAX;
+    const debouncedUpdateLoanDetails = debounce(updateLoanDetails, 300);
+
     const allGroups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
     const currentIndex = Array.from(allGroups).indexOf(group);
-    let minPeriod = 2; // Domyślne minimum dla pierwszej grupy
+    let minPeriod = 2;
     if (currentIndex > 0) {
         const prevGroup = allGroups[currentIndex - 1];
         const prevPeriodInput = prevGroup.querySelector(".variable-cykl");
         const prevPeriodValue = parseInt(prevPeriodInput.value) || 2;
-        minPeriod = prevPeriodValue + 1; // Minimum to okres poprzedniej grupy + 1
+        minPeriod = prevPeriodValue + 1;
     }
 
     const inputs = group.querySelectorAll(".form-control");
@@ -936,6 +882,8 @@ function initializeVariableOprocentowanieGroup(group) {
 
     inputs.forEach((input, index) => {
         const range = ranges[index];
+        if (!input || !range) return;
+
         if (input.classList.contains("variable-cykl")) {
             input.min = minPeriod;
             input.max = iloscRat;
@@ -943,32 +891,26 @@ function initializeVariableOprocentowanieGroup(group) {
             range.max = iloscRat;
             syncInputWithRange(input, range);
 
-            // Blokuj niecyfrowe znaki przed wprowadzeniem
             input.addEventListener("beforeinput", (e) => {
                 if (e.data && !/[0-9]/.test(e.data)) {
-                    e.preventDefault(); // Zablokuj wprowadzenie znaku
+                    e.preventDefault();
                 }
             });
 
             input.addEventListener("input", (e) => {
                 let value = input.value;
                 const cursorPosition = input.selectionStart;
-
-                // Usuń wszystkie znaki niebędące cyframi (na wypadek wklejenia)
                 const sanitizedValue = value.replace(/[^0-9]/g, "");
                 if (value !== sanitizedValue) {
                     input.value = sanitizedValue;
                 }
-
-                // Synchronizuj z suwakiem, jeśli wartość jest liczbą
                 if (!isNaN(parseInt(sanitizedValue))) {
                     range.value = parseInt(sanitizedValue);
                 }
-
-                // Przywróć pozycję kursora z opóźnieniem
                 setTimeout(() => {
                     input.setSelectionRange(cursorPosition, cursorPosition);
                 }, 0);
+                debouncedUpdateLoanDetails();
             });
 
             input.addEventListener("change", () => {
@@ -988,7 +930,7 @@ function initializeVariableOprocentowanieGroup(group) {
                 updateRatesArray("oprocentowanie");
                 updateVariableOprocentowanieRemoveButtons();
 
-                if (input.classList.contains("variable-cykl") && currentIndex < allGroups.length - 1) {
+                if (currentIndex < allGroups.length - 1) {
                     const nextGroup = allGroups[currentIndex + 1];
                     const nextPeriodInput = nextGroup.querySelector(".variable-cykl");
                     const nextPeriodRange = nextGroup.querySelector(".variable-cykl-range");
@@ -1000,39 +942,43 @@ function initializeVariableOprocentowanieGroup(group) {
                         nextPeriodRange.value = newMin;
                     }
                 }
+                debouncedUpdateLoanDetails();
             });
 
         } else if (input.classList.contains("variable-rate")) {
-            input.min = "0.1";
-            input.max = "25";
-            range.min = "0.1";
-            range.max = "25";
+            input.min = APP_CONSTANTS.OPROCENTOWANIE_MIN;
+            input.max = APP_CONSTANTS.OPROCENTOWANIE_MAX;
+            range.min = APP_CONSTANTS.OPROCENTOWANIE_MIN;
+            range.max = APP_CONSTANTS.OPROCENTOWANIE_MAX;
             syncInputWithRange(input, range);
 
-            // Obsługa inputu dla wartości z dwoma miejscami po przecinku
+            input.addEventListener("beforeinput", (e) => {
+                if (e.data && !/[0-9.]/.test(e.data)) {
+                    e.preventDefault();
+                }
+            });
+
             input.addEventListener("input", (e) => {
                 let value = input.value;
                 const cursorPosition = input.selectionStart;
 
-                // Zezwól na kropkę i przecinek, ale ogranicz do dwóch miejsc po przecinku
                 if (value.includes(".") || value.includes(",")) {
                     const parts = value.replace(",", ".").split(".");
                     if (parts.length > 1 && parts[1].length > 2) {
-                        parts[1] = parts[1].slice(0, 2); // Ogranicz do 2 miejsc po przecinku
+                        parts[1] = parts[1].slice(0, 2);
                         value = parts.join(".");
                         input.value = value;
                     }
                 }
 
-                // Synchronizuj z suwakiem
                 if (!isNaN(parseFloat(value))) {
                     range.value = parseFloat(value).toFixed(2);
                 }
 
-                // Przywróć pozycję kursora
                 setTimeout(() => {
                     input.setSelectionRange(cursorPosition, cursorPosition);
                 }, 0);
+                debouncedUpdateLoanDetails();
             });
 
             input.addEventListener("change", () => {
@@ -1040,7 +986,6 @@ function initializeVariableOprocentowanieGroup(group) {
                 const min = parseFloat(input.min);
                 const max = parseFloat(input.max);
 
-                // Walidacja po zakończeniu edycji
                 if (value < min) value = min;
                 else if (value > max) value = max;
 
@@ -1048,14 +993,15 @@ function initializeVariableOprocentowanieGroup(group) {
                 range.value = value.toFixed(2);
                 updateRatesArray("oprocentowanie");
                 updateVariableOprocentowanieRemoveButtons();
+                debouncedUpdateLoanDetails();
             });
         }
 
         range.addEventListener("input", () => {
             if (range.classList.contains("variable-cykl-range")) {
-                input.value = parseInt(range.value); // Liczba całkowita dla "Od"
+                input.value = parseInt(range.value);
             } else {
-                input.value = parseFloat(range.value).toFixed(2); // Dwa miejsca po przecinku dla "Oprocentowanie"
+                input.value = parseFloat(range.value).toFixed(2);
             }
             updateRatesArray("oprocentowanie");
             updateVariableOprocentowanieRemoveButtons();
@@ -1072,183 +1018,69 @@ function initializeVariableOprocentowanieGroup(group) {
                     nextPeriodRange.value = newMin;
                 }
             }
+            debouncedUpdateLoanDetails();
         });
     });
-}
-
-function resetVariableOprocentowanieSection() {
-    elements.variableOprocentowanieWrapper.innerHTML = "";
-    state.variableRates = [];
-    const defaultOprocentowanie = 7;
-    let oprocentowanieValue = parseFloat(elements.oprocentowanie.dataset.lastManualValue) || defaultOprocentowanie;
-    const minValue = parseFloat(elements.oprocentowanie.min) || 0;
-    const maxValue = parseFloat(elements.oprocentowanie.max) || Infinity;
-
-    if (oprocentowanieValue < minValue) oprocentowanieValue = minValue;
-    if (oprocentowanieValue > maxValue) oprocentowanieValue = maxValue;
-
-    elements.oprocentowanie.value = oprocentowanieValue.toFixed(2);
-    elements.oprocentowanieRange.value = oprocentowanieValue;
-    
-    delete elements.oprocentowanie.dataset.lastManualValue;
-    elements.zmienneOprocentowanieBtn.checked = false;
-    elements.variableOprocentowanieInputs.classList.remove("active");
-    toggleMainFormLock(); // Wywołaj blokadę po zresetowaniu sekcji
 }
 
 function updateVariableOprocentowanieRemoveButtons() {
-    const wrapper = elements.variableOprocentowanieWrapper;
-    const groups = wrapper.querySelectorAll(".variable-input-group");
-    let existingRemoveBtnWrapper = wrapper.querySelector(".remove-btn-wrapper");
-
-    if (existingRemoveBtnWrapper) {
-        existingRemoveBtnWrapper.remove();
-    }
-
-    groups.forEach((group, index) => {
-        const inputs = group.querySelectorAll(".form-control");
-        const ranges = group.querySelectorAll(".form-range");
-        const isLastGroup = index === groups.length - 1;
-
-        if (!isLastGroup) {
-            group.classList.add("locked");
-        } else {
-            group.classList.remove("locked");
-        }
-
-        inputs.forEach(input => {
-            input.disabled = !isLastGroup;
-        });
-
-        ranges.forEach(range => {
-            range.disabled = !isLastGroup;
-        });
-    });
-
-    if (groups.length > 0) {
-        const lastGroup = groups[groups.length - 1];
-        existingRemoveBtnWrapper = document.createElement("div");
-        existingRemoveBtnWrapper.classList.add("remove-btn-wrapper");
-        existingRemoveBtnWrapper.style.display = "flex";
-        existingRemoveBtnWrapper.style.flexDirection = "column";
-        existingRemoveBtnWrapper.style.alignItems = "center";
-        existingRemoveBtnWrapper.style.gap = "5px";
-        existingRemoveBtnWrapper.style.marginTop = "10px";
-
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.classList.add("btn", "btn-danger", "btn-sm", "btn-reset");
-        removeBtn.setAttribute("aria-label", "Usuń oprocentowanie");
-        removeBtn.textContent = "Usuń";
-        existingRemoveBtnWrapper.appendChild(removeBtn);
-
-        const addBtn = document.createElement("button");
-        addBtn.type = "button";
-        addBtn.id = "addVariableOprocentowanieBtn";
-        addBtn.classList.add("btn", "btn-functional");
-        addBtn.setAttribute("aria-label", "Dodaj kolejne zmienne oprocentowanie");
-        addBtn.textContent = "Dodaj kolejną zmianę";
-        existingRemoveBtnWrapper.appendChild(addBtn);
-
-        lastGroup.appendChild(existingRemoveBtnWrapper);
-
-        removeBtn.addEventListener("click", () => {
-            lastGroup.remove();
-            updateRatesArray("oprocentowanie");
-            if (wrapper.querySelectorAll(".variable-input-group").length === 0) {
-                resetVariableOprocentowanieSection();
+    const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
+    groups.forEach(group => {
+        let removeBtn = group.querySelector(".remove-btn");
+        if (groups.length > 1) {
+            if (!removeBtn) {
+                removeBtn = document.createElement("button");
+                removeBtn.type = "button";
+                removeBtn.classList.add("remove-btn");
+                removeBtn.innerHTML = "×";
+                group.appendChild(removeBtn);
             }
-            updateVariableOprocentowanieRemoveButtons();
-        });
-
-        addBtn.addEventListener("click", () => {
-            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-            const lastGroup = groups[groups.length - 1];
-            const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
-            const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
-            const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
-            const newStartPeriod = lastPeriodValue + 1;
-
-            if (newStartPeriod <= maxPeriod) {
-                const newGroup = createVariableOprocentowanieGroup(newStartPeriod);
-                elements.variableOprocentowanieWrapper.appendChild(newGroup);
-                initializeVariableOprocentowanieGroup(newGroup);
+            removeBtn.onclick = () => {
+                group.remove();
                 updateRatesArray("oprocentowanie");
                 updateVariableOprocentowanieRemoveButtons();
-            }
-        });
-
-        const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
-        const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
-        const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
-        addBtn.style.display = lastPeriodValue >= maxPeriod ? "none" : "block";
-    }
-}
-
-function toggleAddButtonVisibility() {
-    const addButton = document.getElementById("addVariableOprocentowanieBtn");
-    const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-    const maxPeriod = parseInt(elements.iloscRat?.value) || 420;
-
-    // Jeśli nie ma przycisku "Dodaj" lub nie ma grup, nie rób nic
-    if (!addButton) return;
-
-    if (groups.length === 0) {
-        // Nie ukrywaj przycisku, jeśli nie ma grup - pozwól, aby updateVariableOprocentowanieRemoveButtons zarządzało widocznością
-        return;
-    }
-
-    const lastGroup = groups[groups.length - 1];
-    const lastPeriodInput = lastGroup.querySelector(".variable-cykl");
-    const lastPeriodValue = parseInt(lastPeriodInput.value) || 2;
-
-    addButton.style.display = lastPeriodValue >= maxPeriod ? "none" : "block";
+                updateLoanDetails();
+            };
+        } else if (removeBtn) {
+            removeBtn.remove();
+        }
+    });
 }
 
 function initializeZmienneOprocentowanieToggle() {
-    if (elements.zmienneOprocentowanieBtn) {
-        elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
-            if (elements.zmienneOprocentowanieBtn.checked) {
-                elements.variableOprocentowanieInputs.classList.add("active");
-                elements.variableOprocentowanieWrapper.innerHTML = "";
-                const newGroup = createVariableOprocentowanieGroup(2);
-                elements.variableOprocentowanieWrapper.appendChild(newGroup);
-                initializeVariableOprocentowanieGroup(newGroup);
-                updateRatesArray("oprocentowanie");
-                updateVariableOprocentowanieRemoveButtons();
-            } else {
-                elements.variableOprocentowanieInputs.classList.remove("active");
-                resetVariableOprocentowanieSection();
-                updateVariableOprocentowanieRemoveButtons();
-            }
-            toggleMainFormLock(); // Wywołaj blokadę po zmianie stanu
-        });
-
-        elements.oprocentowanie.addEventListener("change", () => {
-            if (!elements.zmienneOprocentowanieBtn.checked) {
-                elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanie.value;
-            }
-        });
-
-        elements.oprocentowanieRange.addEventListener("change", () => {
-            if (!elements.zmienneOprocentowanieBtn.checked) {
-                elements.oprocentowanie.dataset.lastManualValue = elements.oprocentowanieRange.value;
-            }
-        });
-
-        elements.iloscRat.addEventListener("input", () => {
-            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-            groups.forEach(group => initializeVariableOprocentowanieGroup(group));
-            updateVariableOprocentowanieRemoveButtons();
-        });
-
-        elements.iloscRatRange.addEventListener("input", () => {
-            const groups = elements.variableOprocentowanieWrapper.querySelectorAll(".variable-input-group");
-            groups.forEach(group => initializeVariableOprocentowanieGroup(group));
-            updateVariableOprocentowanieRemoveButtons();
-        });
+    if (!elements.zmienneOprocentowanieBtn || !elements.variableOprocentowanieInputs || !elements.variableOprocentowanieWrapper) {
+        console.error("Brak elementów do zmiennego oprocentowania. Sprawdź HTML.");
+        return;
     }
+
+    elements.zmienneOprocentowanieBtn.addEventListener("change", () => {
+        const isChecked = elements.zmienneOprocentowanieBtn.checked;
+        elements.variableOprocentowanieInputs.style.display = isChecked ? "block" : "none";
+        if (isChecked) {
+            const group = createVariableOprocentowanieGroup();
+            elements.variableOprocentowanieWrapper.appendChild(group);
+            initializeVariableOprocentowanieGroup(group);
+            updateRatesArray("oprocentowanie");
+            updateVariableOprocentowanieRemoveButtons();
+        } else {
+            elements.variableOprocentowanieWrapper.innerHTML = "";
+            state.variableRates = [];
+        }
+        toggleMainFormLock();
+        updateLoanDetails();
+    });
+
+    elements.variableOprocentowanieInputs.querySelector(".variable-add-btn").addEventListener("click", () => {
+        const group = createVariableOprocentowanieGroup();
+        elements.variableOprocentowanieWrapper.appendChild(group);
+        initializeVariableOprocentowanieGroup(group);
+        updateRatesArray("oprocentowanie");
+        updateVariableOprocentowanieRemoveButtons();
+        updateLoanDetails();
+    });
 }
+
+
 
 
 
@@ -1257,304 +1089,24 @@ function initializeZmienneOprocentowanieToggle() {
 // F U N K C J E    P O R Ó W N A J     K R E D Y T
 
 function initializePorownajKredytToggle() {
-    if (elements.porownajKredytBtn) {
-        elements.porownajKredytBtn.addEventListener("change", () => {
-            const isChecked = elements.porownajKredytBtn.checked;
-            if (isChecked) {
-                if (elements.nadplataKredytuBtn) {
-                    elements.nadplataKredytuBtn.checked = false;
-                    elements.nadplataKredytuInputs?.classList.remove("active");
-                    elements.nadplataKredytuContainer.style.display = "none";
-                    resetNadplataKredytuSection();
-                }
-                if (elements.zmienneOprocentowanieBtn) {
-                    elements.zmienneOprocentowanieBtn.checked = false;
-                    elements.variableOprocentowanieInputs.classList.remove("active");
-                    elements.variableOprocentowanieContainer.style.display = "none";
-                    resetVariableOprocentowanieSection();
-                }
-                // Nie wywołuj toggleMainFormLock, tylko ukryj sekcje
-            } else {
-                if (elements.nadplataKredytuContainer) {
-                    elements.nadplataKredytuContainer.style.display = "block";
-                }
-                if (elements.variableOprocentowanieContainer) {
-                    elements.variableOprocentowanieContainer.style.display = "block";
-                }
-            }
-        });
+    if (!elements.porownajKredytBtn) {
+        console.error("Brak elementu porownajKredytBtn. Sprawdź HTML.");
+        return;
     }
-}
 
-
-
-
-
-
-
-
-
-
-// F U N K C J E     W Y N I K I   T A B E L I    I     W Y K R E S U
-
-function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac) {
-    let odsetki = Math.round(pozostalyKapital * currentOprocentowanie);
-    let rataKapitalowa = 0;
-    let rataCalkowita = 0;
-
-    let remainingMonths = iloscRat - miesiac + 1;
-    if (remainingMonths <= 0) remainingMonths = 1;
-
-    if (rodzajRat === "rowne") {
-        if (applyRateReduction && remainingMonths > 0) {
-            const q = 1 + currentOprocentowanie;
-            const numerator = Math.round(pozostalyKapital * (currentOprocentowanie * Math.pow(q, remainingMonths)));
-            const denominator = Math.round(Math.pow(q, remainingMonths) - 1);
-            rataCalkowita = Math.round(numerator / denominator) || 100;
-            if (isNaN(rataCalkowita) || rataCalkowita <= 0) rataCalkowita = 0;
+    elements.porownajKredytBtn.addEventListener("change", () => {
+        const isChecked = elements.porownajKredytBtn.checked;
+        if (isChecked) {
+            console.warn("Funkcjonalność porównania kredytów nie jest jeszcze zaimplementowana. Dodaj logikę w przyszłości.");
+            // Placeholder dla przyszłej implementacji (np. dodanie formularza porównawczego)
+            alert("Porównanie kredytów zostanie zaimplementowane wkrótce!");
         } else {
-            const q = 1 + currentOprocentowanie;
-            rataCalkowita = Math.round((kwota * currentOprocentowanie * Math.pow(q, iloscRat)) / (Math.pow(q, iloscRat) - 1)) || 100;
+            // Opcjonalne czyszczenie interfejsu po wyłączeniu
         }
-        rataKapitalowa = rataCalkowita - odsetki;
-    } else { // malejące
-        rataKapitalowa = Math.round(pozostalyKapital / remainingMonths);
-        rataCalkowita = rataKapitalowa + odsetki;
-    }
-
-    if (rataKapitalowa > pozostalyKapital) {
-        rataKapitalowa = Math.round(pozostalyKapital);
-        rataCalkowita = rataKapitalowa + odsetki;
-    }
-
-    return { rataCalkowita, rataKapitalowa, odsetki };
-}
-
-function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, variableRates = [], overpaymentRates = []) {
-    try {
-        let pozostalyKapital = kwota;
-        let harmonogram = [];
-        let calkowiteOdsetki = 0;
-        let calkowiteNadplaty = 0;
-        let nadplatyJednorazowe = 0;
-        let nadplatyMiesieczne = 0;
-        let nadplatyKwartalne = 0;
-        let nadplatyRoczne = 0;
-        let jednostka = prowizjaJednostka || (elements.jednostkaProwizji ? elements.jednostkaProwizji.value : "procent");
-        let prowizjaKwota = jednostka === "procent" ? Math.round((prowizja / 100) * kwota) : Math.round(prowizja);
-        let oprocentowanieMiesieczne = oprocentowanie / 100 / 12;
-
-        let activeVariableRates = Array.isArray(variableRates) ? [...variableRates].sort((a, b) => a.period - b.period) : [];
-        let activeOverpaymentRates = Array.isArray(overpaymentRates) ? [...overpaymentRates].sort((a, b) => a.start - b.start) : [];
-
-        for (let i = 1; i <= iloscRat && pozostalyKapital > 0; i++) {
-            let currentOprocentowanie = oprocentowanieMiesieczne;
-            let activeRate = activeVariableRates.find(rate => rate.period === i);
-            if (activeRate && !isNaN(activeRate.value)) {
-                currentOprocentowanie = activeRate.value / 100 / 12;
-            }
-
-            let nadplata = 0;
-            let applyRateReduction = false;
-
-            activeOverpaymentRates.forEach(over => {
-                let applies = false;
-                if (over.type === "Jednorazowa" && over.start === i) applies = true;
-                else if (over.type === "Miesięczne" && i >= over.start) applies = true;
-                else if (over.type === "Kwartalne" && i >= over.start && (i - over.start) % 3 === 0) applies = true;
-                else if (over.type === "Roczne" && i >= over.start && (i - over.start) % 12 === 0) applies = true;
-
-                if (applies) {
-                    let currentNadplata = Math.round(over.amount);
-                    if (currentNadplata > pozostalyKapital) currentNadplata = Math.round(pozostalyKapital);
-                    nadplata += currentNadplata;
-
-                    if (over.type === "Jednorazowa") nadplatyJednorazowe += currentNadplata;
-                    else if (over.type === "Miesięczne") nadplatyMiesieczne += currentNadplata;
-                    else if (over.type === "Kwartalne") nadplatyKwartalne += currentNadplata;
-                    else if (over.type === "Roczne") nadplatyRoczne += currentNadplata;
-
-                    calkowiteNadplaty += currentNadplata;
-                    if (over.effect === "Zmniejsz ratę") applyRateReduction = true;
-                }
-            });
-
-            const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
-                kwota,
-                iloscRat,
-                pozostalyKapital,
-                currentOprocentowanie,
-                applyRateReduction,
-                rodzajRat,
-                i
-            );
-
-            pozostalyKapital = Math.max(0, Math.round(pozostalyKapital - rataKapitalowa - nadplata));
-            calkowiteOdsetki += odsetki;
-
-            harmonogram.push({
-                miesiac: i,
-                rata: Math.round(rataCalkowita),
-                oprocentowanie: Math.round(currentOprocentowanie * 12 * 100 * 100) / 100,
-                nadplata: Math.round(nadplata),
-                kapital: Math.round(rataKapitalowa),
-                odsetki: Math.round(odsetki),
-                kapitalDoSplaty: Math.round(pozostalyKapital),
-            });
-
-            if (pozostalyKapital <= 0) {
-                break;
-            }
-        }
-
-        let calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota + calkowiteNadplaty;
-        let pozostaleRaty = harmonogram.length;
-
-        return {
-            harmonogram,
-            calkowityKoszt: Math.round(calkowityKoszt),
-            calkowiteOdsetki: Math.round(calkowiteOdsetki),
-            calkowiteNadplaty: Math.round(calkowiteNadplaty),
-            nadplatyJednorazowe: Math.round(nadplatyJednorazowe),
-            nadplatyMiesieczne: Math.round(nadplatyMiesieczne),
-            nadplatyKwartalne: Math.round(nadplatyKwartalne),
-            nadplatyRoczne: Math.round(nadplatyRoczne),
-            prowizja: Math.round(prowizjaKwota),
-            pozostaleRaty,
-        };
-    } catch (error) {
-        console.error("Błąd podczas obliczania kredytu:", error.message);
-        alert(`Wystąpił błąd podczas obliczania kredytu: ${error.message}`);
-        return null;
-    }
-}
-
-function updateSummaryTable(summary) {
-    if (!summary) return;
-
-    const summaryTableBody = document.querySelector("#summaryTable tbody");
-    if (!summaryTableBody) return;
-
-    summaryTableBody.innerHTML = "";
-
-    const rows = [
-        { label: "Całkowity koszt kredytu", value: summary.calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Całkowite odsetki", value: summary.calkowiteOdsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Prowizja", value: summary.prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Całkowite nadpłaty", value: summary.calkowiteNadplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty jednorazowe", value: summary.nadplatyJednorazowe.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty miesięczne", value: summary.nadplatyMiesieczne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty kwartalne", value: summary.nadplatyKwartalne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty roczne", value: summary.nadplatyRoczne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Okres kredytowania", value: summary.pozostaleRaty + " miesięcy" }
-    ];
-
-    rows.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${row.label}</td>
-            <td>${row.value}</td>
-        `;
-        summaryTableBody.appendChild(tr);
+        toggleMainFormLock();
+        updateLoanDetails();
     });
 }
-
-function updateScheduleTable(schedule) {
-    const scheduleTableBody = document.querySelector("#harmonogramTabela");
-    if (!scheduleTableBody) {
-        console.error("Element #harmonogramTabela nie istnieje. Sprawdź HTML.");
-        return;
-    }
-    if (!schedule || schedule.length === 0) {
-        scheduleTableBody.innerHTML = "<tr><td colspan='7'>Brak danych do wyświetlenia harmonogramu.</td></tr>";
-        return;
-    }
-
-    const fragment = document.createDocumentFragment();
-    schedule.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${row.miesiac}</td>
-            <td>${row.rata.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.oprocentowanie.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.nadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.kapitalDoSplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-        `;
-        fragment.appendChild(tr);
-    });
-
-    scheduleTableBody.innerHTML = "";
-    scheduleTableBody.appendChild(fragment);
-
-    const table = document.querySelector("table.table-striped");
-    const tableWrapper = document.querySelector(".harmonogram-header").nextElementSibling;
-    if (table && tableWrapper) {
-        tableWrapper.scrollTop = table.offsetTop;
-    }
-}
-
-function updateLoanDetails() {
-    const kwota = parseFloat(elements.kwota?.value) || 500000;
-    const oprocentowanie = parseFloat(elements.oprocentowanie?.value) || 7;
-    const iloscRat = parseInt(elements.iloscRat?.value) || 360;
-    const rodzajRat = elements.rodzajRat?.value || "rowne";
-    const prowizja = parseFloat(elements.prowizja?.value) || 0;
-    const prowizjaJednostka = elements.jednostkaProwizji?.value || "procent";
-
-    const loanDetails = calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, prowizjaJednostka, state.variableRates, state.overpaymentRates);
-
-    if (loanDetails) {
-        updateSummaryTable(loanDetails);
-        updateScheduleTable(loanDetails.harmonogram);
-        updateResults(loanDetails);
-    }
-    if (elements.nadplataKredytuWrapper) {
-        updateNadplataKredytuRemoveButtons();
-    }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const debouncedUpdateLoanDetails = debounce(updateLoanDetails, 300);
-
-    const inputs = document.querySelectorAll(".form-control, .form-select");
-    inputs.forEach(input => {
-        input.addEventListener("input", debouncedUpdateLoanDetails);
-        input.addEventListener("change", debouncedUpdateLoanDetails);
-    });
-
-    if (elements.nadplataKredytuWrapper) {
-        elements.nadplataKredytuWrapper.addEventListener("input", debouncedUpdateLoanDetails);
-        elements.nadplataKredytuWrapper.addEventListener("change", debouncedUpdateLoanDetails);
-    }
-
-    updateLoanDetails();
-});
-
-function updateResults(data) {
-    if (!data) return;
-
-    elements.valueKapital.textContent = (data.harmonogram.reduce((sum, row) => sum + row.kapital, 0)).toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.valueOdsetki.textContent = data.calkowiteOdsetki.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.valueNadplata.textContent = data.calkowiteNadplaty.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.valueProwizja.textContent = data.prowizja.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-    elements.okresPoNadplacie.textContent = data.pozostaleRaty + " miesięcy (" + (data.pozostaleRaty / 12).toFixed(1) + " lat)";
-    elements.koszt.textContent = data.calkowityKoszt.toLocaleString("pl-PL", { minimumFractionDigits: 2 }) + " zł";
-}
-
-function toggleHarmonogram(contentId) {
-    const content = document.getElementById(contentId);
-    const toggleBtn = content.previousElementSibling.querySelector('.btn-toggle');
-    if (content.style.display === 'none' || content.style.display === '') {
-        content.style.display = 'block';
-        toggleBtn.textContent = 'Harmonogram spłat ▼';
-    } else {
-        content.style.display = 'none';
-        toggleBtn.textContent = 'Harmonogram spłat ►';
-    }
-}
-
 
 
 
@@ -1567,35 +1119,61 @@ function toggleHarmonogram(contentId) {
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
 
-let currentZoom = 1;
-const zoomStep = 0.1;
-const minZoom = 0.5;
-const maxZoom = 2;
-
 function updateZoom() {
     const container = document.querySelector('.container');
     if (!container) {
         console.error("Element .container nie został znaleziony!");
         return;
     }
-    container.style.transform = `scale(${currentZoom})`;
+    const previousZoom = state.zoomLevel;
+    container.style.transform = `scale(${state.zoomLevel})`;
     container.style.transformOrigin = 'top center';
+    updateCalculatorPosition(previousZoom);
 }
 
-function showForm() {
-    if (elements.formSection && elements.resultSection) {
-        elements.resultSection.style.display = "none";
-        elements.formSection.style.display = "block";
-        elements.resultSection.classList.remove("active");
-        currentZoom = 1; // Reset zoomu
-        updateZoom();
-        console.log("Powrót do edycji wykonany, zoom zresetowany do 1");
+function toggleCalculator() {
+    if (!elements.calculatorBox) {
+        console.error("Element calculatorBox nie został znaleziony!");
+        return;
+    }
+    const isVisible = elements.calculatorBox.style.display === 'block';
+    if (isVisible) {
+        elements.calculatorBox.style.display = 'none';
     } else {
-        console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
+        elements.calculatorBox.style.display = 'block';
+        const windowWidth = window.innerWidth / state.zoomLevel;
+        const windowHeight = window.innerHeight / state.zoomLevel;
+        const calcWidth = elements.calculatorBox.offsetWidth;
+        const calcHeight = elements.calculatorBox.offsetHeight;
+        elements.calculatorBox.style.left = ((windowWidth - calcWidth) / 2) + 'px';
+        elements.calculatorBox.style.top = ((windowHeight - calcHeight) / 2) + 'px';
     }
 }
 
+function updateCalculatorPosition(previousZoom) {
+    if (!elements.calculatorBox) return;
+    if (elements.calculatorBox.style.display === 'block') {
+        const calcRect = elements.calculatorBox.getBoundingClientRect();
+        const zoomRatio = previousZoom / state.zoomLevel;
+        const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
+        const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
+        elements.calculatorBox.style.left = (newX / state.zoomLevel) + 'px';
+        elements.calculatorBox.style.top = (newY / state.zoomLevel) + 'px';
+    }
+}
+
+function generatePDF() {
+    alert("Funkcja generowania PDF nie jest jeszcze zaimplementowana.");
+    // W przyszłości można tu dodać logikę generowania PDF, np. za pomocą biblioteki jsPDF
+}
+
 function initializeButtons() {
+    if (!elements.obliczBtn || !elements.generatePdfBtn || !elements.zoomInBtn || 
+        !elements.zoomOutBtn || !elements.toggleDarkModeBtn) {
+        console.error("Brak wymaganych przycisków. Sprawdź HTML.");
+        return;
+    }
+
     elements.obliczBtn.addEventListener("click", () => {
         const kwota = parseFloat(elements.kwota.value) || 500000;
         const iloscRat = parseInt(elements.iloscRat.value) || 360;
@@ -1642,18 +1220,16 @@ function initializeButtons() {
     window.showForm = showForm;
 
     elements.zoomInBtn.addEventListener("click", () => {
-        if (currentZoom < maxZoom) {
-            currentZoom = Math.min(maxZoom, currentZoom + zoomStep);
+        if (state.zoomLevel < APP_CONSTANTS.ZOOM_MAX) {
+            state.zoomLevel = Math.min(APP_CONSTANTS.ZOOM_MAX, state.zoomLevel + APP_CONSTANTS.ZOOM_STEP);
             updateZoom();
-            console.log(`Zoom zwiększony do: ${currentZoom}`);
         }
     });
 
     elements.zoomOutBtn.addEventListener("click", () => {
-        if (currentZoom > minZoom) {
-            currentZoom = Math.max(minZoom, currentZoom - zoomStep);
+        if (state.zoomLevel > APP_CONSTANTS.ZOOM_MIN) {
+            state.zoomLevel = Math.max(APP_CONSTANTS.ZOOM_MIN, state.zoomLevel - APP_CONSTANTS.ZOOM_STEP);
             updateZoom();
-            console.log(`Zoom zmniejszony do: ${currentZoom}`);
         }
     });
 
@@ -1667,6 +1243,324 @@ function initializeButtons() {
         }
     });
 }
+
+function showForm() {
+    if (!elements.formSection || !elements.resultSection) {
+        console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
+        return;
+    }
+    elements.resultSection.style.display = "none";
+    elements.formSection.style.display = "block";
+    elements.resultSection.classList.remove("active");
+    state.zoomLevel = 1;
+    updateZoom();
+}
+
+
+
+
+
+
+
+
+
+
+// F U N K C J E     O B L I C Z E N I A    K R E D Y T U
+
+function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, jednostkaProwizji, variableRates = [], overpaymentRates = []) {
+    if (kwota < APP_CONSTANTS.KWOTA_MIN || kwota > APP_CONSTANTS.KWOTA_MAX || 
+        iloscRat < APP_CONSTANTS.ILOSC_RAT_MIN || iloscRat > APP_CONSTANTS.ILOSC_RAT_MAX || 
+        oprocentowanie < APP_CONSTANTS.OPROCENTOWANIE_MIN || oprocentowanie > APP_CONSTANTS.OPROCENTOWANIE_MAX) {
+        console.error("Nieprawidłowe dane wejściowe dla kredytu:", { kwota, iloscRat, oprocentowanie });
+        return null;
+    }
+
+    let prowizjaKwota = 0;
+    if (jednostkaProwizji === "procent") {
+        prowizjaKwota = (kwota * prowizja) / 100;
+    } else {
+        prowizjaKwota = prowizja;
+    }
+
+    let kapitalDoSplaty = kwota;
+    let calkowiteOdsetki = 0;
+    let calkowiteNadplaty = 0;
+    let nadplatyJednorazowe = 0;
+    let nadplatyMiesieczne = 0;
+    let nadplatyKwartalne = 0;
+    let nadplatyRoczne = 0;
+    let harmonogram = [];
+    let pozostaleRaty = iloscRat;
+
+    const monthlyRateBase = oprocentowanie / 100 / 12;
+    let monthlyRate = monthlyRateBase;
+
+    for (let miesiac = 1; miesiac <= iloscRat; miesiac++) {
+        const variableRate = variableRates.find(rate => rate.period === miesiac);
+        if (variableRate) {
+            monthlyRate = variableRate.value / 100 / 12;
+        }
+
+        let nadplata = 0;
+        let overpaymentApplied = false;
+        overpaymentRates.forEach(rate => {
+            const shouldApply = 
+                (rate.type === "Jednorazowa" && rate.start === miesiac) ||
+                (rate.type === "Miesięczne" && miesiac >= rate.start) ||
+                (rate.type === "Kwartalne" && miesiac >= rate.start && (miesiac - rate.start) % 3 === 0) ||
+                (rate.type === "Roczne" && miesiac >= rate.start && (miesiac - rate.start) % 12 === 0);
+
+            if (shouldApply) {
+                nadplata += rate.amount;
+                overpaymentApplied = true;
+
+                if (rate.type === "Jednorazowa") nadplatyJednorazowe += rate.amount;
+                else if (rate.type === "Miesięczne") nadplatyMiesieczne += rate.amount;
+                else if (rate.type === "Kwartalne") nadplatyKwartalne += rate.amount;
+                else if (rate.type === "Roczne") nadplatyRoczne += rate.amount;
+            }
+        });
+
+        calkowiteNadplaty += nadplata;
+
+        if (overpaymentApplied) {
+            kapitalDoSplaty -= nadplata;
+            if (kapitalDoSplaty <= 0) {
+                kapitalDoSplaty = 0;
+                pozostaleRaty = miesiac;
+                break;
+            }
+        }
+
+        const odsetki = kapitalDoSplaty * monthlyRate;
+        calkowiteOdsetki += odsetki;
+
+        let rataKapitalowa;
+        let rata;
+        if (rodzajRat === "rowne" && kapitalDoSplaty > 0) {
+            const q = 1 + monthlyRate;
+            const mianownik = Math.pow(q, iloscRat - (miesiac - 1)) - 1;
+            rata = (kapitalDoSplaty * Math.pow(q, iloscRat - (miesiac - 1)) * monthlyRate) / mianownik;
+            rataKapitalowa = rata - odsetki;
+        } else {
+            rataKapitalowa = kapitalDoSplaty / (iloscRat - (miesiac - 1));
+            rata = rataKapitalowa + odsetki;
+        }
+
+        if (kapitalDoSplaty <= 0) {
+            rata = 0;
+            rataKapitalowa = 0;
+        }
+
+        kapitalDoSplaty -= rataKapitalowa;
+        if (kapitalDoSplaty < 0.01) kapitalDoSplaty = 0;
+
+        harmonogram.push({
+            miesiac,
+            rata: rata > 0 ? rata : 0,
+            oprocentowanie: (monthlyRate * 12 * 100),
+            nadplata,
+            kapital: rataKapitalowa > 0 ? rataKapitalowa : 0,
+            odsetki,
+            kapitalDoSplaty: kapitalDoSplaty > 0 ? kapitalDoSplaty : 0,
+        });
+
+        if (kapitalDoSplaty <= 0) {
+            pozostaleRaty = miesiac;
+            break;
+        }
+    }
+
+    const calkowityKoszt = kwota + calkowiteOdsetki + prowizjaKwota - calkowiteNadplaty;
+
+    return {
+        kwota,
+        iloscRat,
+        oprocentowanie,
+        rodzajRat,
+        prowizja: prowizjaKwota,
+        calkowityKoszt,
+        calkowiteOdsetki,
+        calkowiteNadplaty,
+        nadplatyJednorazowe,
+        nadplatyMiesieczne,
+        nadplatyKwartalne,
+        nadplatyRoczne,
+        pozostaleRaty,
+        harmonogram,
+    };
+}
+
+
+
+
+
+
+
+
+// F U N K C J A    A K T U A L I Z A C J I    W Y N I K Ó W
+
+function updateResults(data) {
+    if (!data || !elements.valueKapital || !elements.valueOdsetki || !elements.valueNadplata || 
+        !elements.valueProwizja || !elements.okresPoNadplacie || !elements.koszt) {
+        console.error("Brak danych lub wymaganych elementów wyników. Sprawdź dane i HTML.", { data, elements });
+        return;
+    }
+
+    elements.valueKapital.textContent = data.kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+    elements.valueOdsetki.textContent = data.calkowiteOdsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+    elements.valueNadplata.textContent = data.calkowiteNadplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+    elements.valueProwizja.textContent = data.prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+    elements.okresPoNadplacie.textContent = data.pozostaleRaty + " miesięcy";
+    elements.koszt.textContent = data.calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+}
+
+function updateSummaryTable(summary) {
+    if (!summary) return;
+
+    const summaryTable = document.querySelector("#summaryTable");
+    if (!summaryTable) {
+        console.error("Element #summaryTable nie istnieje. Sprawdź HTML.");
+        return;
+    }
+
+    const summaryTableBody = summaryTable.querySelector("tbody");
+    if (!summaryTableBody) {
+        console.error("Element tbody w #summaryTable nie istnieje. Sprawdź HTML.");
+        return;
+    }
+
+    summaryTableBody.innerHTML = "";
+
+    const rows = [
+        { label: "Całkowity koszt kredytu", value: summary.calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Całkowite odsetki", value: summary.calkowiteOdsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Prowizja", value: summary.prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Całkowite nadpłaty", value: summary.calkowiteNadplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty jednorazowe", value: summary.nadplatyJednorazowe.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty miesięczne", value: summary.nadplatyMiesieczne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty kwartalne", value: summary.nadplatyKwartalne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty roczne", value: summary.nadplatyRoczne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Okres kredytowania", value: summary.pozostaleRaty + " miesięcy" }
+    ];
+
+    rows.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${row.label}</td>
+            <td>${row.value}</td>
+        `;
+        summaryTableBody.appendChild(tr);
+    });
+}
+
+function updateScheduleTable(schedule) {
+    if (!elements.harmonogramTabela) {
+        console.error("Element #harmonogramTabela nie istnieje. Sprawdź HTML.");
+        return;
+    }
+    if (!schedule || schedule.length === 0) {
+        elements.harmonogramTabela.innerHTML = "<tr><td colspan='7'>Brak danych do wyświetlenia harmonogramu.</td></tr>";
+        return;
+    }
+
+    const fragment = document.createDocumentFragment();
+    schedule.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${row.miesiac}</td>
+            <td>${row.rata.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>${row.oprocentowanie.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>${row.nadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>${row.kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>${row.odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>${row.kapitalDoSplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+        `;
+        fragment.appendChild(tr);
+    });
+
+    elements.harmonogramTabela.innerHTML = "";
+    elements.harmonogramTabela.appendChild(fragment);
+
+    const table = document.querySelector("table.table-striped");
+    const tableWrapper = document.querySelector(".harmonogram-header")?.nextElementSibling;
+    if (table && tableWrapper) {
+        tableWrapper.scrollTop = table.offsetTop;
+    }
+}
+
+function updateChart(data) {
+    // Placeholder dla przyszłej implementacji wykresu
+    console.warn("Funkcja updateChart nie jest jeszcze zaimplementowana.");
+    // W przyszłości można tu dodać logikę generowania wykresu, np. za pomocą Chart.js
+}
+
+function updateLoanDetails() {
+    const kwota = parseFloat(elements.kwota.value) || state.lastFormData.kwota;
+    const iloscRat = parseInt(elements.iloscRat.value) || state.lastFormData.iloscRat;
+    const oprocentowanie = parseFloat(elements.oprocentowanie.value) || state.lastFormData.oprocentowanie;
+    const rodzajRat = elements.rodzajRat.value || state.lastFormData.rodzajRat;
+    const prowizja = parseFloat(elements.prowizja.value) || state.lastFormData.prowizja;
+    const prowizjaJednostka = elements.jednostkaProwizji.value || state.lastFormData.jednostkaProwizji;
+
+    const variableRates = state.variableRates;
+    const overpaymentRates = state.overpaymentRates;
+
+    const data = calculateLoan(
+        kwota,
+        oprocentowanie,
+        iloscRat,
+        rodzajRat,
+        prowizja,
+        prowizjaJednostka,
+        variableRates,
+        overpaymentRates
+    );
+
+    if (data) {
+        state.lastFormData = data;
+        updateResults(data);
+        updateSummaryTable(data);
+        updateScheduleTable(data.harmonogram);
+        updateChart(data);
+    }
+}
+
+function toggleMainFormLock() {
+    const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
+    const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
+    const isPorownajKredytActive = elements.porownajKredytBtn?.checked || false;
+    const shouldLock = isNadplataActive || isZmienneOprocentowanieActive;
+
+    const mainFormInputs = [
+        { input: elements.kwota, group: elements.kwota?.closest('.form-group') },
+        { input: elements.kwotaRange, group: elements.kwotaRange?.closest('.form-group') },
+        { input: elements.iloscRat, group: elements.iloscRat?.closest('.form-group') },
+        { input: elements.iloscRatRange, group: elements.iloscRatRange?.closest('.form-group') },
+        { input: elements.oprocentowanie, group: elements.oprocentowanie?.closest('.form-group') },
+        { input: elements.oprocentowanieRange, group: elements.oprocentowanieRange?.closest('.form-group') },
+        { input: elements.rodzajRat, group: elements.rodzajRat?.closest('.form-group') },
+        { input: elements.prowizja, group: elements.prowizja?.closest('.form-group') },
+        { input: elements.prowizjaRange, group: elements.prowizjaRange?.closest('.form-group') },
+        { input: elements.jednostkaProwizji, group: elements.jednostkaProwizji?.closest('.form-group') }
+    ];
+
+    mainFormInputs.forEach(({ input, group }, index) => {
+        if (!input || !group) {
+            console.warn(`Element ${index} nie znaleziony:`, { input, group });
+            return;
+        }
+        group.classList.toggle("locked", shouldLock);
+        setInputLockStyles(input, shouldLock);
+    });
+}
+
+
+
+
+
+
+
 
 
 
@@ -1930,6 +1824,17 @@ function initializeButtons() {
 // I N I C J A L I Z A C J A
 
 function initializeApp() {
+    if (!elements.formSection || !elements.resultSection || !elements.kwota || !elements.kwotaRange || 
+        !elements.iloscRat || !elements.iloscRatRange || !elements.oprocentowanie || !elements.oprocentowanieRange || 
+        !elements.rodzajRat || !elements.prowizja || !elements.prowizjaRange || !elements.jednostkaProwizji || 
+        !elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements.nadplataKredytuWrapper || 
+        !elements.zmienneOprocentowanieBtn || !elements.variableOprocentowanieInputs || !elements.variableOprocentowanieWrapper || 
+        !elements.obliczBtn || !elements.generatePdfBtn || !elements.harmonogramTabela || !elements.zoomInBtn || 
+        !elements.zoomOutBtn || !elements.toggleDarkModeBtn || !elements.porownajKredytBtn) {
+        console.error("Brak wymaganych elementów w aplikacji. Sprawdź HTML.");
+        return;
+    }
+
     initializeInputHandling();
     initializeNadplataKredytuToggle();
     initializeZmienneOprocentowanieToggle();
@@ -1964,6 +1869,12 @@ function initializeApp() {
         elements.resultSection.classList.remove("active");
         elements.formSection.style.display = "block";
     }
+
+    // Inicjalizacja po załadowaniu DOM
+    document.addEventListener("DOMContentLoaded", () => {
+        toggleMainFormLock();
+    });
 }
 
-document.addEventListener("DOMContentLoaded", initializeApp);
+// Uruchom aplikację
+initializeApp();
