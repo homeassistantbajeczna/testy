@@ -1049,8 +1049,8 @@ function updateZoom() {
     const previousZoom = state.zoomLevel;
     container.style.transform = `scale(${state.zoomLevel})`;
     container.style.transformOrigin = 'top center';
-    container.style.transition = 'transform 0.2s ease'; // Płynne przejście
-    updateCalculatorPosition(previousZoom); // Utrzymujemy obsługę pozycji kalkulatora
+    container.style.transition = 'transform 0.2s ease';
+    // updateCalculatorPosition(previousZoom); // Zakomentuj tymczasowo
     console.log(`Zoom ustawiony na: ${state.zoomLevel}`);
 }
 
@@ -1705,12 +1705,15 @@ document.addEventListener('touchend', () => {
 
 function updateCalculatorPosition(previousZoom) {
     if (calculatorBox.style.display === 'block') {
+        console.log("Aktualizuję pozycję kalkulatora...");
         const calcRect = calculatorBox.getBoundingClientRect();
         const zoomRatio = previousZoom / state.zoomLevel;
         const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
         const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
         calculatorBox.style.left = (newX / state.zoomLevel) + 'px';
         calculatorBox.style.top = (newY / state.zoomLevel) + 'px';
+    } else {
+        console.log("Kalkulator jest ukryty, pomijam aktualizację pozycji.");
     }
 }
 
@@ -1729,15 +1732,7 @@ function updateCalculatorPosition(previousZoom) {
 
 function initializeApp() {
     console.log("Inicjalizacja aplikacji...");
-    if (!elements.formSection || !elements.resultSection || !elements.kwota || !elements.kwotaRange || 
-        !elements.iloscRat || !elements.iloscRatRange || !elements.oprocentowanie || !elements.oprocentowanieRange || 
-        !elements.rodzajRat || !elements.prowizja || !elements.prowizjaRange || !elements.jednostkaProwizji || 
-        !elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements.nadplataKredytuWrapper || 
-        !elements.zmienneOprocentowanieBtn || !elements.variableOprocentowanieInputs || !elements.variableOprocentowanieWrapper || 
-        !elements.obliczBtn || !elements.generatePdfBtn || !elements.harmonogramTabela || !elements.zoomInBtn || 
-        !elements.zoomOutBtn || !elements.toggleDarkModeBtn || !elements.porownajKredytBtn) {
-        console.error("Brak wymaganych elementów w aplikacji. Sprawdź HTML.");
-        return;
+    
     }
 
     initializeInputHandling();
