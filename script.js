@@ -1042,12 +1042,22 @@ function updateZoom() {
     const previousZoom = state.zoomLevel;
     container.style.transform = `scale(${state.zoomLevel})`;
     container.style.transformOrigin = 'top center';
-    container.style.transition = 'transform 0.2s ease';
-    updateCalculatorPosition(previousZoom);
+    container.style.transition = 'transform 0.2s ease'; // Płynne przejście
+    updateCalculatorPosition(previousZoom); // Utrzymujemy obsługę pozycji kalkulatora
+    console.log(`Zoom ustawiony na: ${state.zoomLevel}`);
 }
 
-function generatePDF() {
-    alert("Funkcja generowania PDF nie jest jeszcze zaimplementowana.");
+function showForm() {
+    if (!elements.formSection || !elements.resultSection) {
+        console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
+        return;
+    }
+    elements.resultSection.style.display = "none";
+    elements.formSection.style.display = "block";
+    elements.resultSection.classList.remove("active");
+    state.zoomLevel = 1; // Reset zoomu
+    updateZoom();
+    console.log("Powrót do edycji wykonany, zoom zresetowany do 1");
 }
 
 function initializeButtons() {
@@ -1109,6 +1119,7 @@ function initializeButtons() {
         if (state.zoomLevel < APP_CONSTANTS.ZOOM_MAX) {
             state.zoomLevel = Math.min(APP_CONSTANTS.ZOOM_MAX, state.zoomLevel + APP_CONSTANTS.ZOOM_STEP);
             updateZoom();
+            console.log(`Zoom zwiększony do: ${state.zoomLevel}`);
         }
     });
 
@@ -1116,6 +1127,7 @@ function initializeButtons() {
         if (state.zoomLevel > APP_CONSTANTS.ZOOM_MIN) {
             state.zoomLevel = Math.max(APP_CONSTANTS.ZOOM_MIN, state.zoomLevel - APP_CONSTANTS.ZOOM_STEP);
             updateZoom();
+            console.log(`Zoom zmniejszony do: ${state.zoomLevel}`);
         }
     });
 
@@ -1128,18 +1140,6 @@ function initializeButtons() {
             updateChart(state.lastFormData);
         }
     });
-}
-
-function showForm() {
-    if (!elements.formSection || !elements.resultSection) {
-        console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
-        return;
-    }
-    elements.resultSection.style.display = "none";
-    elements.formSection.style.display = "block";
-    elements.resultSection.classList.remove("active");
-    state.zoomLevel = 1;
-    updateZoom();
 }
 
 
@@ -1706,6 +1706,17 @@ function updateCalculatorPosition(previousZoom) {
         calculatorBox.style.top = (newY / state.zoomLevel) + 'px';
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // I N I C J A L I Z A C J A
 
