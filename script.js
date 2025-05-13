@@ -1113,6 +1113,16 @@ function updateNadplataKredytuRemoveButtons() {
         wrapper.appendChild(newGroup);
         initializeNadplataKredytuGroup(newGroup);
 
+        if (hasCyclicOverpayment) {
+            const typeSelect = newGroup.querySelector(".nadplata-type-select");
+            Array.from(typeSelect.options).forEach(option => {
+                if (["Miesięczne", "Kwartalne", "Roczne"].includes(option.value)) {
+                    option.disabled = true;
+                }
+            });
+            typeSelect.value = "Jednorazowa";
+        }
+
         updateRatesArray("nadplata");
         updateAllOverpaymentLimits();
         updateNadplataKredytuRemoveButtons();
@@ -1138,9 +1148,7 @@ function updateNadplataKredytuRemoveButtons() {
         const currentPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.value) || 1;
         const maxPeriodStart = parseInt(lastGroup.querySelector(".variable-cykl-start")?.max) || totalMonths;
 
-        if (hasCyclicOverpayment) {
-            addBtn.style.display = "none";
-        } else if (currentOverpayment >= maxOverpayment || (currentPeriodStart >= maxPeriodStart && loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty <= 0)) {
+        if (currentOverpayment >= maxOverpayment || (currentPeriodStart >= maxPeriodStart && loanDetails.harmonogram[loanDetails.harmonogram.length - 1]?.kapitalDoSplaty <= 0)) {
             addBtn.style.display = "none";
         } else {
             addBtn.style.display = "block";
