@@ -1608,7 +1608,7 @@ function initializePorownajKredytToggle() {
 
 // F U N K C J E     W Y N I K I   T A B E L I    I     W Y K R E S U
 
-function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac, activeOverpaymentEffect) {
+function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocentowanie, applyRateReduction, rodzajRat, miesiac, activeOverpaymentEffect = null) {
     let odsetki = pozostalyKapital * currentOprocentowanie;
     let rataKapitalowa = 0;
     let rataCalkowita = 0;
@@ -1916,7 +1916,6 @@ function toggleHarmonogram(contentId) {
         toggleBtn.textContent = 'Harmonogram spłat ►';
     }
 }
-
 
 
 
