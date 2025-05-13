@@ -1631,9 +1631,9 @@ function calculateInstallment(kwota, iloscRat, pozostalyKapital, currentOprocent
         rataKapitalowa = rataCalkowita - odsetki;
     } else { // malejące
         if (applyRateReduction && activeOverpaymentEffect === "Zmniejsz ratę") {
-            rataKapitalowa = pozostalyKapital / remainingMonths;
+            rataKapitalowa = Math.max(0, pozostalyKapital / remainingMonths); // Zapobiega ujemnym wartościom
         } else {
-            rataKapitalowa = kwota / iloscRat; // Używamy oryginalnej części kapitałowej dla "Skróć okres"
+            rataKapitalowa = kwota / iloscRat; // Oryginalna część kapitałowa
         }
         rataCalkowita = rataKapitalowa + odsetki;
     }
@@ -1670,7 +1670,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
 
         let lastNadplataMonth = 0;
         let applyRateReduction = false;
-        let lastEffect = null; // Przechowujemy ostatni efekt nadpłaty
+        let lastEffect = null;
 
         for (let i = 1; i <= iloscRat; i++) {
             let currentOprocentowanie = oprocentowanieMiesieczne;
@@ -1708,7 +1708,7 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     if (over.effect === "Zmniejsz ratę") lastNadplataMonth = i;
 
                     activeOverpayment = over;
-                    lastEffect = over.effect; // Zapamiętujemy ostatni efekt nadpłaty
+                    lastEffect = over.effect;
                 }
             });
 
@@ -1744,13 +1744,14 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                 kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
             });
 
-            if (pozostalyKapital <= 0 && (!activeOverpayment || activeOverpayment?.effect === "Skróć okres")) {
+            // Przerwanie tylko dla "Skróć okres"
+            if (pozostalyKapital <= 0 && lastEffect === "Skróć okres") {
                 pozostaleRaty = i;
                 break;
             }
         }
 
-        // Dla "Zmniejsz ratę" upewniamy się, że harmonogram ma pełne 360 rat
+        // Dla "Zmniejsz ratę" zawsze wypełniamy harmonogram do pełnej liczby rat
         if (lastEffect === "Zmniejsz ratę" && harmonogram.length < iloscRat) {
             for (let i = harmonogram.length + 1; i <= iloscRat; i++) {
                 let currentOprocentowanie = oprocentowanieMiesieczne;
@@ -1759,15 +1760,30 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, pro
                     currentOprocentowanie = activeRate.value / 100 / 12;
                 }
 
+                const { rataCalkowita, rataKapitalowa, odsetki } = calculateInstallment(
+                    kwota,
+                    iloscRat,
+                    pozostalyKapital,
+                    currentOprocentowanie,
+                    true, // applyRateReduction pozostaje true po nadpłacie
+                    rodzajRat,
+                    i,
+                    lastEffect
+                );
+
+                calkowiteOdsetki += odsetki;
+
                 harmonogram.push({
                     miesiac: i,
-                    rata: 0,
+                    rata: parseFloat(rataCalkowita.toFixed(2)),
                     oprocentowanie: parseFloat((currentOprocentowanie * 12 * 100).toFixed(2)),
                     nadplata: 0,
-                    kapital: 0,
-                    odsetki: 0,
-                    kapitalDoSplaty: 0,
+                    kapital: parseFloat(rataKapitalowa.toFixed(2)),
+                    odsetki: parseFloat(odsetki.toFixed(2)),
+                    kapitalDoSplaty: parseFloat(pozostalyKapital.toFixed(2)),
                 });
+
+                pozostalyKapital -= rataKapitalowa;
             }
             pozostaleRaty = iloscRat;
         }
