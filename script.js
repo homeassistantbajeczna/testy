@@ -472,6 +472,7 @@ function syncProwizjaWithKwota(reset = false) {
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
+
 if (!elements.nadplataKredytuBtn || !elements.nadplataKredytuInputs || !elements.nadplataKredytuWrapper || !elements.kwota || !elements.oprocentowanie || !elements.iloscRat || !elements.rodzajRat) {
     console.error("Niektóre elementy DOM nie zostały znalezione:", {
         nadplataKredytuBtn: elements.nadplataKredytuBtn,
@@ -563,15 +564,14 @@ function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null
 }
 
 function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymentType, overpayments, targetMonth) {
-    let remainingCapital = Math.round(loanAmount); // Zaokrąglamy na starcie
+    let remainingCapital = loanAmount;
     let monthlyRate = interestRate / 100 / 12;
     let monthlyPayment = 0;
 
     if (paymentType === "rowne") {
-        // Używamy zaokrąglenia, aby uniknąć błędów precyzji
-        const numerator = Math.round(loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)));
-        const denominator = Math.round(Math.pow(1 + monthlyRate, totalMonths) - 1);
-        monthlyPayment = Math.round(numerator / denominator) || 100; // Minimalna rata
+        monthlyPayment =
+            loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+            (Math.pow(1 + monthlyRate, totalMonths) - 1);
     }
 
     let overpaymentMap = new Map();
@@ -582,25 +582,27 @@ function calculateRemainingCapital(loanAmount, interestRate, totalMonths, paymen
     });
 
     for (let month = 1; month <= targetMonth + 1 && remainingCapital > 0; month++) {
-        let interest = Math.round(remainingCapital * monthlyRate); // Zaokrąglamy odsetki
+        let interest = remainingCapital * monthlyRate;
         let capitalPayment = 0;
 
         if (paymentType === "rowne") {
-            capitalPayment = Math.round(monthlyPayment - interest);
+            capitalPayment = monthlyPayment - interest;
         } else {
-            capitalPayment = Math.round(loanAmount / totalMonths);
-            monthlyPayment = Math.round(capitalPayment + interest);
+            capitalPayment = loanAmount / totalMonths;
+            monthlyPayment = capitalPayment + interest;
         }
 
         if (capitalPayment > remainingCapital) capitalPayment = remainingCapital;
 
-        remainingCapital = Math.max(0, Math.round(remainingCapital - capitalPayment));
+        remainingCapital -= capitalPayment;
 
         if (overpaymentMap.has(month)) {
             let overpaymentAmount = overpaymentMap.get(month);
             if (overpaymentAmount > remainingCapital) overpaymentAmount = remainingCapital;
-            remainingCapital = Math.max(0, Math.round(remainingCapital - overpaymentAmount));
+            remainingCapital -= overpaymentAmount;
         }
+
+        if (remainingCapital < 0) remainingCapital = 0;
     }
 
     return Math.max(0, Math.round(remainingCapital));
@@ -671,32 +673,50 @@ function updateOverpaymentLimit(input, range, group, preserveValue = true, isCha
         currentOverpayments
     );
 
+    // Sprawdź poprawność loanDetails.pozostaleRaty
     if (loanDetails && loanDetails.pozostaleRaty > 0) {
-        maxPeriodStart = Math.min(totalMonths, loanDetails.pozostaleRaty);
+        maxPeriodStart = loanDetails.pozostaleRaty;
         if (maxPeriodStart < periodStart) maxPeriodStart = periodStart;
-    } else {
-        // Zapobieganie błędnym wartościom
-        maxPeriodStart = Math.min(totalMonths, Math.floor(remainingCapital / (overpaymentAmount || 100)) + periodStart);
     }
 
-    if (maxPeriodStart > totalMonths || maxPeriodStart <= 0) {
-        maxPeriodStart = totalMonths; // Ograniczenie do maksymalnego okresu
+    // Jeśli MaxPeriodStart jest za duży lub błędny, wykonaj testowe obliczenie z periodStart=1
+    if (overpaymentAmount > 0 && (maxPeriodStart > totalMonths / 2 || !loanDetails || loanDetails.pozostaleRaty <= 0)) {
+        let testOverpayments = [...previousOverpayments, { type, start: 1, amount: overpaymentAmount, effect }];
+        const testLoanDetails = calculateLoan(
+            loanAmount,
+            interestRate,
+            totalMonths,
+            paymentType,
+            parseFloat(elements.prowizja?.value) || 0,
+            elements.jednostkaProwizji?.value || "procent",
+            state.variableRates,
+            testOverpayments
+        );
+        if (testLoanDetails && testLoanDetails.pozostaleRaty > 0) {
+            maxPeriodStart = testLoanDetails.pozostaleRaty;
+        }
     }
 
     let minPeriodStart = currentIndex > 0 ? (parseInt(allGroups[currentIndex - 1].querySelector(".variable-cykl-start")?.value) || 1) + 1 : 1;
-    if (minPeriodStart > maxPeriodStart) minPeriodStart = 1;
+    if (minPeriodStart > maxPeriodStart) minPeriodStart = 1; // Zapobiega ujemnemu zakresowi
 
     // Ustawiamy zakres suwaka dynamicznie
     periodStartInput.min = minPeriodStart;
     periodStartRange.min = minPeriodStart;
-    periodStartInput.max = maxPeriodStart;
-    periodStartRange.max = maxPeriodStart;
+    periodStartInput.max = maxPeriodStart; // Natychmiastowa aktualizacja max dla input
+    periodStartRange.max = maxPeriodStart; // Natychmiastowa aktualizacja max dla range
 
-    // Aktualizujemy wartości i wymuszamy synchronizację
+    // Logi dla pierwszej nadpłaty z kwotą nadpłaty
+    if (currentIndex === 0) {
+        console.log(`First Overpayment: MinPeriodStart=${minPeriodStart}, MaxPeriodStart=${maxPeriodStart}, PeriodStartInput=${periodStartInput.value}, PeriodStartRange=${periodStartRange.value}, OverpaymentAmount=${overpaymentAmount}, HasUserInteracted=${state.hasUserInteracted}, IsChangeEvent=${isChangeEvent}`);
+    }
+
+    // Ograniczamy wartość natychmiastowo
     let currentStartValue = parseInt(periodStartInput.value) || minPeriodStart;
     if (currentStartValue < minPeriodStart) currentStartValue = minPeriodStart;
     if (currentStartValue > maxPeriodStart) currentStartValue = maxPeriodStart;
 
+    // Aktualizujemy wartości i wymuszamy synchronizację
     periodStartInput.value = currentStartValue;
     periodStartRange.value = currentStartValue;
     syncInputWithRange(periodStartInput, periodStartRange, true, maxPeriodStart);
