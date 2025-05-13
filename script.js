@@ -1046,31 +1046,47 @@ function updateZoom() {
         console.error("Element .container nie został znaleziony!");
         return;
     }
-    const previousZoom = state.zoomLevel;
     container.style.transform = `scale(${state.zoomLevel})`;
     container.style.transformOrigin = 'top center';
     container.style.transition = 'transform 0.2s ease';
-    // updateCalculatorPosition(previousZoom); // Zakomentuj tymczasowo
     console.log(`Zoom ustawiony na: ${state.zoomLevel}`);
+    // Usunięto updateCalculatorPosition na razie, aby izolować problem
 }
 
-function showForm() {
-    if (!elements.formSection || !elements.resultSection) {
-        console.error("Sekcje formSection lub resultSection nie zostały znalezione!");
+// Poprawiona funkcja initializeButtons
+function initializeButtons() {
+    if (!elements.zoomInBtn || !elements.zoomOutBtn || !elements.toggleDarkModeBtn) {
+        console.error("Brak przycisków zoomu lub trybu ciemnego. Sprawdź HTML.");
         return;
     }
-    elements.resultSection.style.display = "none";
-    elements.formSection.style.display = "block";
-    elements.resultSection.classList.remove("active");
-    state.zoomLevel = 1; // Reset zoomu
-    updateZoom();
-    console.log("Powrót do edycji wykonany, zoom zresetowany do 1");
-}
 
-function initializeButtons() {
-    if (!elements.obliczBtn || !elements.generatePdfBtn || !elements.zoomInBtn || 
-        !elements.zoomOutBtn || !elements.toggleDarkModeBtn) {
-        console.error("Brak wymaganych przycisków. Sprawdź HTML.");
+    elements.zoomInBtn.addEventListener("click", () => {
+        if (state.zoomLevel < APP_CONSTANTS.ZOOM_MAX) {
+            state.zoomLevel = Math.min(APP_CONSTANTS.ZOOM_MAX, state.zoomLevel + APP_CONSTANTS.ZOOM_STEP);
+            updateZoom();
+            console.log(`Zoom zwiększony do: ${state.zoomLevel}`);
+        }
+    });
+
+    elements.zoomOutBtn.addEventListener("click", () => {
+        if (state.zoomLevel > APP_CONSTANTS.ZOOM_MIN) {
+            state.zoomLevel = Math.max(APP_CONSTANTS.ZOOM_MIN, state.zoomLevel - APP_CONSTANTS.ZOOM_STEP);
+            updateZoom();
+            console.log(`Zoom zmniejszony do: ${state.zoomLevel}`);
+        }
+    });
+
+    elements.toggleDarkModeBtn.addEventListener("click", () => {
+        state.isDarkMode = !state.isDarkMode;
+        document.body.classList.toggle("dark-mode", state.isDarkMode);
+        elements.toggleDarkModeBtn.innerHTML = state.isDarkMode ? "☀️" : "🌙";
+        elements.toggleDarkModeBtn.setAttribute("aria-label", state.isDarkMode ? "Przełącz na tryb jasny" : "Przełącz na tryb ciemny");
+        console.log("Tryb ciemny kliknięty, stan:", state.isDarkMode);
+    });
+
+    // Reszta kodu initializeButtons pozostaje bez zmian
+    if (!elements.obliczBtn || !elements.generatePdfBtn) {
+        console.error("Brak przycisków oblicz lub generuj PDF. Sprawdź HTML.");
         return;
     }
 
@@ -1082,9 +1098,6 @@ function initializeButtons() {
         const prowizja = parseFloat(elements.prowizja.value) || 2;
         const prowizjaJednostka = elements.jednostkaProwizji.value || "procent";
 
-        const variableRates = Array.isArray(state.variableRates) ? state.variableRates : [];
-        const overpaymentRates = Array.isArray(state.overpaymentRates) ? state.overpaymentRates : [];
-
         const data = calculateLoan(
             kwota,
             oprocentowanie,
@@ -1092,8 +1105,8 @@ function initializeButtons() {
             rodzajRat,
             prowizja,
             prowizjaJednostka,
-            variableRates,
-            overpaymentRates
+            state.variableRates,
+            state.overpaymentRates
         );
 
         if (data) {
@@ -1121,32 +1134,6 @@ function initializeButtons() {
     });
 
     window.showForm = showForm;
-
-    elements.zoomInBtn.addEventListener("click", () => {
-        if (state.zoomLevel < APP_CONSTANTS.ZOOM_MAX) {
-            state.zoomLevel = Math.min(APP_CONSTANTS.ZOOM_MAX, state.zoomLevel + APP_CONSTANTS.ZOOM_STEP);
-            updateZoom();
-            console.log(`Zoom zwiększony do: ${state.zoomLevel}`);
-        }
-    });
-
-    elements.zoomOutBtn.addEventListener("click", () => {
-        if (state.zoomLevel > APP_CONSTANTS.ZOOM_MIN) {
-            state.zoomLevel = Math.max(APP_CONSTANTS.ZOOM_MIN, state.zoomLevel - APP_CONSTANTS.ZOOM_STEP);
-            updateZoom();
-            console.log(`Zoom zmniejszony do: ${state.zoomLevel}`);
-        }
-    });
-
-    elements.toggleDarkModeBtn.addEventListener("click", () => {
-        state.isDarkMode = !state.isDarkMode;
-        document.body.classList.toggle("dark-mode", state.isDarkMode);
-        elements.toggleDarkModeBtn.innerHTML = state.isDarkMode ? "☀️" : "🌙";
-        elements.toggleDarkModeBtn.setAttribute("aria-label", state.isDarkMode ? "Przełącz na tryb jasny" : "Przełącz na tryb ciemny");
-        if (state.lastFormData) {
-            updateChart(state.lastFormData);
-        }
-    });
 }
 
 
@@ -1732,7 +1719,16 @@ function updateCalculatorPosition(previousZoom) {
 
 function initializeApp() {
     console.log("Inicjalizacja aplikacji...");
-    
+
+    // Sprawdzenie kluczowych elementów
+    if (!elements.formSection || !elements.resultSection || !elements.kwota || 
+        !elements.iloscRat || !elements.oprocentowanie || !elements.rodzajRat || 
+        !elements.prowizja || !elements.jednostkaProwizji || !elements.obliczBtn || 
+        !elements.zoomInBtn || !elements.zoomOutBtn || !elements.toggleDarkModeBtn || 
+        !elements.porownajKredytBtn || !elements.nadplataKredytuBtn || 
+        !elements.zmienneOprocentowanieBtn) {
+        console.error("Brak wymaganych elementów w aplikacji. Sprawdź HTML.");
+        return;
     }
 
     initializeInputHandling();
@@ -1740,6 +1736,7 @@ function initializeApp() {
     initializeZmienneOprocentowanieToggle();
     initializePorownajKredytToggle();
     initializeButtons();
+
     console.log("Inicjalizacja zakończona.");
 
     // Ustaw początkowe wartości
