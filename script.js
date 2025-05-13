@@ -1,4 +1,3 @@
-// Początek kodu – stałe i zmienne globalne
 const APP_CONSTANTS = {
     KWOTA_MIN: 10000,
     KWOTA_MAX: 5000000,
@@ -70,6 +69,16 @@ const state = {
     isDarkMode: false,
     isUpdating: false,
 };
+
+
+
+
+
+
+
+
+
+
 
 // F U N K C J E    P O M O C N I C Z E
 
@@ -148,7 +157,7 @@ function updateRatesArray(type) {
 
 function updateKwotaInfo() {
     const kwota = parseFloat(elements.kwota.value) || 0;
-    elements.kwotaInfo.textContent = kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+    elements.kwotaInfo.textContent = `Kwota kredytu: ${kwota.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} zł`;
 }
 
 function updateLata() {
@@ -175,12 +184,13 @@ function syncProwizjaWithKwota(force = false) {
     const jednostka = elements.jednostkaProwizji.value;
 
     if (jednostka === "procent" && (!elements.prowizja.dataset.manual || force)) {
+        if (prowizja < APP_CONSTANTS.PROWIZJA_MIN) prowizja = APP_CONSTANTS.PROWIZJA_MIN;
+        if (prowizja > APP_CONSTANTS.PROWIZJA_MAX) prowizja = APP_CONSTANTS.PROWIZJA_MAX;
         elements.prowizja.value = prowizja.toFixed(2);
         elements.prowizjaRange.value = prowizja;
         delete elements.prowizja.dataset.manual;
     } else if (jednostka === "zl" && (!elements.prowizja.dataset.manual || force)) {
-        const prowizjaZl = (prowizja / 100) * kwota;
-        prowizja = prowizjaZl;
+        prowizja = (prowizja / 100) * kwota;
         elements.prowizja.value = prowizja.toFixed(2);
         elements.prowizjaRange.value = prowizja;
         delete elements.prowizja.dataset.manual;
@@ -207,8 +217,17 @@ function checkElements(...elements) {
 }
 
 function formatNumber(number) {
-    return number.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return number.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
+
+
+
+
+
+
+
+
+
 
 // F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
 
@@ -292,17 +311,15 @@ function initializeInputHandling() {
 
     // Oprocentowanie
     elements.oprocentowanie.addEventListener("beforeinput", (e) => {
-        if (e.data && !/[0-9.]/.test(e.data)) {
+        if (e.data && !/[0-9,.]/.test(e.data)) {
             e.preventDefault();
         }
     });
 
     elements.oprocentowanie.addEventListener("input", (e) => {
         let value = e.target.value;
-        if (value.includes(",")) {
-            value = value.replace(",", ".");
-            e.target.value = value;
-        }
+        value = value.replace(",", ".");
+        e.target.value = value;
 
         const dotCount = value.split(".").length - 1;
         if (dotCount > 1) {
@@ -338,23 +355,20 @@ function initializeInputHandling() {
     elements.oprocentowanieRange.addEventListener("input", () => {
         let value = parseFloat(elements.oprocentowanieRange.value);
         elements.oprocentowanie.value = value.toFixed(2);
-        updateKwotaInfo();
         debouncedUpdateLoanDetails();
     });
 
     // Prowizja
     elements.prowizja.addEventListener("beforeinput", (e) => {
-        if (e.data && !/[0-9.]/.test(e.data)) {
+        if (e.data && !/[0-9,.]/.test(e.data)) {
             e.preventDefault();
         }
     });
 
     elements.prowizja.addEventListener("input", (e) => {
         let value = e.target.value;
-        if (value.includes(",")) {
-            value = value.replace(",", ".");
-            e.target.value = value;
-        }
+        value = value.replace(",", ".");
+        e.target.value = value;
 
         const dotCount = value.split(".").length - 1;
         if (dotCount > 1) {
@@ -412,6 +426,16 @@ function initializeInputHandling() {
         debouncedUpdateLoanDetails();
     });
 }
+
+
+
+
+
+
+
+
+
+
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
@@ -591,6 +615,7 @@ function initializeNadplataKredytuGroup(group) {
                         if (parsedValue < parseInt(input.min)) parsedValue = parseInt(input.min);
                         if (parsedValue > parseInt(input.max)) parsedValue = parseInt(input.max);
                         range.value = parsedValue;
+                        input.value = parsedValue; // Ustawiamy wartość bez zer po przecinku
                     }
                     debouncedUpdate();
                 });
@@ -599,7 +624,7 @@ function initializeNadplataKredytuGroup(group) {
                     let value = parseInt(input.value) || parseInt(input.min);
                     if (value < parseInt(input.min)) value = parseInt(input.min);
                     if (value > parseInt(input.max)) value = parseInt(input.max);
-                    input.value = value;
+                    input.value = value; // Ustawiamy wartość bez zer po przecinku
                     range.value = value;
                     debouncedUpdate();
                 });
@@ -608,7 +633,7 @@ function initializeNadplataKredytuGroup(group) {
                     let value = parseInt(range.value);
                     if (value < parseInt(range.min)) value = parseInt(range.min);
                     if (value > parseInt(range.max)) value = parseInt(range.max);
-                    input.value = value;
+                    input.value = value; // Ustawiamy wartość bez zer po przecinku
                     range.value = value;
                     debouncedUpdate();
                 });
@@ -617,7 +642,7 @@ function initializeNadplataKredytuGroup(group) {
                     let value = parseInt(range.value);
                     if (value < parseInt(range.min)) value = parseInt(range.min);
                     if (value > parseInt(range.max)) value = parseInt(range.max);
-                    input.value = value;
+                    input.value = value; // Ustawiamy wartość bez zer po przecinku
                     range.value = value;
                     debouncedUpdate();
                 });
@@ -694,6 +719,18 @@ function initializeNadplataKredytuToggle() {
         updateLoanDetails();
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
@@ -777,6 +814,7 @@ function initializeVariableOprocentowanieGroup(group) {
                 setTimeout(() => {
                     input.setSelectionRange(cursorPosition, cursorPosition);
                 }, 0);
+                updateRatesArray("oprocentowanie"); // Aktualizacja zmiennych oprocentowań
                 debouncedUpdateLoanDetails();
             });
 
@@ -820,7 +858,7 @@ function initializeVariableOprocentowanieGroup(group) {
             syncInputWithRange(input, range);
 
             input.addEventListener("beforeinput", (e) => {
-                if (e.data && !/[0-9.]/.test(e.data)) {
+                if (e.data && !/[0-9,.]/.test(e.data)) {
                     e.preventDefault();
                 }
             });
@@ -829,13 +867,20 @@ function initializeVariableOprocentowanieGroup(group) {
                 let value = input.value;
                 const cursorPosition = input.selectionStart;
 
-                if (value.includes(".") || value.includes(",")) {
-                    const parts = value.replace(",", ".").split(".");
-                    if (parts.length > 1 && parts[1].length > 2) {
-                        parts[1] = parts[1].slice(0, 2);
-                        value = parts.join(".");
-                        input.value = value;
-                    }
+                value = value.replace(",", ".");
+                input.value = value;
+
+                const dotCount = value.split(".").length - 1;
+                if (dotCount > 1) {
+                    input.value = value.substring(0, value.lastIndexOf("."));
+                    return;
+                }
+
+                const parts = value.split(".");
+                if (parts.length > 1 && parts[1].length > 2) {
+                    parts[1] = parts[1].slice(0, 2);
+                    value = parts.join(".");
+                    input.value = value;
                 }
 
                 if (!isNaN(parseFloat(value))) {
@@ -845,6 +890,7 @@ function initializeVariableOprocentowanieGroup(group) {
                 setTimeout(() => {
                     input.setSelectionRange(cursorPosition, cursorPosition);
                 }, 0);
+                updateRatesArray("oprocentowanie"); // Aktualizacja zmiennych oprocentowań
                 debouncedUpdateLoanDetails();
             });
 
@@ -947,6 +993,16 @@ function initializeZmienneOprocentowanieToggle() {
     });
 }
 
+
+
+
+
+
+
+
+
+
+
 // F U N K C J E    P O R Ó W N A J     K R E D Y T
 
 function initializePorownajKredytToggle() {
@@ -958,15 +1014,22 @@ function initializePorownajKredytToggle() {
     elements.porownajKredytBtn.addEventListener("change", () => {
         const isChecked = elements.porownajKredytBtn.checked;
         if (isChecked) {
-            console.warn("Funkcjonalność porównania kredytów nie jest jeszcze zaimplementowana. Dodaj logikę w przyszłości.");
-            alert("Porównanie kredytów zostanie zaimplementowane wkrótce!");
-        } else {
-            // Opcjonalne czyszczenie interfejsu po wyłączeniu
+            alert("Porównanie kredytów nie jest jeszcze zaimplementowane. Funkcjonalność wkrótce dostępna!");
         }
         toggleMainFormLock();
         updateLoanDetails();
     });
 }
+
+
+
+
+
+
+
+
+
+
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
 
@@ -979,12 +1042,12 @@ function updateZoom() {
     const previousZoom = state.zoomLevel;
     container.style.transform = `scale(${state.zoomLevel})`;
     container.style.transformOrigin = 'top center';
+    container.style.transition = 'transform 0.2s ease';
     updateCalculatorPosition(previousZoom);
 }
 
 function generatePDF() {
     alert("Funkcja generowania PDF nie jest jeszcze zaimplementowana.");
-    // W przyszłości można tu dodać logikę generowania PDF, np. za pomocą biblioteki jsPDF
 }
 
 function initializeButtons() {
@@ -1022,6 +1085,9 @@ function initializeButtons() {
             elements.resultSection.style.display = "block";
             elements.resultSection.classList.add("active");
             updateResults(data);
+            updateSummaryTable(data);
+            updateScheduleTable(data.harmonogram);
+            updateChart(data);
             updateZoom();
         } else {
             elements.resultSection.style.display = "none";
@@ -1076,6 +1142,18 @@ function showForm() {
     updateZoom();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 // F U N K C J E     O B L I C Z E N I A    K R E D Y T U
 
 function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, jednostkaProwizji, variableRates = [], overpaymentRates = []) {
@@ -1107,11 +1185,13 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, jed
     let monthlyRate = monthlyRateBase;
 
     for (let miesiac = 1; miesiac <= iloscRat; miesiac++) {
+        // Aktualizacja oprocentowania zmiennego
         const variableRate = variableRates.find(rate => rate.period === miesiac);
-        if (variableRate) {
+        if (variableRate && variableRate.value >= APP_CONSTANTS.OPROCENTOWANIE_MIN && variableRate.value <= APP_CONSTANTS.OPROCENTOWANIE_MAX) {
             monthlyRate = variableRate.value / 100 / 12;
         }
 
+        // Obsługa nadpłat
         let nadplata = 0;
         let overpaymentApplied = false;
         overpaymentRates.forEach(rate => {
@@ -1151,6 +1231,10 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, jed
         if (rodzajRat === "rowne" && kapitalDoSplaty > 0) {
             const q = 1 + monthlyRate;
             const mianownik = Math.pow(q, iloscRat - (miesiac - 1)) - 1;
+            if (mianownik === 0) {
+                console.error("Mianownik równy zero w obliczeniach raty równej:", { q, iloscRat, miesiac });
+                return null;
+            }
             rata = (kapitalDoSplaty * Math.pow(q, iloscRat - (miesiac - 1)) * monthlyRate) / mianownik;
             rataKapitalowa = rata - odsetki;
         } else {
@@ -1202,6 +1286,16 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, jed
     };
 }
 
+
+
+
+
+
+
+
+
+
+
 // F U N K C J A    A K T U A L I Z A C J I    W Y N I K Ó W
 
 function updateResults(data) {
@@ -1211,12 +1305,12 @@ function updateResults(data) {
         return;
     }
 
-    elements.valueKapital.textContent = data.kwota.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
-    elements.valueOdsetki.textContent = data.calkowiteOdsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
-    elements.valueNadplata.textContent = data.calkowiteNadplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
-    elements.valueProwizja.textContent = data.prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+    elements.valueKapital.textContent = data.kwota.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
+    elements.valueOdsetki.textContent = data.calkowiteOdsetki.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
+    elements.valueNadplata.textContent = data.calkowiteNadplaty.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
+    elements.valueProwizja.textContent = data.prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
     elements.okresPoNadplacie.textContent = data.pozostaleRaty + " miesięcy";
-    elements.koszt.textContent = data.calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
+    elements.koszt.textContent = data.calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
 }
 
 function updateSummaryTable(summary) {
@@ -1237,14 +1331,14 @@ function updateSummaryTable(summary) {
     summaryTableBody.innerHTML = "";
 
     const rows = [
-        { label: "Całkowity koszt kredytu", value: summary.calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Całkowite odsetki", value: summary.calkowiteOdsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Prowizja", value: summary.prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Całkowite nadpłaty", value: summary.calkowiteNadplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty jednorazowe", value: summary.nadplatyJednorazowe.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty miesięczne", value: summary.nadplatyMiesieczne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty kwartalne", value: summary.nadplatyKwartalne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
-        { label: "Nadpłaty roczne", value: summary.nadplatyRoczne.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Całkowity koszt kredytu", value: summary.calkowityKoszt.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Całkowite odsetki", value: summary.calkowiteOdsetki.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Prowizja", value: summary.prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Całkowite nadpłaty", value: summary.calkowiteNadplaty.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty jednorazowe", value: summary.nadplatyJednorazowe.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty miesięczne", value: summary.nadplatyMiesieczne.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty kwartalne", value: summary.nadplatyKwartalne.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
+        { label: "Nadpłaty roczne", value: summary.nadplatyRoczne.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł" },
         { label: "Okres kredytowania", value: summary.pozostaleRaty + " miesięcy" }
     ];
 
@@ -1273,12 +1367,12 @@ function updateScheduleTable(schedule) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${row.miesiac}</td>
-            <td>${row.rata.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.oprocentowanie.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.nadplata.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.kapital.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td>${row.kapitalDoSplaty.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>${row.rata.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td>
+            <td>${row.oprocentowanie.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td>
+            <td>${row.nadplata.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td>
+            <td>${row.kapital.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td>
+            <td>${row.odsetki.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td>
+            <td>${row.kapitalDoSplaty.toLocaleString('pl-PL', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}</td>
         `;
         fragment.appendChild(tr);
     });
@@ -1325,6 +1419,8 @@ function updateLoanDetails() {
         updateSummaryTable(data);
         updateScheduleTable(data.harmonogram);
         updateChart(data);
+    } else {
+        console.error("Błąd podczas obliczania kredytu. Sprawdź dane wejściowe.");
     }
 }
 
@@ -1356,6 +1452,17 @@ function toggleMainFormLock() {
         setInputLockStyles(input, shouldLock);
     });
 }
+
+
+
+
+
+
+
+
+
+
+
 
 // F U N K C J A     K A L K U L T O R
 
