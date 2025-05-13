@@ -1,3 +1,4 @@
+// Początek kodu – stałe i zmienne globalne
 const APP_CONSTANTS = {
     KWOTA_MIN: 10000,
     KWOTA_MAX: 5000000,
@@ -69,132 +70,6 @@ const state = {
     isDarkMode: false,
     isUpdating: false,
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-// F U N K C J E    O G Ó L N E
-
-function syncInputWithRange(input, range, enforceLimits = false, maxLimit = null, onChange = null) {
-    if (!input || !range) {
-        console.warn("Brak input lub range w syncInputWithRange.");
-        return;
-    }
-    let value;
-    const isIntegerInput = input.id === "iloscRat" || input.classList.contains("variable-cykl") || input.classList.contains("variable-cykl-start");
-
-    if (isIntegerInput) {
-        value = parseInt(input.value) || parseInt(range.value) || parseInt(input.min) || 0;
-        const min = parseInt(range.min) || parseInt(input.min) || 0;
-        let max = maxLimit !== null ? maxLimit : parseInt(range.max) || parseInt(input.max) || Infinity;
-        if (enforceLimits) {
-            value = Math.max(min, Math.min(max, value));
-        }
-        input.value = value;
-        range.value = value;
-    } else {
-        value = parseFloat(input.value) || parseFloat(range.value) || parseFloat(input.min) || 0;
-        const min = parseFloat(range.min) || parseFloat(input.min) || 0;
-        let max = maxLimit !== null ? maxLimit : parseFloat(range.max) || parseFloat(input.max) || Infinity;
-        if (enforceLimits) {
-            value = Math.max(min, Math.min(max, value));
-        }
-        input.value = value.toFixed(2);
-        range.value = value;
-    }
-
-    if (onChange) onChange(value);
-}
-
-function updateKwotaInfo() {
-    if (!elements.kwota || !elements.kwotaInfo) {
-        console.warn("Brak elementów kwota lub kwotaInfo.");
-        return;
-    }
-    const kwota = parseFloat(elements.kwota.value) || 0;
-    elements.kwotaInfo.textContent = `Kwota kredytu: ${kwota.toLocaleString("pl-PL", { minimumFractionDigits: 2 })} zł`;
-    updateProwizjaInfo();
-}
-
-function updateProwizjaInfo() {
-    if (!checkElements(elements.prowizja, elements.jednostkaProwizji, elements.kwota, elements.prowizjaInfo)) return;
-    const prowizja = parseFloat(elements.prowizja.value) || 0;
-    const jednostka = elements.jednostkaProwizji.value;
-    const kwota = parseFloat(elements.kwota.value) || 0;
-    const prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
-    elements.prowizjaInfo.textContent = `Prowizja: ${formatNumber(prowizjaKwota)} zł`;
-    updateLoanDetails();
-}
-
-
-
-
-
-
-
-
-
-// F U N K C J E    B L O K A D Y   B O X Ó W
-function setInputLockStyles(input, lock) {
-    if (!input) return;
-    input.disabled = lock;
-    input.style.backgroundColor = lock ? "#e9ecef" : "";
-    input.style.opacity = lock ? "0.6" : "";
-    input.style.cursor = lock ? "not-allowed" : "";
-}
-
-function toggleMainFormLock() {
-    console.log("toggleMainFormLock called");
-
-    const isNadplataActive = elements.nadplataKredytuBtn?.checked || false;
-    const isZmienneOprocentowanieActive = elements.zmienneOprocentowanieBtn?.checked || false;
-    const isPorownajKredytActive = elements.porownajKredytBtn?.checked || false;
-    const shouldLock = isNadplataActive || isZmienneOprocentowanieActive; // Porównaj Kredyt nie blokuje
-
-    console.log("shouldLock:", shouldLock);
-
-    const mainFormInputs = [
-        { input: elements.kwota, group: elements.kwota?.closest('.form-group') },
-        { input: elements.kwotaRange, group: elements.kwotaRange?.closest('.form-group') },
-        { input: elements.iloscRat, group: elements.iloscRat?.closest('.form-group') },
-        { input: elements.iloscRatRange, group: elements.iloscRatRange?.closest('.form-group') },
-        { input: elements.oprocentowanie, group: elements.oprocentowanie?.closest('.form-group') },
-        { input: elements.oprocentowanieRange, group: elements.oprocentowanieRange?.closest('.form-group') },
-        { input: elements.rodzajRat, group: elements.rodzajRat?.closest('.form-group') },
-        { input: elements.prowizja, group: elements.prowizja?.closest('.form-group') },
-        { input: elements.prowizjaRange, group: elements.prowizjaRange?.closest('.form-group') },
-        { input: elements.jednostkaProwizji, group: elements.jednostkaProwizji?.closest('.form-group') }
-    ];
-
-    mainFormInputs.forEach(({ input, group }, index) => {
-        if (!input || !group) {
-            console.warn(`Element ${index} nie znaleziony:`, { input, group });
-            return;
-        }
-        group.classList.toggle("locked", shouldLock);
-        setInputLockStyles(input, shouldLock);
-    });
-}
-
-
-
-
-
-
-
-
-
-
-
 
 // F U N K C J E    P O M O C N I C Z E
 
@@ -284,27 +159,30 @@ function updateLata() {
 }
 
 function updateProwizjaInfo() {
+    if (!checkElements(elements.prowizja, elements.jednostkaProwizji, elements.kwota, elements.prowizjaInfo)) return;
     const prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value;
-    elements.prowizjaInfo.textContent = prowizja.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (jednostka === "procent" ? " %" : " zł");
+    const kwota = parseFloat(elements.kwota.value) || 0;
+    const prowizjaKwota = jednostka === "procent" ? (prowizja / 100) * kwota : prowizja;
+    elements.prowizjaInfo.textContent = `Prowizja: ${formatNumber(prowizjaKwota)} zł`;
 }
 
 function syncProwizjaWithKwota(force = false) {
     if (!elements.prowizja || !elements.kwota || !elements.jednostkaProwizji) return;
 
     const kwota = parseFloat(elements.kwota.value) || 0;
-    const prowizja = parseFloat(elements.prowizja.value) || 0;
+    let prowizja = parseFloat(elements.prowizja.value) || 0;
     const jednostka = elements.jednostkaProwizji.value;
 
-    if (jednostka === "zl" && (!elements.prowizja.dataset.manual || force)) {
-        const newProwizja = (kwota * (prowizja / 100)).toFixed(2);
-        elements.prowizja.value = newProwizja;
-        elements.prowizjaRange.value = newProwizja;
+    if (jednostka === "procent" && (!elements.prowizja.dataset.manual || force)) {
+        elements.prowizja.value = prowizja.toFixed(2);
+        elements.prowizjaRange.value = prowizja;
         delete elements.prowizja.dataset.manual;
-    } else if (jednostka === "procent" && (!elements.prowizja.dataset.manual || force)) {
-        const newProwizja = ((prowizja / kwota) * 100).toFixed(2);
-        elements.prowizja.value = newProwizja;
-        elements.prowizjaRange.value = newProwizja;
+    } else if (jednostka === "zl" && (!elements.prowizja.dataset.manual || force)) {
+        const prowizjaZl = (prowizja / 100) * kwota;
+        prowizja = prowizjaZl;
+        elements.prowizja.value = prowizja.toFixed(2);
+        elements.prowizjaRange.value = prowizja;
         delete elements.prowizja.dataset.manual;
     }
     updateProwizjaInfo();
@@ -314,18 +192,27 @@ function setInputLockStyles(input, isLocked) {
     if (!input) return;
     input.disabled = isLocked;
     input.style.backgroundColor = isLocked ? "#f0f0f0" : "";
+    input.style.opacity = isLocked ? "0.6" : "1";
     input.style.cursor = isLocked ? "not-allowed" : "text";
 }
 
+function checkElements(...elements) {
+    return elements.every(element => {
+        if (!element) {
+            console.warn("Brak wymaganego elementu:", element);
+            return false;
+        }
+        return true;
+    });
+}
 
-
-
-
-
-
-
+function formatNumber(number) {
+    return number.toLocaleString('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
 // F U N K C J E    W P R O W A D Z A N I E    D A N Y C H
+
+const debouncedUpdateLoanDetails = debounce(updateLoanDetails, 300);
 
 function initializeInputHandling() {
     if (!elements.kwota || !elements.kwotaRange || !elements.iloscRat || !elements.iloscRatRange || 
@@ -358,18 +245,14 @@ function initializeInputHandling() {
         elements.kwota.value = parsedValue;
         elements.kwotaRange.value = parsedValue;
         updateKwotaInfo();
-        if (elements.jednostkaProwizji.value === "zl" && !elements.prowizja.dataset.manual) {
-            syncProwizjaWithKwota();
-        }
+        debouncedUpdateLoanDetails();
     });
 
     elements.kwotaRange.addEventListener("input", () => {
         let value = parseInt(elements.kwotaRange.value);
         elements.kwota.value = value;
         updateKwotaInfo();
-        if (elements.jednostkaProwizji.value === "zl" && !elements.prowizja.dataset.manual) {
-            syncProwizjaWithKwota();
-        }
+        debouncedUpdateLoanDetails();
     });
 
     // Ilość Rat
@@ -397,12 +280,14 @@ function initializeInputHandling() {
         elements.iloscRat.value = parsedValue.toString();
         elements.iloscRatRange.value = parsedValue;
         updateLata();
+        debouncedUpdateLoanDetails();
     });
 
     elements.iloscRatRange.addEventListener("input", () => {
         let value = parseInt(elements.iloscRatRange.value);
         elements.iloscRat.value = value.toString();
         updateLata();
+        debouncedUpdateLoanDetails();
     });
 
     // Oprocentowanie
@@ -447,12 +332,14 @@ function initializeInputHandling() {
 
         elements.oprocentowanie.value = parsedValue.toFixed(2);
         elements.oprocentowanieRange.value = parsedValue;
+        debouncedUpdateLoanDetails();
     });
 
     elements.oprocentowanieRange.addEventListener("input", () => {
         let value = parseFloat(elements.oprocentowanieRange.value);
         elements.oprocentowanie.value = value.toFixed(2);
         updateKwotaInfo();
+        debouncedUpdateLoanDetails();
     });
 
     // Prowizja
@@ -502,6 +389,7 @@ function initializeInputHandling() {
         elements.prowizja.value = parsedValue.toFixed(2);
         elements.prowizjaRange.value = parsedValue;
         updateProwizjaInfo();
+        debouncedUpdateLoanDetails();
     });
 
     elements.prowizjaRange.addEventListener("input", () => {
@@ -509,32 +397,21 @@ function initializeInputHandling() {
         elements.prowizja.value = value.toFixed(2);
         elements.prowizja.dataset.manual = "true";
         updateProwizjaInfo();
+        debouncedUpdateLoanDetails();
     });
 
     // Jednostka Prowizji
     elements.jednostkaProwizji.addEventListener("change", () => {
         syncProwizjaWithKwota(true);
         updateProwizjaInfo();
+        debouncedUpdateLoanDetails();
     });
 
     // Rodzaj Rat
     elements.rodzajRat.addEventListener("change", () => {
-        updateLoanDetails();
+        debouncedUpdateLoanDetails();
     });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // F U N K C J A     N A D P Ł A T A     K R E D Y T U
 
@@ -770,7 +647,7 @@ function updateNadplataKredytuRemoveButtons() {
                 removeBtn = document.createElement("button");
                 removeBtn.type = "button";
                 removeBtn.classList.add("remove-btn");
-                removeBtn.innerHTML = "&times;";
+                removeBtn.innerHTML = "×";
                 group.appendChild(removeBtn);
             }
             removeBtn.onclick = () => {
@@ -817,16 +694,6 @@ function initializeNadplataKredytuToggle() {
         updateLoanDetails();
     });
 }
-
-
-
-
-
-
-
-
-
-
 
 // F U N K C J E    Z M I E N N E    O P R O C E N T O W A N I E
 
@@ -1080,12 +947,6 @@ function initializeZmienneOprocentowanieToggle() {
     });
 }
 
-
-
-
-
-
-
 // F U N K C J E    P O R Ó W N A J     K R E D Y T
 
 function initializePorownajKredytToggle() {
@@ -1098,7 +959,6 @@ function initializePorownajKredytToggle() {
         const isChecked = elements.porownajKredytBtn.checked;
         if (isChecked) {
             console.warn("Funkcjonalność porównania kredytów nie jest jeszcze zaimplementowana. Dodaj logikę w przyszłości.");
-            // Placeholder dla przyszłej implementacji (np. dodanie formularza porównawczego)
             alert("Porównanie kredytów zostanie zaimplementowane wkrótce!");
         } else {
             // Opcjonalne czyszczenie interfejsu po wyłączeniu
@@ -1107,15 +967,6 @@ function initializePorownajKredytToggle() {
         updateLoanDetails();
     });
 }
-
-
-
-
-
-
-
-
-
 
 // F U N K C J E    I N T E R A K C J I    Z   U Ż Y T K O W N I K I E M
 
@@ -1129,37 +980,6 @@ function updateZoom() {
     container.style.transform = `scale(${state.zoomLevel})`;
     container.style.transformOrigin = 'top center';
     updateCalculatorPosition(previousZoom);
-}
-
-function toggleCalculator() {
-    if (!elements.calculatorBox) {
-        console.error("Element calculatorBox nie został znaleziony!");
-        return;
-    }
-    const isVisible = elements.calculatorBox.style.display === 'block';
-    if (isVisible) {
-        elements.calculatorBox.style.display = 'none';
-    } else {
-        elements.calculatorBox.style.display = 'block';
-        const windowWidth = window.innerWidth / state.zoomLevel;
-        const windowHeight = window.innerHeight / state.zoomLevel;
-        const calcWidth = elements.calculatorBox.offsetWidth;
-        const calcHeight = elements.calculatorBox.offsetHeight;
-        elements.calculatorBox.style.left = ((windowWidth - calcWidth) / 2) + 'px';
-        elements.calculatorBox.style.top = ((windowHeight - calcHeight) / 2) + 'px';
-    }
-}
-
-function updateCalculatorPosition(previousZoom) {
-    if (!elements.calculatorBox) return;
-    if (elements.calculatorBox.style.display === 'block') {
-        const calcRect = elements.calculatorBox.getBoundingClientRect();
-        const zoomRatio = previousZoom / state.zoomLevel;
-        const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
-        const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
-        elements.calculatorBox.style.left = (newX / state.zoomLevel) + 'px';
-        elements.calculatorBox.style.top = (newY / state.zoomLevel) + 'px';
-    }
 }
 
 function generatePDF() {
@@ -1255,15 +1075,6 @@ function showForm() {
     state.zoomLevel = 1;
     updateZoom();
 }
-
-
-
-
-
-
-
-
-
 
 // F U N K C J E     O B L I C Z E N I A    K R E D Y T U
 
@@ -1391,13 +1202,6 @@ function calculateLoan(kwota, oprocentowanie, iloscRat, rodzajRat, prowizja, jed
     };
 }
 
-
-
-
-
-
-
-
 // F U N K C J A    A K T U A L I Z A C J I    W Y N I K Ó W
 
 function updateResults(data) {
@@ -1490,9 +1294,7 @@ function updateScheduleTable(schedule) {
 }
 
 function updateChart(data) {
-    // Placeholder dla przyszłej implementacji wykresu
     console.warn("Funkcja updateChart nie jest jeszcze zaimplementowana.");
-    // W przyszłości można tu dodać logikę generowania wykresu, np. za pomocą Chart.js
 }
 
 function updateLoanDetails() {
@@ -1555,271 +1357,248 @@ function toggleMainFormLock() {
     });
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // F U N K C J A     K A L K U L T O R
 
-// Logika kalkulatora
-    const calcDisplay = document.getElementById('calcDisplay');
-    let currentInput = '0';
-    let previousInput = '';
-    let operation = null;
-    let shouldResetDisplay = false;
+const calcDisplay = document.getElementById('calcDisplay');
+let currentInput = '0';
+let previousInput = '';
+let operation = null;
+let shouldResetDisplay = false;
 
-    function updateDisplay() {
-        calcDisplay.value = currentInput;
-    }
+function updateDisplay() {
+    calcDisplay.value = currentInput;
+}
 
-    function clearCalculator() {
-        currentInput = '0';
-        previousInput = '';
-        operation = null;
-        shouldResetDisplay = false;
-        updateDisplay();
-    }
-
-    function toggleSign() {
-        if (currentInput === '0') return;
-        currentInput = (parseFloat(currentInput) * -1).toString();
-        updateDisplay();
-    }
-
-    function percent() {
-        currentInput = (parseFloat(currentInput) / 100).toString();
-        updateDisplay();
-    }
-
-    function appendNumber(number) {
-        if (shouldResetDisplay) {
-            currentInput = number;
-            shouldResetDisplay = false;
-        } else {
-            currentInput = currentInput === '0' ? number : currentInput + number;
-        }
-        updateDisplay();
-    }
-
-    function appendDecimal() {
-        if (!currentInput.includes('.')) {
-            currentInput += '.';
-        }
-        updateDisplay();
-    }
-
-    function setOperation(op) {
-        if (currentInput === '') return;
-        if (previousInput !== '') {
-            calculate();
-        }
-        operation = op;
-        previousInput = currentInput;
-        shouldResetDisplay = true;
-    }
-
-    function calculate() {
-        if (previousInput === '' || currentInput === '' || operation === null) return;
-        let result;
-        const prev = parseFloat(previousInput);
-        const curr = parseFloat(currentInput);
-
-        switch (operation) {
-            case '+':
-                result = prev + curr;
-                break;
-            case '-':
-                result = prev - curr;
-                break;
-            case '*':
-                result = prev * curr;
-                break;
-            case '/':
-                if (curr === 0) {
-                    alert("Nie można dzielić przez zero!");
-                    clearCalculator();
-                    return;
-                }
-                result = prev / curr;
-                break;
-            default:
-                return;
-        }
-
-        currentInput = result.toString();
-        operation = null;
-        previousInput = '';
-        shouldResetDisplay = true;
-        updateDisplay();
-    }
-
-    document.querySelectorAll('.calc-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const value = button.textContent;
-
-            if (button.classList.contains('calc-number')) {
-                appendNumber(value);
-            } else if (button.classList.contains('calc-operation')) {
-                if (value === '±') {
-                    toggleSign();
-                } else if (value === '%') {
-                    percent();
-                } else {
-                    setOperation(value);
-                }
-            } else if (button.classList.contains('calc-clear')) {
-                clearCalculator();
-            } else if (button.classList.contains('calc-equals')) {
-                calculate();
-            } else if (value === '.') {
-                appendDecimal();
-            }
-        });
-    });
-
+function clearCalculator() {
+    currentInput = '0';
+    previousInput = '';
+    operation = null;
+    shouldResetDisplay = false;
     updateDisplay();
+}
 
-    // Logika pokazywania/ukrywania i przeciągania kalkulatora
-    const calculatorBox = document.getElementById('calculatorBox');
-    const calcToggleBtn = document.getElementById('calcToggleBtn');
-    const closeCalcBtn = document.getElementById('closeCalcBtn');
-    let isDragging = false;
-    let initialX = 0;
-    let initialY = 0;
+function toggleSign() {
+    if (currentInput === '0') return;
+    currentInput = (parseFloat(currentInput) * -1).toString();
+    updateDisplay();
+}
 
-    function toggleCalculator() {
-        const isVisible = calculatorBox.style.display === 'block';
-        if (isVisible) {
-            calculatorBox.style.display = 'none';
-        } else {
-            calculatorBox.style.display = 'block';
-            // Ustaw domyślną pozycję w centrum strony
-            const windowWidth = window.innerWidth / currentZoom;
-            const windowHeight = window.innerHeight / currentZoom;
-            const calcWidth = calculatorBox.offsetWidth;
-            const calcHeight = calculatorBox.offsetHeight;
-            calculatorBox.style.left = ((windowWidth - calcWidth) / 2) + 'px';
-            calculatorBox.style.top = ((windowHeight - calcHeight) / 2) + 'px';
-        }
+function percent() {
+    currentInput = (parseFloat(currentInput) / 100).toString();
+    updateDisplay();
+}
+
+function appendNumber(number) {
+    if (shouldResetDisplay) {
+        currentInput = number;
+        shouldResetDisplay = false;
+    } else {
+        currentInput = currentInput === '0' ? number : currentInput + number;
+    }
+    updateDisplay();
+}
+
+function appendDecimal() {
+    if (!currentInput.includes('.')) {
+        currentInput += '.';
+    }
+    updateDisplay();
+}
+
+function setOperation(op) {
+    if (currentInput === '') return;
+    if (previousInput !== '') {
+        calculate();
+    }
+    operation = op;
+    previousInput = currentInput;
+    shouldResetDisplay = true;
+}
+
+function calculate() {
+    if (previousInput === '' || currentInput === '' || operation === null) return;
+    let result;
+    const prev = parseFloat(previousInput);
+    const curr = parseFloat(currentInput);
+
+    switch (operation) {
+        case '+':
+            result = prev + curr;
+            break;
+        case '-':
+            result = prev - curr;
+            break;
+        case '*':
+            result = prev * curr;
+            break;
+        case '/':
+            if (curr === 0) {
+                alert("Nie można dzielić przez zero!");
+                clearCalculator();
+                return;
+            }
+            result = prev / curr;
+            break;
+        default:
+            return;
     }
 
-    calcToggleBtn.addEventListener('click', toggleCalculator);
-    closeCalcBtn.addEventListener('click', () => {
+    currentInput = result.toString();
+    operation = null;
+    previousInput = '';
+    shouldResetDisplay = true;
+    updateDisplay();
+}
+
+document.querySelectorAll('.calc-btn').forEach(button => {
+    button.addEventListener('click', () => {
+        const value = button.textContent;
+
+        if (button.classList.contains('calc-number')) {
+            appendNumber(value);
+        } else if (button.classList.contains('calc-operation')) {
+            if (value === '±') {
+                toggleSign();
+            } else if (value === '%') {
+                percent();
+            } else {
+                setOperation(value);
+            }
+        } else if (button.classList.contains('calc-clear')) {
+            clearCalculator();
+        } else if (button.classList.contains('calc-equals')) {
+            calculate();
+        } else if (value === '.') {
+            appendDecimal();
+        }
+    });
+});
+
+updateDisplay();
+
+const calculatorBox = document.getElementById('calculatorBox');
+const calcToggleBtn = document.getElementById('calcToggleBtn');
+const closeCalcBtn = document.getElementById('closeCalcBtn');
+let isDragging = false;
+let initialX = 0;
+let initialY = 0;
+
+function toggleCalculator() {
+    const isVisible = calculatorBox.style.display === 'block';
+    if (isVisible) {
         calculatorBox.style.display = 'none';
-    });
-
-    calculatorBox.addEventListener('mousedown', (e) => {
-        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
-            isDragging = true;
-            const calcRect = calculatorBox.getBoundingClientRect();
-            const currentX = (calcRect.left + window.scrollX) / currentZoom;
-            const currentY = (calcRect.top + window.scrollY) / currentZoom;
-
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
-
-            initialX = (e.clientX / currentZoom) - currentX;
-            initialY = (e.clientY / currentZoom) - currentY;
-            calculatorBox.style.cursor = 'grabbing';
-            e.preventDefault();
-        }
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            const newX = (e.clientX / currentZoom) - initialX;
-            const newY = (e.clientY / currentZoom) - initialY;
-
-            const windowWidth = window.innerWidth / currentZoom;
-            const calcWidth = calculatorBox.offsetWidth;
-            const calcHeight = calculatorBox.offsetHeight;
-            const documentHeight = document.documentElement.scrollHeight / currentZoom;
-
-            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
-            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
-
-            calculatorBox.style.left = boundedX + 'px';
-            calculatorBox.style.top = boundedY + 'px';
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            calculatorBox.style.cursor = 'move';
-        }
-    });
-
-    // Obsługa dotyku dla urządzeń mobilnych
-    calculatorBox.addEventListener('touchstart', (e) => {
-        if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
-            isDragging = true;
-            const calcRect = calculatorBox.getBoundingClientRect();
-            const currentX = (calcRect.left + window.scrollX) / currentZoom;
-            const currentY = (calcRect.top + window.scrollY) / currentZoom;
-
-            calculatorBox.style.left = currentX + 'px';
-            calculatorBox.style.top = currentY + 'px';
-
-            const touch = e.touches[0];
-            initialX = (touch.clientX / currentZoom) - currentX;
-            initialY = (touch.clientY / currentZoom) - currentY;
-            e.preventDefault();
-        }
-    });
-
-    document.addEventListener('touchmove', (e) => {
-        if (isDragging) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const newX = (touch.clientX / currentZoom) - initialX;
-            const newY = (touch.clientY / currentZoom) - initialY;
-
-            const windowWidth = window.innerWidth / currentZoom;
-            const calcWidth = calculatorBox.offsetWidth;
-            const calcHeight = calculatorBox.offsetHeight;
-            const documentHeight = document.documentElement.scrollHeight / currentZoom;
-
-            const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
-            const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
-
-            calculatorBox.style.left = boundedX + 'px';
-            calculatorBox.style.top = boundedY + 'px';
-        }
-    }, { passive: false });
-
-    document.addEventListener('touchend', () => {
-        if (isDragging) {
-            isDragging = false;
-        }
-    });
-
-    // Funkcja aktualizująca pozycję kalkulatora po zmianie zoomu
-    function updateCalculatorPosition(previousZoom) {
-        if (calculatorBox.style.display === 'block') {
-            const calcRect = calculatorBox.getBoundingClientRect();
-            const zoomRatio = previousZoom / currentZoom;
-            const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
-            const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
-            calculatorBox.style.left = (newX / currentZoom) + 'px';
-            calculatorBox.style.top = (newY / currentZoom) + 'px';
-        }
+    } else {
+        calculatorBox.style.display = 'block';
+        const windowWidth = window.innerWidth / state.zoomLevel;
+        const windowHeight = window.innerHeight / state.zoomLevel;
+        const calcWidth = calculatorBox.offsetWidth;
+        const calcHeight = calculatorBox.offsetHeight;
+        calculatorBox.style.left = ((windowWidth - calcWidth) / 2) + 'px';
+        calculatorBox.style.top = ((windowHeight - calcHeight) / 2) + 'px';
     }
+}
 
+calcToggleBtn.addEventListener('click', toggleCalculator);
+closeCalcBtn.addEventListener('click', () => {
+    calculatorBox.style.display = 'none';
+});
 
+calculatorBox.addEventListener('mousedown', (e) => {
+    if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
+        isDragging = true;
+        const calcRect = calculatorBox.getBoundingClientRect();
+        const currentX = (calcRect.left + window.scrollX) / state.zoomLevel;
+        const currentY = (calcRect.top + window.scrollY) / state.zoomLevel;
 
+        calculatorBox.style.left = currentX + 'px';
+        calculatorBox.style.top = currentY + 'px';
 
+        initialX = (e.clientX / state.zoomLevel) - currentX;
+        initialY = (e.clientY / state.zoomLevel) - currentY;
+        calculatorBox.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+});
 
+document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        e.preventDefault();
+        const newX = (e.clientX / state.zoomLevel) - initialX;
+        const newY = (e.clientY / state.zoomLevel) - initialY;
 
+        const windowWidth = window.innerWidth / state.zoomLevel;
+        const calcWidth = calculatorBox.offsetWidth;
+        const calcHeight = calculatorBox.offsetHeight;
+        const documentHeight = document.documentElement.scrollHeight / state.zoomLevel;
 
+        const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
+        const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
+
+        calculatorBox.style.left = boundedX + 'px';
+        calculatorBox.style.top = boundedY + 'px';
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        calculatorBox.style.cursor = 'move';
+    }
+});
+
+calculatorBox.addEventListener('touchstart', (e) => {
+    if (e.target.classList.contains('sidebar-header') && !e.target.classList.contains('close-btn')) {
+        isDragging = true;
+        const calcRect = calculatorBox.getBoundingClientRect();
+        const currentX = (calcRect.left + window.scrollX) / state.zoomLevel;
+        const currentY = (calcRect.top + window.scrollY) / state.zoomLevel;
+
+        calculatorBox.style.left = currentX + 'px';
+        calculatorBox.style.top = currentY + 'px';
+
+        const touch = e.touches[0];
+        initialX = (touch.clientX / state.zoomLevel) - currentX;
+        initialY = (touch.clientY / state.zoomLevel) - currentY;
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('touchmove', (e) => {
+    if (isDragging) {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const newX = (touch.clientX / state.zoomLevel) - initialX;
+        const newY = (touch.clientY / state.zoomLevel) - initialY;
+
+        const windowWidth = window.innerWidth / state.zoomLevel;
+        const calcWidth = calculatorBox.offsetWidth;
+        const calcHeight = calculatorBox.offsetHeight;
+        const documentHeight = document.documentElement.scrollHeight / state.zoomLevel;
+
+        const boundedX = Math.max(0, Math.min(newX, windowWidth - calcWidth));
+        const boundedY = Math.max(0, Math.min(newY, documentHeight - calcHeight));
+
+        calculatorBox.style.left = boundedX + 'px';
+        calculatorBox.style.top = boundedY + 'px';
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', () => {
+    if (isDragging) {
+        isDragging = false;
+    }
+});
+
+function updateCalculatorPosition(previousZoom) {
+    if (calculatorBox.style.display === 'block') {
+        const calcRect = calculatorBox.getBoundingClientRect();
+        const zoomRatio = previousZoom / state.zoomLevel;
+        const newX = (calcRect.left + window.scrollX) * zoomRatio - window.scrollX;
+        const newY = (calcRect.top + window.scrollY) * zoomRatio - window.scrollY;
+        calculatorBox.style.left = (newX / state.zoomLevel) + 'px';
+        calculatorBox.style.top = (newY / state.zoomLevel) + 'px';
+    }
+}
 
 // I N I C J A L I Z A C J A
 
