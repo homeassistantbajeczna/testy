@@ -51,8 +51,15 @@ const elements = {
     zoomOutBtn: document.getElementById("zoomOutBtn"),
     toggleDarkModeBtn: document.getElementById("toggleDarkModeBtn"),
     porownajKredytBtn: document.getElementById("porownajKredytBtn"),
-    calculatorBox: document.querySelector(".calculator-box"),
+    calculatorBox: document.getElementById("calculatorBox"),
 };
+
+// Debugowanie elementów
+console.log("Sprawdzam elementy:", {
+    zoomInBtn: elements.zoomInBtn,
+    zoomOutBtn: elements.zoomOutBtn,
+    toggleDarkModeBtn: elements.toggleDarkModeBtn
+});
 
 const state = {
     lastFormData: {
@@ -1721,6 +1728,7 @@ function updateCalculatorPosition(previousZoom) {
 // I N I C J A L I Z A C J A
 
 function initializeApp() {
+    console.log("Inicjalizacja aplikacji...");
     if (!elements.formSection || !elements.resultSection || !elements.kwota || !elements.kwotaRange || 
         !elements.iloscRat || !elements.iloscRatRange || !elements.oprocentowanie || !elements.oprocentowanieRange || 
         !elements.rodzajRat || !elements.prowizja || !elements.prowizjaRange || !elements.jednostkaProwizji || 
@@ -1737,6 +1745,7 @@ function initializeApp() {
     initializeZmienneOprocentowanieToggle();
     initializePorownajKredytToggle();
     initializeButtons();
+    console.log("Inicjalizacja zakończona.");
 
     // Ustaw początkowe wartości
     updateKwotaInfo();
@@ -1767,9 +1776,9 @@ function initializeApp() {
         elements.formSection.style.display = "block";
     }
 
-    // Inicjalizacja po załadowaniu DOM
     document.addEventListener("DOMContentLoaded", () => {
         toggleMainFormLock();
+        console.log("DOMContentLoaded - formularz zablokowany, jeśli trzeba.");
     });
 }
 
